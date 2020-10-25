@@ -3,7 +3,7 @@ use wasm_bindgen::__rt::std::rc::Rc;
 
 enum ButtonContent {
     Text(String),
-    Dom(Dom),
+    Dom(Box<dyn Fn() -> Dom>),
 }
 
 pub struct Button {
@@ -30,29 +30,37 @@ impl Button {
         self
     }
 
+    pub fn dom_generator<F: 'static>(mut self, dom_generator: F) -> Button
+        where F: Fn() -> Dom {
+        self.content = ButtonContent::Dom(Box::new(dom_generator));
+        self
+    }
+
     pub fn dom(self) -> Dom {
         button(self)
     }
 }
 
 fn button(button: Button) -> Dom {
-    let on_click = match button.click_handler {
-        Some(handler) => Some(handler.clone()),
-        _ => None
-    };
+    Dom::with_state(button, |button| {
+        let on_click = match &button.click_handler {
+            Some(handler) => Some(handler.clone()),
+            _ => None
+        };
 
-    html!("button", {
-        .class("dmat-button")
-        .child(match button.content {
-            ButtonContent::Text(txt) => {
-                html!("span", { .text(txt.as_str()) })
-            }
-            ButtonContent::Dom(dom) => dom
-        })
-        .event(move |e: events::Click| {
-            if let Some(handler) = &on_click {
-                handler(e);
-            }
+        html!("button", {
+            .class("dmat-button")
+            .child(match &button.content {
+                ButtonContent::Text(txt) => {
+                    html!("span", { .text(txt.as_str()) })
+                }
+                ButtonContent::Dom(dom_generator) => dom_generator()
+            })
+            .event(move |e: events::Click| {
+                if let Some(handler) = &on_click {
+                    handler(e);
+                }
+            })
         })
     })
 }

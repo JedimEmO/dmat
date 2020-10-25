@@ -9,9 +9,9 @@ use wasm_bindgen::__rt::core::time::Duration;
 use wasm_bindgen::__rt::std::rc::Rc;
 use wasm_bindgen::closure::Closure;
 use wasm_bindgen::JsCast;
-use wasm_bindgen::JsValue;
-use wasm_bindgen::prelude::*;
-use web_sys::EventTarget;
+
+
+
 
 use crate::components::{ProgressIndicator, ProgressIndicatorIterations};
 
@@ -121,7 +121,8 @@ fn data_table<T: Clone + 'static>(data_table: DataTable<T>) -> Dom {
                 })) as Box<dyn Fn()>);
 
             web_sys::window().unwrap().set_timeout_with_callback_and_timeout_and_arguments_0(
-                &f.as_ref().unchecked_ref(), 500);
+                &f.as_ref().unchecked_ref(), 500).unwrap();
+
             f.forget();
 
             match &render_func {

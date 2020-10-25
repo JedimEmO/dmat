@@ -1,14 +1,8 @@
-use std::pin::Pin;
-use std::str::FromStr;
-
 use dominator::{clone, Dom, events, html};
-use futures::channel::mpsc::channel;
-use futures::Stream;
-use futures_signals::signal::{Mutable, MutableSignal, MutableSignalCloned, MutableSignalRef, Signal};
+
+use futures_signals::signal::{Mutable};
 use futures_signals::signal::SignalExt;
-use futures_util::future::{ready, select_all};
-use futures_util::SinkExt;
-use futures_util::StreamExt;
+use futures_util::future::{ready};
 use wasm_bindgen::__rt::std::rc::Rc;
 use wasm_bindgen::JsValue;
 
@@ -101,7 +95,7 @@ fn text_element<T: Clone + From<InputValue> + Into<InputValue> + 'static>(field:
                 field.value.replace(val);
             }))
             .event(clone!(has_focus => {
-                move |e: events::Focus| {
+                move |_e: events::Focus| {
                     has_focus.set(true);
                 }
             }))

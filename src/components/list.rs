@@ -1,8 +1,4 @@
 use dominator::{Dom, html};
-use futures_signals::signal_vec::{MutableVec};
-use futures_signals::signal_vec::MutableSignalVec;
-use futures_signals::signal_vec::SignalVecExt;
-use wasm_bindgen::__rt::std::rc::Rc;
 use wasm_bindgen::__rt::std::sync::RwLock;
 
 pub struct List {
@@ -26,8 +22,8 @@ impl List {
     }
 }
 
-fn list(mut list: List) -> Dom {
-    Dom::with_state(list, |mut list| {
+fn list(list: List) -> Dom {
+    Dom::with_state(list, |list| {
         let mut children_lock = list.children.write().unwrap();
 
         let children = if children_lock.is_some() {
