@@ -1,0 +1,259 @@
+$dmat-primary: #263238;
+$dmat-primary-light: #4f5b62;
+$dmat-primary-dark: #000a12;
+$dmat-text-on-primary: #ffffff;
+$dmat-surface: #ffffff;
+$dmat-surface-dark: rgba(47, 47, 47, 0.67);
+$dmat-secondary: #448aff;
+$dmat-secondary-light: #83b9ff;
+$dmat-secondary-dark: #005ecb;
+$dmat-text-on-secondary: #000000;
+$dmat-text-diffuse: #474747;
+
+body {
+  color: $dmat-text-on-primary;
+  background: $dmat-surface-dark;
+}
+
+button.current-page {
+  background: $dmat-secondary;
+}
+
+div.tabs {
+  display: flex;
+  flex: 1 0 auto;
+  position: relative;
+
+
+  button.tab {
+    text-decoration: none;
+    text-transform: uppercase;
+    text-align: center;
+    line-height: 2.25rem;
+    font-weight: 500;
+    font-family: Roboto, sans-serif;
+    padding: 0 24px;
+    display: flex;
+    box-sizing: border-box;
+    outline: none;
+    border: none;
+    flex: 1 0 auto;
+    justify-content: center;
+    cursor: pointer;
+    background: $dmat-primary;
+    color: $dmat-text-on-primary;
+    height: 2.3rem;
+    position: relative;
+
+    &:hover {
+      background: $dmat-primary-light;
+    }
+
+    & .dmat-tab-indicator {
+      opacity: 0;
+      transition: opacity 250ms cubic-bezier(0.4, 0, 0.2, 1) 0s;
+      border-color: $dmat-secondary !important;
+      border-bottom: 4px solid;
+      display: flex;
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      z-index: 1;
+    }
+
+    &.active .dmat-tab-indicator {
+      opacity: 1;
+    }
+  }
+}
+
+table.dmat-table {
+  min-width: 100%;
+  border: 0;
+  table-layout: fixed;
+  border-collapse: collapse;
+  box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, .12);
+
+  & thead {
+    background: $dmat-primary;
+    color: $dmat-text-on-primary;
+  }
+
+  & tr {
+    vertical-align: middle;
+    height: 35px;
+  }
+
+  & tbody {
+    background: $dmat-surface;
+    color: $dmat-text-on-secondary;
+  }
+
+  & > tbody > tr {
+    border-top: 1px solid #aaaaaa;
+
+    &:hover {
+      background: $dmat-secondary-light;
+    }
+  }
+
+  & td, & th {
+    border: none;
+    text-align: left;
+    padding: 8px;
+  }
+
+  & .dmat-pagination {
+    background: $dmat-surface;
+    color: $dmat-text-on-secondary;
+    font-weight: 500;
+    font-family: Robota, sans-serif;
+    border-top: 1px solid #aaaaaa;
+
+    & > * {
+      float: right;
+    }
+
+    & .dmat-pagination-button {
+      font-family: inherit;
+      appearance: unset;
+      border: none;
+      background: transparent;
+      font-size: 1.5rem;
+
+      &:hover {
+        color: $dmat-secondary;
+      }
+    }
+  }
+
+  & .loading-row {
+    padding: 0;
+    height: 0px;
+
+    & th {
+      padding: 0;
+
+      & > div {
+        left: 0;
+        bottom: 0;
+        top: -4px;
+      }
+    }
+  }
+
+  &.--loading {
+    & * {
+      color: $dmat-text-diffuse;
+    }
+  }
+}
+
+.dmat-progress-indicator {
+  position: relative;
+  width: 100%;
+  height: 100%;
+
+  & .dmat-progress-bar {
+    position: absolute;
+    background: $dmat-secondary;
+    height: 4px;
+    animation-name: loading-pulsating;
+
+    @keyframes loading-pulsating {
+      0% {
+        width: 0;
+      }
+      50% {
+        width: 50%;
+      }
+      100% {
+        width: 100%;
+      }
+    }
+  }
+}
+
+div.dmat-card {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding: 8px;
+  box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, .12);
+  background: $dmat-surface;
+  color: $dmat-text-on-secondary;
+}
+
+ul.dmat-list {
+  padding: 8px 0;
+  list-style-type: none;
+
+  & .dmat-list-item {
+    display: flex;
+    position: relative;
+    justify-content: flex-start;
+    padding: 4px 8px;
+  }
+}
+
+.dmat-input {
+  display: inline-flex;
+  position: relative;
+  height: 40px;
+  background: $dmat-surface;
+  color: $dmat-text-on-secondary;
+
+  .dmat-input-element {
+    font-weight: 400;
+    align-self: flex-end;
+    box-sizing: border-box;
+    padding: 8px 4px 3px;
+    width: 100%;
+    height: 100%;
+
+    &.invalid {
+      background: #ffb3a9;
+    }
+  }
+
+  label.dmat-floating-label {
+    position: absolute;
+    left: 8px;
+    right: initial;
+    top: 50%;
+    transform: translateY(-50%);
+    color: $dmat-text-diffuse;
+    transition: transform 150ms cubic-bezier(0.4, 0, 0.2, 1), color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+
+    &.above {
+      left: 0;
+      transform: translateY(-106%) scale(0.75);
+    }
+  }
+}
+
+button.dmat-button {
+  background: $dmat-primary;
+  color: $dmat-text-on-primary;
+  display: flex;
+  align-self: flex-start;
+  height: 36px;
+  text-transform: uppercase;
+  font-weight: 500;
+  min-width: 64px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  padding: 0 16px;
+  cursor: pointer;
+
+  &:hover {
+    background: $dmat-primary-light;
+  }
+
+  &:active {
+    background: $dmat-primary-dark;
+  }
+}
