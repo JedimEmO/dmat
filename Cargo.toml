@@ -1,0 +1,16 @@
+[package]
+name = "dominator-material"
+version = "0.1.0"
+authors = ["Mathias Myrland <jedimemo@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+dominator = "0.5.12"
+futures = "0.3.6"
+futures-signals = "0.3.15"
+futures-util = "0.3.6"
+wasm-bindgen = "0.2.68"
+wasm-bindgen-futures = "0.4.18"
+web-sys = { version = "0.3.4", features = ["console", "EventTarget", "HtmlSelectElement", "Element", "Window"] }
