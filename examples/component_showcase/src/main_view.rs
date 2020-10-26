@@ -1,62 +1,82 @@
 use dominator::{clone, Dom, html};
-
-use dominator_material::components::{Card, Tabs, Tab};
 use futures_signals::signal::Mutable;
 use futures_signals::signal::SignalExt;
+use wasm_bindgen::__rt::std::rc::Rc;
 
-pub struct MainView {}
+use dominator_material::components::{Card, Tab, Tabs};
+
+use crate::components::button_demo::ButtonDemo;
+
+#[derive(Clone, PartialEq)]
+enum DemoTabs {
+    Button,
+    List,
+    Card,
+    Tabs,
+    DataTable,
+    Input,
+}
+
+pub struct MainView {
+    active_tab: Mutable<DemoTabs>
+}
 
 impl MainView {
-    pub fn build() -> MainView {
-        MainView {}
+    pub fn new() -> Rc<MainView> {
+        Rc::new(MainView { active_tab: Mutable::new(DemoTabs::Button) })
     }
 
-    pub fn dom(self) -> Dom {
-        let active_tab = Mutable::new(0);
-
-        html!("div", {
-            .class("main-view")
-            .children(&mut [
-                Tabs::build()
-                .active_tab_id(Some(0))
-                .static_tabs(vec![
-                    Tab {
-                        label: "Card".into(),
-                        id: 0
-                    },
-                    Tab {
-                        label: "List".into(),
-                        id: 1
-                    },
-                    Tab {
-                        label: "Tabs".into(),
-                        id: 2
-                    },
-                    Tab {
-                        label: "Data Table".into(),
-                        id: 3
-                    },
-                    Tab {
-                        label: "Input".into(),
-                        id: 4
-                    },
-                ])
-                .on_tab_change(clone!(active_tab => move |id| {
-                    if let Some(id) = id {
-                        active_tab.set_neq(id);
-                    }
-                })).dom(),
-                Card::build(clone!(active_tab => move || {
-                    html!("div", {
-                        .child_signal(active_tab.signal().map(|tab_id| {
-                            Some(html!("span", {
-                                .text(format!("{}", tab_id).as_str())
+    pub fn render(self: Rc<Self>) -> Dom {
+        Dom::with_state(self, |main_view| {
+            html!("div", {
+                .class("main-view")
+                .children(&mut [
+                    Tabs::new()
+                    .initial_active_tab_id(Some(DemoTabs::Button))
+                    .on_tab_change(clone!(main_view => move |id| {
+                        if let Some(id) = id {
+                            main_view.active_tab.set_neq(id);
+                        }
+                    }))
+                    .build_static(vec![
+                        Tab {
+                            label: "Button".into(),
+                            id: DemoTabs::Button
+                        },
+                        Tab {
+                            label: "Card".into(),
+                            id: DemoTabs::Card
+                        },
+                        Tab {
+                            label: "List".into(),
+                            id: DemoTabs::List
+                        },
+                        Tab {
+                            label: "Tabs".into(),
+                            id: DemoTabs::Tabs
+                        },
+                        Tab {
+                            label: "Data Table".into(),
+                            id: DemoTabs::DataTable
+                        },
+                        Tab {
+                            label: "Input".into(),
+                            id: DemoTabs::Input
+                        },
+                    ]),
+                    Card::new(clone!(main_view => move || {
+                        html!("div", {
+                            .child_signal(main_view.active_tab.signal_cloned().map(|tab_id| {
+                                match tab_id {
+                                    DemoTabs::Button => Some(ButtonDemo::new().render()),
+                                    _ => Some(html!("div"))
+                                }
                             }))
-                        }))
-                    })
-                }))
-                .dom()
-            ])
+                        })
+                    }))
+                    .render()
+                ])
+            })
         })
     }
 }

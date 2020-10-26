@@ -1,4 +1,5 @@
 use dominator::{Dom, html};
+use wasm_bindgen::__rt::std::rc::Rc;
 
 pub struct Card {
     pub(crate) _header: Option<Box<dyn Fn() -> Dom>>,
@@ -7,21 +8,21 @@ pub struct Card {
 }
 
 impl Card {
-    pub fn build<F: 'static>(body: F) -> Card
+    pub fn new<F: 'static>(body: F) -> Rc<Card>
         where F: Fn() -> Dom {
-        Card {
+        Rc::new(Card {
             _header: None,
             body: Box::new(body),
             _footer: None,
-        }
+        })
     }
 
-    pub fn dom(self) -> Dom {
+    pub fn render(self: Rc<Self>) -> Dom {
         card(self)
     }
 }
 
-fn card(panel: Card) -> Dom {
+fn card(panel: Rc<Card>) -> Dom {
     Dom::with_state(panel, |panel| {
         html!("div", {
             .class("dmat-card")

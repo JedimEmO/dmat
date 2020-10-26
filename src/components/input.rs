@@ -14,6 +14,7 @@ pub struct TextElement<T: Clone> {
     is_valid: Mutable<bool>,
     validator: Option<Rc<dyn Fn(&T) -> bool>>,
     depends_on: Mutable<()>,
+    has_focus: Mutable<bool>
 }
 
 pub enum InputValue {
@@ -22,34 +23,35 @@ pub enum InputValue {
 }
 
 impl<T: Clone + From<InputValue> + Into<InputValue> + 'static> TextElement<T> {
-    pub fn build(value: Mutable<T>) -> Self {
-        TextElement {
+    pub fn new(value: Mutable<T>) -> Rc<Self> {
+        Rc::new(TextElement {
             value,
             label: None,
             id: None,
             is_valid: Mutable::new(true),
             validator: None,
             depends_on: Mutable::new(()),
-        }
+            has_focus: Mutable::new(false)
+        })
     }
 
-    pub fn depends_on(mut self, depends_on: Mutable<()>) -> Self {
-        self.depends_on = depends_on;
+    pub fn depends_on(mut self: Rc<Self>, depends_on: Mutable<()>) -> Rc<Self> {
+        Rc::get_mut(&mut self).unwrap().depends_on = depends_on;
         self
     }
 
-    pub fn validator(mut self, validator: Rc<dyn Fn(&T) -> bool>) -> Self {
-        self.validator = Some(validator);
+    pub fn validator(mut self: Rc<Self>, validator: Rc<dyn Fn(&T) -> bool>) -> Rc<Self> {
+        Rc::get_mut(&mut self).unwrap().validator = Some(validator);
         self
     }
 
-    pub fn label(mut self, label: &str) -> Self {
-        self.label = Some(label.into());
+    pub fn label(mut self: Rc<Self>, label: &str) -> Rc<Self> {
+        Rc::get_mut(&mut self).unwrap().label = Some(label.into());
         self
     }
 
-    pub fn id(mut self, id: &str) -> Self {
-        self.id = Some(id.into());
+    pub fn id(mut self: Rc<Self>, id: &str) -> Rc<Self> {
+        Rc::get_mut(&mut self).unwrap().id = Some(id.into());
         self
     }
 
@@ -59,16 +61,14 @@ impl<T: Clone + From<InputValue> + Into<InputValue> + 'static> TextElement<T> {
         }
     }
 
-    pub fn dom(self) -> Dom {
+    pub fn render(self: Rc<Self>) -> Dom {
         text_element::<T>(self)
     }
 }
 
-fn text_element<T: Clone + From<InputValue> + Into<InputValue> + 'static>(field: TextElement<T>) -> Dom {
+#[inline]
+fn text_element<T: Clone + From<InputValue> + Into<InputValue> + 'static>(field: Rc<TextElement<T>>) -> Dom {
     Dom::with_state(field, |field| {
-        let has_focus = Mutable::new(false);
-        let val = field.value.clone();
-
         let id = match &field.id {
             Some(v) => v.clone(),
             _ => "".into()
@@ -94,14 +94,14 @@ fn text_element<T: Clone + From<InputValue> + Into<InputValue> + 'static>(field:
                 field.validate(&val);
                 field.value.replace(val);
             }))
-            .event(clone!(has_focus => {
+            .event(clone!(field => {
                 move |_e: events::Focus| {
-                    has_focus.set(true);
+                    field.has_focus.set(true);
                 }
             }))
-            .event(clone!(has_focus => {
+            .event(clone!(field => {
                 move |_: events::Blur| {
-                    has_focus.set(false);
+                    field.has_focus.set(false);
                 }
             }))
             .attribute("id", id.as_str())
@@ -119,8 +119,8 @@ fn text_element<T: Clone + From<InputValue> + Into<InputValue> + 'static>(field:
                 html!("label", {
                     .text(label.as_str())
                     .attribute("for", id.as_str())
-                    .class_signal("above", has_focus.signal().map(clone!(val => move|focus| {
-                        let has_value = match val.get_cloned().into() {
+                    .class_signal("above", field.has_focus.signal().map(clone!(field => move|focus| {
+                        let has_value = match field.value.get_cloned().into() {
                             InputValue::Text(txt) => txt.len() > 0,
                             _ => false
                         };
