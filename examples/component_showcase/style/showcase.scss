@@ -184,6 +184,22 @@ div.dmat-card {
   box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, .12);
   background: $dmat-surface;
   color: $dmat-text-on-secondary;
+
+  & .card-section {
+    padding-top: 16px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  & .header {
+    font-weight: 500;
+    font-size: 1.25rem;
+    line-height: 2rem;
+  }
+
+  & .footer {
+    line-height: 2rem;
+  }
 }
 
 ul.dmat-list {
@@ -235,8 +251,6 @@ ul.dmat-list {
 }
 
 button.dmat-button {
-  background: $dmat-primary;
-  color: $dmat-text-on-primary;
   display: flex;
   align-self: flex-start;
   height: 36px;
@@ -249,8 +263,24 @@ button.dmat-button {
   padding: 0 16px;
   cursor: pointer;
 
-  &:hover {
-    background: $dmat-primary-light;
+  &.-contained {
+    background: $dmat-primary;
+    color: $dmat-text-on-primary;
+
+    &:hover {
+      background: $dmat-primary-light;
+    }
+  }
+
+  &.-text {
+    background: none;
+    color: $dmat-secondary;
+    font-weight: bolder;
+    border: none;
+
+    &:hover {
+      background: $dmat-secondary-light;
+    }
   }
 
   &:active {

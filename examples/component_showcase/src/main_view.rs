@@ -7,6 +7,7 @@ use dominator_material::components::{Card, Tab, Tabs};
 
 use crate::components::button_demo::ButtonDemo;
 use crate::components::list_demo::ListDemo;
+use crate::components::card_demo::CardDemo;
 
 #[derive(Clone, PartialEq)]
 enum DemoTabs {
@@ -24,7 +25,7 @@ pub struct MainView {
 
 impl MainView {
     pub fn new() -> Rc<MainView> {
-        Rc::new(MainView { active_tab: Mutable::new(DemoTabs::Button) })
+        Rc::new(MainView { active_tab: Mutable::new(DemoTabs::Card) })
     }
 
     pub fn render(self: Rc<Self>) -> Dom {
@@ -33,7 +34,7 @@ impl MainView {
                 .class("main-view")
                 .children(&mut [
                     Tabs::new()
-                    .initial_active_tab_id(Some(DemoTabs::Button))
+                    .initial_active_tab_id(Some(DemoTabs::Card))
                     .on_tab_change(clone!(main_view => move |id| {
                         if let Some(id) = id {
                             main_view.active_tab.set_neq(id);
@@ -65,17 +66,18 @@ impl MainView {
                             id: DemoTabs::Input
                         },
                     ]),
-                    Card::new(clone!(main_view => move || {
+                    Card::new(
                         html!("div", {
                             .child_signal(main_view.active_tab.signal_cloned().map(|tab_id| {
                                 match tab_id {
                                     DemoTabs::Button => Some(ButtonDemo::new().render()),
                                     DemoTabs::List => Some(ListDemo::new().render()),
+                                    DemoTabs::Card => Some(CardDemo::new().render()),
                                     _ => Some(html!("div"))
                                 }
                             }))
                         })
-                    }))
+                    )
                     .render()
                 ])
             })

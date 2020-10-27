@@ -7,7 +7,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-dominator = "0.5.12"
+dominator = "0.5.14"
 futures = "0.3.6"
 futures-signals = "0.3.15"
 futures-util = "0.3.6"

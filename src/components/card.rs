@@ -1,37 +1,75 @@
 use dominator::{Dom, html};
-use wasm_bindgen::__rt::std::rc::Rc;
+
+struct CardData {
+    pub header: Option<Dom>,
+    pub body: Dom,
+    pub footer: Option<Dom>,
+}
 
 pub struct Card {
-    pub(crate) _header: Option<Box<dyn Fn() -> Dom>>,
-    pub(crate) body: Box<dyn Fn() -> Dom>,
-    pub(crate) _footer: Option<Box<dyn Fn() -> Dom>>,
+    data: CardData
 }
 
 impl Card {
-    pub fn new<F: 'static>(body: F) -> Self
-        where F: Fn() -> Dom {
+    #[inline]
+    pub fn new(body: Dom) -> Self {
         Card {
-            _header: None,
-            body: Box::new(body),
-            _footer: None,
+            data: CardData {
+                header: None,
+                body,
+                footer: None,
+            }
         }
     }
 
-    pub fn render(self: Self) -> Dom {
-        card(Rc::new(self))
+    #[inline]
+    pub fn header(mut self, header: Dom) -> Self {
+        self.data.header = Some(header);
+        self
+    }
+
+    #[inline]
+    pub fn footer(mut self, footer: Dom) -> Self {
+        self.data.footer = Some(footer);
+        self
+    }
+
+    pub fn render(self) -> Dom {
+        self.data.render()
     }
 }
 
-fn card(panel: Rc<Card>) -> Dom {
-    Dom::with_state(panel, |panel| {
+impl CardData {
+    #[inline]
+    fn render(self) -> Dom {
+        let children = vec![
+            match self.header {
+                Some(header) => Some(html!("div", {
+                    .class("header")
+                    .class("card-section")
+                    .child(header)
+                })),
+                _ => None
+            },
+            Some(html!("div", {
+                .class("body")
+                .class("card-section")
+                .child(self.body)
+            })),
+            match self.footer {
+                Some(footer) => Some(html!("div", {
+                    .class("footer")
+                    .class("card-section")
+                    .child(footer)
+                })),
+                _ => None
+            }
+        ];
+
         html!("div", {
             .class("dmat-card")
-            .children(&mut [
-                html!("div", {
-                    .class("body")
-                    .child((panel.body)())
-                })
-            ])
+            .children(children.into_iter().filter_map(|v| v))
         })
-    })
+    }
 }
+

@@ -1,0 +1,9 @@
+.demo-cards > div {
+  margin: 8px;
+  float: left;
+  width: 35%;
+
+  .demo-buttons {
+    display: flex;
+  }
+}
