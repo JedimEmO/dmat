@@ -8,17 +8,17 @@ pub struct Card {
 }
 
 impl Card {
-    pub fn new<F: 'static>(body: F) -> Rc<Card>
+    pub fn new<F: 'static>(body: F) -> Self
         where F: Fn() -> Dom {
-        Rc::new(Card {
+        Card {
             _header: None,
             body: Box::new(body),
             _footer: None,
-        })
+        }
     }
 
-    pub fn render(self: Rc<Self>) -> Dom {
-        card(self)
+    pub fn render(self: Self) -> Dom {
+        card(Rc::new(self))
     }
 }
 

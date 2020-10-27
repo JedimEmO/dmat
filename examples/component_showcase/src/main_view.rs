@@ -6,6 +6,7 @@ use wasm_bindgen::__rt::std::rc::Rc;
 use dominator_material::components::{Card, Tab, Tabs};
 
 use crate::components::button_demo::ButtonDemo;
+use crate::components::list_demo::ListDemo;
 
 #[derive(Clone, PartialEq)]
 enum DemoTabs {
@@ -69,6 +70,7 @@ impl MainView {
                             .child_signal(main_view.active_tab.signal_cloned().map(|tab_id| {
                                 match tab_id {
                                     DemoTabs::Button => Some(ButtonDemo::new().render()),
+                                    DemoTabs::List => Some(ListDemo::new().render()),
                                     _ => Some(html!("div"))
                                 }
                             }))

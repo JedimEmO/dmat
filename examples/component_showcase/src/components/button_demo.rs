@@ -14,9 +14,9 @@ impl ButtonDemo {
         html!("div", {
             .child(List::new_static(vec![
                 Button::new()
-                    .text("Click me!".into())
+                    .text("Click me!")
                     .on_click(|_| {
-                        web_sys::window().unwrap().alert_with_message("You clicked?");
+                        web_sys::window().unwrap().alert_with_message("You clicked?").unwrap();
                     })
                     .render(),
                 Button::new()

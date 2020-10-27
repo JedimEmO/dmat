@@ -23,8 +23,8 @@ pub enum InputValue {
 }
 
 impl<T: Clone + From<InputValue> + Into<InputValue> + 'static> TextElement<T> {
-    pub fn new(value: Mutable<T>) -> Rc<Self> {
-        Rc::new(TextElement {
+    pub fn new(value: Mutable<T>) -> Self {
+        TextElement {
             value,
             label: None,
             id: None,
@@ -32,26 +32,26 @@ impl<T: Clone + From<InputValue> + Into<InputValue> + 'static> TextElement<T> {
             validator: None,
             depends_on: Mutable::new(()),
             has_focus: Mutable::new(false)
-        })
+        }
     }
 
-    pub fn depends_on(mut self: Rc<Self>, depends_on: Mutable<()>) -> Rc<Self> {
-        Rc::get_mut(&mut self).unwrap().depends_on = depends_on;
+    pub fn depends_on(mut self: Self, depends_on: Mutable<()>) -> Self {
+        self.depends_on = depends_on;
         self
     }
 
-    pub fn validator(mut self: Rc<Self>, validator: Rc<dyn Fn(&T) -> bool>) -> Rc<Self> {
-        Rc::get_mut(&mut self).unwrap().validator = Some(validator);
+    pub fn validator(mut self: Self, validator: Rc<dyn Fn(&T) -> bool>) -> Self {
+        self.validator = Some(validator);
         self
     }
 
-    pub fn label(mut self: Rc<Self>, label: &str) -> Rc<Self> {
-        Rc::get_mut(&mut self).unwrap().label = Some(label.into());
+    pub fn label(mut self: Self, label: &str) -> Self {
+        self.label = Some(label.into());
         self
     }
 
-    pub fn id(mut self: Rc<Self>, id: &str) -> Rc<Self> {
-        Rc::get_mut(&mut self).unwrap().id = Some(id.into());
+    pub fn id(mut self: Self, id: &str) -> Self {
+        self.id = Some(id.into());
         self
     }
 
@@ -61,8 +61,8 @@ impl<T: Clone + From<InputValue> + Into<InputValue> + 'static> TextElement<T> {
         }
     }
 
-    pub fn render(self: Rc<Self>) -> Dom {
-        text_element::<T>(self)
+    pub fn render(self) -> Dom {
+        text_element::<T>(Rc::new(self))
     }
 }
 

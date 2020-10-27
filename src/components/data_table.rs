@@ -50,26 +50,26 @@ impl<T: Clone + 'static> DataTableBuilder1<T> {
         }
     }
 
-    pub fn row_render_func<F: 'static>(self, func: F) -> Rc<DataTable<T>>
+    pub fn row_render_func<F: 'static>(self, func: F) -> DataTable<T>
         where F: Fn(&T) -> Dom {
-        Rc::new(DataTable {
+        DataTable {
             data: self.data,
             page_meta: None,
             headers: None,
             render_func: RenderFunc::Row(Rc::new(func)),
             is_loading: Default::default(),
-        })
+        }
     }
 
-    pub fn cell_render_func<F: 'static>(self, func: F) -> Rc<DataTable<T>>
+    pub fn cell_render_func<F: 'static>(self, func: F) -> DataTable<T>
         where F: Fn(&T) -> Vec<Dom> {
-        Rc::new(DataTable {
+        DataTable {
             data: self.data,
             page_meta: None,
             headers: None,
             render_func: RenderFunc::Cells(Rc::new(func)),
             is_loading: Mutable::new(true),
-        })
+        }
     }
 }
 
@@ -96,8 +96,8 @@ impl<T: Clone + 'static> DataTable<T> {
         self
     }
 
-    pub fn render(self: Rc<Self>) -> Dom {
-        data_table(self)
+    pub fn render(self: Self) -> Dom {
+        data_table(Rc::new(self))
     }
 }
 

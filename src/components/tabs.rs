@@ -1,7 +1,7 @@
 use dominator::{clone, Dom, events, html};
 use futures_signals::signal::{Mutable, ReadOnlyMutable};
 use futures_signals::signal::SignalExt;
-use futures_signals::signal_vec::{MutableVec, SignalVec};
+use futures_signals::signal_vec::SignalVec;
 use futures_signals::signal_vec::SignalVecExt;
 use futures_util::StreamExt;
 use wasm_bindgen::__rt::std::rc::Rc;
@@ -61,7 +61,7 @@ impl<TabId: Clone + std::cmp::PartialEq + 'static> Tabs<TabId> {
         self
     }
 
-    pub fn build_static(mut self, tabs: Vec<Tab<TabId>>) -> Dom {
+    pub fn build_static(self, tabs: Vec<Tab<TabId>>) -> Dom {
         let state = Rc::new(self);
 
         Dom::with_state(state, |state| {
@@ -85,7 +85,7 @@ impl<TabId: Clone + std::cmp::PartialEq + 'static> Tabs<TabId> {
         })
     }
 
-    pub fn build_dynamic<B>(mut self, tabs: B) -> Dom
+    pub fn build_dynamic<B>(self, tabs: B) -> Dom
         where B: SignalVec<Item=Tab<TabId>> + 'static {
         let state = Rc::new(self);
 

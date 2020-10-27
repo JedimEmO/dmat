@@ -12,32 +12,32 @@ pub struct Button {
 }
 
 impl Button {
-    pub fn new() -> Rc<Self> {
-        Rc::new(Button {
+    pub fn new() -> Self {
+        Button {
             content: ButtonContent::Text("Missing content".into()),
             click_handler: None,
-        })
+        }
     }
 
-    pub fn on_click<F>(mut self: Rc<Self>, handler: F) -> Rc<Self>
+    pub fn on_click<F>(mut self: Self, handler: F) -> Self
         where F: Fn(events::Click) + 'static {
-        Rc::get_mut(&mut self).unwrap().click_handler = Some(Rc::new(handler));
+        self.click_handler = Some(Rc::new(handler));
         self
     }
 
-    pub fn text(mut self: Rc<Self>, text: String) -> Rc<Self> {
-        Rc::get_mut(&mut self).unwrap().content = ButtonContent::Text(text);
+    pub fn text<T: Into<String>>(mut self: Self, text: T) -> Self {
+        self.content = ButtonContent::Text(text.into());
         self
     }
 
-    pub fn dom_generator<F: 'static>(mut self: Rc<Self>, dom_generator: F) -> Rc<Self>
+    pub fn dom_generator<F: 'static>(mut self: Self, dom_generator: F) -> Self
         where F: Fn() -> Dom {
-        Rc::get_mut(&mut self).unwrap().content = ButtonContent::Dom(Box::new(dom_generator));
+        self.content = ButtonContent::Dom(Box::new(dom_generator));
         self
     }
 
-    pub fn render(self: Rc<Self>) -> Dom {
-        button(self)
+    pub fn render(self: Self) -> Dom {
+        button(Rc::new(self))
     }
 }
 
