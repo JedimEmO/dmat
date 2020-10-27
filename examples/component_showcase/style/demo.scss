@@ -1,9 +1,14 @@
-.demo-cards > div {
+.demo-cards > .dmat-card {
   margin: 8px;
   float: left;
-  width: 35%;
+  width: 350px;
 
   .demo-buttons {
     display: flex;
+    & > .demo-button {
+      display: inline-flex;
+      align-items: center;
+      flex-direction: row;
+    }
   }
 }

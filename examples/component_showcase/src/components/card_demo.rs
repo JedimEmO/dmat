@@ -13,8 +13,9 @@ impl CardDemo {
         html!("div", {
             .class("demo-cards")
             .children(&mut [
-                Card::new(html!("div", { .text("This is the body") }))
-                    .header(html!("div", { .text("A header text") }))
+                Card::new()
+                    .header(html!("div", { .text("A header element") }))
+                    .body(html!("div", { .text("This is the body") }))
                     .footer(html!("div", {
                         .class("demo-buttons")
                         .children(&mut [
@@ -23,7 +24,13 @@ impl CardDemo {
                         ])
                     }))
                     .render(),
-                Card::new(html!("div", { .text("Only a body") }))
+                Card::new()
+                    .body(html!("div", { .text("Only a body") }))
+                    .render(),
+
+                Card::new()
+                    .title("With a title", Some("and a sub title"))
+                    .body(html!("div", { .text("This card has a title. It is mutually exclusive with the header element") }))
                     .render()
             ])
         })

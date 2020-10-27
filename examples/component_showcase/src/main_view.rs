@@ -66,8 +66,8 @@ impl MainView {
                             id: DemoTabs::Input
                         },
                     ]),
-                    Card::new(
-                        html!("div", {
+                    Card::new()
+                        .body(html!("div", {
                             .child_signal(main_view.active_tab.signal_cloned().map(|tab_id| {
                                 match tab_id {
                                     DemoTabs::Button => Some(ButtonDemo::new().render()),
@@ -76,9 +76,8 @@ impl MainView {
                                     _ => Some(html!("div"))
                                 }
                             }))
-                        })
-                    )
-                    .render()
+                        }))
+                        .render()
                 ])
             })
         })

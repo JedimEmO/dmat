@@ -2,7 +2,7 @@ use dominator::{Dom, html};
 
 struct CardData {
     pub header: Option<Dom>,
-    pub body: Dom,
+    pub body: Option<Dom>,
     pub footer: Option<Dom>,
 }
 
@@ -12,14 +12,34 @@ pub struct Card {
 
 impl Card {
     #[inline]
-    pub fn new(body: Dom) -> Self {
+    pub fn new() -> Self {
         Card {
             data: CardData {
                 header: None,
-                body,
+                body: None,
                 footer: None,
             }
         }
+    }
+
+    pub fn title<A: Into<String>>(mut self, title: A, sub_title: Option<A>) -> Self {
+        self.data.header = Some(html!("div", {
+            .children(vec![
+                Some(html!("div", { .text(title.into().as_str()) })),
+                match sub_title {
+                    Some(sub) => Some(html!("div", { .class("sub-title") .text(sub.into().as_str()) })),
+                    _ => None
+                }
+            ].into_iter().filter_map(|v| v))
+        }));
+
+        self
+    }
+
+    #[inline]
+    pub fn body(mut self, body: Dom) -> Self {
+        self.data.body = Some(body);
+        self
     }
 
     #[inline]
@@ -51,11 +71,14 @@ impl CardData {
                 })),
                 _ => None
             },
-            Some(html!("div", {
-                .class("body")
-                .class("card-section")
-                .child(self.body)
-            })),
+            match self.body {
+                Some(body) => Some(html!("div", {
+                    .class("body")
+                    .class("card-section")
+                    .child(body)
+                })),
+                _ => None
+            },
             match self.footer {
                 Some(footer) => Some(html!("div", {
                     .class("footer")

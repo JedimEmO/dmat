@@ -9,6 +9,7 @@ $dmat-secondary-light: #83b9ff;
 $dmat-secondary-dark: #005ecb;
 $dmat-text-on-secondary: #000000;
 $dmat-text-diffuse: #474747;
+$dmat-text-diffuser: #787878;
 
 body {
   color: $dmat-text-on-primary;
@@ -185,6 +186,10 @@ div.dmat-card {
   background: $dmat-surface;
   color: $dmat-text-on-secondary;
 
+  &:hover {
+    box-shadow: 0px 4px 2px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 2px 6px 0px rgba(0, 0, 0, 0.12);
+  }
+
   & .card-section {
     padding-top: 16px;
     padding-left: 16px;
@@ -195,6 +200,18 @@ div.dmat-card {
     font-weight: 500;
     font-size: 1.25rem;
     line-height: 2rem;
+
+    & .sub-title {
+      font-size: 1rem;
+      line-height: 0.8rem;
+      margin-top: -0.1rem;
+      color: $dmat-text-diffuser;
+    }
+  }
+
+  & .body {
+    font-size: 1rem;
+    color: $dmat-text-diffuse;
   }
 
   & .footer {
@@ -263,12 +280,27 @@ button.dmat-button {
   padding: 0 16px;
   cursor: pointer;
 
+  &:focus {
+    outline: 0;
+  }
+
   &.-contained {
     background: $dmat-primary;
     color: $dmat-text-on-primary;
 
     &:hover {
       background: $dmat-primary-light;
+    }
+  }
+
+  &.-outlined {
+    background: none;
+    color: $dmat-secondary;
+    border: 2px $dmat-secondary-light solid;
+    font-weight: bolder;
+
+    &:hover {
+      background: $dmat-secondary-light;
     }
   }
 
