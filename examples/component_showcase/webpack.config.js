@@ -26,11 +26,6 @@ module.exports = {
             }
         ]
     },
-    devServer: {
-        proxy: {
-            "/graphql": "http://localhost:8000"
-        }
-    },
     plugins: [
         new HtmlWebpackPlugin({
 
