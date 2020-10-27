@@ -1,4 +1,4 @@
-use dominator::{Dom, events, html};
+use dominator::{clone, Dom, events, html};
 use wasm_bindgen::__rt::std::rc::Rc;
 
 pub struct Button {
@@ -38,11 +38,6 @@ impl Button {
 #[inline]
 fn button(button: Rc<Button>) -> Dom {
     Dom::with_state(button, |button| {
-        let on_click = match &button.click_handler {
-            Some(handler) => Some(handler.clone()),
-            _ => None
-        };
-
         html!("button", {
             .class("dmat-button")
             .child(if button.content.is_some() {
@@ -50,11 +45,11 @@ fn button(button: Rc<Button>) -> Dom {
                 } else {
                 html!("span")
             })
-            .event(move |e: events::Click| {
-                if let Some(handler) = &on_click {
+            .event(clone!(button => move |e: events::Click| {
+                if let Some(handler) = &button.click_handler {
                     handler(e);
                 }
-            })
+            }))
         })
     })
 }
