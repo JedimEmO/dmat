@@ -1,20 +1,15 @@
 use dominator::{Dom, events, html};
 use wasm_bindgen::__rt::std::rc::Rc;
 
-enum ButtonContent {
-    Text(String),
-    Dom(Box<dyn Fn() -> Dom>),
-}
-
 pub struct Button {
-    content: ButtonContent,
+    content: Option<Dom>,
     click_handler: Option<Rc<dyn Fn(events::Click)>>,
 }
 
 impl Button {
     pub fn new() -> Self {
         Button {
-            content: ButtonContent::Text("Missing content".into()),
+            content: None,
             click_handler: None,
         }
     }
@@ -26,13 +21,12 @@ impl Button {
     }
 
     pub fn text<T: Into<String>>(mut self: Self, text: T) -> Self {
-        self.content = ButtonContent::Text(text.into());
+        self.content = Some(html!("span", { .text(text.into().as_str()) }));
         self
     }
 
-    pub fn dom_generator<F: 'static>(mut self: Self, dom_generator: F) -> Self
-        where F: Fn() -> Dom {
-        self.content = ButtonContent::Dom(Box::new(dom_generator));
+    pub fn dom_content(mut self: Self, dom: Dom) -> Self {
+        self.content = Some(dom);
         self
     }
 
@@ -51,11 +45,10 @@ fn button(button: Rc<Button>) -> Dom {
 
         html!("button", {
             .class("dmat-button")
-            .child(match &button.content {
-                ButtonContent::Text(txt) => {
-                    html!("span", { .text(txt.as_str()) })
-                }
-                ButtonContent::Dom(dom_generator) => dom_generator()
+            .child(if button.content.is_some() {
+                    Rc::get_mut(button).unwrap().content.take().unwrap()
+                } else {
+                html!("span")
             })
             .event(move |e: events::Click| {
                 if let Some(handler) = &on_click {

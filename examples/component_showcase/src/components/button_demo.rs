@@ -20,14 +20,14 @@ impl ButtonDemo {
                     })
                     .render(),
                 Button::new()
-                    .dom_generator(|| {
+                    .dom_content(
                         html!("ul", {
                             .children(&mut [
                                 html!("li",  { .text("This button contains")}),
                                 html!("li",  { .text("a list")})
                             ])
                         })
-                    })
+                    )
                     .render()
             ]))
         })
