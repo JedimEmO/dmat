@@ -330,6 +330,21 @@ button.dmat-button {
     bottom: 0;
     width: 20rem;
     box-shadow: #4f5b62;
+
+    & .drawer-container {
+      position: relative;
+
+      & .dmat-navigation-drawer-entry {
+        padding: 8px;
+        font-weight: 500;
+        color: $dmat-text-diffuse;
+        cursor: pointer;
+
+        &:hover {
+          background: $dmat-secondary-light;
+        }
+      }
+    }
   }
 
   & :nth-child(2) {
