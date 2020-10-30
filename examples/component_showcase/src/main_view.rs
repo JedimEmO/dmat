@@ -1,4 +1,4 @@
-use dominator::{clone, Dom, html};
+use dominator::{clone, html, Dom};
 use futures_signals::signal::Mutable;
 use futures_signals::signal::SignalExt;
 use wasm_bindgen::__rt::std::rc::Rc;
@@ -6,8 +6,8 @@ use wasm_bindgen::__rt::std::rc::Rc;
 use dominator_material::components::{Card, Tab, Tabs};
 
 use crate::components::button_demo::ButtonDemo;
-use crate::components::list_demo::ListDemo;
 use crate::components::card_demo::CardDemo;
+use crate::components::list_demo::ListDemo;
 use crate::components::navigation_drawer_demo::NavigationDrawerDemo;
 
 #[derive(Clone, PartialEq)]
@@ -18,16 +18,18 @@ enum DemoTabs {
     Tabs,
     DataTable,
     Input,
-    NavigationDrawer
+    NavigationDrawer,
 }
 
 pub struct MainView {
-    active_tab: Mutable<DemoTabs>
+    active_tab: Mutable<DemoTabs>,
 }
 
 impl MainView {
     pub fn new() -> Rc<MainView> {
-        Rc::new(MainView { active_tab: Mutable::new(DemoTabs::Card) })
+        Rc::new(MainView {
+            active_tab: Mutable::new(DemoTabs::Card),
+        })
     }
 
     pub fn render(self: Rc<Self>) -> Dom {

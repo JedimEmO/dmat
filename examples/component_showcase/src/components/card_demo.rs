@@ -1,6 +1,6 @@
-use dominator::{Dom, html};
+use dominator::{html, Dom};
 
-use dominator_material::components::{Button, Card, ButtonType};
+use dominator_material::components::{Button, ButtonType, Card};
 
 pub struct CardDemo {}
 

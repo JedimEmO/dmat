@@ -1,15 +1,5 @@
-$dmat-primary: #263238;
-$dmat-primary-light: #4f5b62;
-$dmat-primary-dark: #000a12;
-$dmat-text-on-primary: #ffffff;
-$dmat-surface: #ffffff;
-$dmat-surface-dark: rgba(47, 47, 47, 0.67);
-$dmat-secondary: #448aff;
-$dmat-secondary-light: #83b9ff;
-$dmat-secondary-dark: #005ecb;
-$dmat-text-on-secondary: #000000;
-$dmat-text-diffuse: #474747;
-$dmat-text-diffuser: #787878;
+@import "colors";
+@import "navigation_drawer";
 
 body {
   color: $dmat-text-on-primary;
@@ -322,40 +312,13 @@ button.dmat-button {
 }
 
 
-.dmat-navigation-drawer-container {
-  & .dmat-navigation-drawer {
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 20rem;
-    box-shadow: #4f5b62;
-
-    & .drawer-container {
-      position: relative;
-
-      & .dmat-navigation-drawer-entry {
-        padding: 8px;
-        font-weight: 500;
-        color: $dmat-text-diffuse;
-        cursor: pointer;
-
-        &:hover {
-          background: $dmat-secondary-light;
-        }
-      }
-    }
-  }
-
-  & :nth-child(2) {
-    position: absolute;
-    left: 20rem;
-    top: 0;
-    right: 0;
-    bottom: 0;
-  }
-}
-
 .dmat-surface {
   background: $dmat-surface-dark
+}
+
+.dmat-container {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  background-color: $dmat-surface;
 }

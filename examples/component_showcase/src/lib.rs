@@ -1,5 +1,5 @@
-use wasm_bindgen::prelude::*;
 use crate::main_view::MainView;
+use wasm_bindgen::prelude::*;
 
 pub mod components;
 pub mod main_view;

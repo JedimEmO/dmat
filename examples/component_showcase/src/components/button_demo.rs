@@ -1,7 +1,7 @@
-use dominator::{Dom, html};
+use dominator::{html, Dom};
 use wasm_bindgen::__rt::std::rc::Rc;
 
-use dominator_material::components::{Button, Card, List, ButtonType};
+use dominator_material::components::{Button, ButtonType, Card, List};
 
 pub struct ButtonDemo {}
 

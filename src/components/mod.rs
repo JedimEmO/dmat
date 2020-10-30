@@ -11,6 +11,7 @@ pub mod button;
 pub mod card;
 pub mod data_table;
 pub mod input;
+pub mod layouts;
 pub mod list;
 pub mod navigation_drawer;
 pub mod progress_indicator;
