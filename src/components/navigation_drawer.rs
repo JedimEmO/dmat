@@ -144,6 +144,15 @@ impl<T: Clone + PartialEq + 'static> NavigationDrawer<T> {
                             .child(html!("div", {
                                 .class("drawer-container")
                                 .children(&mut [
+                                    match s.expanded.get() && s.show_toggle_controls {
+                                        true => html!("span", {
+                                                .class("dmat-navigation-drawer-collapse")
+                                                .event(clone!(s => move |_:events::Click| {
+                                                    s.toggle(false);
+                                                }))
+                                            })                                               ,
+                                        false => html!("span")
+                                    },
                                     match &s.title_view_generator {
                                         Some(generator) => html!("div", {
                                             .class("title")
@@ -189,7 +198,7 @@ impl<T: Clone + PartialEq + 'static> NavigationDrawer<T> {
                                     .child_signal(map_ref!{ let active = active, let expanded = exp => move {
                                         Some(html!("div", {
                                             .children(vec![
-                                                match state.is_modal && !*expanded {
+                                                match !*expanded && state.show_toggle_controls {
                                                     true => Some(html!("span", {
                                                             .class("dmat-navigation-drawer-expand")
                                                             .event(clone!(state => move |_:events::Click| {

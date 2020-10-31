@@ -43,11 +43,14 @@ impl NavigationDrawerDemo {
     }
 
     fn static_drawers() -> Dom {
-        Self::make_drawer().render()
+        Self::make_drawer()
+            .show_toggle_controls(true)
+            .render()
     }
 
     fn modal_drawers() -> Dom {
         Self::make_drawer()
+            .show_toggle_controls(true)
             .modal(true)
             .render()
     }
@@ -80,14 +83,6 @@ impl NavigationDrawerDemo {
                     Container::new(match v {
                         Some(ExampleViews::Main) => html!("span", {
                             .text("Main view")
-                            .child(Button::new()
-                                .on_click(clone!(drawer_handle => move |_| {
-                                    let val = drawer_handle.expanded.get();
-                                    drawer_handle.expanded.set(!val);
-                                }))
-                                .text("Toggle")
-                                .button_type(ButtonType::Text)
-                                .render())
                         }),
                         Some(ExampleViews::Details) => html!("span", { .text("Details") }),
                         Some(ExampleViews::Other) => html!("span", { .text("Other view") }),
