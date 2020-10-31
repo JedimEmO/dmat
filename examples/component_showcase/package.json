@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build": "node-sass -o dist/js/assets/  style/ && rollup --config",
-    "start": "rimraf dist/js && node-sass -o dist/js/assets/  style/ && rollup --config --watch"
+    "start": "rimraf dist/js && node-sass -o dist/js/assets/  style/ && rollup --config --watch",
+    "style:watch": "node-sass -w -o dist/js/assets/  style/ "
   },
   "author": "",
   "license": "ISC",
@@ -16,6 +17,7 @@
     "copy-webpack-plugin": "^5.1.1",
     "css-loader": "^3.5.3",
     "html-webpack-plugin": "^4.3.0",
+    "rimraf": "^3.0.2",
     "rollup": "^2.32.1",
     "rollup-plugin-livereload": "^2.0.0",
     "rollup-plugin-scss": "^2.6.1",
