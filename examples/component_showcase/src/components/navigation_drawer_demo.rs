@@ -3,7 +3,7 @@ use futures_signals::signal::Mutable;
 use futures_signals::signal::SignalExt;
 
 use dominator_material::components::{
-    Button, ButtonType, Card, NavigationDrawer, NavigationDrawerEntry, NavigationEntry,
+    Button, ButtonType, Card, List, NavigationDrawer, NavigationDrawerEntry, NavigationEntry,
 };
 use dominator_material::components::layouts::Container;
 
@@ -22,29 +22,34 @@ impl NavigationDrawerDemo {
     }
 
     pub fn render(self) -> Dom {
-        html!("div", {
-            .children(&mut [
-                Card::new()
-                    .title("Static navigation drawer", None)
-                    .body(html!("div", {
+        List::new_static(vec![
+            Card::new()
+                .title("Static navigation drawer", None)
+                .body(html!("div", {
                         .class("navigation-drawer-demo")
-                        .child(Self::static_drawers())
+                        .child(Self::static_drawers(true))
                     }))
-                    .render(),
-                Card::new()
-                    .title("Modal navigation drawer", None)
-                    .body(html!("div", {
+                .render(),
+            Card::new()
+                .title("Modal navigation drawer", None)
+                .body(html!("div", {
                         .class("navigation-drawer-demo")
                         .child(Self::modal_drawers())
                     }))
-                    .render()
-            ])
-        })
+                .render(),
+            Card::new()
+                .title("Static navigation drawer without toggle controls", None)
+                .body(html!("div", {
+                        .class("navigation-drawer-demo")
+                        .child(Self::static_drawers(false))
+                    }))
+                .render(),
+        ])
     }
 
-    fn static_drawers() -> Dom {
+    fn static_drawers(toggle: bool) -> Dom {
         Self::make_drawer()
-            .show_toggle_controls(true)
+            .show_toggle_controls(toggle)
             .render()
     }
 

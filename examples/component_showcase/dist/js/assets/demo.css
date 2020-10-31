@@ -1,0 +1,24 @@
+.demo-cards > .dmat-card {
+  margin: 8px;
+  float: left;
+  width: 350px; }
+  .demo-cards > .dmat-card .demo-buttons {
+    display: flex; }
+    .demo-cards > .dmat-card .demo-buttons > .demo-button {
+      display: inline-flex;
+      align-items: center;
+      flex-direction: row; }
+
+.navigation-drawer-demo {
+  height: 400px;
+  width: 800px;
+  position: relative; }
+
+.main-view {
+  position: absolute;
+  padding: 0;
+  margin: 0;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0; }
