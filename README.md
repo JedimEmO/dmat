@@ -7,7 +7,9 @@ It provides an example SCSS implementation to use as a template, but I recommend
 
 ## Examples
 
-To run the showcase application, go to the `examples/component_showcase` directory, and do the following:
+The showcase application can be seen here: https://jedimemo.github.io/dominator-material/
+
+To run the showcase application locally, go to the `examples/component_showcase` directory, and do the following:
 
 Requires rust 1.47.0+ , npm and nodejs.
 
