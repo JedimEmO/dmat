@@ -3,6 +3,7 @@
 .dmat-navigation-drawer-container {
   & .drawer {
     position: absolute;
+    background: $dmat-surface;
     left: 0;
     top: 0;
     bottom: 0;
@@ -90,6 +91,9 @@
 
     &.-expanded {
       left: $dmat-navigation-drawer-full-width;
+      &.-modal {
+        left: 0;
+      }
     }
 
     left: 0;

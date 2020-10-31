@@ -197,6 +197,7 @@ impl<T: Clone + PartialEq + 'static> NavigationDrawer<T> {
                                 Some(html!("div", {
                                     .class("main")
                                     .class_signal("-expanded", s.expanded.signal())
+                                    .apply_if(s.is_modal, |dom| dom.class("-modal"))
                                     .class("dmat-surface")
                                     .child_signal(map_ref!{ let active = active, let expanded = exp => move {
                                         Some(html!("div", {
