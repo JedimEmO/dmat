@@ -145,12 +145,15 @@ impl<T: Clone + PartialEq + 'static> NavigationDrawer<T> {
                                 .class("drawer-container")
                                 .children(&mut [
                                     match s.expanded.get() && s.show_toggle_controls {
-                                        true => html!("span", {
+                                        true => html!("div", {
+                                            .class("controls")
+                                            .child(html!("span", {
                                                 .class("dmat-navigation-drawer-collapse")
                                                 .event(clone!(s => move |_:events::Click| {
                                                     s.toggle(false);
                                                 }))
-                                            })                                               ,
+                                            }))
+                                        }),
                                         false => html!("span")
                                     },
                                     match &s.title_view_generator {

@@ -20,20 +20,26 @@
     & .drawer-container {
       position: relative;
 
-      & .dmat-navigation-drawer-collapse {
-        &:before {
-          content: '\3008';
+      & > .controls {
+        position: relative;
+        height: 1.5rem;
+        padding: 4px 8px 4px 4px;
+
+        & > .dmat-navigation-drawer-collapse {
+          &:before {
+            content: '\3008';
+          }
+
+          cursor: pointer;
+
+          position: absolute;
+          font-weight: 600;
+          font-size: 1rem;
+          top: 1rem;
+          right: 1rem;
+          width: 1rem;
+          height: 1rem;
         }
-
-        cursor: pointer;
-
-        position: absolute;
-        font-weight: 600;
-        font-size: 1rem;
-        top: 1rem;
-        right: 1rem;
-        width: 1rem;
-        height: 1rem;
       }
 
       & .title {
