@@ -1,7 +1,6 @@
 import rust from "@wasm-tool/rollup-plugin-rust";
 import serve from "rollup-plugin-serve";
 import livereload from "rollup-plugin-livereload";
-import scss from "rollup-plugin-scss"
 
 const is_watch = !!process.env.ROLLUP_WATCH;
 
