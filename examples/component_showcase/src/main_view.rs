@@ -3,7 +3,7 @@ use futures_signals::signal::Mutable;
 use futures_signals::signal::SignalExt;
 use wasm_bindgen::__rt::std::rc::Rc;
 
-use dominator_material::components::{Card, Tab, Tabs};
+use dominator_material::components::{layouts::Container, Card, Tab, Tabs};
 
 use crate::components::button_demo::ButtonDemo;
 use crate::components::card_demo::CardDemo;
@@ -74,8 +74,7 @@ impl MainView {
                                 id: DemoTabs::NavigationDrawer
                             },
                         ]),
-                    Card::new()
-                        .body(html!("div", {
+                    Container::new(html!("div", {
                             .child_signal(main_view.active_tab.signal_cloned().map(|tab_id| {
                                 match tab_id {
                                     DemoTabs::Button => Some(ButtonDemo::new().render()),

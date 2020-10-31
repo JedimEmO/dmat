@@ -50,6 +50,22 @@
     position: absolute;
     transition: left 0.2s ease-in;
 
+    & .dmat-navigation-drawer-expand {
+      &:before {
+        content: '\2630';
+      }
+
+      cursor: pointer;
+
+      position: absolute;
+      font-weight: 600;
+      font-size: 1.5rem;
+      top: 1rem;
+      left: 1rem;
+      width: 2rem;
+      height: 2rem;
+    }
+
     &.-expanded {
       left: $dmat-navigation-drawer-full-width;
     }

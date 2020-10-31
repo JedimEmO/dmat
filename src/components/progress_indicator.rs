@@ -1,4 +1,4 @@
-use dominator::{Dom, html};
+use dominator::{html, Dom};
 use wasm_bindgen::__rt::core::time::Duration;
 
 pub enum ProgressIndicatorIterations {
@@ -12,9 +12,7 @@ impl ProgressIndicator {
     pub fn new(duration: Duration, iterations: ProgressIndicatorIterations) -> Dom {
         let animation_iterations = match iterations {
             ProgressIndicatorIterations::Infinite => "infinite".into(),
-            ProgressIndicatorIterations::Count(count) => {
-                format!("{}", count)
-            }
+            ProgressIndicatorIterations::Count(count) => format!("{}", count),
         };
 
         let animation_duration = format!("{}s", duration.as_secs_f32());

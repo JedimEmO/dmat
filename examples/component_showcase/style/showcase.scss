@@ -1,5 +1,6 @@
 @import "colors";
 @import "navigation_drawer";
+@import "buton";
 
 body {
   color: $dmat-text-on-primary;
@@ -258,67 +259,26 @@ ul.dmat-list {
   }
 }
 
-button.dmat-button {
-  display: flex;
-  align-self: flex-start;
-  height: 36px;
-  text-transform: uppercase;
-  font-weight: 500;
-  min-width: 64px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  padding: 0 16px;
-  cursor: pointer;
-
-  &:focus {
-    outline: 0;
-  }
-
-  &.-contained {
-    background: $dmat-primary;
-    color: $dmat-text-on-primary;
-
-    &:hover {
-      background: $dmat-primary-light;
-    }
-  }
-
-  &.-outlined {
-    background: none;
-    color: $dmat-secondary;
-    border: 2px $dmat-secondary-light solid;
-    font-weight: bolder;
-
-    &:hover {
-      background: $dmat-secondary-light;
-    }
-  }
-
-  &.-text {
-    background: none;
-    color: $dmat-secondary;
-    font-weight: bolder;
-    border: none;
-
-    &:hover {
-      background: $dmat-secondary-light;
-    }
-  }
-
-  &:active {
-    background: $dmat-primary-dark;
-  }
-}
-
 
 .dmat-surface {
   background: $dmat-surface-dark
 }
 
 .dmat-container {
-  height: 100%;
+  padding: 16px;
+  height: fit-content;
   display: flex;
   justify-content: center;
   background-color: $dmat-surface;
+}
+
+.dmat-modal-cover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  background-color: $dmat-primary-dark;
+  opacity: 0.5;
 }

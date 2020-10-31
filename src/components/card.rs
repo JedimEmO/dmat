@@ -1,4 +1,4 @@
-use dominator::{Dom, html};
+use dominator::{html, Dom};
 
 struct CardData {
     pub header: Option<Dom>,
@@ -7,7 +7,7 @@ struct CardData {
 }
 
 pub struct Card {
-    data: CardData
+    data: CardData,
 }
 
 impl Card {
@@ -18,7 +18,7 @@ impl Card {
                 header: None,
                 body: None,
                 footer: None,
-            }
+            },
         }
     }
 
@@ -69,7 +69,7 @@ impl CardData {
                     .class("card-section")
                     .child(header)
                 })),
-                _ => None
+                _ => None,
             },
             match self.body {
                 Some(body) => Some(html!("div", {
@@ -77,7 +77,7 @@ impl CardData {
                     .class("card-section")
                     .child(body)
                 })),
-                _ => None
+                _ => None,
             },
             match self.footer {
                 Some(footer) => Some(html!("div", {
@@ -85,8 +85,8 @@ impl CardData {
                     .class("card-section")
                     .child(footer)
                 })),
-                _ => None
-            }
+                _ => None,
+            },
         ];
 
         html!("div", {
@@ -95,4 +95,3 @@ impl CardData {
         })
     }
 }
-

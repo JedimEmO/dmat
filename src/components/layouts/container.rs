@@ -1,7 +1,7 @@
-use dominator::{Dom, html};
+use dominator::{html, Dom};
 
 pub struct Container {
-    child: Dom
+    child: Dom,
 }
 
 impl Container {

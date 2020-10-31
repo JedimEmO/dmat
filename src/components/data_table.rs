@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use dominator::{clone, Dom, events, html};
+use dominator::{clone, events, html, Dom};
 use futures_signals::signal::Mutable;
 use futures_signals::signal::SignalExt;
 use futures_signals::signal_vec::MutableVec;
@@ -9,9 +9,6 @@ use wasm_bindgen::__rt::core::time::Duration;
 use wasm_bindgen::__rt::std::rc::Rc;
 use wasm_bindgen::closure::Closure;
 use wasm_bindgen::JsCast;
-
-
-
 
 use crate::components::{ProgressIndicator, ProgressIndicatorIterations};
 
@@ -40,18 +37,18 @@ pub struct DataTable<T: Clone + 'static> {
 }
 
 pub struct DataTableBuilder1<T: Clone + 'static> {
-    data: Rc<MutableVec<T>>
+    data: Rc<MutableVec<T>>,
 }
 
 impl<T: Clone + 'static> DataTableBuilder1<T> {
     fn new(data: Rc<MutableVec<T>>) -> DataTableBuilder1<T> {
-        DataTableBuilder1 {
-            data,
-        }
+        DataTableBuilder1 { data }
     }
 
     pub fn row_render_func<F: 'static>(self, func: F) -> DataTable<T>
-        where F: Fn(&T) -> Dom {
+    where
+        F: Fn(&T) -> Dom,
+    {
         DataTable {
             data: self.data,
             page_meta: None,
@@ -62,7 +59,9 @@ impl<T: Clone + 'static> DataTableBuilder1<T> {
     }
 
     pub fn cell_render_func<F: 'static>(self, func: F) -> DataTable<T>
-        where F: Fn(&T) -> Vec<Dom> {
+    where
+        F: Fn(&T) -> Vec<Dom>,
+    {
         DataTable {
             data: self.data,
             page_meta: None,
@@ -83,8 +82,17 @@ impl<T: Clone + 'static> DataTable<T> {
         self
     }
 
-    pub fn page_meta<F>(mut self, page_size: Mutable<usize>, total_data_count: Mutable<usize>, current_top: Mutable<usize>, on_page_change: F, allowed_page_sizes: Option<Vec<usize>>) -> Self
-        where F: Fn(usize, usize) + 'static {
+    pub fn page_meta<F>(
+        mut self,
+        page_size: Mutable<usize>,
+        total_data_count: Mutable<usize>,
+        current_top: Mutable<usize>,
+        on_page_change: F,
+        allowed_page_sizes: Option<Vec<usize>>,
+    ) -> Self
+    where
+        F: Fn(usize, usize) + 'static,
+    {
         self.page_meta = Some(PageMeta {
             page_size,
             current_top,
@@ -110,7 +118,7 @@ fn data_table<T: Clone + 'static>(data_table: Rc<DataTable<T>>) -> Dom {
                     .text(th)
                 })).collect::<Vec<Dom>>().as_mut_slice())
             }),
-            _ => html!("tr")
+            _ => html!("tr"),
         };
 
         let rows = clone!(data_table => data_table.data.signal_vec_cloned().map( move |val| {
@@ -134,10 +142,8 @@ fn data_table<T: Clone + 'static>(data_table: Rc<DataTable<T>>) -> Dom {
         }));
 
         let foot = match &data_table.page_meta {
-            Some(meta) => {
-                table_pagination(meta, data_table.is_loading.clone())
-            }
-            _ => html!("tfoot")
+            Some(meta) => table_pagination(meta, data_table.is_loading.clone()),
+            _ => html!("tfoot"),
         };
 
         html!("table", {
@@ -191,15 +197,15 @@ fn table_pagination(meta: &PageMeta, loading: Mutable<bool>) -> Dom {
             .class("dmat-pagination-button")
         }),
         html!("button", {
-                .text("<")
-                .event(clone!(meta, loading => move |_: events::Click |{
-                    loading.replace(true);
-                    let target_top = std::cmp::max(meta.current_top.get() as i32 - meta.page_size.get() as  i32, 0) as usize;
-                    (meta.on_request_data)(target_top, meta.page_size.get());
-                }))
-                .property_signal("disabled", meta.current_top.signal_cloned().map(|v| v == 0))
-                .class("dmat-pagination-button")
-            }),
+            .text("<")
+            .event(clone!(meta, loading => move |_: events::Click |{
+                loading.replace(true);
+                let target_top = std::cmp::max(meta.current_top.get() as i32 - meta.page_size.get() as  i32, 0) as usize;
+                (meta.on_request_data)(target_top, meta.page_size.get());
+            }))
+            .property_signal("disabled", meta.current_top.signal_cloned().map(|v| v == 0))
+            .class("dmat-pagination-button")
+        }),
         html!("button", {
             .text(">")
             .event(clone!(meta, loading => move |_: events::Click |{
@@ -221,7 +227,7 @@ fn table_pagination(meta: &PageMeta, loading: Mutable<bool>) -> Dom {
             }))
             .property_signal("disabled", meta.current_top.signal_cloned().map(clone!(meta => move |v| v + meta.page_size.get() >= meta.total_data_count.get())))
             .class("dmat-pagination-button")
-        })
+        }),
     ];
 
     if let Some(allowed_pages) = &meta.allowed_page_sizes {
@@ -230,22 +236,25 @@ fn table_pagination(meta: &PageMeta, loading: Mutable<bool>) -> Dom {
         let top = meta.current_top.clone();
         let pages = allowed_pages.clone();
 
-        pagination_controls.insert(0, html!("select", {
-            .event(clone!(ps, loading => move |evt: events::Change| {
-                if let Some(select) = evt.target() {
-                    if let Some(select) = select.dyn_ref::<web_sys::HtmlSelectElement>() {
-                        let page = usize::from_str(select.value().as_str()).unwrap();
-                        loading.replace(true);
-                        ps.replace(page);
-                        fetcher(top.get(), page);
+        pagination_controls.insert(
+            0,
+            html!("select", {
+                .event(clone!(ps, loading => move |evt: events::Change| {
+                    if let Some(select) = evt.target() {
+                        if let Some(select) = select.dyn_ref::<web_sys::HtmlSelectElement>() {
+                            let page = usize::from_str(select.value().as_str()).unwrap();
+                            loading.replace(true);
+                            ps.replace(page);
+                            fetcher(top.get(), page);
+                        }
                     }
-                }
-            }))
-            .children(pages.into_iter().map(|page| html!("option", {
-                .text(format!("{}", page).as_str())
-                .property("value", format!("{}", page).as_str())
-            })))
-        }))
+                }))
+                .children(pages.into_iter().map(|page| html!("option", {
+                    .text(format!("{}", page).as_str())
+                    .property("value", format!("{}", page).as_str())
+                })))
+            }),
+        )
     }
 
     html!("tfoot", {

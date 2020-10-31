@@ -1,10 +1,10 @@
-use dominator::{clone, Dom, events, html};
+use dominator::{clone, events, html, Dom};
 
-use futures_signals::signal::{Mutable};
+use futures_signals::signal::Mutable;
 use futures_signals::signal::SignalExt;
-use futures_util::future::{ready};
-use wasm_bindgen::__rt::std::rc::Rc;
+use futures_util::future::ready;
 use wasm_bindgen::JsValue;
+use wasm_bindgen::__rt::std::rc::Rc;
 
 #[derive(Clone)]
 pub struct TextElement<T: Clone> {
@@ -14,7 +14,7 @@ pub struct TextElement<T: Clone> {
     is_valid: Mutable<bool>,
     validator: Option<Rc<dyn Fn(&T) -> bool>>,
     depends_on: Mutable<()>,
-    has_focus: Mutable<bool>
+    has_focus: Mutable<bool>,
 }
 
 pub enum InputValue {
@@ -31,7 +31,7 @@ impl<T: Clone + From<InputValue> + Into<InputValue> + 'static> TextElement<T> {
             is_valid: Mutable::new(true),
             validator: None,
             depends_on: Mutable::new(()),
-            has_focus: Mutable::new(false)
+            has_focus: Mutable::new(false),
         }
     }
 
@@ -67,11 +67,13 @@ impl<T: Clone + From<InputValue> + Into<InputValue> + 'static> TextElement<T> {
 }
 
 #[inline]
-fn text_element<T: Clone + From<InputValue> + Into<InputValue> + 'static>(field: Rc<TextElement<T>>) -> Dom {
+fn text_element<T: Clone + From<InputValue> + Into<InputValue> + 'static>(
+    field: Rc<TextElement<T>>,
+) -> Dom {
     Dom::with_state(field, |field| {
         let id = match &field.id {
             Some(v) => v.clone(),
-            _ => "".into()
+            _ => "".into(),
         };
 
         field.validate(&field.value.get_cloned());
@@ -128,9 +130,9 @@ fn text_element<T: Clone + From<InputValue> + Into<InputValue> + 'static>(field:
                         focus || has_value
                     })))
                     .class("dmat-floating-label")
-                })
+                }),
             ],
-            _ => vec![input]
+            _ => vec![input],
         };
 
         html!("div", {
@@ -146,8 +148,8 @@ impl From<InputValue> for String {
             InputValue::Text(v) => v,
             InputValue::Bool(v) => match v {
                 true => "true".to_string(),
-                _ => "false".to_string()
-            }
+                _ => "false".to_string(),
+            },
         }
     }
 }
@@ -162,7 +164,7 @@ impl From<InputValue> for JsValue {
     fn from(value: InputValue) -> Self {
         match value {
             InputValue::Text(v) => v.into(),
-            InputValue::Bool(v) => v.into()
+            InputValue::Bool(v) => v.into(),
         }
     }
 }

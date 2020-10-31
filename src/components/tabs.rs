@@ -1,6 +1,6 @@
-use dominator::{clone, Dom, events, html};
-use futures_signals::signal::{Mutable, ReadOnlyMutable};
+use dominator::{clone, events, html, Dom};
 use futures_signals::signal::SignalExt;
+use futures_signals::signal::{Mutable, ReadOnlyMutable};
 use futures_signals::signal_vec::SignalVec;
 use futures_signals::signal_vec::SignalVecExt;
 use futures_util::StreamExt;
@@ -13,7 +13,7 @@ pub struct Tab<TabId: Clone> {
 }
 
 struct TabExternal<TabId: Clone> {
-    current_active: Mutable<Option<TabId>>
+    current_active: Mutable<Option<TabId>>,
 }
 
 enum TabMeta<TabId: Clone> {
@@ -25,14 +25,14 @@ impl<TabId: Clone> TabMeta<TabId> {
     fn read_active(&self) -> ReadOnlyMutable<Option<TabId>> {
         match self {
             TabMeta::Owned(m) => m.read_only(),
-            TabMeta::External(ext) => ext.current_active.read_only()
+            TabMeta::External(ext) => ext.current_active.read_only(),
         }
     }
 
     fn active_mutable(&self) -> Mutable<Option<TabId>> {
         match self {
             TabMeta::External(_ext) => Mutable::new(None),
-            TabMeta::Owned(owned) => owned.clone()
+            TabMeta::Owned(owned) => owned.clone(),
         }
     }
 }
@@ -56,7 +56,9 @@ impl<TabId: Clone + std::cmp::PartialEq + 'static> Tabs<TabId> {
     }
 
     pub fn on_tab_change<F: 'static>(mut self, change_listener: F) -> Self
-        where F: Fn(Option<TabId>) {
+    where
+        F: Fn(Option<TabId>),
+    {
         self.on_tab_change = Some(Rc::new(change_listener));
         self
     }
@@ -86,7 +88,9 @@ impl<TabId: Clone + std::cmp::PartialEq + 'static> Tabs<TabId> {
     }
 
     pub fn build_dynamic<B>(self, tabs: B) -> Dom
-        where B: SignalVec<Item=Tab<TabId>> + 'static {
+    where
+        B: SignalVec<Item = Tab<TabId>> + 'static,
+    {
         let state = Rc::new(self);
 
         Dom::with_state(state, move |state| {
@@ -111,7 +115,10 @@ impl<TabId: Clone + std::cmp::PartialEq + 'static> Tabs<TabId> {
     }
 }
 
-fn tab<TabId: Clone + std::cmp::PartialEq + 'static>(tab: &Tab<TabId>, meta: &TabMeta<TabId>) -> Dom {
+fn tab<TabId: Clone + std::cmp::PartialEq + 'static>(
+    tab: &Tab<TabId>,
+    meta: &TabMeta<TabId>,
+) -> Dom {
     let active = meta.read_active();
     let set_active = meta.active_mutable();
 

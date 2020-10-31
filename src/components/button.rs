@@ -1,20 +1,20 @@
-use dominator::{clone, Dom, events, html};
+use dominator::{clone, events, html, Dom};
 use wasm_bindgen::__rt::std::rc::Rc;
 
 pub enum ButtonType {
     Contained,
     Outlined,
-    Text
+    Text,
 }
 
 pub struct ButtonData {
     content: Option<Dom>,
     click_handler: Option<Rc<dyn Fn(events::Click)>>,
-    button_type: ButtonType
+    button_type: ButtonType,
 }
 
 pub struct Button {
-    data: ButtonData
+    data: ButtonData,
 }
 
 impl Button {
@@ -23,14 +23,16 @@ impl Button {
             data: ButtonData {
                 content: None,
                 click_handler: None,
-                button_type: ButtonType::Contained
-            }
+                button_type: ButtonType::Contained,
+            },
         }
     }
 
     #[inline]
     pub fn on_click<F>(mut self: Self, handler: F) -> Self
-        where F: Fn(events::Click) + 'static {
+    where
+        F: Fn(events::Click) + 'static,
+    {
         self.data.click_handler = Some(Rc::new(handler));
         self
     }
