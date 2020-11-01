@@ -1,10 +1,10 @@
 use dominator::{clone, html, Dom};
+use futures_signals::signal::Mutable;
 use futures_signals::signal::SignalExt;
-use futures_signals::signal::{Mutable, Signal};
 use wasm_bindgen::__rt::std::rc::Rc;
 
 use dominator_material::components::layouts::AppBar;
-use dominator_material::components::{layouts::Container, Card, Tab, Tabs};
+use dominator_material::components::{layouts::Container, Tab, Tabs};
 
 use crate::components::app_bar_demo::AppBarDemo;
 use crate::components::button_demo::ButtonDemo;

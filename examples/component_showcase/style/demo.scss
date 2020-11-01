@@ -1,4 +1,6 @@
-.demo-cards > .dmat-card {
+@import "colors";
+
+.demo-cards  .dmat-card {
   margin: 8px;
   float: left;
   width: 350px;
@@ -34,6 +36,16 @@
   width: 50rem;
   height: 30rem;
   position: relative;
+}
+
+.app-bar-demo-header {
+  padding: 8px;
+}
+
+.demo-drawer-with-app-bar {
+  & .dmat-navigation-drawer-expand {
+    color: $dmat-text-on-primary;
+  }
 }
 
 .demo-card {

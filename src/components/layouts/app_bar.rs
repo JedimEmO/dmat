@@ -1,8 +1,5 @@
 use crate::utils::renderable_child::RenderableChild;
-use dominator::{clone, html, Dom, DomBuilder};
-use futures_signals::signal::{always, Always, Map, Signal, SignalExt};
-use wasm_bindgen::__rt::core::cell::RefCell;
-use wasm_bindgen::__rt::std::rc::Rc;
+use dominator::{html, Dom, DomBuilder};
 use web_sys::HtmlElement;
 
 pub struct AppBarFinal<Header, Main> {
@@ -21,7 +18,7 @@ impl<Header: RenderableChild, Main: RenderableChild> AppBarFinal<Header, Main> {
         self
     }
 
-    pub fn render(mut self) -> Dom {
+    pub fn render(self) -> Dom {
         let mut apply = self.apply;
         html!("div", {
             .class("dmat-app-bar")

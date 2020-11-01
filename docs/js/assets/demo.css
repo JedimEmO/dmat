@@ -1,10 +1,10 @@
-.demo-cards > .dmat-card {
+.demo-cards .dmat-card {
   margin: 8px;
   float: left;
   width: 350px; }
-  .demo-cards > .dmat-card .demo-buttons {
+  .demo-cards .dmat-card .demo-buttons {
     display: flex; }
-    .demo-cards > .dmat-card .demo-buttons > .demo-button {
+    .demo-cards .dmat-card .demo-buttons > .demo-button {
       display: inline-flex;
       align-items: center;
       flex-direction: row; }
@@ -22,3 +22,17 @@
   bottom: 0;
   left: 0;
   right: 0; }
+
+.app-bar-demo {
+  width: 50rem;
+  height: 30rem;
+  position: relative; }
+
+.app-bar-demo-header {
+  padding: 8px; }
+
+.demo-drawer-with-app-bar .dmat-navigation-drawer-expand {
+  color: #ffffff; }
+
+.demo-card {
+  width: 70rem; }

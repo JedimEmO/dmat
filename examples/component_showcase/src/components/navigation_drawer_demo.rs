@@ -1,10 +1,8 @@
-use dominator::{clone, html, Dom};
-use futures_signals::signal::Mutable;
-use futures_signals::signal::SignalExt;
+use dominator::{html, Dom};
 
 use dominator_material::components::layouts::Container;
 use dominator_material::components::{
-    Button, ButtonType, Card, List, NavigationDrawer, NavigationDrawerEntry, NavigationEntry,
+    Card, List, NavigationDrawer, NavigationDrawerEntry, NavigationEntry,
 };
 
 pub struct NavigationDrawerDemo {}
@@ -50,7 +48,7 @@ impl NavigationDrawerDemo {
             .render()
     }
 
-    fn static_drawers(toggle: bool) -> Dom {
+    pub fn static_drawers(toggle: bool) -> Dom {
         Self::make_drawer().show_toggle_controls(toggle).render()
     }
 
@@ -84,7 +82,7 @@ impl NavigationDrawerDemo {
                     id: ExampleViews::Other,
                 }),
             ])
-            .main_view_generator(move |v, drawer_handle| {
+            .main_view_generator(move |v, _handle| {
                 Some(
                     Container::new(match v {
                         Some(ExampleViews::Main) => html!("span", {

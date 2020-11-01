@@ -1,6 +1,5 @@
 #![feature(async_closure)]
 
-#[macro_use]
 extern crate futures_signals;
 
 pub mod components;

@@ -1,14 +1,10 @@
-use std::borrow::BorrowMut;
-use std::ops::DerefMut;
-
-use dominator::{clone, events, html, svg, Dom};
+use dominator::{clone, events, html, Dom, DomBuilder};
 use futures_signals::map_ref;
-use futures_signals::signal::{Mutable, Signal};
+use futures_signals::signal::Mutable;
 use futures_signals::signal_vec::MutableVec;
 use futures_signals::signal_vec::SignalVecExt;
-use wasm_bindgen::__rt::core::cell::RefCell;
-use wasm_bindgen::__rt::core::pin::Pin;
 use wasm_bindgen::__rt::std::rc::Rc;
+use web_sys::HtmlElement;
 
 #[derive(Clone)]
 pub struct NavigationEntry<T: Clone + 'static> {
@@ -53,14 +49,21 @@ impl<T: Clone + PartialEq + 'static> NavigationDrawerData<T> {
 }
 
 pub struct NavigationDrawer<T: Clone + PartialEq + 'static> {
-    state_handler: Option<Box<dyn FnOnce(Rc<NavigationDrawerData<T>>)>>,
+    apply_func: Option<
+        Box<
+            dyn FnOnce(
+                Rc<NavigationDrawerData<T>>,
+                DomBuilder<HtmlElement>,
+            ) -> DomBuilder<HtmlElement>,
+        >,
+    >,
     data: NavigationDrawerData<T>,
 }
 
 impl<T: Clone + PartialEq + 'static> NavigationDrawer<T> {
     pub fn new() -> NavigationDrawer<T> {
         NavigationDrawer {
-            state_handler: None,
+            apply_func: None,
             data: NavigationDrawerData {
                 entries: Default::default(),
                 current_active: Mutable::new(None),
@@ -71,6 +74,16 @@ impl<T: Clone + PartialEq + 'static> NavigationDrawer<T> {
                 expanded: Mutable::new(true),
             },
         }
+    }
+
+    #[inline]
+    pub fn apply<F>(mut self, apply_func: F) -> Self
+    where
+        F: FnOnce(Rc<NavigationDrawerData<T>>, DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>
+            + 'static,
+    {
+        self.apply_func = Some(Box::new(apply_func));
+        self
     }
 
     #[inline]
@@ -92,7 +105,7 @@ impl<T: Clone + PartialEq + 'static> NavigationDrawer<T> {
     }
 
     #[inline]
-    pub fn expanded(mut self, expanded: bool) -> Self {
+    pub fn expanded(self, expanded: bool) -> Self {
         self.data.expanded.set(expanded);
         self
     }
@@ -110,35 +123,77 @@ impl<T: Clone + PartialEq + 'static> NavigationDrawer<T> {
     }
 
     #[inline]
-    pub fn initial_selected(mut self, initial: T) -> Self {
+    pub fn initial_selected(self, initial: T) -> Self {
         self.data.current_active.set(Some(initial));
         self
     }
 
     #[inline]
-    pub fn entries(mut self, entries: Vec<NavigationDrawerEntry<T>>) -> Self {
+    pub fn entries(self, entries: Vec<NavigationDrawerEntry<T>>) -> Self {
         self.data.entries.lock_mut().replace_cloned(entries);
         self
     }
 
-    pub fn render(mut self) -> Dom {
+    pub fn render(self) -> Dom {
         self.render_with_handle().1
     }
 
-    pub fn render_with_handle(mut self) -> (Rc<NavigationDrawerData<T>>, Dom) {
+    pub fn render_with_handle(self) -> (Rc<NavigationDrawerData<T>>, Dom) {
         let s = Rc::new(self.data);
 
-        if let Some(state_handler) = self.state_handler {
-            state_handler(s.clone())
-        }
+        let apply_func = self.apply_func;
 
         (
             s.clone(),
-            Dom::with_state(s, |s| {
+            Dom::with_state(s, move |s| {
                 html!("div", {
                     .class("dmat-navigation-drawer-container")
+                    .apply_if(apply_func.is_some(), clone!(s => move |dom| {
+                        apply_func.unwrap()(s, dom)
+                    }))
                     .children(vec![
-                        Some(html!("div", {
+                        match s.main_view_generator.clone() {
+                            Some(generator) => {
+                                let exp = s.expanded.signal_cloned();
+                                let active = s.current_active.signal_cloned();
+                                let state = s.clone();
+
+                                Some(html!("div", {
+                                    .class("main")
+                                    .class_signal("-expanded", s.expanded.signal())
+                                    .apply_if(s.is_modal, |dom| dom.class("-modal"))
+                                    .class("dmat-surface")
+                                    .child_signal(map_ref!{ let active = active, let expanded = exp => move {
+                                        Some(html!("div", {
+                                            .children(vec![
+                                                generator(active, &state),
+                                                match !*expanded && state.show_toggle_controls {
+                                                    true => Some(html!("span", {
+                                                            .class("dmat-navigation-drawer-expand")
+                                                            .event(clone!(state => move |_:events::Click| {
+                                                                state.toggle(true);
+                                                            }))
+                                                        }))                                                ,
+                                                    false => None
+                                                },
+                                                match state.is_modal && *expanded {
+                                                    true => Some(html!("div", {
+                                                        .class("dmat-modal-cover")
+                                                        .event(clone!(state => move |_: events::Click| {
+                                                            state.expanded.set(false);
+                                                        }))
+                                                    })),
+                                                    false => None
+                                                }
+                                            ].into_iter().filter_map(|v| v))
+                                        }))
+                                    }})
+                                }))
+                            },
+                            _ => None
+                        },
+
+                    Some(html!("div", {
                             .class("drawer")
                             .class_signal("-expanded", s.expanded.signal())
                             .child(html!("div", {
@@ -187,48 +242,7 @@ impl<T: Clone + PartialEq + 'static> NavigationDrawer<T> {
                                     })
                                 ])
                             }))
-                        })),
-                        match s.main_view_generator.clone() {
-                            Some(generator) => {
-                                let exp = s.expanded.signal_cloned();
-                                let active = s.current_active.signal_cloned();
-                                let state = s.clone();
-
-                                Some(html!("div", {
-                                    .class("main")
-                                    .class_signal("-expanded", s.expanded.signal())
-                                    .apply_if(s.is_modal, |dom| dom.class("-modal"))
-                                    .class("dmat-surface")
-                                    .child_signal(map_ref!{ let active = active, let expanded = exp => move {
-                                        Some(html!("div", {
-                                            .children(vec![
-                                                match !*expanded && state.show_toggle_controls {
-                                                    true => Some(html!("span", {
-                                                            .class("dmat-navigation-drawer-expand")
-                                                            .event(clone!(state => move |_:events::Click| {
-                                                                state.toggle(true);
-                                                            }))
-                                                        }))                                                ,
-                                                    false => None
-                                                },
-                                                match state.is_modal && *expanded {
-                                                    true => Some(html!("div", {
-                                                        .class("dmat-modal-cover")
-                                                        .event(clone!(state => move |_: events::Click| {
-                                                            state.expanded.set(false);
-                                                        }))
-                                                    })),
-                                                    false => None
-                                                },
-                                                generator(active, &state)
-                                            ].into_iter().filter_map(|v| v))
-                                        }))
-                                    }})
-                                }))
-                            },
-                            _ => None
-                        }
-                    ].into_iter().filter_map(|v| v))
+                        }))].into_iter().filter_map(|v| v))
                 })
             }),
         )

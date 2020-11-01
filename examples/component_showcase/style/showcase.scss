@@ -15,8 +15,9 @@ button.current-page {
 .dmat-tabs {
   display: flex;
   flex: 1 0 auto;
-  position: relative;
-
+  position: absolute;
+  width: 100%;
+  bottom: 0;
 
   button.tab {
     text-decoration: none;
