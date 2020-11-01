@@ -59,6 +59,7 @@ dependencies = [
  "futures-signals",
  "futures-util",
  "js-sys",
+ "lipsum",
  "uuid",
  "wasm-bindgen",
  "wasm-bindgen-futures",
@@ -211,6 +212,16 @@ name = "libc"
 version = "0.2.79"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2448f6066e80e3bfc792e9c98bf705b4b0fc6e8ef5b43e5889aff0eaa9c58743"
+
+[[package]]
+name = "lipsum"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "27bdfcb80998b71ab4141f3725b990c923bccebbba596d053a66c083c04f8b9c"
+dependencies = [
+ "rand",
+ "rand_chacha",
+]
 
 [[package]]
 name = "log"

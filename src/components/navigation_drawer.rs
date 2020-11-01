@@ -1,7 +1,7 @@
 use std::borrow::BorrowMut;
 use std::ops::DerefMut;
 
-use dominator::{clone, events, html, Dom, svg};
+use dominator::{clone, events, html, svg, Dom};
 use futures_signals::map_ref;
 use futures_signals::signal::{Mutable, Signal};
 use futures_signals::signal_vec::MutableVec;

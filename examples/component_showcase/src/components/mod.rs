@@ -1,3 +1,4 @@
+pub mod app_bar_demo;
 pub mod button_demo;
 pub mod card_demo;
 pub mod list_demo;

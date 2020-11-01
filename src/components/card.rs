@@ -1,4 +1,5 @@
-use dominator::{html, Dom};
+use dominator::{html, Dom, DomBuilder};
+use web_sys::HtmlElement;
 
 struct CardData {
     pub header: Option<Dom>,
@@ -8,6 +9,7 @@ struct CardData {
 
 pub struct Card {
     data: CardData,
+    apply: Option<Box<dyn FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>>>,
 }
 
 impl Card {
@@ -19,6 +21,7 @@ impl Card {
                 body: None,
                 footer: None,
             },
+            apply: None,
         }
     }
 
@@ -33,6 +36,15 @@ impl Card {
             ].into_iter().filter_map(|v| v))
         }));
 
+        self
+    }
+
+    #[inline]
+    pub fn apply<F: 'static>(mut self, apply: F) -> Self
+    where
+        F: FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>,
+    {
+        self.apply = Some(Box::new(apply));
         self
     }
 
@@ -55,13 +67,16 @@ impl Card {
     }
 
     pub fn render(self) -> Dom {
-        self.data.render()
+        self.data.render(self.apply)
     }
 }
 
 impl CardData {
     #[inline]
-    fn render(self) -> Dom {
+    fn render(
+        self,
+        mut apply: Option<Box<dyn FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>>>,
+    ) -> Dom {
         let children = vec![
             match self.header {
                 Some(header) => Some(html!("div", {
@@ -91,6 +106,9 @@ impl CardData {
 
         html!("div", {
             .class("dmat-card")
+            .apply_if(apply.is_some(), move |dom| {
+                dom.apply(apply.take().unwrap())
+            })
             .children(children.into_iter().filter_map(|v| v))
         })
     }

@@ -1,0 +1,36 @@
+@import "colors";
+
+.dmat-app-bar {
+  position: absolute;
+  transform: translateZ(0);
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+
+  & > .viewport {
+    position: absolute;
+    overflow: scroll;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+
+    & > .header {
+      position: fixed;
+      z-index: 2;
+      left: 0;
+      right: 0;
+      top: 0;
+      height: 3rem;
+      background: $dmat-primary;
+      color: $dmat-text-on-primary;
+    }
+
+    & > .main {
+      position: absolute;
+      width: 100%;
+      top: 3rem;
+    }
+  }
+}

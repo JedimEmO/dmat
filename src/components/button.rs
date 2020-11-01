@@ -70,16 +70,14 @@ fn button(button: Rc<ButtonData>) -> Dom {
                 ButtonType::Outlined => "-outlined",
                 ButtonType::Text => "-text",
             })
-            .child(if button.content.is_some() {
-                    Rc::get_mut(button).unwrap().content.take().unwrap()
-                } else {
-                html!("span")
+            .apply_if(button.content.is_some(), |dom| {
+                    dom.child(Rc::get_mut(button).unwrap().content.take().unwrap())
+                })
+            .apply_if(button.click_handler.is_some(), |dom| {
+                dom.event(clone!(button => move |e: events::Click| {
+                    (&button.click_handler.as_ref().unwrap())(e);
+                }))
             })
-            .event(clone!(button => move |e: events::Click| {
-                if let Some(handler) = &button.click_handler {
-                    handler(e);
-                }
-            }))
         })
     })
 }

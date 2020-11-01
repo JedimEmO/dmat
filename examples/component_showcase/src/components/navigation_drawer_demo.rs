@@ -1,11 +1,11 @@
-use dominator::{clone, Dom, html};
+use dominator::{clone, html, Dom};
 use futures_signals::signal::Mutable;
 use futures_signals::signal::SignalExt;
 
+use dominator_material::components::layouts::Container;
 use dominator_material::components::{
     Button, ButtonType, Card, List, NavigationDrawer, NavigationDrawerEntry, NavigationEntry,
 };
-use dominator_material::components::layouts::Container;
 
 pub struct NavigationDrawerDemo {}
 
@@ -22,35 +22,36 @@ impl NavigationDrawerDemo {
     }
 
     pub fn render(self) -> Dom {
-        List::new_static(vec![
-            Card::new()
-                .title("Static navigation drawer", None)
-                .body(html!("div", {
+        Card::new()
+            .apply(|v| v.class("demo-card"))
+            .body(List::new_static(vec![
+                Card::new()
+                    .title("Static navigation drawer", None)
+                    .body(html!("div", {
                         .class("navigation-drawer-demo")
                         .child(Self::static_drawers(true))
                     }))
-                .render(),
-            Card::new()
-                .title("Modal navigation drawer", None)
-                .body(html!("div", {
+                    .render(),
+                Card::new()
+                    .title("Modal navigation drawer", None)
+                    .body(html!("div", {
                         .class("navigation-drawer-demo")
                         .child(Self::modal_drawers())
                     }))
-                .render(),
-            Card::new()
-                .title("Static navigation drawer without toggle controls", None)
-                .body(html!("div", {
+                    .render(),
+                Card::new()
+                    .title("Static navigation drawer without toggle controls", None)
+                    .body(html!("div", {
                         .class("navigation-drawer-demo")
                         .child(Self::static_drawers(false))
                     }))
-                .render(),
-        ])
+                    .render(),
+            ]))
+            .render()
     }
 
     fn static_drawers(toggle: bool) -> Dom {
-        Self::make_drawer()
-            .show_toggle_controls(toggle)
-            .render()
+        Self::make_drawer().show_toggle_controls(toggle).render()
     }
 
     fn modal_drawers() -> Dom {
@@ -93,7 +94,7 @@ impl NavigationDrawerDemo {
                         Some(ExampleViews::Other) => html!("span", { .text("Other view") }),
                         _ => html!("span", { .text("Some view") }),
                     })
-                        .render(),
+                    .render(),
                 )
             })
     }

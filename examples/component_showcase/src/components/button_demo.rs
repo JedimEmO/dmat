@@ -11,9 +11,11 @@ impl ButtonDemo {
     }
 
     pub fn render(self: Rc<Self>) -> Dom {
-        html!("div", {
-            .child(html!("div", {
+        Card::new()
+            .apply(|v| v.class("demo-cards"))
+            .body(html!("div", {
                 .class("demo-cards")
+                .class("demo-card")
                 .children(&mut[
                     Card::new()
                         .header(html!("div", { .text("ButtonType::Contained") }))
@@ -24,7 +26,6 @@ impl ButtonDemo {
                             })
                             .render())
                         .render(),
-
                     Card::new()
                         .header(html!("div", { .text("ButtonType::Text") }))
                         .body(Button::new()
@@ -47,6 +48,6 @@ impl ButtonDemo {
                         .render()
                 ])
             }))
-        })
+            .render()
     }
 }
