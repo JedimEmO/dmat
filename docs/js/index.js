@@ -1,7 +1,9 @@
 (function () {
     'use strict';
 
-    function add_event(elem, name, f) {
+    function set_property(obj, name, value) { obj[name] = value; }
+
+        function add_event(elem, name, f) {
             elem.addEventListener(name, f, {
                 capture: true,
                 once: false,
@@ -309,10 +311,6 @@
         imports.wbg.__wbindgen_object_drop_ref = function(arg0) {
             takeObject(arg0);
         };
-        imports.wbg.__wbindgen_object_clone_ref = function(arg0) {
-            var ret = getObject(arg0);
-            return addHeapObject(ret);
-        };
         imports.wbg.__wbindgen_cb_drop = function(arg0) {
             const obj = takeObject(arg0).original;
             if (obj.cnt-- == 1) {
@@ -321,6 +319,10 @@
             }
             var ret = false;
             return ret;
+        };
+        imports.wbg.__wbindgen_object_clone_ref = function(arg0) {
+            var ret = getObject(arg0);
+            return addHeapObject(ret);
         };
         imports.wbg.__wbg_self_1c83eb4471d9eb9b = handleError(function() {
             var ret = self.self;
@@ -361,6 +363,10 @@
             var ret = getStringFromWasm0(arg0, arg1);
             return addHeapObject(ret);
         };
+        imports.wbg.__wbg_setproperty_63cd02ca3f62dac4 = function(arg0, arg1, arg2, arg3) {
+            var v0 = getCachedStringFromWasm0(arg1, arg2);
+            set_property(getObject(arg0), v0, getObject(arg3));
+        };
         imports.wbg.__wbg_addevent_ccc6ab519df88e22 = function(arg0, arg1, arg2, arg3) {
             var v0 = getCachedStringFromWasm0(arg1, arg2);
             add_event(getObject(arg0), v0, getObject(arg3));
@@ -395,6 +401,21 @@
             var ret = getObject(arg0).createTextNode(v0);
             return addHeapObject(ret);
         };
+        imports.wbg.__wbg_instanceof_HtmlInputElement_aaef9fb14eceaa9b = function(arg0) {
+            var ret = getObject(arg0) instanceof HTMLInputElement;
+            return ret;
+        };
+        imports.wbg.__wbg_value_bff6f7ef104e077a = function(arg0, arg1) {
+            var ret = getObject(arg1).value;
+            var ptr0 = passStringToWasm0(ret, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            var len0 = WASM_VECTOR_LEN;
+            getInt32Memory0()[arg0 / 4 + 1] = len0;
+            getInt32Memory0()[arg0 / 4 + 0] = ptr0;
+        };
+        imports.wbg.__wbg_target_02b2c4e71f788cc6 = function(arg0) {
+            var ret = getObject(arg0).target;
+            return isLikeNone(ret) ? 0 : addHeapObject(ret);
+        };
         imports.wbg.__wbg_appendChild_77215fd672b162c5 = handleError(function(arg0, arg1) {
             var ret = getObject(arg0).appendChild(getObject(arg1));
             return addHeapObject(ret);
@@ -415,9 +436,18 @@
             var ret = getObject(arg0).classList;
             return addHeapObject(ret);
         };
+        imports.wbg.__wbg_setAttribute_727bdb9763037624 = handleError(function(arg0, arg1, arg2, arg3, arg4) {
+            var v0 = getCachedStringFromWasm0(arg1, arg2);
+            var v1 = getCachedStringFromWasm0(arg3, arg4);
+            getObject(arg0).setAttribute(v0, v1);
+        });
         imports.wbg.__wbg_instanceof_HtmlElement_9cd64b297a10eb1e = function(arg0) {
             var ret = getObject(arg0) instanceof HTMLElement;
             return ret;
+        };
+        imports.wbg.__wbg_setdata_5cc6e46b02ab766a = function(arg0, arg1, arg2) {
+            var v0 = getCachedStringFromWasm0(arg1, arg2);
+            getObject(arg0).data = v0;
         };
         imports.wbg.__wbg_add_8b1639d7f0da2a2a = handleError(function(arg0, arg1, arg2) {
             var v0 = getCachedStringFromWasm0(arg1, arg2);
@@ -427,6 +457,17 @@
             var v0 = getCachedStringFromWasm0(arg1, arg2);
             getObject(arg0).remove(v0);
         });
+        imports.wbg.__wbg_instanceof_HtmlTextAreaElement_6c876047bbe08f92 = function(arg0) {
+            var ret = getObject(arg0) instanceof HTMLTextAreaElement;
+            return ret;
+        };
+        imports.wbg.__wbg_value_91d41b8dbd0b2f0b = function(arg0, arg1) {
+            var ret = getObject(arg1).value;
+            var ptr0 = passStringToWasm0(ret, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+            var len0 = WASM_VECTOR_LEN;
+            getInt32Memory0()[arg0 / 4 + 1] = len0;
+            getInt32Memory0()[arg0 / 4 + 0] = ptr0;
+        };
         imports.wbg.__wbg_call_8e95613cc6524977 = handleError(function(arg0, arg1) {
             var ret = getObject(arg0).call(getObject(arg1));
             return addHeapObject(ret);
@@ -470,16 +511,16 @@
         imports.wbg.__wbindgen_throw = function(arg0, arg1) {
             throw new Error(getStringFromWasm0(arg0, arg1));
         };
-        imports.wbg.__wbindgen_closure_wrapper330 = function(arg0, arg1, arg2) {
-            var ret = makeMutClosure(arg0, arg1, 137, __wbg_adapter_16);
+        imports.wbg.__wbindgen_closure_wrapper75 = function(arg0, arg1, arg2) {
+            var ret = makeMutClosure(arg0, arg1, 5, __wbg_adapter_16);
             return addHeapObject(ret);
         };
-        imports.wbg.__wbindgen_closure_wrapper426 = function(arg0, arg1, arg2) {
-            var ret = makeMutClosure(arg0, arg1, 178, __wbg_adapter_19);
+        imports.wbg.__wbindgen_closure_wrapper493 = function(arg0, arg1, arg2) {
+            var ret = makeMutClosure(arg0, arg1, 206, __wbg_adapter_19);
             return addHeapObject(ret);
         };
-        imports.wbg.__wbindgen_closure_wrapper487 = function(arg0, arg1, arg2) {
-            var ret = makeMutClosure(arg0, arg1, 195, __wbg_adapter_22);
+        imports.wbg.__wbindgen_closure_wrapper559 = function(arg0, arg1, arg2) {
+            var ret = makeMutClosure(arg0, arg1, 223, __wbg_adapter_22);
             return addHeapObject(ret);
         };
 
@@ -495,7 +536,7 @@
         return wasm;
     }
 
-    init("js/assets/dominator-material-component-showcase-db61135f.wasm").catch(console.error);
+    init("js/assets/dominator-material-component-showcase-b4bae0e8.wasm").catch(console.error);
 
 }());
 //# sourceMappingURL=index.js.map
