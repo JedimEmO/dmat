@@ -1,5 +1,5 @@
 use dominator::{clone, events, html, Dom};
-
+use futures_signals::map_ref;
 use futures_signals::signal::Mutable;
 use futures_signals::signal::SignalExt;
 use futures_util::future::ready;
@@ -40,8 +40,11 @@ impl<T: Clone + From<InputValue> + Into<InputValue> + 'static> TextElement<T> {
         self
     }
 
-    pub fn validator(mut self: Self, validator: Rc<dyn Fn(&T) -> bool>) -> Self {
-        self.validator = Some(validator);
+    pub fn validator<F>(mut self: Self, validator: F) -> Self
+    where
+        F: Fn(&T) -> bool + 'static,
+    {
+        self.validator = Some(Rc::new(validator));
         self
     }
 
@@ -80,8 +83,14 @@ fn text_element<T: Clone + From<InputValue> + Into<InputValue> + 'static>(
 
         let input = html!("input", {
             .future(clone!(field => async move {
-                field.depends_on.signal().for_each(|_| {
-                    field.validate(&field.value.get_cloned());
+                let deps = map_ref!(
+                    let deps = field.depends_on.signal(),
+                    let val =  field.value.signal_cloned() => move {
+                        field.validate(&field.value.get_cloned());
+                    }
+                );
+
+                deps.for_each(|_| {
                     ready(())
                 }).await;
             }))
@@ -121,14 +130,19 @@ fn text_element<T: Clone + From<InputValue> + Into<InputValue> + 'static>(
                 html!("label", {
                     .text(label.as_str())
                     .attribute("for", id.as_str())
-                    .class_signal("above", field.has_focus.signal().map(clone!(field => move|focus| {
-                        let has_value = match field.value.get_cloned().into() {
-                            InputValue::Text(txt) => txt.len() > 0,
-                            _ => false
-                        };
+                    .class_signal("above",
+                        clone!(field => map_ref!(
+                            let focus = field.has_focus.signal_cloned(),
+                            let value = field.value.signal_cloned() => move {
+                                let has_value = match field.value.get_cloned().into() {
+                                    InputValue::Text(txt) => txt.len() > 0,
+                                    _ => false
+                                };
 
-                        focus || has_value
-                    })))
+                                *focus || has_value
+                            }
+                        ))
+                    )
                     .class("dmat-floating-label")
                 }),
             ],

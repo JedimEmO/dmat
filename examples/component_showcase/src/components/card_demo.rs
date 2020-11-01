@@ -22,7 +22,7 @@ impl CardDemo {
                             ])
                         })).render(),
             Card::new()
-                .body(html!("div", { .text("Only a body") }))
+                .body(html!("div", { .text("Only a body") })) 
                 .render(),
 
             Card::new()
