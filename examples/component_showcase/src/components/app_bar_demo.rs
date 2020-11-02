@@ -8,7 +8,7 @@ use dominator_material::components::{
 use dominator_material::utils::renderable_child::IntoRenderableChild;
 
 use crate::components::navigation_drawer_demo::NavigationDrawerDemo;
-use dominator_material::components::layouts::Container;
+use dominator_material::components::layouts::{AppBarType, Container};
 
 pub struct AppBarDemo {}
 
@@ -20,9 +20,9 @@ impl AppBarDemo {
     pub fn render(self) -> Dom {
         let app_bar_standard = AppBar::new()
             .header(
-                html!("div", {
+                html!("h1", {
                     .class("app-bar-demo-header")
-                    .text("hei")
+                    .text("Normal unfixed app bar")
                 })
                 .into_renderable_child(),
             )
@@ -35,13 +35,15 @@ impl AppBarDemo {
 
         let app_bar_with_drawer = AppBar::new()
             .header(
-                html!("div", {
+                html!("h1", {
                     .class("app-bar-demo-header")
-                    .text("hei")
+                    .text("Prominent fixed app bar")
                 })
                 .into_renderable_child(),
             )
             .main(always(true).map(|_| Some(NavigationDrawerDemo::static_drawers(true))))
+            .bar_type(AppBarType::Prominent)
+            .fixed()
             .render();
 
         let drawer_with_app_bar = NavigationDrawer::new()
@@ -59,6 +61,7 @@ impl AppBarDemo {
                     text: "Spam".to_string(),
                 }),
             ])
+            .title_view_generator(|_, _| Some(html!("div", {.text("Outer modal drawer")})))
             .modal(true)
             .main_view_generator(|_, _| {
                 Some(
@@ -74,6 +77,7 @@ impl AppBarDemo {
                                 .render()
                                 .into_renderable_child(),
                         )
+                        .fixed()
                         .render(),
                 )
             })
@@ -84,18 +88,15 @@ impl AppBarDemo {
             .body(List::new_static(vec![
                 Card::new()
                     .apply(|v| v.class("app-bar-demo"))
+                    .body(drawer_with_app_bar)
+                    .render(),
+                Card::new()
+                    .apply(|v| v.class("app-bar-demo"))
                     .body(app_bar_standard)
-                    .title("Standard", None)
                     .render(),
                 Card::new()
                     .apply(|v| v.class("app-bar-demo"))
                     .body(app_bar_with_drawer)
-                    .title("Standard", None)
-                    .render(),
-                Card::new()
-                    .apply(|v| v.class("app-bar-demo"))
-                    .body(drawer_with_app_bar)
-                    .title("Drawer with app bar", None)
                     .render(),
             ]))
             .render();

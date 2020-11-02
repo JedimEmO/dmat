@@ -1,5 +1,20 @@
 @import "colors";
 
+$dmat-app-bar-height: 4rem;
+$dmat-app-bar-height-prominent: 7rem;
+
+.dmat-app-bar.-fixed {
+  & > .viewport {
+    position: absolute;
+
+    & > .header {
+      position: fixed;
+    }
+  } .header {
+
+  }
+}
+
 .dmat-app-bar {
   position: absolute;
   transform: translateZ(0);
@@ -17,12 +32,19 @@
     right: 0;
 
     & > .header {
-      position: fixed;
+      position: absolute;
       z-index: 2;
       left: 0;
       right: 0;
       top: 0;
-      height: 3rem;
+      height: $dmat-app-bar-height;
+      display: flex;
+      align-items: center;
+
+      &.-prominent {
+        height: $dmat-app-bar-height-prominent;
+      }
+
       background: $dmat-primary;
       color: $dmat-text-on-primary;
     }
@@ -31,7 +53,11 @@
       position: relative;
       width: 100%;
       height: 100%;
-      top: 3rem;
+      top: $dmat-app-bar-height;
+
+      &.-prominent {
+        top: $dmat-app-bar-height-prominent;
+      }
     }
   }
 }

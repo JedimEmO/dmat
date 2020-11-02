@@ -101,6 +101,7 @@ impl MainView {
                         })
                         .map(|v| Some(Container::new(v.unwrap()).render())),
                 )
+                .fixed()
                 .render()
         })
     }

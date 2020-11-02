@@ -1,3 +1,8 @@
+.dmat-app-bar.-fixed > .viewport {
+  position: absolute; }
+  .dmat-app-bar.-fixed > .viewport > .header {
+    position: fixed; }
+
 .dmat-app-bar {
   position: absolute;
   transform: translateZ(0);
@@ -13,16 +18,22 @@
     bottom: 0;
     right: 0; }
     .dmat-app-bar > .viewport > .header {
-      position: fixed;
+      position: absolute;
       z-index: 2;
       left: 0;
       right: 0;
       top: 0;
-      height: 3rem;
+      height: 4rem;
+      display: flex;
+      align-items: center;
       background: #263238;
       color: #ffffff; }
+      .dmat-app-bar > .viewport > .header.-prominent {
+        height: 7rem; }
     .dmat-app-bar > .viewport > .main {
       position: relative;
       width: 100%;
       height: 100%;
-      top: 3rem; }
+      top: 4rem; }
+      .dmat-app-bar > .viewport > .main.-prominent {
+        top: 7rem; }

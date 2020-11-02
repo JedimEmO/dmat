@@ -515,12 +515,12 @@
             var ret = makeMutClosure(arg0, arg1, 5, __wbg_adapter_16);
             return addHeapObject(ret);
         };
-        imports.wbg.__wbindgen_closure_wrapper493 = function(arg0, arg1, arg2) {
-            var ret = makeMutClosure(arg0, arg1, 206, __wbg_adapter_19);
+        imports.wbg.__wbindgen_closure_wrapper490 = function(arg0, arg1, arg2) {
+            var ret = makeMutClosure(arg0, arg1, 207, __wbg_adapter_19);
             return addHeapObject(ret);
         };
-        imports.wbg.__wbindgen_closure_wrapper559 = function(arg0, arg1, arg2) {
-            var ret = makeMutClosure(arg0, arg1, 223, __wbg_adapter_22);
+        imports.wbg.__wbindgen_closure_wrapper556 = function(arg0, arg1, arg2) {
+            var ret = makeMutClosure(arg0, arg1, 224, __wbg_adapter_22);
             return addHeapObject(ret);
         };
 
@@ -536,7 +536,7 @@
         return wasm;
     }
 
-    init("js/assets/dominator-material-component-showcase-b4bae0e8.wasm").catch(console.error);
+    init("js/assets/dominator-material-component-showcase-a83b97eb.wasm").catch(console.error);
 
 }());
 //# sourceMappingURL=index.js.map
