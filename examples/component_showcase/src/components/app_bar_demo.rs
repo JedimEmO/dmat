@@ -2,13 +2,13 @@ use dominator::{html, Dom};
 use futures_signals::signal::always;
 use futures_signals::signal::SignalExt;
 
+use dominator_material::components::layouts::{AppBarType, Container};
 use dominator_material::components::{
     layouts::AppBar, Card, List, NavigationDrawer, NavigationDrawerEntry, NavigationEntry,
 };
 use dominator_material::utils::renderable_child::IntoRenderableChild;
 
 use crate::components::navigation_drawer_demo::NavigationDrawerDemo;
-use dominator_material::components::layouts::{AppBarType, Container};
 
 pub struct AppBarDemo {}
 
@@ -83,24 +83,22 @@ impl AppBarDemo {
             })
             .render();
 
-        let app_bar_card = Card::new()
+        Card::new()
             .apply(|v| v.class("demo-card"))
             .body(List::new_static(vec![
-                Card::new()
-                    .apply(|v| v.class("app-bar-demo"))
-                    .body(drawer_with_app_bar)
-                    .render(),
-                Card::new()
-                    .apply(|v| v.class("app-bar-demo"))
-                    .body(app_bar_standard)
-                    .render(),
-                Card::new()
-                    .apply(|v| v.class("app-bar-demo"))
-                    .body(app_bar_with_drawer)
-                    .render(),
+                html!("div", {
+                    .class("app-bar-demo")
+                    .child(drawer_with_app_bar)
+                }),
+                html!("div", {
+                    .class("app-bar-demo")
+                    .child(app_bar_standard)
+                }),
+                html!("div", {
+                    .class("app-bar-demo")
+                    .child(app_bar_with_drawer)
+                }),
             ]))
-            .render();
-
-        Card::new().body(app_bar_card).render()
+            .render()
     }
 }
