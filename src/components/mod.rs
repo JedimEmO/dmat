@@ -1,6 +1,7 @@
 pub use button::*;
 pub use card::*;
 pub use data_table::*;
+pub use icon::*;
 pub use input::*;
 pub use list::*;
 pub use navigation_drawer::*;
@@ -10,6 +11,7 @@ pub use tabs::*;
 pub mod button;
 pub mod card;
 pub mod data_table;
+pub mod icon;
 pub mod input;
 pub mod layouts;
 pub mod list;

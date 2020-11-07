@@ -34,12 +34,12 @@ impl InputDemo {
                     html!("div", {
                         .children(&mut [
                             TextElement::new(self.text_value.clone())
-                                .label("Invalid")
+                                .label("Invalid") 
                                 .validator(|_| false)
                                 .render()
                         ])
                     }),
-                    html!("div", {
+                    html!("div", {  
                         .children(&mut [
                             TextElement::new(self.text_value.clone())
                                 .label("Accepts `foobar`")

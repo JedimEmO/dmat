@@ -26,6 +26,6 @@ export default {
             port: 8080
         }),
 
-        is_watch && livereload("dist")
+        is_watch && livereload("dist"),
     ],
 };

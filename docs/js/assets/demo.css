@@ -36,3 +36,20 @@
 
 .demo-card {
   width: 70rem; }
+
+.dmat-icon {
+  color: #000000; }
+  .dmat-icon.-small {
+    width: 18px;
+    height: 18px; }
+  .dmat-icon.-normal {
+    width: 24px;
+    height: 24px; }
+  .dmat-icon.-large {
+    width: 36px;
+    height: 36px; }
+  .dmat-icon.-extra-large {
+    width: 48px;
+    height: 48px; }
+  .dmat-icon:hover {
+    color: #505050; }
