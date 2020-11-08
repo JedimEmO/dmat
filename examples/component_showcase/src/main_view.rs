@@ -9,6 +9,7 @@ use dominator_material::components::{layouts::Container, Tab, Tabs};
 use crate::components::app_bar_demo::AppBarDemo;
 use crate::components::button_demo::ButtonDemo;
 use crate::components::card_demo::CardDemo;
+use crate::components::carousel_demo::CarouselDemo;
 use crate::components::data_table_demo::DataTableDemo;
 use crate::components::input_demo::InputDemo;
 use crate::components::list_demo::ListDemo;
@@ -20,6 +21,7 @@ enum DemoTabs {
     AppBar,
     Button,
     List,
+    Carousel,
     Card,
     Tabs,
     DataTable,
@@ -43,7 +45,7 @@ impl MainView {
             AppBar::new()
                 .header(
                     Tabs::new()
-                        .initial_active_tab_id(Some(DemoTabs::AppBar))
+                        .initial_active_tab_id(Some(DemoTabs::Carousel))
                         .on_tab_change(clone!(main_view => move |id| {
                             if let Some(id) = id {
                                 main_view.active_tab.set_neq(id);
@@ -57,6 +59,10 @@ impl MainView {
                             Tab {
                                 label: "Button".into(),
                                 id: DemoTabs::Button,
+                            },
+                            Tab {
+                                label: "Carousel".into(),
+                                id: DemoTabs::Carousel,
                             },
                             Tab {
                                 label: "Card".into(),
@@ -93,6 +99,7 @@ impl MainView {
                             DemoTabs::AppBar => Some(AppBarDemo::new().render()),
                             DemoTabs::Button => Some(ButtonDemo::new().render()),
                             DemoTabs::List => Some(ListDemo::new().render()),
+                            DemoTabs::Carousel => Some(CarouselDemo::new().render()),
                             DemoTabs::Card => Some(CardDemo::new().render()),
                             DemoTabs::DataTable => Some(DataTableDemo::new().render()),
                             DemoTabs::Input => Some(InputDemo::new().render()),

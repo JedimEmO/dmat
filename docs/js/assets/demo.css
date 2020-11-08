@@ -53,3 +53,14 @@
     height: 48px; }
   .dmat-icon:hover {
     color: #505050; }
+
+.showcase-drawer-carousel-inner {
+  position: relative;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50rem;
+  height: 40rem; }
+
+.demo-carousel {
+  width: 60rem;
+  height: 40rem; }

@@ -1,0 +1,64 @@
+@import "colors";
+
+.dmat-carousel {
+  & > .container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: 500ms;
+
+    & > .dmat-carousel-item {
+      position: absolute;
+      overflow: hidden;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      z-index: 0;
+      transition: left 0.5s, right 0.5s;
+
+      & > .dmat-carousel-item-inner {
+        position: relative;
+        width: 100%;
+        height: 100%;
+      }
+
+      &.-leave-left {
+        right: 100%;
+        z-index: 1;
+      }
+
+      &.-leave-right {
+        left: 100%;
+        z-index: 1;
+      }
+
+      &.-hidden {
+        display: none;
+      }
+    }
+
+    & .dmat-carousel-button {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 3rem;
+      background-color: $dmat-surface-dark;
+      opacity: 20%;
+      transition: opacity 250ms;
+      z-index: 3;
+
+      &:hover {
+        opacity: 80%;
+      }
+    }
+
+    & .dmat-carousel-left-button {
+      left: 0;
+    }
+
+    & .dmat-carousel-right-button {
+      right: 0;
+    }
+  }
+}
