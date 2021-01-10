@@ -12,7 +12,7 @@ lto = true
 crate-type = ["cdylib"]
 
 [dependencies]
-dominator = "0.5.11"
+dominator = "0.5.14"
 dominator-material = { path = "../../" }
 futures = "0.3.6"
 futures-signals = "0.3.15"

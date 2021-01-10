@@ -1,0 +1,29 @@
+@import "colors";
+
+.dmat-icon {
+  color: $dmat-icon-on-secondary;
+
+  &.-small {
+    width: 18px;
+    height: 18px;
+  }
+
+  &.-normal {
+    width: 24px;
+    height: 24px;
+  }
+
+  &.-large {
+    width: 36px;
+    height: 36px;
+  }
+
+  &.-extra-large {
+    width: 48px;
+    height: 48px;
+  }
+
+  &:hover {
+    color: $dmat-icon-on-secondary-active;
+  }
+}

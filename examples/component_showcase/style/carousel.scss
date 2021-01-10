@@ -5,7 +5,6 @@
     position: relative;
     width: 100%;
     height: 100%;
-    transition: 500ms;
 
     & > .dmat-carousel-item {
       position: absolute;
@@ -25,11 +24,15 @@
 
       &.-leave-left {
         right: 100%;
+        opacity: 0.3;
+        background-color: $dmat-surface-dark;
         z-index: 1;
       }
 
       &.-leave-right {
         left: 100%;
+        opacity: 0.3;
+        background-color: $dmat-surface-dark;
         z-index: 1;
       }
 

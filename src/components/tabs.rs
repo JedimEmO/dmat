@@ -1,6 +1,6 @@
 use dominator::{clone, events, html, Dom};
-use futures_signals::signal::SignalExt;
 use futures_signals::signal::{Mutable, ReadOnlyMutable};
+use futures_signals::signal::{Signal, SignalExt};
 use futures_signals::signal_vec::SignalVec;
 use futures_signals::signal_vec::SignalVecExt;
 use futures_util::StreamExt;
@@ -12,76 +12,23 @@ pub struct Tab<TabId: Clone> {
     pub id: TabId,
 }
 
-struct TabExternal<TabId: Clone> {
-    current_active: Mutable<Option<TabId>>,
-}
-
-enum TabMeta<TabId: Clone> {
-    Owned(Mutable<Option<TabId>>),
-    External(TabExternal<TabId>),
-}
-
-impl<TabId: Clone> TabMeta<TabId> {
-    fn read_active(&self) -> ReadOnlyMutable<Option<TabId>> {
-        match self {
-            TabMeta::Owned(m) => m.read_only(),
-            TabMeta::External(ext) => ext.current_active.read_only(),
-        }
-    }
-
-    fn active_mutable(&self) -> Mutable<Option<TabId>> {
-        match self {
-            TabMeta::External(_ext) => Mutable::new(None),
-            TabMeta::Owned(owned) => owned.clone(),
-        }
-    }
-}
-
 pub struct Tabs<TabId: Clone> {
-    tab_meta: TabMeta<TabId>,
-    on_tab_change: Option<Rc<dyn Fn(Option<TabId>)>>,
+    current_tab: Mutable<TabId>,
 }
 
 impl<TabId: Clone + std::cmp::PartialEq + 'static> Tabs<TabId> {
-    pub fn new() -> Tabs<TabId> {
-        Tabs {
-            tab_meta: TabMeta::Owned(Mutable::new(None)),
-            on_tab_change: None,
-        }
-    }
-
-    pub fn initial_active_tab_id(self, id: Option<TabId>) -> Self {
-        self.tab_meta.active_mutable().set(id);
-        self
-    }
-
-    pub fn on_tab_change<F: 'static>(mut self, change_listener: F) -> Self
-    where
-        F: Fn(Option<TabId>),
-    {
-        self.on_tab_change = Some(Rc::new(change_listener));
-        self
+    pub fn new(current_tab: Mutable<TabId>) -> Tabs<TabId> {
+        Tabs { current_tab }
     }
 
     pub fn build_static(self, tabs: Vec<Tab<TabId>>) -> Dom {
         let state = Rc::new(self);
 
         Dom::with_state(state, |state| {
-            let mut active_stream = state.tab_meta.read_active().signal_cloned().to_stream();
-
             html!("div", {
-                .future(clone!(state => async move {
-                    loop {
-                        if let Some(tab) = active_stream.next().await {
-                            if let Some(cb) = &state.on_tab_change {
-                                cb(tab);
-                            }
-                        }
-                    }
-                }))
                 .class("dmat-tabs")
                 .children(tabs.iter().map(clone!(state => move |v| {
-                    tab(v, &state.tab_meta)
+                    tab(v, &state.current_tab)
                 })))
             })
         })
@@ -94,21 +41,10 @@ impl<TabId: Clone + std::cmp::PartialEq + 'static> Tabs<TabId> {
         let state = Rc::new(self);
 
         Dom::with_state(state, move |state| {
-            let mut active_stream = state.tab_meta.read_active().signal_cloned().to_stream();
-
             html!("div", {
-                .future(clone!(state => async move {
-                    loop {
-                        if let Some(tab) = active_stream.next().await {
-                            if let Some(cb) = &state.on_tab_change {
-                                cb(tab);
-                            }
-                        }
-                    }
-                }))
                 .class("dmat-tabs")
                 .children_signal_vec(tabs.map(clone!(state => move |v| {
-                    tab(&v, &state.tab_meta)
+                    tab(&v, &state.current_tab)
                 })))
             })
         })
@@ -117,10 +53,9 @@ impl<TabId: Clone + std::cmp::PartialEq + 'static> Tabs<TabId> {
 
 fn tab<TabId: Clone + std::cmp::PartialEq + 'static>(
     tab: &Tab<TabId>,
-    meta: &TabMeta<TabId>,
+    meta: &Mutable<TabId>,
 ) -> Dom {
-    let active = meta.read_active();
-    let set_active = meta.active_mutable();
+    let active = meta.get_cloned();
 
     html!("button", {
         .children(&mut [
@@ -130,18 +65,13 @@ fn tab<TabId: Clone + std::cmp::PartialEq + 'static>(
             })
         ])
         .class("tab")
-        .class_signal("active", meta.read_active().signal_cloned().map(clone!(tab => move |e| {
-                match e {
-                    Some(inc) => {
-                        tab.id == inc
-                    },
-                    _ => false
-                }
+        .class_signal("active", meta.signal_cloned().map(clone!(tab => move |e| {
+                tab.id == e
             }))
         )
-        .event(clone!(active, set_active, tab => move |_: events::Click| {
-            if active.get_cloned() != Some(tab.id.clone()) {
-                set_active.set_neq(Some(tab.id.clone()));
+        .event(clone!(active, meta, tab => move |_: events::Click| {
+            if active != tab.id.clone() {
+                meta.set_neq(tab.id.clone());
             }
         }))
     })

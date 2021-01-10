@@ -41,16 +41,11 @@ impl MainView {
     }
 
     pub fn render(self: Rc<Self>) -> Dom {
+        let active_tab = self.active_tab.clone();
         Dom::with_state(self, |main_view| {
             AppBar::new()
                 .header(
-                    Tabs::new()
-                        .initial_active_tab_id(Some(DemoTabs::Carousel))
-                        .on_tab_change(clone!(main_view => move |id| {
-                            if let Some(id) = id {
-                                main_view.active_tab.set_neq(id);
-                            }
-                        }))
+                    Tabs::new(active_tab.clone())
                         .build_static(vec![
                             Tab {
                                 label: "App Bar".into(),
