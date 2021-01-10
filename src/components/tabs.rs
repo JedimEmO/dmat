@@ -14,11 +14,23 @@ pub struct Tab<TabId: Clone> {
 
 pub struct Tabs<TabId: Clone> {
     current_tab: Mutable<TabId>,
+    on_tab_change: Option<Rc<dyn Fn(TabId)>>,
 }
 
 impl<TabId: Clone + std::cmp::PartialEq + 'static> Tabs<TabId> {
     pub fn new(current_tab: Mutable<TabId>) -> Tabs<TabId> {
-        Tabs { current_tab }
+        Tabs {
+            current_tab,
+            on_tab_change: None,
+        }
+    }
+
+    pub fn on_tab_select<F: 'static>(mut self, change_listener: F) -> Self
+    where
+        F: Fn(TabId),
+    {
+        self.on_tab_change = Some(Rc::new(change_listener));
+        self
     }
 
     pub fn build_static(self, tabs: Vec<Tab<TabId>>) -> Dom {
@@ -28,7 +40,7 @@ impl<TabId: Clone + std::cmp::PartialEq + 'static> Tabs<TabId> {
             html!("div", {
                 .class("dmat-tabs")
                 .children(tabs.iter().map(clone!(state => move |v| {
-                    tab(v, &state.current_tab)
+                    tab(v, &state.current_tab, state.on_tab_change.clone())
                 })))
             })
         })
@@ -44,7 +56,7 @@ impl<TabId: Clone + std::cmp::PartialEq + 'static> Tabs<TabId> {
             html!("div", {
                 .class("dmat-tabs")
                 .children_signal_vec(tabs.map(clone!(state => move |v| {
-                    tab(&v, &state.current_tab)
+                    tab(&v, &state.current_tab, state.on_tab_change.clone())
                 })))
             })
         })
@@ -54,9 +66,8 @@ impl<TabId: Clone + std::cmp::PartialEq + 'static> Tabs<TabId> {
 fn tab<TabId: Clone + std::cmp::PartialEq + 'static>(
     tab: &Tab<TabId>,
     meta: &Mutable<TabId>,
+    select_cb: Option<Rc<dyn Fn(TabId)>>,
 ) -> Dom {
-    let active = meta.get_cloned();
-
     html!("button", {
         .children(&mut [
             html!("span", { .text(tab.label.as_str())}),
@@ -69,9 +80,13 @@ fn tab<TabId: Clone + std::cmp::PartialEq + 'static>(
                 tab.id == e
             }))
         )
-        .event(clone!(active, meta, tab => move |_: events::Click| {
-            if active != tab.id.clone() {
-                meta.set_neq(tab.id.clone());
+        .event(clone!(meta, tab, select_cb => move |_: events::Click| {
+            let active = meta.get_cloned();
+
+            if active != tab.id {
+                if let Some(cb) = &select_cb {
+                    cb(tab.id.clone())
+                }
             }
         }))
     })
