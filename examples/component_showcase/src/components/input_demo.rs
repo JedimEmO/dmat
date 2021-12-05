@@ -1,9 +1,10 @@
 use dominator::{html, Dom};
 use futures_signals::signal::Mutable;
 use futures_signals::signal::SignalExt;
+use futures_signals::signal_vec::always;
 
 use dominator_material::components::layouts::Container;
-use dominator_material::components::{Card, List, TextElement};
+use dominator_material::components::{list, text_element, Card, TextElementProps};
 
 pub struct InputDemo {
     text_value: Mutable<String>,
@@ -20,12 +21,10 @@ impl InputDemo {
         Container::new(
             Card::new()
                 .apply(|v| v.class("demo-card"))
-                .body(List::new_static(vec![
+                .body(list(always(vec![
                     html!("div", {
                         .children(&mut [
-                            TextElement::new(self.text_value.clone())
-                                .label("Text value")
-                                .render(),
+                            text_element(TextElementProps { value: self.text_value.clone(), ..Default::default()}).0,
                             html!("span", { 
                                 .text_signal(self.text_value.signal_cloned().map(|v| format!(" Value: {}", v)))
                             })
@@ -33,21 +32,19 @@ impl InputDemo {
                     }),
                     html!("div", {
                         .children(&mut [
-                            TextElement::new(self.text_value.clone())
+                            text_element(TextElementProps::new(self.text_value.clone())
                                 .label("Invalid") 
-                                .validator(|_| false)
-                                .render()
+                                .validator(|_| false)).0
                         ])
                     }),
                     html!("div", {  
                         .children(&mut [
-                            TextElement::new(self.text_value.clone())
+                            text_element(TextElementProps::new(self.text_value.clone())
                                 .label("Accepts `foobar`")
-                                .validator(|v| v == "foobar")
-                                .render()
+                                .validator(|v| v == "foobar")).0
                         ])
                     })
-                ]))
+                ])))
                 .render(),
         )
         .render()

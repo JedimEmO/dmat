@@ -1,6 +1,6 @@
 use dominator::{html, Dom};
 
-use dominator_material::components::{Button, ButtonType, Card};
+use dominator_material::components::{button, ButtonProps, ButtonType, Card};
 
 pub struct CardDemo {}
 
@@ -17,8 +17,8 @@ impl CardDemo {
                 .footer(html!("div", {
                             .class("demo-buttons")
                             .children(&mut [
-                                html!("div", { .class("demo-button") .child(Button::new().text("A button").button_type(ButtonType::Text).render()) }),
-                                html!("div", { .class("demo-button") .child(Button::new().text("Another button").button_type(ButtonType::Text).render()) }),
+                                html!("div", { .class("demo-button") .child(button(ButtonProps::new().text("A button").button_type(ButtonType::Text))) }),
+                                html!("div", { .class("demo-button") .child(button(ButtonProps::new().text("Another button").button_type(ButtonType::Text))) }),
                             ])
                         })).render(),
             Card::new()

@@ -1,10 +1,12 @@
 use dominator::{clone, html, Dom};
 use futures_signals::signal::Mutable;
 use futures_signals::signal::SignalExt;
+use futures_signals::signal_vec::always;
 use wasm_bindgen::__rt::std::rc::Rc;
 
 use dominator_material::components::layouts::AppBar;
-use dominator_material::components::{layouts::Container, Tab, Tabs};
+use dominator_material::components::{layouts::Container, tabs, Tab, TabContent};
+use dominator_material::utils::renderable_child::IntoRenderableChild;
 
 use crate::components::app_bar_demo::AppBarDemo;
 use crate::components::button_demo::ButtonDemo;
@@ -12,11 +14,10 @@ use crate::components::card_demo::CardDemo;
 use crate::components::carousel_demo::CarouselDemo;
 use crate::components::data_table_demo::DataTableDemo;
 use crate::components::input_demo::InputDemo;
-use crate::components::list_demo::ListDemo;
+use crate::components::list_demo::list_demo;
 use crate::components::navigation_drawer_demo::NavigationDrawerDemo;
-use dominator_material::utils::renderable_child::IntoRenderableChild;
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Debug)]
 enum DemoTabs {
     AppBar,
     Button,
@@ -36,55 +37,59 @@ pub struct MainView {
 impl MainView {
     pub fn new() -> Rc<MainView> {
         Rc::new(MainView {
-            active_tab: Mutable::new(DemoTabs::Card),
+            active_tab: Mutable::new(DemoTabs::AppBar),
         })
     }
 
     pub fn render(self: Rc<Self>) -> Dom {
         let active_tab = self.active_tab.clone();
+
         Dom::with_state(self, |main_view| {
             AppBar::new()
                 .header(
-                    Tabs::new(active_tab.clone())
-                        .build_static(vec![
+                    tabs(
+                        active_tab.clone(),
+                        always(vec![
                             Tab {
-                                label: "App Bar".into(),
+                                content: TabContent::Label("App Bar".into()),
                                 id: DemoTabs::AppBar,
                             },
                             Tab {
-                                label: "Button".into(),
+                                content: TabContent::Label("Button".into()),
                                 id: DemoTabs::Button,
                             },
                             Tab {
-                                label: "Carousel".into(),
+                                content: TabContent::Label("Carousel".into()),
                                 id: DemoTabs::Carousel,
                             },
                             Tab {
-                                label: "Card".into(),
+                                content: TabContent::Label("Card".into()),
                                 id: DemoTabs::Card,
                             },
                             Tab {
-                                label: "List".into(),
+                                content: TabContent::Label("List".into()),
                                 id: DemoTabs::List,
                             },
                             Tab {
-                                label: "Tabs".into(),
+                                content: TabContent::Label("Tabs".into()),
                                 id: DemoTabs::Tabs,
                             },
                             Tab {
-                                label: "Data Table".into(),
+                                content: TabContent::Label("Data Table".into()),
                                 id: DemoTabs::DataTable,
                             },
                             Tab {
-                                label: "Input".into(),
+                                content: TabContent::Label("Input".into()),
                                 id: DemoTabs::Input,
                             },
                             Tab {
-                                label: "Navigation Drawer".into(),
+                                content: TabContent::Label("Navigation Drawer".into()),
                                 id: DemoTabs::NavigationDrawer,
                             },
-                        ])
-                        .into_renderable_child(),
+                        ]),
+                        None,
+                    )
+                    .into_renderable_child(),
                 )
                 .main(
                     main_view
@@ -93,7 +98,7 @@ impl MainView {
                         .map(|tab_id| match tab_id {
                             DemoTabs::AppBar => Some(AppBarDemo::new().render()),
                             DemoTabs::Button => Some(ButtonDemo::new().render()),
-                            DemoTabs::List => Some(ListDemo::new().render()),
+                            DemoTabs::List => Some(list_demo()),
                             DemoTabs::Carousel => Some(CarouselDemo::new().render()),
                             DemoTabs::Card => Some(CardDemo::new().render()),
                             DemoTabs::DataTable => Some(DataTableDemo::new().render()),

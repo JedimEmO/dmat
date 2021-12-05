@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use dominator::{clone, events, html, Dom};
 use futures_signals::signal::{Mutable, ReadOnlyMutable};
 use futures_signals::signal::{Signal, SignalExt};
@@ -7,70 +9,48 @@ use futures_util::StreamExt;
 use wasm_bindgen::__rt::std::rc::Rc;
 
 #[derive(Clone)]
+pub enum TabContent {
+    Label(String),
+    NodeFn(Rc<dyn Fn() -> Dom>),
+}
+
+#[derive(Clone)]
 pub struct Tab<TabId: Clone> {
-    pub label: String,
+    pub content: TabContent,
     pub id: TabId,
 }
 
-pub struct Tabs<TabId: Clone> {
+pub fn tabs<
+    TabList: SignalVec<Item = Tab<TabId>> + 'static,
+    TabId: Clone + std::cmp::PartialEq + Debug + 'static,
+>(
     current_tab: Mutable<TabId>,
+    tabs_list: TabList,
     on_tab_change: Option<Rc<dyn Fn(TabId)>>,
+) -> Dom {
+    html!("div", {
+        .class("dmat-tabs")
+        .children_signal_vec(tabs_list.map(clone!(current_tab, on_tab_change => move |v| {
+            tab(&v, &current_tab, on_tab_change.clone())
+        })))
+    })
 }
 
-impl<TabId: Clone + std::cmp::PartialEq + 'static> Tabs<TabId> {
-    pub fn new(current_tab: Mutable<TabId>) -> Tabs<TabId> {
-        Tabs {
-            current_tab,
-            on_tab_change: None,
-        }
-    }
-
-    pub fn on_tab_select<F: 'static>(mut self, change_listener: F) -> Self
-    where
-        F: Fn(TabId),
-    {
-        self.on_tab_change = Some(Rc::new(change_listener));
-        self
-    }
-
-    pub fn build_static(self, tabs: Vec<Tab<TabId>>) -> Dom {
-        let state = Rc::new(self);
-
-        Dom::with_state(state, |state| {
-            html!("div", {
-                .class("dmat-tabs")
-                .children(tabs.iter().map(clone!(state => move |v| {
-                    tab(v, &state.current_tab, state.on_tab_change.clone())
-                })))
-            })
-        })
-    }
-
-    pub fn build_dynamic<B>(self, tabs: B) -> Dom
-    where
-        B: SignalVec<Item = Tab<TabId>> + 'static,
-    {
-        let state = Rc::new(self);
-
-        Dom::with_state(state, move |state| {
-            html!("div", {
-                .class("dmat-tabs")
-                .children_signal_vec(tabs.map(clone!(state => move |v| {
-                    tab(&v, &state.current_tab, state.on_tab_change.clone())
-                })))
-            })
-        })
-    }
-}
-
-fn tab<TabId: Clone + std::cmp::PartialEq + 'static>(
+fn tab<TabId: Clone + std::cmp::PartialEq + Debug + 'static>(
     tab: &Tab<TabId>,
     meta: &Mutable<TabId>,
     select_cb: Option<Rc<dyn Fn(TabId)>>,
 ) -> Dom {
+    let content_node = match &tab.content {
+        TabContent::Label(label) => html!("span", {
+            .text(label.as_str())
+        }),
+        TabContent::NodeFn(content) => content(),
+    };
+
     html!("button", {
         .children(&mut [
-            html!("span", { .text(tab.label.as_str())}),
+            content_node,
             html!("span", {
                 .class("dmat-tab-indicator")
             })
@@ -86,6 +66,8 @@ fn tab<TabId: Clone + std::cmp::PartialEq + 'static>(
             if active != tab.id {
                 if let Some(cb) = &select_cb {
                     cb(tab.id.clone())
+                } else {
+                    meta.set(tab.id.clone())
                 }
             }
         }))

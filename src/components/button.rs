@@ -7,24 +7,18 @@ pub enum ButtonType {
     Text,
 }
 
-pub struct ButtonData {
-    content: Option<Dom>,
-    click_handler: Option<Rc<dyn Fn(events::Click)>>,
-    button_type: ButtonType,
+pub struct ButtonProps {
+    pub content: Box<dyn Fn() -> Dom>,
+    pub click_handler: Option<Rc<dyn Fn(events::Click)>>,
+    pub button_type: ButtonType,
 }
 
-pub struct Button {
-    data: ButtonData,
-}
-
-impl Button {
+impl ButtonProps {
     pub fn new() -> Self {
-        Button {
-            data: ButtonData {
-                content: None,
-                click_handler: None,
-                button_type: ButtonType::Contained,
-            },
+        Self {
+            content: Box::new(|| html!("span")),
+            click_handler: None,
+            button_type: ButtonType::Contained,
         }
     }
 
@@ -33,36 +27,38 @@ impl Button {
     where
         F: Fn(events::Click) + 'static,
     {
-        self.data.click_handler = Some(Rc::new(handler));
+        self.click_handler = Some(Rc::new(handler));
         self
     }
 
     #[inline]
     pub fn text<T: Into<String>>(mut self: Self, text: T) -> Self {
-        self.data.content = Some(html!("span", { .text(text.into().as_str()) }));
+        let text = text.into().clone();
+        self.content =
+            Box::new(clone!(text => move || html!("span", { .text(text.clone().as_str()) })));
         self
     }
 
     #[inline]
     pub fn button_type(mut self, button_type: ButtonType) -> Self {
-        self.data.button_type = button_type;
+        self.button_type = button_type;
         self
     }
 
     #[inline]
-    pub fn dom_content(mut self: Self, dom: Dom) -> Self {
-        self.data.content = Some(dom);
+    pub fn dom_content<TDom>(mut self: Self, dom: TDom) -> Self
+    where
+        TDom: Fn() -> Dom + 'static,
+    {
+        self.content = Box::new(dom);
         self
-    }
-
-    pub fn render(self: Self) -> Dom {
-        button(Rc::new(self.data))
     }
 }
 
-#[inline]
-fn button(button: Rc<ButtonData>) -> Dom {
-    Dom::with_state(button, |button| {
+pub fn button(props: ButtonProps) -> Dom {
+    Dom::with_state(props, |button| {
+        let click_handler = button.click_handler.clone();
+
         html!("button", {
             .class("dmat-button")
             .class( match button.button_type {
@@ -70,12 +66,10 @@ fn button(button: Rc<ButtonData>) -> Dom {
                 ButtonType::Outlined => "-outlined",
                 ButtonType::Text => "-text",
             })
-            .apply_if(button.content.is_some(), |dom| {
-                    dom.child(Rc::get_mut(button).unwrap().content.take().unwrap())
-                })
+            .child((*button.content)())
             .apply_if(button.click_handler.is_some(), |dom| {
-                dom.event(clone!(button => move |e: events::Click| {
-                    (&button.click_handler.as_ref().unwrap())(e);
+                dom.event(clone!(click_handler => move |e: events::Click| {
+                    (&click_handler.as_ref().unwrap())(e);
                 }))
             })
         })

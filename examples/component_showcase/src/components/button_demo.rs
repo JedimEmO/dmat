@@ -1,7 +1,7 @@
 use dominator::{html, Dom};
 use wasm_bindgen::__rt::std::rc::Rc;
 
-use dominator_material::components::{Button, ButtonType, Card};
+use dominator_material::components::{button, ButtonProps, ButtonType, Card};
 
 pub struct ButtonDemo {}
 
@@ -19,32 +19,28 @@ impl ButtonDemo {
                 .children(&mut[
                     Card::new()
                         .header(html!("div", { .text("ButtonType::Contained") }))
-                        .body(Button::new()
+                        .body(button(ButtonProps::new()
                             .text("Click me!")
                             .on_click(|_| {
                                 web_sys::window().unwrap().alert_with_message("You clicked?").unwrap();
-                            })
-                            .render())
+                            })))
                         .render(),
                     Card::new()
                         .header(html!("div", { .text("ButtonType::Text") }))
-                        .body(Button::new()
+                        .body(button(ButtonProps::new()
                             .text("Click me!")
-                            .button_type(ButtonType::Text)
-                            .render())
+                            .button_type(ButtonType::Text)))
                         .render(),
                     Card::new()
                         .header(html!("div", { .text("ButtonType::Outlined") }))
-                        .body(Button::new()
+                        .body(button(ButtonProps::new()
                             .text("Click me!")
-                            .button_type(ButtonType::Outlined)
-                            .render())
+                            .button_type(ButtonType::Outlined)))
                         .render(),
                     Card::new()
                         .header(html!("div", { .text("Button with Dom content") }))
-                        .body(Button::new()
-                            .dom_content(html!("h1", { .text("H1 Dom element")}))
-                            .render())
+                        .body(button(ButtonProps::new()
+                            .dom_content(|| html!("h1", { .text("H1 Dom element")}))))
                         .render()
                 ])
             }))

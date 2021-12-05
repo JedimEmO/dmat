@@ -2,8 +2,9 @@ use dominator::{html, Dom};
 
 use dominator_material::components::layouts::Container;
 use dominator_material::components::{
-    Card, List, NavigationDrawer, NavigationDrawerEntry, NavigationEntry,
+    list, Card, NavigationDrawer, NavigationDrawerEntry, NavigationEntry,
 };
+use futures_signals::signal_vec::always;
 
 pub struct NavigationDrawerDemo {}
 
@@ -22,7 +23,7 @@ impl NavigationDrawerDemo {
     pub fn render(self) -> Dom {
         Card::new()
             .apply(|v| v.class("demo-card"))
-            .body(List::new_static(vec![
+            .body(list(always(vec![
                 Card::new()
                     .title("Static navigation drawer", None)
                     .body(html!("div", {
@@ -44,7 +45,7 @@ impl NavigationDrawerDemo {
                         .child(Self::static_drawers(false))
                     }))
                     .render(),
-            ]))
+            ])))
             .render()
     }
 

@@ -4,7 +4,7 @@ use futures_signals::signal::{Mutable, SignalExt};
 
 use dominator_material::components::layouts::{AppBarType, Container};
 use dominator_material::components::{
-    layouts::AppBar, Card, Carousel, CarouselSource, List, NavigationDrawer, NavigationDrawerEntry,
+    layouts::AppBar, list, Card, Carousel, CarouselSource, NavigationDrawer, NavigationDrawerEntry,
     NavigationEntry,
 };
 use dominator_material::utils::renderable_child::IntoRenderableChild;

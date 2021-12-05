@@ -1,20 +1,19 @@
 use dominator::{clone, events, html, Dom};
 use futures_signals::map_ref;
-use futures_signals::signal::Mutable;
-use futures_signals::signal::SignalExt;
+use futures_signals::signal::{Mutable, Signal};
+use futures_signals::signal::{MutableSignal, SignalExt};
 use futures_util::future::ready;
 use wasm_bindgen::JsValue;
 use wasm_bindgen::__rt::std::rc::Rc;
 
-#[derive(Clone)]
-pub struct TextElement<T: Clone> {
-    label: Option<String>,
-    value: Mutable<T>,
-    id: Option<String>,
-    is_valid: Mutable<bool>,
-    validator: Option<Rc<dyn Fn(&T) -> bool>>,
-    depends_on: Mutable<()>,
-    has_focus: Mutable<bool>,
+#[derive(Clone, Default)]
+pub struct TextElementProps<T: Clone> {
+    pub label: Option<String>,
+    pub value: Mutable<T>,
+    pub id: Option<String>,
+    pub validator: Option<Rc<dyn Fn(&T) -> bool>>,
+    pub depends_on: Mutable<()>,
+    pub has_focus: Mutable<bool>,
 }
 
 pub enum InputValue {
@@ -22,13 +21,12 @@ pub enum InputValue {
     Bool(bool),
 }
 
-impl<T: Clone + From<InputValue> + Into<InputValue> + 'static> TextElement<T> {
+impl<T: Clone + From<InputValue> + Into<InputValue> + 'static> TextElementProps<T> {
     pub fn new(value: Mutable<T>) -> Self {
-        TextElement {
+        TextElementProps {
             value,
             label: None,
             id: None,
-            is_valid: Mutable::new(true),
             validator: None,
             depends_on: Mutable::new(()),
             has_focus: Mutable::new(false),
@@ -57,103 +55,112 @@ impl<T: Clone + From<InputValue> + Into<InputValue> + 'static> TextElement<T> {
         self.id = Some(id.into());
         self
     }
-
-    pub(crate) fn validate(&self, val: &T) {
-        if let Some(validator) = &self.validator {
-            self.is_valid.replace(validator(&val));
-        }
-    }
-
-    pub fn render(self) -> Dom {
-        text_element::<T>(Rc::new(self))
-    }
 }
 
-#[inline]
-fn text_element<T: Clone + From<InputValue> + Into<InputValue> + 'static>(
-    field: Rc<TextElement<T>>,
-) -> Dom {
-    Dom::with_state(field, |field| {
-        let id = match &field.id {
-            Some(v) => v.clone(),
-            _ => "".into(),
-        };
+pub struct TextElementOutput {
+    pub is_valid: MutableSignal<bool>,
+}
 
-        field.validate(&field.value.get_cloned());
+pub fn text_element<T: Clone + From<InputValue> + Into<InputValue> + 'static>(
+    props: TextElementProps<T>,
+) -> (Dom, TextElementOutput) {
+    let is_valid = Mutable::new(true);
 
-        let input = html!("input", {
-            .future(clone!(field => async move {
-                let deps = map_ref!(
-                    let deps = field.depends_on.signal(),
-                    let val =  field.value.signal_cloned() => move {
-                        field.validate(&field.value.get_cloned());
+    (
+        clone!(is_valid => Dom::with_state(props, move |field_props| {
+            let id = match &field_props.id {
+                Some(v) => v.clone(),
+                _ => "".into(),
+            };
+
+            let validate = clone!(field_props, is_valid => move |val: &T| {
+                if let Some(validator) = &field_props.validator {
+                    is_valid.replace(validator(val));
+                } else {
+                    is_valid.replace(true);
+                }
+            });
+
+            validate(&field_props.value.get_cloned());
+
+            let input = html!("input", {
+                .future(clone!(field_props, validate => async move {
+                    let deps = map_ref!(
+                        let deps = field_props.depends_on.signal(),
+                        let val =  field_props.value.signal_cloned() => move {
+                            validate(&field_props.value.get_cloned());
+                        }
+                    );
+
+                    // Trigger validate every time a dependency changes
+                    deps.for_each(|_| {
+                        ready(())
+                    }).await;
+                }))
+                .event(clone!(validate, field_props => move |e: events::Input| {
+                    let val =  match e.value() {
+                        Some(v) => v.as_str().into(), _ => "".into()
+                    };
+
+                    let val = InputValue::Text(val);
+                    let val = val.into();
+
+                    validate(&val);
+                    field_props.value.replace(val);
+                }))
+                .event(clone!(field_props => {
+                    move |_e: events::Focus| {
+                        field_props.has_focus.set(true);
                     }
-                );
+                }))
+                .event(clone!(field_props => {
+                    move |_: events::Blur| {
+                        field_props.has_focus.set(false);
+                    }
+                }))
+                .attribute("id", id.as_str())
+                .property_signal("value", field_props.value.signal_cloned().map(|v: T| {
+                    let val: InputValue = v.into();
+                    val
+                }))
+                .class_signal("invalid", is_valid.signal_cloned().map(|e| !e))
+                .class("dmat-input-element")
+            });
 
-                deps.for_each(|_| {
-                    ready(())
-                }).await;
-            }))
-            .event(clone!(field => move |e: events::Input| {
-                let val =  match e.value() {
-                    Some(v) => v.as_str().into(), _ => "".into()
-                };
+            let mut children = match &field_props.label {
+                Some(label) => vec![
+                    input,
+                    html!("label", {
+                        .text(label.as_str())
+                        .attribute("for", id.as_str())
+                        .class_signal("above",
+                            clone!(field_props => map_ref!(
+                                let focus = field_props.has_focus.signal_cloned(),
+                                let value = field_props.value.signal_cloned() => move {
+                                    let has_value = match field_props.value.get_cloned().into() {
+                                        InputValue::Text(txt) => txt.len() > 0,
+                                        _ => false
+                                    };
 
-                let val = InputValue::Text(val);
-                let val = val.into();
+                                    *focus || has_value
+                                }
+                            ))
+                        )
+                        .class("dmat-floating-label")
+                    }),
+                ],
+                _ => vec![input],
+            };
 
-                field.validate(&val);
-                field.value.replace(val);
-            }))
-            .event(clone!(field => {
-                move |_e: events::Focus| {
-                    field.has_focus.set(true);
-                }
-            }))
-            .event(clone!(field => {
-                move |_: events::Blur| {
-                    field.has_focus.set(false);
-                }
-            }))
-            .attribute("id", id.as_str())
-            .property_signal("value", field.value.signal_cloned().map(|v: T| {
-                let val: InputValue = v.into();
-                val
-            }))
-            .class_signal("invalid", field.is_valid.signal_cloned().map(|e| !e))
-            .class("dmat-input-element")
-        });
-
-        let mut children = match &field.label {
-            Some(label) => vec![
-                input,
-                html!("label", {
-                    .text(label.as_str())
-                    .attribute("for", id.as_str())
-                    .class_signal("above",
-                        clone!(field => map_ref!(
-                            let focus = field.has_focus.signal_cloned(),
-                            let value = field.value.signal_cloned() => move {
-                                let has_value = match field.value.get_cloned().into() {
-                                    InputValue::Text(txt) => txt.len() > 0,
-                                    _ => false
-                                };
-
-                                *focus || has_value
-                            }
-                        ))
-                    )
-                    .class("dmat-floating-label")
-                }),
-            ],
-            _ => vec![input],
-        };
-
-        html!("div", {
-            .children(children.as_mut_slice())
-            .class("dmat-input")
-        })
-    })
+            html!("div", {
+                .children(children.as_mut_slice())
+                .class("dmat-input")
+            })
+        })),
+        TextElementOutput {
+            is_valid: is_valid.signal(),
+        },
+    )
 }
 
 impl From<InputValue> for String {
