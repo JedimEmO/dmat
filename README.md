@@ -11,10 +11,10 @@ The showcase application can be seen here: https://jedimemo.github.io/dominator-
 
 To run the showcase application locally, go to the `examples/component_showcase` directory, and do the following:
 
-Requires rust 1.47.0+ , npm and nodejs.
+Requires rust 1.47.0+  and trunk (https://trunkrs.dev/)
 
 ```
-npm i && npm start
+npm i && trunk serve --release
 ``` 
 
 Go to http://localhost:8080 to see the showcase.
