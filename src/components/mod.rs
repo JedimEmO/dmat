@@ -8,6 +8,7 @@ pub use list::*;
 pub use navigation_drawer::*;
 pub use progress_indicator::*;
 pub use tabs::*;
+pub use text::*;
 
 pub mod button;
 pub mod card;
@@ -20,3 +21,4 @@ pub mod list;
 pub mod navigation_drawer;
 pub mod progress_indicator;
 pub mod tabs;
+pub mod text;

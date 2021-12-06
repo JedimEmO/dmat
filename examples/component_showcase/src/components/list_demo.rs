@@ -1,8 +1,12 @@
 use dominator::{clone, html, Dom};
+use futures_signals::signal::always as always_singnal;
 use futures_signals::signal_vec::{always, MutableVec, SignalVecExt};
+use std::iter::once;
 use wasm_bindgen::__rt::std::rc::Rc;
 
-use dominator_material::components::{button, list, ButtonProps, ButtonType, Card};
+use dominator_material::components::{
+    button, list, text, ButtonContent, ButtonProps, ButtonType, Card,
+};
 
 pub fn list_demo() -> Dom {
     let entries: Rc<MutableVec<String>> = Default::default();
@@ -12,7 +16,7 @@ pub fn list_demo() -> Dom {
             .apply(|v| v.class("demo-card"))
             .body(list(always(vec![
                 button(ButtonProps {
-                    content: Box::new(|| html!("span", { .text("Add Entry")})),
+                    content_signal: once(always_singnal(Some(text("hi")))),
                     click_handler: Some(Rc::new(clone!(state => move |_| {
                         state.lock_mut().push_cloned("Hello!".into());
                     }))),
