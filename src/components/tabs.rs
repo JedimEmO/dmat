@@ -1,11 +1,10 @@
 use std::fmt::Debug;
 
 use dominator::{clone, events, html, Dom};
-use futures_signals::signal::{Mutable, ReadOnlyMutable};
-use futures_signals::signal::{Signal, SignalExt};
+use futures_signals::signal::Mutable;
+use futures_signals::signal::SignalExt;
 use futures_signals::signal_vec::SignalVec;
 use futures_signals::signal_vec::SignalVecExt;
-use futures_util::StreamExt;
 use wasm_bindgen::__rt::std::rc::Rc;
 
 #[derive(Clone)]

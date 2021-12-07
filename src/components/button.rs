@@ -1,8 +1,6 @@
-use crate::components::text;
-use dominator::traits::AsStr;
 use dominator::{clone, events, html, Dom};
-use futures_signals::signal::{always, Signal, SignalExt};
-use std::iter::{once, Once};
+use futures_signals::signal::Signal;
+use std::iter::Once;
 use wasm_bindgen::__rt::std::rc::Rc;
 
 pub enum ButtonType {

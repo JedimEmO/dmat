@@ -1,7 +1,6 @@
 use dominator::traits::AsStr;
 use dominator::{html, Dom};
-use futures_signals::signal::{always, Always, Signal};
-use std::iter::{once, Once};
+use futures_signals::signal::Signal;
 
 pub fn text<T: AsStr>(value: T) -> Dom {
     html!("span", {

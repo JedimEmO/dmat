@@ -1,6 +1,6 @@
 use dominator::{clone, events, html, Dom};
 use futures_signals::map_ref;
-use futures_signals::signal::{Mutable, Signal};
+use futures_signals::signal::Mutable;
 use futures_signals::signal::{MutableSignal, SignalExt};
 use futures_util::future::ready;
 use wasm_bindgen::JsValue;
@@ -86,8 +86,8 @@ pub fn text_element<T: Clone + From<InputValue> + Into<InputValue> + 'static>(
             let input = html!("input", {
                 .future(clone!(field_props, validate => async move {
                     let deps = map_ref!(
-                        let deps = field_props.depends_on.signal(),
-                        let val =  field_props.value.signal_cloned() => move {
+                        let _deps = field_props.depends_on.signal(),
+                        let _val =  field_props.value.signal_cloned() => move {
                             validate(&field_props.value.get_cloned());
                         }
                     );
@@ -136,7 +136,7 @@ pub fn text_element<T: Clone + From<InputValue> + Into<InputValue> + 'static>(
                         .class_signal("above",
                             clone!(field_props => map_ref!(
                                 let focus = field_props.has_focus.signal_cloned(),
-                                let value = field_props.value.signal_cloned() => move {
+                                let _value = field_props.value.signal_cloned() => move {
                                     let has_value = match field_props.value.get_cloned().into() {
                                         InputValue::Text(txt) => txt.len() > 0,
                                         _ => false

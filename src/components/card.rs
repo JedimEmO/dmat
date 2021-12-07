@@ -1,32 +1,15 @@
 use dominator::{html, Dom, DomBuilder};
 use web_sys::HtmlElement;
 
-struct CardData {
-    pub header: Option<Dom>,
-    pub body: Option<Dom>,
-    pub footer: Option<Dom>,
-}
-
-pub struct Card {
-    data: CardData,
-    apply: Option<Box<dyn FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>>>,
-}
-
-impl Card {
-    #[inline]
+impl CardProps {
     pub fn new() -> Self {
-        Card {
-            data: CardData {
-                header: None,
-                body: None,
-                footer: None,
-            },
-            apply: None,
+        CardProps {
+            ..Default::default()
         }
     }
 
-    pub fn title<A: Into<String>>(mut self, title: A, sub_title: Option<A>) -> Self {
-        self.data.header = Some(html!("div", {
+    pub fn with_title<A: Into<String>>(mut self, title: A, sub_title: Option<A>) -> Self {
+        self.header = Some(html!("div", {
             .children(vec![
                 Some(html!("div", { .text(title.into().as_str()) })),
                 match sub_title {
@@ -39,8 +22,7 @@ impl Card {
         self
     }
 
-    #[inline]
-    pub fn apply<F: 'static>(mut self, apply: F) -> Self
+    pub fn with_apply<F: 'static>(mut self, apply: F) -> Self
     where
         F: FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>,
     {
@@ -48,68 +30,62 @@ impl Card {
         self
     }
 
-    #[inline]
-    pub fn body(mut self, body: Dom) -> Self {
-        self.data.body = Some(body);
+    pub fn with_body(mut self, body: Dom) -> Self {
+        self.body = Some(body);
         self
     }
 
-    #[inline]
-    pub fn header(mut self, header: Dom) -> Self {
-        self.data.header = Some(header);
+    pub fn with_header(mut self, header: Dom) -> Self {
+        self.header = Some(header);
         self
     }
 
-    #[inline]
-    pub fn footer(mut self, footer: Dom) -> Self {
-        self.data.footer = Some(footer);
+    pub fn with_footer(mut self, footer: Dom) -> Self {
+        self.footer = Some(footer);
         self
-    }
-
-    pub fn render(self) -> Dom {
-        self.data.render(self.apply)
     }
 }
 
-impl CardData {
-    #[inline]
-    fn render(
-        self,
-        mut apply: Option<Box<dyn FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>>>,
-    ) -> Dom {
-        let children = vec![
-            match self.header {
-                Some(header) => Some(html!("div", {
-                    .class("header")
-                    .class("card-section")
-                    .child(header)
-                })),
-                _ => None,
-            },
-            match self.body {
-                Some(body) => Some(html!("div", {
-                    .class("body")
-                    .class("card-section")
-                    .child(body)
-                })),
-                _ => None,
-            },
-            match self.footer {
-                Some(footer) => Some(html!("div", {
-                    .class("footer")
-                    .class("card-section")
-                    .child(footer)
-                })),
-                _ => None,
-            },
-        ];
+#[derive(Default)]
+pub struct CardProps {
+    pub header: Option<Dom>,
+    pub body: Option<Dom>,
+    pub footer: Option<Dom>,
+    pub apply: Option<Box<dyn FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>>>,
+}
 
+pub fn card(props: CardProps) -> Dom {
+    let mut apply = props.apply;
+    let head = props.header;
+    let body = props.body;
+    let footer = props.footer;
+
+    let children = vec![
         html!("div", {
-            .class("dmat-card")
-            .apply_if(apply.is_some(), move |dom| {
-                dom.apply(apply.take().unwrap())
+            .class("dmat-card-header-container")
+            .apply_if(head.is_some(), move |dom| {
+                dom.child(head.unwrap())
             })
-            .children(children.into_iter().filter_map(|v| v))
+        }),
+        html!("div", {
+            .class("dmat-card-body-container")
+            .apply_if(body.is_some(), move |dom| {
+                dom.child(body.unwrap())
+            })
+        }),
+        html!("div", {
+            .class("dmat-card-footer-container")
+            .apply_if(footer.is_some(), move |dom| {
+                dom.child(footer.unwrap())
+            })
+        }),
+    ];
+
+    html!("div", {
+        .class("dmat-card")
+        .apply_if(apply.is_some(), move |dom| {
+            dom.apply(apply.take().unwrap())
         })
-    }
+        .children(children.into_iter())
+    })
 }

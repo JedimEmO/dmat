@@ -2,7 +2,7 @@ use dominator::{html, Dom};
 
 use dominator_material::components::layouts::Container;
 use dominator_material::components::{
-    list, Card, NavigationDrawer, NavigationDrawerEntry, NavigationEntry,
+    card, list, CardProps, NavigationDrawer, NavigationDrawerEntry, NavigationEntry,
 };
 use futures_signals::signal_vec::always;
 
@@ -21,32 +21,36 @@ impl NavigationDrawerDemo {
     }
 
     pub fn render(self) -> Dom {
-        Card::new()
-            .apply(|v| v.class("demo-card"))
-            .body(list(always(vec![
-                Card::new()
-                    .title("Static navigation drawer", None)
-                    .body(html!("div", {
-                        .class("navigation-drawer-demo")
-                        .child(Self::static_drawers(true))
-                    }))
-                    .render(),
-                Card::new()
-                    .title("Modal navigation drawer", None)
-                    .body(html!("div", {
-                        .class("navigation-drawer-demo")
-                        .child(Self::modal_drawers())
-                    }))
-                    .render(),
-                Card::new()
-                    .title("Static navigation drawer without toggle controls", None)
-                    .body(html!("div", {
-                        .class("navigation-drawer-demo")
-                        .child(Self::static_drawers(false))
-                    }))
-                    .render(),
-            ])))
-            .render()
+        card(
+            CardProps::new()
+                .with_apply(|v| v.class("demo-card"))
+                .with_body(list(always(vec![
+                    card(
+                        CardProps::new()
+                            .with_title("Static navigation drawer", None)
+                            .with_body(html!("div", {
+                                .class("navigation-drawer-demo")
+                                .child(Self::static_drawers(true))
+                            })),
+                    ),
+                    card(
+                        CardProps::new()
+                            .with_title("Modal navigation drawer", None)
+                            .with_body(html!("div", {
+                                .class("navigation-drawer-demo")
+                                .child(Self::modal_drawers())
+                            })),
+                    ),
+                    card(
+                        CardProps::new()
+                            .with_title("Static navigation drawer without toggle controls", None)
+                            .with_body(html!("div", {
+                                .class("navigation-drawer-demo")
+                                .child(Self::static_drawers(false))
+                            })),
+                    ),
+                ]))),
+        )
     }
 
     pub fn static_drawers(toggle: bool) -> Dom {

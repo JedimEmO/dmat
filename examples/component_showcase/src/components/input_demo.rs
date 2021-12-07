@@ -4,7 +4,7 @@ use futures_signals::signal::SignalExt;
 use futures_signals::signal_vec::always;
 
 use dominator_material::components::layouts::Container;
-use dominator_material::components::{list, text_element, Card, TextElementProps};
+use dominator_material::components::{card, list, text_element, CardProps, TextElementProps};
 
 pub struct InputDemo {
     text_value: Mutable<String>,
@@ -19,9 +19,9 @@ impl InputDemo {
 
     pub fn render(self) -> Dom {
         Container::new(
-            Card::new()
-                .apply(|v| v.class("demo-card"))
-                .body(list(always(vec![
+            card(CardProps::new()
+                .with_apply(|v| v.class("demo-card"))
+                .with_body(list(always(vec![
                     html!("div", {
                         .children(&mut [
                             text_element(TextElementProps { value: self.text_value.clone(), ..Default::default()}).0,
@@ -44,8 +44,7 @@ impl InputDemo {
                                 .validator(|v| v == "foobar")).0
                         ])
                     })
-                ])))
-                .render(),
+                ])))),
         )
         .render()
     }

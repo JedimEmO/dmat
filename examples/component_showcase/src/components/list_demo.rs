@@ -1,33 +1,34 @@
 use dominator::{clone, html, Dom};
-use futures_signals::signal::always as always_singnal;
+use futures_signals::signal::always as always_signal;
 use futures_signals::signal_vec::{always, MutableVec, SignalVecExt};
 use std::iter::once;
 use wasm_bindgen::__rt::std::rc::Rc;
 
 use dominator_material::components::{
-    button, list, text, ButtonContent, ButtonProps, ButtonType, Card,
+    button, card, list, text, ButtonProps, ButtonType, CardProps,
 };
 
 pub fn list_demo() -> Dom {
     let entries: Rc<MutableVec<String>> = Default::default();
 
     Dom::with_state(entries, |state| {
-        Card::new()
-            .apply(|v| v.class("demo-card"))
-            .body(list(always(vec![
-                button(ButtonProps {
-                    content_signal: once(always_singnal(Some(text("hi")))),
-                    click_handler: Some(Rc::new(clone!(state => move |_| {
-                        state.lock_mut().push_cloned("Hello!".into());
-                    }))),
-                    button_type: ButtonType::Contained,
-                }),
-                list(
-                    state
-                        .signal_vec_cloned()
-                        .map(|entry| html!("span", { .text(format!("{}", entry).as_str())})),
-                ),
-            ])))
-            .render()
+        card(
+            CardProps::new()
+                .with_apply(|v| v.class("demo-card"))
+                .with_body(list(always(vec![
+                    button(ButtonProps {
+                        content_signal: once(always_signal(Some(text("hi")))),
+                        click_handler: Some(Rc::new(clone!(state => move |_| {
+                            state.lock_mut().push_cloned("Hello!".into());
+                        }))),
+                        button_type: ButtonType::Contained,
+                    }),
+                    list(
+                        state
+                            .signal_vec_cloned()
+                            .map(|entry| html!("span", { .text(format!("{}", entry).as_str())})),
+                    ),
+                ]))),
+        )
     })
 }

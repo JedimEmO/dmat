@@ -4,8 +4,8 @@ use futures_signals::signal::{Mutable, SignalExt};
 
 use dominator_material::components::layouts::{AppBarType, Container};
 use dominator_material::components::{
-    layouts::AppBar, list, Card, Carousel, CarouselSource, NavigationDrawer, NavigationDrawerEntry,
-    NavigationEntry,
+    card, layouts::AppBar, CardProps, Carousel, CarouselSource, NavigationDrawer,
+    NavigationDrawerEntry, NavigationEntry,
 };
 use dominator_material::utils::renderable_child::IntoRenderableChild;
 
@@ -19,12 +19,14 @@ impl AppBarDemo {
     }
 
     pub fn render(self) -> Dom {
-        Card::new()
-            .apply(|v| v.class("demo-card"))
-            .body(
-                Carousel::new(AppBarCarousel::new()).render_apply(|d, _| d.class("demo-carousel")),
-            )
-            .render()
+        card(
+            CardProps::new()
+                .with_apply(|v| v.class("demo-card"))
+                .with_body(
+                    Carousel::new(AppBarCarousel::new())
+                        .render_apply(|d, _| d.class("demo-carousel")),
+                ),
+        )
     }
 }
 

@@ -1,6 +1,5 @@
 use crate::futures_signals::signal::SignalExt;
 use dominator::{clone, events, html, Dom, DomBuilder};
-use futures_signals::internal::Map2;
 use futures_signals::map_ref;
 use futures_signals::signal::{Mutable, MutableSignal, Signal};
 use wasm_bindgen::__rt::std::rc::Rc;
@@ -138,7 +137,7 @@ impl<T: CarouselSource> Carousel<T> {
     }
 
     #[inline]
-    pub fn render(mut self) -> Dom {
+    pub fn render(self) -> Dom {
         self.render_apply(|d, _| d)
     }
 

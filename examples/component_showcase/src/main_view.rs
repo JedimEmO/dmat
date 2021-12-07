@@ -1,4 +1,4 @@
-use dominator::{clone, html, Dom};
+use dominator::{html, Dom};
 use futures_signals::signal::Mutable;
 use futures_signals::signal::SignalExt;
 use futures_signals::signal_vec::always;
