@@ -4,8 +4,8 @@ use futures_signals::signal::{Mutable, SignalExt};
 
 use dominator_material::components::layouts::{AppBarType, Container};
 use dominator_material::components::{
-    card, layouts::AppBar, CardProps, Carousel, CarouselSource, NavigationDrawer,
-    NavigationDrawerEntry, NavigationEntry,
+    card, layouts::AppBar, navigation_drawer, CardProps, Carousel, CarouselSource,
+    NavigationDrawer, NavigationDrawerEntry, NavigationDrawerProps, NavigationEntry,
 };
 use dominator_material::utils::renderable_child::IntoRenderableChild;
 
@@ -45,44 +45,50 @@ impl AppBarCarousel {
 impl CarouselSource for AppBarCarousel {
     fn get_entry(&self, index: usize) -> Dom {
         let inner = match index {
-            0 => NavigationDrawer::new()
-                .apply(|_, dom| dom.class("demo-drawer-with-app-bar"))
-                .show_toggle_controls(true)
-                .expanded(true)
-                .initial_selected(0)
-                .entries(vec![
-                    NavigationDrawerEntry::Item(NavigationEntry {
-                        id: 0,
-                        text: "Inbox".to_string(),
-                    }),
-                    NavigationDrawerEntry::Item(NavigationEntry {
-                        id: 1,
-                        text: "Spam".to_string(),
-                    }),
-                ])
-                .title_view_generator(|_, _| Some(html!("div", {.text("Outer modal drawer")})))
-                .modal(true)
-                .main_view_generator(|_, _| {
-                    Some(
-                        AppBar::new()
-                            .header(
-                                html!("div", {
-                                    .class("app-bar-demo-header")
-                                })
-                                .into_renderable_child(),
+            0 => {
+                navigation_drawer(
+                    NavigationDrawerProps::new()
+                        .apply(|_, dom| dom.class("demo-drawer-with-app-bar"))
+                        .show_toggle_controls(true)
+                        .expanded(true)
+                        .initial_selected(0)
+                        .entries(vec![
+                            NavigationDrawerEntry::Item(NavigationEntry {
+                                id: 0,
+                                text: "Inbox".to_string(),
+                            }),
+                            NavigationDrawerEntry::Item(NavigationEntry {
+                                id: 1,
+                                text: "Spam".to_string(),
+                            }),
+                        ])
+                        .title_view_generator(|_, _| {
+                            Some(html!("div", {.text("Outer modal drawer")}))
+                        })
+                        .modal(true)
+                        .main_view_generator(|_, _| {
+                            Some(
+                                AppBar::new()
+                                    .header(
+                                        html!("div", {
+                                            .class("app-bar-demo-header")
+                                        })
+                                        .into_renderable_child(),
+                                    )
+                                    .main(
+                                        Container::new(
+                                            html!("div", { .text(lipsum::lipsum(512).as_str())}),
+                                        )
+                                        .render()
+                                        .into_renderable_child(),
+                                    )
+                                    .fixed()
+                                    .render(),
                             )
-                            .main(
-                                Container::new(
-                                    html!("div", { .text(lipsum::lipsum(512).as_str())}),
-                                )
-                                .render()
-                                .into_renderable_child(),
-                            )
-                            .fixed()
-                            .render(),
-                    )
-                })
-                .render(),
+                        }),
+                )
+                .1
+            }
             1 => AppBar::new()
                 .header(
                     html!("h1", {

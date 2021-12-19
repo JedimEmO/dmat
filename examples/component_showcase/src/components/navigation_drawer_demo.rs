@@ -1,10 +1,11 @@
 use dominator::{html, Dom};
+use futures_signals::signal_vec::always;
 
 use dominator_material::components::layouts::Container;
 use dominator_material::components::{
-    card, list, CardProps, NavigationDrawer, NavigationDrawerEntry, NavigationEntry,
+    card, list, navigation_drawer, CardProps, NavigationDrawer, NavigationDrawerEntry,
+    NavigationDrawerProps, NavigationEntry,
 };
-use futures_signals::signal_vec::always;
 
 pub struct NavigationDrawerDemo {}
 
@@ -54,18 +55,15 @@ impl NavigationDrawerDemo {
     }
 
     pub fn static_drawers(toggle: bool) -> Dom {
-        Self::make_drawer().show_toggle_controls(toggle).render()
+        navigation_drawer(Self::make_drawer().show_toggle_controls(toggle)).1
     }
 
     fn modal_drawers() -> Dom {
-        Self::make_drawer()
-            .show_toggle_controls(true)
-            .modal(true)
-            .render()
+        navigation_drawer(Self::make_drawer().show_toggle_controls(true).modal(true)).1
     }
 
-    fn make_drawer() -> NavigationDrawer<ExampleViews> {
-        NavigationDrawer::new()
+    fn make_drawer() -> NavigationDrawerProps<ExampleViews> {
+        NavigationDrawerProps::new()
             .initial_selected(ExampleViews::Main)
             .title_view_generator(|v, _| match v {
                 Some(ExampleViews::Main) => Some(html!("span", { .text("Main view") })),
