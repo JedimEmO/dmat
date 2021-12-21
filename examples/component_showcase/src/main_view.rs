@@ -4,9 +4,8 @@ use futures_signals::signal::SignalExt;
 use futures_signals::signal_vec::always;
 use wasm_bindgen::__rt::std::rc::Rc;
 
-use dominator_material::components::layouts::AppBar;
+use dominator_material::components::layouts::{app_bar, AppBarProps};
 use dominator_material::components::{layouts::Container, tabs, Tab, TabContent};
-use dominator_material::utils::renderable_child::IntoRenderableChild;
 
 use crate::components::app_bar_demo::AppBarDemo;
 use crate::components::button_demo::ButtonDemo;
@@ -17,7 +16,7 @@ use crate::components::input_demo::InputDemo;
 use crate::components::list_demo::list_demo;
 use crate::components::navigation_drawer_demo::NavigationDrawerDemo;
 
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Copy, Clone, PartialEq, Debug)]
 enum DemoTabs {
     AppBar,
     Button,
@@ -45,9 +44,9 @@ impl MainView {
         let active_tab = self.active_tab.clone();
 
         Dom::with_state(self, |main_view| {
-            AppBar::new()
-                .header(
-                    tabs(
+            app_bar(
+                AppBarProps::new()
+                    .header(tabs(
                         active_tab.clone(),
                         always(vec![
                             Tab {
@@ -88,30 +87,26 @@ impl MainView {
                             },
                         ]),
                         None,
+                    ))
+                    .main_signal(
+                        main_view
+                            .active_tab
+                            .signal()
+                            .map(|tab_id| match tab_id {
+                                DemoTabs::AppBar => AppBarDemo::new().render(),
+                                DemoTabs::Button => ButtonDemo::new().render(),
+                                DemoTabs::List => list_demo(),
+                                DemoTabs::Carousel => CarouselDemo::new().render(),
+                                DemoTabs::Card => CardDemo::new().render(),
+                                DemoTabs::DataTable => DataTableDemo::new().render(),
+                                DemoTabs::Input => InputDemo::new().render(),
+                                DemoTabs::NavigationDrawer => NavigationDrawerDemo::new().render(),
+                                _ => html!("div"),
+                            })
+                            .map(|v| Container::new(v).render()),
                     )
-                    .into_renderable_child(),
-                )
-                .main(
-                    main_view
-                        .active_tab
-                        .signal_cloned()
-                        .map(|tab_id| match tab_id {
-                            DemoTabs::AppBar => Some(AppBarDemo::new().render()),
-                            DemoTabs::Button => Some(ButtonDemo::new().render()),
-                            DemoTabs::List => Some(list_demo()),
-                            DemoTabs::Carousel => Some(CarouselDemo::new().render()),
-                            DemoTabs::Card => Some(CardDemo::new().render()),
-                            DemoTabs::DataTable => Some(DataTableDemo::new().render()),
-                            DemoTabs::Input => Some(InputDemo::new().render()),
-                            DemoTabs::NavigationDrawer => {
-                                Some(NavigationDrawerDemo::new().render())
-                            }
-                            _ => Some(html!("div")),
-                        })
-                        .map(|v| Some(Container::new(v.unwrap()).render())),
-                )
-                .fixed()
-                .render()
+                    .fixed(),
+            )
         })
     }
 }

@@ -12,7 +12,7 @@ impl CarouselDemo {
     }
 
     pub fn render(self) -> Dom {
-        card(CardProps::new().with_body(
+        card(CardProps::new().body(
             Carousel::new(CarouselDemoSource::new()).render_apply(|d, _| d.class("demo-carousel")),
         ))
     }

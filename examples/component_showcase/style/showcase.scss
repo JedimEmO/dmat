@@ -192,7 +192,7 @@ div.dmat-card {
     padding-right: 16px;
   }
 
-  & .header {
+  & .dmat-card-header-container {
     font-weight: 500;
     font-size: 1.25rem;
     line-height: 2rem;
@@ -205,12 +205,12 @@ div.dmat-card {
     }
   }
 
-  & .body {
+  & .dmat-card-body-container {
     font-size: 1rem;
     color: $dmat-text-diffuse;
   }
 
-  & .footer {
+  & .dmat-card-footer-container {
     line-height: 2rem;
   }
 }

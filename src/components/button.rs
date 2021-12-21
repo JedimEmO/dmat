@@ -1,7 +1,10 @@
-use dominator::{clone, events, html, Dom};
+use crate::futures_signals::signal::SignalExt;
+use crate::utils::component_signal::{ComponentSignal, DomOption};
+use dominator::{clone, events, html, Dom, DomBuilder};
 use futures_signals::signal::Signal;
 use std::iter::Once;
 use wasm_bindgen::__rt::std::rc::Rc;
+use web_sys::Element;
 
 pub enum ButtonType {
     Contained,
@@ -26,19 +29,34 @@ impl Default for ButtonContent {
     }
 }
 
-pub struct ButtonProps<TContentSignal: Signal<Item = Option<Dom>> + 'static> {
-    pub content_signal: Once<TContentSignal>,
+pub struct ButtonProps {
+    pub content_signal: Option<ComponentSignal>,
     pub click_handler: Option<Rc<dyn Fn(events::Click)>>,
     pub button_type: ButtonType,
 }
 
-impl<TContentSignal: Signal<Item = Option<Dom>> + 'static> ButtonProps<TContentSignal> {
-    pub fn new(content_signal: Once<TContentSignal>) -> Self {
+impl ButtonProps {
+    pub fn new() -> Self {
         Self {
-            content_signal,
+            content_signal: None,
             click_handler: None,
             button_type: ButtonType::Contained,
         }
+    }
+
+    #[inline]
+    pub fn content<T: Into<ComponentSignal>>(mut self, content: T) -> Self {
+        self.content_signal = Some(content.into());
+        self
+    }
+
+    #[inline]
+    pub fn content_signal<T: Signal<Item = U> + Unpin + 'static, U>(mut self, content: T) -> Self
+    where
+        U: Into<DomOption>,
+    {
+        self.content_signal = Some(ComponentSignal::from_signal(content));
+        self
     }
 
     #[inline]
@@ -57,9 +75,9 @@ impl<TContentSignal: Signal<Item = Option<Dom>> + 'static> ButtonProps<TContentS
     }
 }
 
-pub fn button<TContentSignal: Signal<Item = Option<Dom>> + 'static>(
-    props: ButtonProps<TContentSignal>,
-) -> Dom {
+pub fn button(mut props: ButtonProps) -> Dom {
+    let content = props.content_signal.take();
+
     Dom::with_state(props, |button_props| {
         let click_handler = button_props.click_handler.clone();
 
@@ -70,7 +88,9 @@ pub fn button<TContentSignal: Signal<Item = Option<Dom>> + 'static>(
                 ButtonType::Outlined => "-outlined",
                 ButtonType::Text => "-text",
             })
-            .child_signal(button_props.content_signal.next().unwrap())
+            .apply_if(content.is_some(), move |bdom| {
+                bdom.child_signal(content.unwrap().0)
+            })
             .apply_if(button_props.click_handler.is_some(), |dom| {
                 dom.event(clone!(click_handler => move |e: events::Click| {
                     if let Some(handler) = &click_handler {

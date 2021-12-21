@@ -2,12 +2,11 @@ use dominator::{html, Dom};
 use futures_signals::signal::{always, MutableSignal};
 use futures_signals::signal::{Mutable, SignalExt};
 
-use dominator_material::components::layouts::{AppBarType, Container};
+use dominator_material::components::layouts::{app_bar, AppBarProps, AppBarType, Container};
 use dominator_material::components::{
-    card, layouts::AppBar, navigation_drawer, CardProps, Carousel, CarouselSource,
-    NavigationDrawer, NavigationDrawerEntry, NavigationDrawerProps, NavigationEntry,
+    card, navigation_drawer, CardProps, Carousel, CarouselSource, NavigationDrawer,
+    NavigationDrawerEntry, NavigationDrawerProps, NavigationEntry,
 };
-use dominator_material::utils::renderable_child::IntoRenderableChild;
 
 use crate::components::navigation_drawer_demo::NavigationDrawerDemo;
 
@@ -19,14 +18,9 @@ impl AppBarDemo {
     }
 
     pub fn render(self) -> Dom {
-        card(
-            CardProps::new()
-                .with_apply(|v| v.class("demo-card"))
-                .with_body(
-                    Carousel::new(AppBarCarousel::new())
-                        .render_apply(|d, _| d.class("demo-carousel")),
-                ),
-        )
+        card(CardProps::new().with_apply(|v| v.class("demo-card")).body(
+            Carousel::new(AppBarCarousel::new()).render_apply(|d, _| d.class("demo-carousel")),
+        ))
     }
 }
 
@@ -67,54 +61,43 @@ impl CarouselSource for AppBarCarousel {
                         })
                         .modal(true)
                         .main_view_generator(|_, _| {
-                            Some(
-                                AppBar::new()
-                                    .header(
-                                        html!("div", {
-                                            .class("app-bar-demo-header")
-                                        })
-                                        .into_renderable_child(),
-                                    )
+                            Some(app_bar(
+                                AppBarProps::new()
+                                    .header(html!("div", {
+                                        .class("app-bar-demo-header")
+                                    }))
                                     .main(
                                         Container::new(
                                             html!("div", { .text(lipsum::lipsum(512).as_str())}),
                                         )
-                                        .render()
-                                        .into_renderable_child(),
+                                        .render(),
                                     )
-                                    .fixed()
-                                    .render(),
-                            )
+                                    .fixed(),
+                            ))
                         }),
                 )
                 .1
             }
-            1 => AppBar::new()
-                .header(
-                    html!("h1", {
+            1 => app_bar(
+                AppBarProps::new()
+                    .header(html!("h1", {
                         .class("app-bar-demo-header")
                         .text("Normal unfixed app bar")
-                    })
-                    .into_renderable_child(),
-                )
-                .main(always(true).map(|_| {
-                    Some(html!("div", {
-                        .text(lipsum::lipsum(1024).as_str())
                     }))
-                }))
-                .render(),
-            _ => AppBar::new()
-                .header(
-                    html!("h1", {
+                    .main(html!("div", {
+                        .text(lipsum::lipsum(1024).as_str())
+                    })),
+            ),
+            _ => app_bar(
+                AppBarProps::new()
+                    .header(html!("h1", {
                         .class("app-bar-demo-header")
                         .text("Prominent fixed app bar")
-                    })
-                    .into_renderable_child(),
-                )
-                .main(always(true).map(|_| Some(NavigationDrawerDemo::static_drawers(true))))
-                .bar_type(AppBarType::Prominent)
-                .fixed()
-                .render(),
+                    }))
+                    .main(NavigationDrawerDemo::static_drawers(true))
+                    .bar_type(AppBarType::Prominent)
+                    .fixed(),
+            ),
         };
 
         html!("div", {

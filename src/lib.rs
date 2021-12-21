@@ -3,6 +3,7 @@
 extern crate futures_signals;
 
 pub mod components;
+pub mod elements;
 pub mod utils;
 
 #[cfg(test)]

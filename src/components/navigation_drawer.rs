@@ -1,10 +1,23 @@
+use std::borrow::Borrow;
+use std::marker::PhantomData;
+use std::pin::Pin;
+use std::sync::RwLock;
+use std::task::{Context, Poll};
+
+use crate::elements::elements::new_html;
+use dominator::traits::AsStr;
 use dominator::{clone, events, html, Dom, DomBuilder};
-use futures_signals::map_ref;
-use futures_signals::signal::{Mutable, MutableSignal, MutableSignalCloned, Receiver};
+use futures::channel;
+use futures_signals::signal::{
+    always, channel, Map, Mutable, MutableSignal, MutableSignalCloned, Receiver, Signal, SignalExt,
+    SignalStream,
+};
 use futures_signals::signal_vec::MutableVec;
 use futures_signals::signal_vec::SignalVecExt;
+use futures_signals::{map_mut, map_ref, unsafe_project};
+use futures_util::StreamExt;
 use wasm_bindgen::__rt::std::rc::Rc;
-use web_sys::HtmlElement;
+use web_sys::{Element, HtmlElement, Node};
 
 #[derive(Clone)]
 pub struct NavigationEntry<T: Clone + 'static> {
@@ -257,4 +270,193 @@ pub fn navigation_drawer<T: Clone + PartialEq + 'static>(
             })
         }),
     )
+}
+
+struct UiMonad<
+    T: Signal<Item = DomBuilder<A>>,
+    A: AsRef<Element>,
+    C: Fn(DomBuilder<A>) -> DomBuilder<A>,
+> {
+    signal: T,
+    closure: C,
+}
+
+impl<T: Signal<Item = DomBuilder<A>>, A: AsRef<Element>, C: Fn(DomBuilder<A>) -> DomBuilder<A>>
+    Signal for UiMonad<T, A, C>
+{
+    type Item = DomBuilder<A>;
+
+    fn poll_change(self: Pin<&mut Self>, cx: &mut Context) -> Poll<Option<Self::Item>> {
+        unsafe_project!(self => {
+            pin signal,
+            mut closure,
+        });
+
+        signal
+            .poll_change(cx)
+            .map(|opt| opt.map(|value| closure(value)))
+    }
+}
+
+struct Bind<Tm: Signal<Item = A>, To: Signal<Item = B> + Unpin, A, B, F: Fn(A) -> To> {
+    input: Tm,
+    current_signal: RwLock<Option<To>>,
+    function: F,
+    not_used: PhantomData<A>,
+}
+
+impl<Tm: Signal<Item = A>, To: Signal<Item = B> + Unpin, A, B, F: Fn(A) -> To> Signal
+    for Bind<Tm, To, A, B, F>
+{
+    type Item = B;
+
+    fn poll_change(self: Pin<&mut Self>, cx: &mut Context) -> Poll<Option<Self::Item>> {
+        unsafe_project!(self => {
+            pin input,
+            pin current_signal,
+            mut function,
+        });
+
+        if let Poll::Ready(v) = input.poll_change(cx) {
+            if let Some(new_input) = v {
+                current_signal
+                    .write()
+                    .unwrap()
+                    .replace((function)(new_input));
+            } else {
+                current_signal.write().unwrap().take();
+            }
+
+            cx.waker().wake_by_ref();
+            return Poll::Pending;
+        }
+
+        {
+            let mut current_signal = current_signal.write().unwrap();
+
+            if current_signal.is_some() {
+                return Pin::new(current_signal.as_mut().unwrap()).poll_change(cx);
+            }
+        }
+
+        cx.waker().wake_by_ref();
+        Poll::Pending
+    }
+}
+
+pub fn bind<Ti: Signal<Item = A>, To: Signal<Item = B> + Unpin, A, F, B>(
+    m: Ti,
+    f: F,
+) -> impl Signal<Item = B>
+where
+    F: Fn(A) -> To,
+{
+    Bind {
+        input: m,
+        current_signal: RwLock::new(None),
+        function: f,
+        not_used: PhantomData::<A>::default(),
+    }
+}
+
+#[inline]
+fn with_id<B: Signal<Item = DomBuilder<A>>, A: AsRef<Element>>(
+    b: B,
+    id: &str,
+) -> impl Signal<Item = DomBuilder<A>> {
+    let i = id.to_string();
+
+    UiMonad {
+        signal: b,
+        closure: move |d| d.attribute("id", i.as_str()),
+    }
+}
+
+pub fn test() -> impl Signal<Item = DomBuilder<Element>> {
+    let v = Mutable::new(42);
+
+    let r = map_ref! {
+        let value = v.signal() => move {
+            new_html("span")
+             .text(format!("The value is: {}", value).as_str())
+        }
+    };
+
+    v.set(666);
+
+    let bar = with_id(r, "test");
+    with_id(bar, "bar")
+}
+
+#[cfg(test)]
+mod test {
+    use dominator::{html, Dom, DomBuilder};
+    use futures_signals::map_ref;
+    use futures_signals::signal::{always, channel, Mutable, SignalExt};
+    use futures_util::StreamExt;
+    use std::any::Any;
+    use std::borrow::BorrowMut;
+    use std::fmt::Debug;
+    use std::future::Future;
+    use std::task::Poll;
+    use web_sys::Element;
+
+    use crate::components::bind;
+
+    #[tokio::test]
+    async fn test_bind() {
+        let a = Mutable::new(42);
+        let b = Mutable::new("hi");
+        let c = Mutable::new(666);
+
+        let out = bind(a.signal(), |input| {
+            map_ref! {
+                    let b2 = b.signal(),
+                    let c2 = c.signal() => move {
+                        return format!("{}:{}:{}", input, b2, c2);
+                    }
+
+            }
+        });
+
+        let mut strm = out.to_stream().take(2);
+
+        assert_eq!(strm.next().await.unwrap(), "42:hi:666".to_string());
+
+        c.set(555);
+
+        assert_eq!(strm.next().await.unwrap(), "42:hi:555".to_string());
+    }
+
+    #[tokio::test]
+    async fn dom_signal_test() {
+        // Assert that we can use non copy or clone types (i.e dominators Dom or DomBuilder types)
+        // with bind
+
+        struct FakeDom {
+            text: String,
+        }
+
+        let b = Mutable::new("hi");
+
+        let ele = map_ref! {
+            let b2 = b.signal() => move {
+                FakeDom {
+                    text: b2.to_string()                }
+            }
+        };
+
+        let out = bind(ele, |v| always(v)).map(|db| db);
+        let mut out = out.to_stream().take(2);
+
+        let dom: FakeDom = out.next().await.unwrap();
+
+        assert_eq!(dom.text, "hi");
+
+        b.set("there");
+
+        let dom: FakeDom = out.next().await.unwrap();
+
+        assert_eq!(dom.text, "there");
+    }
 }

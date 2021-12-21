@@ -25,11 +25,11 @@ impl NavigationDrawerDemo {
         card(
             CardProps::new()
                 .with_apply(|v| v.class("demo-card"))
-                .with_body(list(always(vec![
+                .body(list(always(vec![
                     card(
                         CardProps::new()
                             .with_title("Static navigation drawer", None)
-                            .with_body(html!("div", {
+                            .body(html!("div", {
                                 .class("navigation-drawer-demo")
                                 .child(Self::static_drawers(true))
                             })),
@@ -37,7 +37,7 @@ impl NavigationDrawerDemo {
                     card(
                         CardProps::new()
                             .with_title("Modal navigation drawer", None)
-                            .with_body(html!("div", {
+                            .body(html!("div", {
                                 .class("navigation-drawer-demo")
                                 .child(Self::modal_drawers())
                             })),
@@ -45,7 +45,7 @@ impl NavigationDrawerDemo {
                     card(
                         CardProps::new()
                             .with_title("Static navigation drawer without toggle controls", None)
-                            .with_body(html!("div", {
+                            .body(html!("div", {
                                 .class("navigation-drawer-demo")
                                 .child(Self::static_drawers(false))
                             })),

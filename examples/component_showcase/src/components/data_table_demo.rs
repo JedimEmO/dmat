@@ -49,7 +49,7 @@ impl DataTableDemo {
                     Some("Page change triggers data regeneration"),
                 )
                 .with_apply(|v| v.class("demo-card"))
-                .with_body(table),
+                .body(table),
         )
     }
 }

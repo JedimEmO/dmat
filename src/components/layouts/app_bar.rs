@@ -1,5 +1,6 @@
-use crate::utils::renderable_child::RenderableChild;
+use crate::utils::component_signal::{ComponentSignal, DomOption};
 use dominator::{clone, html, Dom, DomBuilder};
+use futures_signals::signal::{Signal, SignalExt};
 use web_sys::HtmlElement;
 
 #[derive(Clone)]
@@ -8,15 +9,25 @@ pub enum AppBarType {
     Prominent,
 }
 
-pub struct AppBarFinal<Header, Main> {
+pub struct AppBarProps {
     apply: Option<Box<dyn FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>>>,
-    main_view_signal: Main,
-    header_view: Header,
+    main_view: Option<ComponentSignal>,
+    header_view: Option<ComponentSignal>,
     app_bar_type: AppBarType,
     fixed: bool,
 }
 
-impl<Header: RenderableChild, Main: RenderableChild> AppBarFinal<Header, Main> {
+impl AppBarProps {
+    pub fn new() -> Self {
+        Self {
+            apply: None,
+            main_view: None,
+            header_view: None,
+            app_bar_type: AppBarType::Normal,
+            fixed: false,
+        }
+    }
+
     #[inline]
     pub fn bar_type(mut self, bar_type: AppBarType) -> Self {
         self.app_bar_type = bar_type;
@@ -38,64 +49,60 @@ impl<Header: RenderableChild, Main: RenderableChild> AppBarFinal<Header, Main> {
         self
     }
 
-    pub fn render(self) -> Dom {
-        let mut apply = self.apply;
-        let type_class = match self.app_bar_type {
-            AppBarType::Normal => "-normal",
-            AppBarType::Prominent => "-prominent",
-        };
+    #[inline]
+    pub fn header<T: Into<ComponentSignal>>(mut self, child: T) -> Self {
+        self.header_view = Some(child.into());
+        self
+    }
 
-        html!("div", {
-            .class("dmat-app-bar")
-            .apply_if(apply.is_some(), move |dom| {
-                dom.apply(apply.take().unwrap())
-            })
-            .apply_if(self.fixed, move |dom| dom.class("-fixed"))
-            .child(html!("div", {
-                .class("viewport")
-                .children(&mut [
-                    self.main_view_signal.render(clone!(type_class => move |v| {
-                        v.class("main").class(type_class)
-                    })),
-                    self.header_view.render(clone!(type_class => move |v| {
-                        v.class("header").class(type_class)
-                    }))
-                ])
-            }))
+    #[inline]
+    pub fn main<T: Into<ComponentSignal>>(mut self, child: T) -> Self {
+        self.main_view = Some(child.into());
+        self
+    }
+
+    #[inline]
+    pub fn main_signal<T: Signal<Item = U> + Unpin + 'static, U>(mut self, child: T) -> Self
+    where
+        U: Into<DomOption>,
+    {
+        self.main_view = Some(ComponentSignal::from_signal(child));
+        self
+    }
+}
+
+pub fn app_bar(props: AppBarProps) -> Dom {
+    let mut apply = props.apply;
+    let type_class = match props.app_bar_type {
+        AppBarType::Normal => "-normal",
+        AppBarType::Prominent => "-prominent",
+    };
+
+    let main_view = props.main_view;
+    let header_view = props.header_view;
+
+    html!("div", {
+        .class("dmat-app-bar")
+        .apply_if(apply.is_some(), move |dom| {
+            dom.apply(apply.take().unwrap())
         })
-    }
-}
-
-// Builders
-
-pub struct AppBar {
-    _private: std::marker::PhantomData<bool>,
-}
-
-pub struct AppBarBuilder2<H: RenderableChild> {
-    header: H,
-}
-
-impl AppBar {
-    pub fn new() -> AppBar {
-        AppBar {
-            _private: Default::default(),
-        }
-    }
-
-    pub fn header<C: RenderableChild + 'static>(self, child: C) -> AppBarBuilder2<C> {
-        AppBarBuilder2 { header: child }
-    }
-}
-
-impl<H: RenderableChild> AppBarBuilder2<H> {
-    pub fn main<C: RenderableChild + 'static>(self, child: C) -> AppBarFinal<H, C> {
-        AppBarFinal {
-            apply: None,
-            main_view_signal: child,
-            header_view: self.header,
-            app_bar_type: AppBarType::Normal,
-            fixed: false,
-        }
-    }
+        .apply_if(props.fixed, move |dom| dom.class("-fixed"))
+        .child(html!("div", {
+            .class("viewport")
+            .children(&mut [
+                html!("div", {
+                    .apply_if(main_view.is_some(), move |mut main| {
+                        main.class("main")
+                        .child_signal(main_view.unwrap().0)
+                    })
+                }),
+                html!("div", {
+                    .apply_if(header_view.is_some(), move |header| {
+                         header.class("header")
+                        .child_signal(header_view.unwrap().0)
+                    })
+                })
+            ])
+        }))
+    })
 }

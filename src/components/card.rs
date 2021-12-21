@@ -1,5 +1,17 @@
+use crate::elements::elements::new_html;
+use crate::futures_signals::signal::SignalExt;
+use crate::utils::component_signal::{builder_to_dom_signal, ComponentSignal, DomOption};
 use dominator::{html, Dom, DomBuilder};
-use web_sys::HtmlElement;
+use futures_signals::signal::{always, Signal};
+use web_sys::{Element, HtmlElement};
+
+#[derive(Default)]
+pub struct CardProps {
+    pub header_view: Option<ComponentSignal>,
+    pub body_view: Option<ComponentSignal>,
+    pub footer: Option<ComponentSignal>,
+    pub apply: Option<Box<dyn FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>>>,
+}
 
 impl CardProps {
     pub fn new() -> Self {
@@ -9,15 +21,23 @@ impl CardProps {
     }
 
     pub fn with_title<A: Into<String>>(mut self, title: A, sub_title: Option<A>) -> Self {
-        self.header = Some(html!("div", {
-            .children(vec![
-                Some(html!("div", { .text(title.into().as_str()) })),
-                match sub_title {
-                    Some(sub) => Some(html!("div", { .class("sub-title") .text(sub.into().as_str()) })),
-                    _ => None
-                }
-            ].into_iter().filter_map(|v| v))
-        }));
+        self.header_view = Some(
+            new_html("div")
+                .children(
+                    vec![
+                        Some(html!("div", { .class("title").text(title.into().as_str()) })),
+                        match sub_title {
+                            Some(sub) => Some(
+                                html!("div", { .class("sub-title") .text(sub.into().as_str()) }),
+                            ),
+                            _ => None,
+                        },
+                    ]
+                    .into_iter()
+                    .filter_map(|v| v),
+                )
+                .into(),
+        );
 
         self
     }
@@ -30,53 +50,53 @@ impl CardProps {
         self
     }
 
-    pub fn with_body(mut self, body: Dom) -> Self {
-        self.body = Some(body);
+    pub fn body<T: Into<ComponentSignal>>(mut self, body: T) -> Self {
+        self.body_view = Some(body.into());
         self
     }
 
-    pub fn with_header(mut self, header: Dom) -> Self {
-        self.header = Some(header);
+    pub fn header<T: Into<ComponentSignal>>(mut self, header: T) -> Self {
+        self.header_view = Some(header.into());
         self
     }
 
-    pub fn with_footer(mut self, footer: Dom) -> Self {
-        self.footer = Some(footer);
+    pub fn header_signal<T: Signal<Item = U> + Unpin + 'static, U>(mut self, header: T) -> Self
+    where
+        U: Into<DomOption>,
+    {
+        self.header_view = Some(ComponentSignal::from_signal(header));
         self
     }
-}
 
-#[derive(Default)]
-pub struct CardProps {
-    pub header: Option<Dom>,
-    pub body: Option<Dom>,
-    pub footer: Option<Dom>,
-    pub apply: Option<Box<dyn FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>>>,
+    pub fn footer<T: Into<ComponentSignal>>(mut self, footer: T) -> Self {
+        self.footer = Some(footer.into());
+        self
+    }
 }
 
 pub fn card(props: CardProps) -> Dom {
     let mut apply = props.apply;
-    let head = props.header;
-    let body = props.body;
+    let head = props.header_view;
+    let body = props.body_view;
     let footer = props.footer;
 
     let children = vec![
         html!("div", {
             .class("dmat-card-header-container")
             .apply_if(head.is_some(), move |dom| {
-                dom.child(head.unwrap())
+                dom.child_signal(head.unwrap().0)
             })
         }),
         html!("div", {
             .class("dmat-card-body-container")
             .apply_if(body.is_some(), move |dom| {
-                dom.child(body.unwrap())
+                dom.child_signal(body.unwrap().0)
             })
         }),
         html!("div", {
             .class("dmat-card-footer-container")
             .apply_if(footer.is_some(), move |dom| {
-                dom.child(footer.unwrap())
+                dom.child_signal(footer.unwrap().0)
             })
         }),
     ];

@@ -15,9 +15,9 @@ pub fn list_demo() -> Dom {
         card(
             CardProps::new()
                 .with_apply(|v| v.class("demo-card"))
-                .with_body(list(always(vec![
+                .body(list(always(vec![
                     button(ButtonProps {
-                        content_signal: once(always_signal(Some(text("hi")))),
+                        content_signal: Some(text("hi").into()),
                         click_handler: Some(Rc::new(clone!(state => move |_| {
                             state.lock_mut().push_cloned("Hello!".into());
                         }))),

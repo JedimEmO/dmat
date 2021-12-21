@@ -21,7 +21,7 @@ impl InputDemo {
         Container::new(
             card(CardProps::new()
                 .with_apply(|v| v.class("demo-card"))
-                .with_body(list(always(vec![
+                .body(list(always(vec![
                     html!("div", {
                         .children(&mut [
                             text_element(TextElementProps { value: self.text_value.clone(), ..Default::default()}).0,
