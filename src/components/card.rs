@@ -1,9 +1,8 @@
 use crate::elements::elements::new_html;
-use crate::futures_signals::signal::SignalExt;
-use crate::utils::component_signal::{builder_to_dom_signal, ComponentSignal, DomOption};
+use crate::utils::component_signal::{ComponentSignal, DomOption};
 use dominator::{html, Dom, DomBuilder};
-use futures_signals::signal::{always, Signal};
-use web_sys::{Element, HtmlElement};
+use futures_signals::signal::Signal;
+use web_sys::HtmlElement;
 
 #[derive(Default)]
 pub struct CardProps {

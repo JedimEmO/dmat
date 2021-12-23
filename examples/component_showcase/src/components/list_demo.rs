@@ -1,7 +1,7 @@
 use dominator::{clone, html, Dom};
-use futures_signals::signal::always as always_signal;
+
 use futures_signals::signal_vec::{always, MutableVec, SignalVecExt};
-use std::iter::once;
+
 use wasm_bindgen::__rt::std::rc::Rc;
 
 use dominator_material::components::{

@@ -1,6 +1,6 @@
 use crate::elements::elements::new_html;
 use dominator::traits::AsStr;
-use dominator::{html, Dom, DomBuilder};
+use dominator::{DomBuilder};
 use futures_signals::signal::Signal;
 use web_sys::Element;
 

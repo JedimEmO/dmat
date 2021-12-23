@@ -1,10 +1,10 @@
 use dominator::{html, Dom};
-use futures_signals::signal::{always, MutableSignal};
-use futures_signals::signal::{Mutable, SignalExt};
+use futures_signals::signal::{MutableSignal};
+use futures_signals::signal::{Mutable};
 
 use dominator_material::components::layouts::{app_bar, AppBarProps, AppBarType, Container};
 use dominator_material::components::{
-    card, navigation_drawer, CardProps, Carousel, CarouselSource, NavigationDrawer,
+    card, navigation_drawer, CardProps, Carousel, CarouselSource,
     NavigationDrawerEntry, NavigationDrawerProps, NavigationEntry,
 };
 

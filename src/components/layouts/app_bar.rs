@@ -1,6 +1,6 @@
 use crate::utils::component_signal::{ComponentSignal, DomOption};
-use dominator::{clone, html, Dom, DomBuilder};
-use futures_signals::signal::{Signal, SignalExt};
+use dominator::{html, Dom, DomBuilder};
+use futures_signals::signal::{Signal};
 use web_sys::HtmlElement;
 
 #[derive(Clone)]
@@ -91,7 +91,7 @@ pub fn app_bar(props: AppBarProps) -> Dom {
             .class("viewport")
             .children(&mut [
                 html!("div", {
-                    .apply_if(main_view.is_some(), move |mut main| {
+                    .apply_if(main_view.is_some(), move |main| {
                         main.class("main")
                         .class(type_class)
                         .child_signal(main_view.unwrap().0)

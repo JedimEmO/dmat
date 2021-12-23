@@ -1,23 +1,17 @@
-use std::borrow::Borrow;
 use std::marker::PhantomData;
 use std::pin::Pin;
 use std::sync::RwLock;
 use std::task::{Context, Poll};
 
 use crate::elements::elements::new_html;
-use dominator::traits::AsStr;
 use dominator::{clone, events, html, Dom, DomBuilder};
-use futures::channel;
-use futures_signals::signal::{
-    always, channel, Map, Mutable, MutableSignal, MutableSignalCloned, Receiver, Signal, SignalExt,
-    SignalStream,
-};
+
+use futures_signals::signal::{Mutable, MutableSignalCloned, Signal};
 use futures_signals::signal_vec::MutableVec;
 use futures_signals::signal_vec::SignalVecExt;
-use futures_signals::{map_mut, map_ref, unsafe_project};
-use futures_util::StreamExt;
+use futures_signals::{map_ref, unsafe_project};
 use wasm_bindgen::__rt::std::rc::Rc;
-use web_sys::{Element, HtmlElement, Node};
+use web_sys::{Element, HtmlElement};
 
 #[derive(Clone)]
 pub struct NavigationEntry<T: Clone + 'static> {
@@ -67,18 +61,6 @@ impl<T: Clone + PartialEq + 'static> NavigationDrawerProps<T> {
     fn toggle(&self, state: bool) {
         self.expanded.set(state);
     }
-}
-
-pub struct NavigationDrawer<T: Clone + PartialEq + 'static> {
-    apply_func: Option<
-        Box<
-            dyn FnOnce(
-                Rc<NavigationDrawerProps<T>>,
-                DomBuilder<HtmlElement>,
-            ) -> DomBuilder<HtmlElement>,
-        >,
-    >,
-    data: NavigationDrawerProps<T>,
 }
 
 impl<T: Clone + PartialEq + 'static> NavigationDrawerProps<T> {
@@ -390,16 +372,10 @@ pub fn test() -> impl Signal<Item = DomBuilder<Element>> {
 
 #[cfg(test)]
 mod test {
-    use dominator::{html, Dom, DomBuilder};
+
     use futures_signals::map_ref;
-    use futures_signals::signal::{always, channel, Mutable, SignalExt};
+    use futures_signals::signal::{always, Mutable, SignalExt};
     use futures_util::StreamExt;
-    use std::any::Any;
-    use std::borrow::BorrowMut;
-    use std::fmt::Debug;
-    use std::future::Future;
-    use std::task::Poll;
-    use web_sys::Element;
 
     use crate::components::bind;
 

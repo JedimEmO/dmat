@@ -3,7 +3,7 @@ use futures_signals::signal_vec::always;
 
 use dominator_material::components::layouts::Container;
 use dominator_material::components::{
-    card, list, navigation_drawer, CardProps, NavigationDrawer, NavigationDrawerEntry,
+    card, list, navigation_drawer, CardProps, NavigationDrawerEntry,
     NavigationDrawerProps, NavigationEntry,
 };
 
