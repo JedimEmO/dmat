@@ -1,6 +1,6 @@
 use crate::utils::component_signal::{ComponentSignal, DomOption};
 use dominator::{html, Dom, DomBuilder};
-use futures_signals::signal::{Signal};
+use futures_signals::signal::Signal;
 use web_sys::HtmlElement;
 
 #[derive(Clone)]

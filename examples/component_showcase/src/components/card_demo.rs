@@ -1,8 +1,6 @@
 use dominator::{html, Dom};
 
-
 use dominator_material::components::{button, card, text, ButtonProps, ButtonType, CardProps};
-
 
 pub struct CardDemo {}
 

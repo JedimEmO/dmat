@@ -1,10 +1,8 @@
-
 use crate::utils::component_signal::{ComponentSignal, DomOption};
 use dominator::{clone, events, html, Dom};
 use futures_signals::signal::Signal;
 
 use wasm_bindgen::__rt::std::rc::Rc;
-
 
 pub enum ButtonType {
     Contained,

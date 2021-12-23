@@ -1,5 +1,3 @@
-
-
 use dominator::{clone, html, Dom};
 use dominator_material::components::{
     button, card, dynamic_text, text, ButtonProps, ButtonType, CardProps,
