@@ -93,6 +93,7 @@ pub fn app_bar(props: AppBarProps) -> Dom {
                 html!("div", {
                     .apply_if(main_view.is_some(), move |mut main| {
                         main.class("main")
+                        .class(type_class)
                         .child_signal(main_view.unwrap().0)
                     })
                 }),
