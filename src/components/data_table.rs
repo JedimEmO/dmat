@@ -1,5 +1,3 @@
-use std::error::Error;
-use std::future::Future;
 use std::str::FromStr;
 
 use dominator::{clone, events, html, Dom};
@@ -13,7 +11,6 @@ use wasm_bindgen::closure::Closure;
 use wasm_bindgen::JsCast;
 
 use crate::components::{progress_indicator, ProgressIndicatorIterations};
-use crate::utils::component_signal::ComponentSignal;
 
 enum RenderFunc<T: 'static> {
     Row(Rc<dyn Fn(&T) -> Dom>),

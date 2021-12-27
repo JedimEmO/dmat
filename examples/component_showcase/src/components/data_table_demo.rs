@@ -4,8 +4,6 @@ use futures_signals::signal::Mutable;
 use futures_signals::signal_vec::MutableVec;
 use wasm_bindgen::__rt::std::rc::Rc;
 
-pub struct DataTableDemo {}
-
 pub fn data_table_demo() -> Dom {
     let data: Rc<MutableVec<usize>> = Rc::new(MutableVec::new_with_values((0..10).collect()));
 
