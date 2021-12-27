@@ -17,7 +17,7 @@ impl CardDemo {
             }),
             card(CardProps::new()
                 .header(html!("div", { .text("A header element") }))
-                .body(html!("div", { .text("This is the body") }))
+                .body(html!("div", { .text("This is the body") }), )
                 .footer(html!("div", {
                             .class("demo-buttons")
                             .children(&mut [
@@ -27,12 +27,12 @@ impl CardDemo {
                             ])
                         }))),
             card(CardProps::new()
-                .body(html!("div", { .text("Only a body") })) 
+                .body(html!("div", { .text("Only a body") }), ) 
                 ),
 
             card(CardProps::new()
                 .with_title("With a title", Some("and a sub title"))
-                .body(html!("div", { .text("This card has a title. It is mutually exclusive with the header element") }))
+                .body(html!("div", { .text("This card has a title. It is mutually exclusive with the header element") }), )
                 )
         ];
 

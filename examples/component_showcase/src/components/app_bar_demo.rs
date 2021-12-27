@@ -4,8 +4,8 @@ use futures_signals::signal::MutableSignal;
 
 use dominator_material::components::layouts::{app_bar, AppBarProps, AppBarType, Container};
 use dominator_material::components::{
-    card, navigation_drawer, CardProps, Carousel, CarouselSource, NavigationDrawerEntry,
-    NavigationDrawerProps, NavigationEntry,
+    card, carousel, navigation_drawer, CardProps, CarouselProps, CarouselSource,
+    NavigationDrawerEntry, NavigationDrawerProps, NavigationEntry,
 };
 
 use crate::components::navigation_drawer_demo::NavigationDrawerDemo;
@@ -18,9 +18,15 @@ impl AppBarDemo {
     }
 
     pub fn render(self) -> Dom {
-        card(CardProps::new().with_apply(|v| v.class("demo-card")).body(
-            Carousel::new(AppBarCarousel::new()).render_apply(|d, _| d.class("demo-carousel")),
-        ))
+        card(
+            CardProps::new()
+                .with_apply(|v| v.class("demo-card"))
+                .body(carousel(CarouselProps {
+                    source: AppBarCarousel::new(),
+                    apply: Some(Box::new(|d| d.class("demo-carousel"))),
+                    current_view_index: Default::default(),
+                })),
+        )
     }
 }
 

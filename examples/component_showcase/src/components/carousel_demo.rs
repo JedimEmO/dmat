@@ -2,20 +2,14 @@ use dominator::{html, Dom};
 use futures_signals::signal::{Mutable, MutableSignal};
 
 use dominator_material::components::layouts::Container;
-use dominator_material::components::{card, CardProps, Carousel, CarouselSource};
+use dominator_material::components::{card, carousel, CardProps, CarouselProps, CarouselSource};
 
-pub struct CarouselDemo {}
-
-impl CarouselDemo {
-    pub fn new() -> CarouselDemo {
-        CarouselDemo {}
-    }
-
-    pub fn render(self) -> Dom {
-        card(CardProps::new().body(
-            Carousel::new(CarouselDemoSource::new()).render_apply(|d, _| d.class("demo-carousel")),
-        ))
-    }
+pub fn carousel_demo() -> Dom {
+    card(CardProps::new().body(carousel(CarouselProps {
+        source: CarouselDemoSource::new(),
+        apply: Some(Box::new(|d| d.class("demo-carousel"))),
+        current_view_index: Default::default(),
+    })))
 }
 
 struct CarouselDemoSource {

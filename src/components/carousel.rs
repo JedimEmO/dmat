@@ -25,7 +25,7 @@ pub struct OutgoingItem {
     pub direction: OutgoingItemDirection,
 }
 
-pub struct Carousel<T: CarouselSource + 'static> {
+struct Carousel<T: CarouselSource + 'static> {
     pub current_item_index: Mutable<usize>,
     pub outgoing_item: Mutable<Option<OutgoingItem>>,
     current_active_child_element: Mutable<usize>,
@@ -123,78 +123,74 @@ impl<T: CarouselSource> Carousel<T> {
     }
 }
 
-impl<T: CarouselSource> Carousel<T> {
-    pub fn new(source: T) -> Carousel<T> {
-        Carousel {
-            current_item_index: Mutable::new(0),
-            outgoing_item: Mutable::new(Some(OutgoingItem {
-                index: 0,
-                direction: OutgoingItemDirection::Left,
-            })),
-            current_active_child_element: Mutable::new(0),
-            source: Rc::new(source),
-        }
-    }
+pub struct CarouselProps<T: CarouselSource> {
+    pub source: T,
+    pub apply: Option<Box<dyn FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>>>,
+    pub current_view_index: Mutable<usize>,
+}
 
-    #[inline]
-    pub fn render(self) -> Dom {
-        self.render_apply(|d, _| d)
-    }
+pub fn carousel<T: CarouselSource + 'static>(props: CarouselProps<T>) -> Dom {
+    let source = props.source;
+    let apply = props.apply;
 
-    pub fn render_apply<F>(self, cb: F) -> Dom
-    where
-        F: FnOnce(DomBuilder<HtmlElement>, Rc<Carousel<T>>) -> DomBuilder<HtmlElement>,
-    {
-        let state = Rc::new(self);
+    let state = Rc::new(Carousel {
+        current_item_index: props.current_view_index,
+        outgoing_item: Mutable::new(Some(OutgoingItem {
+            index: 0,
+            direction: OutgoingItemDirection::Left,
+        })),
+        current_active_child_element: Mutable::new(0),
 
-        Dom::with_state(state, |state| {
-            html!("div", {
-                .apply(clone!(state => move |dom| { cb(dom, state) }))
-                .class("dmat-carousel")
-                .child(html!("div", {
-                    .class("container")
-                    .children(&mut [
-                        html!("div", {
-                            .class_signal("-leave-left", state.child_leave_signal(0, OutgoingItemDirection::Left))
-                            .class_signal("-leave-right", state.child_leave_signal(0, OutgoingItemDirection::Right))
-                            .class_signal("-hidden", state.hidden_signal(0))
-                            .class("dmat-carousel-item")
-                            .child(html!("div", {
-                                .class("dmat-carousel-item-inner")
-                                .child_signal(state.child_signal(0))
-                            }))
-                        }),
-                        html!("div", {
-                            .class_signal("-leave-left", state.child_leave_signal(1, OutgoingItemDirection::Left))
-                            .class_signal("-leave-right", state.child_leave_signal(1, OutgoingItemDirection::Right))
-                            .class_signal("-hidden", state.hidden_signal(1))
-                            .class("dmat-carousel-item")
-                            .child(html!("div", {
-                                .class("dmat-carousel-item-inner")
-                                .child_signal(state.child_signal(1))
-                            }))
-                        }),
-                        html!("div", {
-                            .class("dmat-carousel-left-button")
-                            .class("dmat-carousel-button")
-                            .event(clone!(state => {
-                                move |_: events::Click| {
-                                    state.transition(OutgoingItemDirection::Left);
-                                }
-                            }))
-                        }),
-                        html!("div", {
-                            .class("dmat-carousel-right-button")
-                            .class("dmat-carousel-button")
-                            .event(clone!(state => {
-                                move |_: events::Click| {
-                                    state.transition(OutgoingItemDirection::Right);
-                                }
-                            }))
-                        })
-                    ])
-                }))
-            })
+        source: Rc::new(source),
+    });
+
+    Dom::with_state(state, move |state| {
+        html!("div", {
+            .apply_if(apply.is_some(), |dom_builder| { (apply.unwrap())(dom_builder) })
+            .class("dmat-carousel")
+            .child(html!("div", {
+                .class("container")
+                .children(&mut [
+                    html!("div", {
+                        .class_signal("-leave-left", state.child_leave_signal(0, OutgoingItemDirection::Left))
+                        .class_signal("-leave-right", state.child_leave_signal(0, OutgoingItemDirection::Right))
+                        .class_signal("-hidden", state.hidden_signal(0))
+                        .class("dmat-carousel-item")
+                        .child(html!("div", {
+                            .class("dmat-carousel-item-inner")
+                            .child_signal(state.child_signal(0))
+                        }))
+                    }),
+                    html!("div", {
+                        .class_signal("-leave-left", state.child_leave_signal(1, OutgoingItemDirection::Left))
+                        .class_signal("-leave-right", state.child_leave_signal(1, OutgoingItemDirection::Right))
+                        .class_signal("-hidden", state.hidden_signal(1))
+                        .class("dmat-carousel-item")
+                        .child(html!("div", {
+                            .class("dmat-carousel-item-inner")
+                            .child_signal(state.child_signal(1))
+                        }))
+                    }),
+                    html!("div", {
+                        .class("dmat-carousel-left-button")
+                        .class("dmat-carousel-button")
+                        .event(clone!(state => {
+                            move |_: events::Click| {
+                                state.transition(OutgoingItemDirection::Left);
+                            }
+                        }))
+                    }),
+                    html!("div", {
+                        .class("dmat-carousel-right-button")
+                        .class("dmat-carousel-button")
+                        .event(clone!(state => {
+                            move |_: events::Click| {
+                                state.transition(OutgoingItemDirection::Right);
+                            }
+                        }))
+                    })
+                ])
+            }))
         })
-    }
+    })
 }

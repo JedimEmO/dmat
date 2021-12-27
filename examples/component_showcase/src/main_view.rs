@@ -10,7 +10,7 @@ use dominator_material::components::{layouts::Container, tabs, Tab, TabContent};
 use crate::components::app_bar_demo::AppBarDemo;
 use crate::components::button_demo::ButtonDemo;
 use crate::components::card_demo::CardDemo;
-use crate::components::carousel_demo::CarouselDemo;
+use crate::components::carousel_demo::carousel_demo;
 use crate::components::data_table_demo::data_table_demo;
 use crate::components::input_demo::InputDemo;
 use crate::components::list_demo::list_demo;
@@ -96,7 +96,7 @@ impl MainView {
                                 DemoTabs::AppBar => AppBarDemo::new().render(),
                                 DemoTabs::Button => ButtonDemo::new().render(),
                                 DemoTabs::List => list_demo(),
-                                DemoTabs::Carousel => CarouselDemo::new().render(),
+                                DemoTabs::Carousel => carousel_demo(),
                                 DemoTabs::Card => CardDemo::new().render(),
                                 DemoTabs::DataTable => data_table_demo(),
                                 DemoTabs::Input => InputDemo::new().render(),

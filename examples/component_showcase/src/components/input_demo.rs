@@ -22,29 +22,30 @@ impl InputDemo {
             card(CardProps::new()
                 .with_apply(|v| v.class("demo-card"))
                 .body(list(always(vec![
-                    html!("div", {
-                        .children(&mut [
-                            text_element(TextElementProps { value: self.text_value.clone(), ..Default::default()}).0,
-                            html!("span", { 
-                                .text_signal(self.text_value.signal_cloned().map(|v| format!(" Value: {}", v)))
-                            })
-                        ])
-                    }),
-                    html!("div", {
-                        .children(&mut [
-                            text_element(TextElementProps::new(self.text_value.clone())
-                                .label("Invalid") 
-                                .validator(|_| false)).0
-                        ])
-                    }),
-                    html!("div", {  
-                        .children(&mut [
-                            text_element(TextElementProps::new(self.text_value.clone())
-                                .label("Accepts `foobar`")
-                                .validator(|v| v == "foobar")).0
-                        ])
-                    })
-                ])))),
+                                    html!("div", {
+                                        .children(&mut [
+                                            text_element(TextElementProps { value: self.text_value.clone(), ..Default::default()}).0,
+                                            html!("span", { 
+                                                .text_signal(self.text_value.signal_cloned().map(|v| format!(" Value: {}", v)))
+                                            })
+                                        ])
+                                    }),
+                                    html!("div", {
+                                        .children(&mut [
+                                            text_element(TextElementProps::new(self.text_value.clone())
+                                                .label("Invalid") 
+                                                .validator(|_| false)).0
+                                        ])
+                                    }),
+                                    html!("div", {  
+                                        .children(&mut [
+                                            text_element(TextElementProps::new(self.text_value.clone())
+                                                .label("Accepts `foobar`")
+                                                .validator(|v| v == "foobar")).0
+                                        ])
+                                    })
+                                ])),
+                )),
         )
         .render()
     }
