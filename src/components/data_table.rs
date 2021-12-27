@@ -1,3 +1,5 @@
+use std::error::Error;
+use std::future::Future;
 use std::str::FromStr;
 
 use dominator::{clone, events, html, Dom};
@@ -10,10 +12,10 @@ use wasm_bindgen::__rt::std::rc::Rc;
 use wasm_bindgen::closure::Closure;
 use wasm_bindgen::JsCast;
 
-use crate::components::{ProgressIndicator, ProgressIndicatorIterations};
+use crate::components::{progress_indicator, ProgressIndicatorIterations};
+use crate::utils::component_signal::ComponentSignal;
 
-#[derive(Clone)]
-enum RenderFunc<T: Clone + 'static> {
+enum RenderFunc<T: 'static> {
     Row(Rc<dyn Fn(&T) -> Dom>),
     Cells(Rc<dyn Fn(&T) -> Vec<Dom>>),
 }
@@ -23,12 +25,11 @@ struct PageMeta {
     page_size: Mutable<usize>,
     total_data_count: Mutable<usize>,
     current_top: Mutable<usize>,
-    allowed_page_sizes: Option<Vec<usize>>,
     on_request_data: Rc<dyn Fn(usize, usize)>,
+    allowed_page_sizes: Option<Vec<usize>>,
 }
 
-#[derive(Clone)]
-pub struct DataTable<T: Clone + 'static> {
+pub struct DataTableProps<T: Clone + 'static> {
     data: Rc<MutableVec<T>>,
     page_meta: Option<PageMeta>,
     headers: Option<Vec<String>>,
@@ -36,49 +37,38 @@ pub struct DataTable<T: Clone + 'static> {
     is_loading: Mutable<bool>,
 }
 
-pub struct DataTableBuilder1<T: Clone + 'static> {
-    data: Rc<MutableVec<T>>,
-}
-
-impl<T: Clone + 'static> DataTableBuilder1<T> {
-    fn new(data: Rc<MutableVec<T>>) -> DataTableBuilder1<T> {
-        DataTableBuilder1 { data }
-    }
-
-    pub fn row_render_func<F: 'static>(self, func: F) -> DataTable<T>
-    where
-        F: Fn(&T) -> Dom,
-    {
-        DataTable {
-            data: self.data,
+impl<T: Clone + 'static> DataTableProps<T> {
+    pub fn new(data: Rc<MutableVec<T>>) -> DataTableProps<T> {
+        DataTableProps {
+            data,
             page_meta: None,
             headers: None,
-            render_func: RenderFunc::Row(Rc::new(func)),
+            render_func: RenderFunc::Row(Rc::new(
+                |_| html!("span", {.text("No row rendering function provided ")}),
+            )),
             is_loading: Default::default(),
         }
     }
 
-    pub fn cell_render_func<F: 'static>(self, func: F) -> DataTable<T>
+    pub fn headers(mut self, headers: Vec<String>) -> Self {
+        self.headers = Some(headers);
+        self
+    }
+
+    #[inline]
+    pub fn row_render_func<F: 'static>(mut self, func: F) -> Self
+    where
+        F: Fn(&T) -> Dom,
+    {
+        self.render_func = RenderFunc::Row(Rc::new(func));
+        self
+    }
+
+    pub fn cell_render_func<F: 'static>(mut self, func: F) -> Self
     where
         F: Fn(&T) -> Vec<Dom>,
     {
-        DataTable {
-            data: self.data,
-            page_meta: None,
-            headers: None,
-            render_func: RenderFunc::Cells(Rc::new(func)),
-            is_loading: Mutable::new(true),
-        }
-    }
-}
-
-impl<T: Clone + 'static> DataTable<T> {
-    pub fn new(data: Rc<MutableVec<T>>) -> DataTableBuilder1<T> {
-        DataTableBuilder1::new(data)
-    }
-
-    pub fn headers(mut self, headers: Vec<String>) -> Self {
-        self.headers = Some(headers);
+        self.render_func = RenderFunc::Cells(Rc::new(func));
         self
     }
 
@@ -97,21 +87,17 @@ impl<T: Clone + 'static> DataTable<T> {
             page_size,
             current_top,
             total_data_count,
-            on_request_data: Rc::new(on_page_change),
             allowed_page_sizes,
+            on_request_data: Rc::new(on_page_change),
         });
 
         self
     }
-
-    pub fn render(self: Self) -> Dom {
-        data_table(Rc::new(self))
-    }
 }
 
 #[inline]
-fn data_table<T: Clone + 'static>(data_table: Rc<DataTable<T>>) -> Dom {
-    Dom::with_state(data_table, |data_table| {
+pub fn data_table<T: Clone + 'static>(props: DataTableProps<T>) -> Dom {
+    Dom::with_state(Rc::new(props), |data_table| {
         let heads = match &data_table.headers {
             Some(headers) => html!("tr", {
             .children(headers.iter().map(|th| html!("th", {
@@ -121,15 +107,20 @@ fn data_table<T: Clone + 'static>(data_table: Rc<DataTable<T>>) -> Dom {
             _ => html!("tr"),
         };
 
-        let rows = clone!(data_table => data_table.data.signal_vec_cloned().map( move |val| {
-            let f = Closure::wrap(Box::new(clone!(data_table => move || {
-                    data_table.is_loading.replace(false);
-                })) as Box<dyn Fn()>);
+        let rows = clone!(data_table => data_table.data.signal_vec_cloned().map(move |val| {
+            let loading_toggle_lambda = Closure::wrap(Box::new(clone!(data_table => move || {
+                data_table.is_loading.replace(false);
+            })) as Box<dyn Fn()>);
 
-            web_sys::window().unwrap().set_timeout_with_callback_and_timeout_and_arguments_0(
-                &f.as_ref().unchecked_ref(), 500).unwrap();
+            web_sys::window()
+                .unwrap()
+                .set_timeout_with_callback_and_timeout_and_arguments_0(
+                    &loading_toggle_lambda.as_ref().unchecked_ref(),
+                    500,
+                )
+                .unwrap();
 
-            f.forget();
+            loading_toggle_lambda.forget();
 
             match &data_table.render_func {
                 RenderFunc::Row(render) => render(&val),
@@ -159,7 +150,7 @@ fn data_table<T: Clone + 'static>(data_table: Rc<DataTable<T>>) -> Dom {
                                 .attribute("colspan", "100")
                                 .child_signal(data_table.is_loading.signal_cloned().map(|loading| {
                                     match loading {
-                                        true => Some(ProgressIndicator::new(Duration::from_millis(500), ProgressIndicatorIterations::Count(1))),
+                                        true => Some(progress_indicator(Duration::from_millis(500), ProgressIndicatorIterations::Count(1))),
                                         _ => None
                                     }
                                 }))

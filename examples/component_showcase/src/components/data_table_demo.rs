@@ -1,22 +1,18 @@
 use dominator::{clone, html, Dom};
-use dominator_material::components::{card, CardProps, DataTable};
+use dominator_material::components::{card, data_table, CardProps, DataTableProps};
 use futures_signals::signal::Mutable;
 use futures_signals::signal_vec::MutableVec;
 use wasm_bindgen::__rt::std::rc::Rc;
 
 pub struct DataTableDemo {}
 
-impl DataTableDemo {
-    pub fn new() -> DataTableDemo {
-        DataTableDemo {}
-    }
+pub fn data_table_demo() -> Dom {
+    let data: Rc<MutableVec<usize>> = Rc::new(MutableVec::new_with_values((0..10).collect()));
 
-    pub fn render(self) -> Dom {
-        let data: Rc<MutableVec<usize>> = Rc::new(MutableVec::new_with_values((0..10).collect()));
+    let current_top = Mutable::new(0);
 
-        let current_top = Mutable::new(0);
-
-        let table = DataTable::new(data.clone())
+    let table = data_table(
+        DataTableProps::new(data.clone())
             .row_render_func(|v| {
                 html!("tr", {
                     .children(&mut [
@@ -39,17 +35,16 @@ impl DataTableDemo {
                     current_top.replace(v);
                 }),
                 Some(vec![10, 20, 50]),
-            )
-            .render();
+            ),
+    );
 
-        card(
-            CardProps::new()
-                .with_title(
-                    "Data table with pagination",
-                    Some("Page change triggers data regeneration"),
-                )
-                .with_apply(|v| v.class("demo-card"))
-                .body(table),
-        )
-    }
+    card(
+        CardProps::new()
+            .with_title(
+                "Data table with pagination",
+                Some("Page change triggers data regeneration"),
+            )
+            .with_apply(|v| v.class("demo-card"))
+            .body(table),
+    )
 }
