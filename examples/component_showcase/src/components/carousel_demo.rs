@@ -11,21 +11,12 @@ use dominator_material::components::{
 };
 
 pub fn carousel_demo() -> Dom {
-    let images = carousel(CarouselProps {
-        source: CarouselDemoSource::new(),
-        apply: Some(Box::new(|d| d.class("demo-carousel"))),
-        initial_view_index: Default::default(),
-    });
-
-    let images_ctrl = images.1;
-
     card(CardProps::new().body(static_list(vec![
-        images.0,
-        button(ButtonProps::new().content(text("test")).on_click(
-            clone!(images_ctrl => move |_| {
-                images_ctrl.goto_index(5).unwrap();
-            }),
-        )),
+        carousel(CarouselProps {
+            source: CarouselDemoSource::new(),
+            apply: Some(Box::new(|d| d.class("demo-carousel"))),
+            initial_view_index: Default::default(),
+        }).0
     ])))
 }
 
