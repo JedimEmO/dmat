@@ -3,7 +3,6 @@ use futures_signals::signal::Mutable;
 use futures_signals::signal::SignalExt;
 use futures_signals::signal_vec::always;
 
-
 use dominator_material::components::layouts::{app_bar, AppBarProps};
 use dominator_material::components::{layouts::container, tabs, Tab, TabContent};
 
@@ -14,7 +13,7 @@ use crate::components::carousel_demo::carousel_demo;
 use crate::components::data_table_demo::data_table_demo;
 use crate::components::input_demo::input_demo;
 use crate::components::list_demo::list_demo;
-use crate::components::navigation_drawer_demo::NavigationDrawerDemo;
+use crate::components::navigation_drawer_demo::navigation_drawers_demo;
 
 #[derive(Copy, Clone, PartialEq, Debug)]
 enum DemoTabs {
@@ -88,7 +87,7 @@ pub fn main_view() -> Dom {
                             DemoTabs::Card => card_demo(),
                             DemoTabs::DataTable => data_table_demo(),
                             DemoTabs::Input => input_demo(),
-                            DemoTabs::NavigationDrawer => NavigationDrawerDemo::new().render(),
+                            DemoTabs::NavigationDrawer => navigation_drawers_demo(),
                             _ => html!("div"),
                         })
                         .map(|v| container(v)),

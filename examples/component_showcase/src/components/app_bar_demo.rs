@@ -2,13 +2,12 @@ use dominator::{html, Dom};
 use futures_signals::signal::Mutable;
 use futures_signals::signal::MutableSignal;
 
+use crate::components::navigation_drawer_demo::static_drawers;
 use dominator_material::components::layouts::{app_bar, container, AppBarProps, AppBarType};
 use dominator_material::components::{
     card, carousel, navigation_drawer, CardProps, CarouselProps, CarouselSource,
     NavigationDrawerEntry, NavigationDrawerProps, NavigationEntry,
 };
-
-use crate::components::navigation_drawer_demo::NavigationDrawerDemo;
 
 pub fn app_bar_demo() -> Dom {
     card(
@@ -91,7 +90,7 @@ impl CarouselSource for AppBarCarousel {
                         .class("app-bar-demo-header")
                         .text("Prominent fixed app bar")
                     }))
-                    .main(NavigationDrawerDemo::static_drawers(true))
+                    .main(static_drawers(true))
                     .bar_type(AppBarType::Prominent)
                     .fixed(),
             ),
