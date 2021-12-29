@@ -12,25 +12,23 @@ pub fn list_demo() -> Dom {
     let entries: Rc<MutableVec<String>> = Default::default();
 
     Dom::with_state(entries, |state| {
-        card(CardProps::new().with_apply(|v| v.class("demo-card")).body(
-            list(
-                always(
-                    vec![
-                        button(ButtonProps {
-                            content_signal: Some(text("hi").into()),
-                            click_handler: Some(Rc::new(clone!(state => move |_| {
-                                state.lock_mut().push_cloned("Hello!".into());
-                            }))),
-                            button_type: ButtonType::Contained,
-                        }),
-                        list(
-                            state.signal_vec_cloned().map(
-                                |entry| html!("span", { .text(format!("{}", entry).as_str())}),
-                            ),
-                        ),
-                    ],
-                ),
-            ),
-        ))
+        card(
+            CardProps::new()
+                .with_apply(|v| v.class("demo-card"))
+                .body(list(always(vec![
+                    button(ButtonProps {
+                        content_signal: Some(text("Add new entry").into()),
+                        click_handler: Some(Rc::new(clone!(state => move |_| {
+                            state.lock_mut().push_cloned("Hello!".into());
+                        }))),
+                        button_type: ButtonType::Contained,
+                    }),
+                    list(
+                        state
+                            .signal_vec_cloned()
+                            .map(|entry| html!("span", { .text(format!("{}", entry).as_str())})),
+                    ),
+                ]))),
+        )
     })
 }

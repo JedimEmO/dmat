@@ -1,6 +1,7 @@
 use dominator::{html, Dom};
-use futures_signals::signal_vec::{SignalVec, SignalVecExt};
+use futures_signals::signal_vec::{always, MutableVec, SignalVec, SignalVecExt};
 
+#[inline]
 pub fn list<T: SignalVec<Item = Dom> + 'static>(children: T) -> Dom {
     html!("ul", {
         .class("dmat-list")
@@ -11,4 +12,9 @@ pub fn list<T: SignalVec<Item = Dom> + 'static>(children: T) -> Dom {
             })
         }))
     })
+}
+
+#[inline]
+pub fn static_list(children: Vec<Dom>) -> Dom {
+    list(always(children))
 }

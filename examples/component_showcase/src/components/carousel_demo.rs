@@ -1,17 +1,35 @@
-use dominator::{html, Dom};
+use std::rc::Rc;
+
+use dominator::{clone, html, text_signal, Dom};
 use futures_signals::signal::{Mutable, MutableSignal};
+use futures_signals::signal_vec::{always, MutableSignalVec, MutableVec};
 
 use dominator_material::components::layouts::Container;
-use dominator_material::components::{card, carousel, CardProps, CarouselProps, CarouselSource};
+use dominator_material::components::{
+    button, card, carousel, static_list, text, ButtonProps, CardProps, CarouselProps,
+    CarouselSource,
+};
 
 pub fn carousel_demo() -> Dom {
-    card(CardProps::new().body(carousel(CarouselProps {
+    let images = carousel(CarouselProps {
         source: CarouselDemoSource::new(),
         apply: Some(Box::new(|d| d.class("demo-carousel"))),
-        current_view_index: Default::default(),
-    })))
+        initial_view_index: Default::default(),
+    });
+
+    let images_ctrl = images.1;
+
+    card(CardProps::new().body(static_list(vec![
+        images.0,
+        button(ButtonProps::new().content(text("test")).on_click(
+            clone!(images_ctrl => move |_| {
+                images_ctrl.goto_index(5).unwrap();
+            }),
+        )),
+    ])))
 }
 
+#[derive(Clone)]
 struct CarouselDemoSource {
     count: Mutable<usize>,
 }

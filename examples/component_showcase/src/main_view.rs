@@ -8,7 +8,7 @@ use dominator_material::components::layouts::{app_bar, AppBarProps};
 use dominator_material::components::{layouts::Container, tabs, Tab, TabContent};
 
 use crate::components::app_bar_demo::AppBarDemo;
-use crate::components::button_demo::ButtonDemo;
+use crate::components::button_demo::button_demo;
 use crate::components::card_demo::CardDemo;
 use crate::components::carousel_demo::carousel_demo;
 use crate::components::data_table_demo::data_table_demo;
@@ -94,7 +94,7 @@ impl MainView {
                             .signal()
                             .map(|tab_id| match tab_id {
                                 DemoTabs::AppBar => AppBarDemo::new().render(),
-                                DemoTabs::Button => ButtonDemo::new().render(),
+                                DemoTabs::Button => button_demo(),
                                 DemoTabs::List => list_demo(),
                                 DemoTabs::Carousel => carousel_demo(),
                                 DemoTabs::Card => CardDemo::new().render(),

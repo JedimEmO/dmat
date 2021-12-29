@@ -1,4 +1,6 @@
-use crate::futures_signals::signal::SignalExt;
+use std::error::Error;
+
+use dominator::traits::AsStr;
 use dominator::{clone, events, html, Dom, DomBuilder};
 use futures_signals::map_ref;
 use futures_signals::signal::{Mutable, MutableSignal, Signal};
@@ -7,7 +9,9 @@ use wasm_bindgen::prelude::Closure;
 use wasm_bindgen::JsCast;
 use web_sys::HtmlElement;
 
-pub trait CarouselSource {
+use crate::futures_signals::signal::SignalExt;
+
+pub trait CarouselSource: Clone {
     fn get_entry(&self, index: usize) -> Dom;
     fn total_count_signal(&self) -> MutableSignal<usize>;
     fn total_count(&self) -> usize;
@@ -90,14 +94,17 @@ impl<T: CarouselSource> Carousel<T> {
         }))
     }
 
-    fn transition(&self, direction: OutgoingItemDirection) {
+    fn transition(&self, direction: OutgoingItemDirection, target_idx: Option<usize>) {
         let current = self.current_item_index.get();
 
-        let next = match direction {
-            OutgoingItemDirection::Left => {
-                (self.source.total_count() + current - 1) % self.source.total_count()
-            }
-            OutgoingItemDirection::Right => (current + 1) % self.source.total_count(),
+        let next = match target_idx {
+            Some(next_idx) => next_idx,
+            _ => match direction {
+                OutgoingItemDirection::Left => {
+                    (self.source.total_count() + current - 1) % self.source.total_count()
+                }
+                OutgoingItemDirection::Right => (current + 1) % self.source.total_count(),
+            },
         };
 
         let outgoing = self.outgoing_item.clone();
@@ -110,31 +117,52 @@ impl<T: CarouselSource> Carousel<T> {
             direction,
         }));
 
-        let f = Closure::wrap(Box::new(clone!(outgoing => move || {
+        let transition_end_cb = Closure::wrap(Box::new(clone!(outgoing => move || {
             outgoing.set(None);
         })) as Box<dyn Fn()>);
 
-        web_sys::window()
-            .unwrap()
-            .set_timeout_with_callback_and_timeout_and_arguments_0(&f.as_ref().unchecked_ref(), 500)
-            .unwrap();
+        web_sys::window().map(|window| {
+            window.set_timeout_with_callback_and_timeout_and_arguments_0(
+                &transition_end_cb.as_ref().unchecked_ref(),
+                200,
+            )
+        });
 
-        f.forget()
+        transition_end_cb.forget()
+    }
+}
+
+#[derive(Clone)]
+pub struct CarouselControls<T: CarouselSource + 'static> {
+    carousel: Rc<Carousel<T>>,
+}
+
+impl<T: CarouselSource + 'static> CarouselControls<T> {
+    fn new(carousel: Rc<Carousel<T>>) -> CarouselControls<T> {
+        CarouselControls { carousel }
+    }
+
+    pub fn goto_index(&self, idx: usize) -> Result<(), Box<dyn Error>> {
+        self.carousel
+            .transition(OutgoingItemDirection::Right, Some(idx));
+        Ok(())
     }
 }
 
 pub struct CarouselProps<T: CarouselSource> {
     pub source: T,
     pub apply: Option<Box<dyn FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>>>,
-    pub current_view_index: Mutable<usize>,
+    pub initial_view_index: usize,
 }
 
-pub fn carousel<T: CarouselSource + 'static>(props: CarouselProps<T>) -> Dom {
+pub fn carousel<T: CarouselSource + 'static>(
+    props: CarouselProps<T>,
+) -> (Dom, CarouselControls<T>) {
     let source = props.source;
     let apply = props.apply;
 
     let state = Rc::new(Carousel {
-        current_item_index: props.current_view_index,
+        current_item_index: Mutable::new(props.initial_view_index),
         outgoing_item: Mutable::new(Some(OutgoingItem {
             index: 0,
             direction: OutgoingItemDirection::Left,
@@ -144,53 +172,73 @@ pub fn carousel<T: CarouselSource + 'static>(props: CarouselProps<T>) -> Dom {
         source: Rc::new(source),
     });
 
-    Dom::with_state(state, move |state| {
-        html!("div", {
-            .apply_if(apply.is_some(), |dom_builder| { (apply.unwrap())(dom_builder) })
-            .class("dmat-carousel")
-            .child(html!("div", {
-                .class("container")
-                .children(&mut [
-                    html!("div", {
-                        .class_signal("-leave-left", state.child_leave_signal(0, OutgoingItemDirection::Left))
-                        .class_signal("-leave-right", state.child_leave_signal(0, OutgoingItemDirection::Right))
-                        .class_signal("-hidden", state.hidden_signal(0))
-                        .class("dmat-carousel-item")
-                        .child(html!("div", {
-                            .class("dmat-carousel-item-inner")
-                            .child_signal(state.child_signal(0))
-                        }))
-                    }),
-                    html!("div", {
-                        .class_signal("-leave-left", state.child_leave_signal(1, OutgoingItemDirection::Left))
-                        .class_signal("-leave-right", state.child_leave_signal(1, OutgoingItemDirection::Right))
-                        .class_signal("-hidden", state.hidden_signal(1))
-                        .class("dmat-carousel-item")
-                        .child(html!("div", {
-                            .class("dmat-carousel-item-inner")
-                            .child_signal(state.child_signal(1))
-                        }))
-                    }),
-                    html!("div", {
-                        .class("dmat-carousel-left-button")
-                        .class("dmat-carousel-button")
-                        .event(clone!(state => {
-                            move |_: events::Click| {
-                                state.transition(OutgoingItemDirection::Left);
-                            }
-                        }))
-                    }),
-                    html!("div", {
-                        .class("dmat-carousel-right-button")
-                        .class("dmat-carousel-button")
-                        .event(clone!(state => {
-                            move |_: events::Click| {
-                                state.transition(OutgoingItemDirection::Right);
-                            }
-                        }))
-                    })
-                ])
-            }))
-        })
+    (
+        Dom::with_state(state.clone(), move |state| {
+            html!("div", {
+                .apply_if(apply.is_some(), |dom_builder| { (apply.unwrap())(dom_builder) })
+                .class("dmat-carousel")
+                .child(html!("div", {
+                    .class("container")
+                    .children(&mut [
+                        carousel_item(
+                            state.child_signal(0),
+                            state.hidden_signal(0),
+                            state.child_leave_signal(0, OutgoingItemDirection::Left),
+                            state.child_leave_signal(0, OutgoingItemDirection::Right)
+                        ),
+                        carousel_item(
+                            state.child_signal(1),
+                            state.hidden_signal(1),
+                            state.child_leave_signal(1, OutgoingItemDirection::Left),
+                            state.child_leave_signal(1, OutgoingItemDirection::Right)
+                        ),
+                        carousel_button(clone!(state => {
+                                move |_: events::Click| {
+                                    state.transition(OutgoingItemDirection::Left, None);
+                                }
+                            }), "left"),
+                        carousel_button(clone!(state => {
+                                move |_: events::Click| {
+                                    state.transition(OutgoingItemDirection::Right, None);
+                                }
+                            }), "right")
+                    ])
+                }))
+            })
+        }),
+        CarouselControls::new(state),
+    )
+}
+
+#[inline]
+fn carousel_button<F: Fn(events::Click) -> () + 'static, TDir: AsStr>(f: F, dir: TDir) -> Dom {
+    html!("div", {
+        .class(format!("dmat-carousel-{}-button", dir.as_str()).as_str())
+        .class("dmat-carousel-button")
+        .event(f)
+    })
+}
+
+#[inline]
+fn carousel_item<
+    TChild: Signal<Item = Option<Dom>> + 'static,
+    THidden: Signal<Item = bool> + 'static,
+    TLeaveLeft: Signal<Item = bool> + 'static,
+    TLeaveRight: Signal<Item = bool> + 'static,
+>(
+    child: TChild,
+    hidden: THidden,
+    leave_left: TLeaveLeft,
+    leave_right: TLeaveRight,
+) -> Dom {
+    html!("div", {
+        .class_signal("-leave-left", leave_left)
+        .class_signal("-leave-right", leave_right)
+        .class_signal("-hidden", hidden)
+        .class("dmat-carousel-item")
+        .child(html!("div", {
+            .class("dmat-carousel-item-inner")
+            .child_signal(child)
+        }))
     })
 }

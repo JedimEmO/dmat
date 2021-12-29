@@ -10,26 +10,20 @@ use dominator_material::components::{
 
 use crate::components::navigation_drawer_demo::NavigationDrawerDemo;
 
-pub struct AppBarDemo {}
-
-impl AppBarDemo {
-    pub fn new() -> AppBarDemo {
-        AppBarDemo {}
-    }
-
-    pub fn render(self) -> Dom {
-        card(
-            CardProps::new()
-                .with_apply(|v| v.class("demo-card"))
-                .body(carousel(CarouselProps {
-                    source: AppBarCarousel::new(),
-                    apply: Some(Box::new(|d| d.class("demo-carousel"))),
-                    current_view_index: Default::default(),
-                })),
-        )
-    }
+pub fn app_bar_demo() -> Dom {
+    card(
+        CardProps::new().with_apply(|v| v.class("demo-card")).body(
+            carousel(CarouselProps {
+                source: AppBarCarousel::new(),
+                apply: Some(Box::new(|d| d.class("demo-carousel"))),
+                initial_view_index: Default::default(),
+            })
+            .0,
+        ),
+    )
 }
 
+#[derive(Clone)]
 struct AppBarCarousel {
     count: Mutable<usize>,
 }
