@@ -34,48 +34,7 @@ pub fn main_view() -> Dom {
     Dom::with_state(active_tab, |active_tab| {
         app_bar(
             AppBarProps::new()
-                .header(tabs(
-                    active_tab.clone(),
-                    always(vec![
-                        Tab {
-                            content: TabContent::Label("App Bar".into()),
-                            id: DemoTabs::AppBar,
-                        },
-                        Tab {
-                            content: TabContent::Label("Button".into()),
-                            id: DemoTabs::Button,
-                        },
-                        Tab {
-                            content: TabContent::Label("Carousel".into()),
-                            id: DemoTabs::Carousel,
-                        },
-                        Tab {
-                            content: TabContent::Label("Card".into()),
-                            id: DemoTabs::Card,
-                        },
-                        Tab {
-                            content: TabContent::Label("List".into()),
-                            id: DemoTabs::List,
-                        },
-                        Tab {
-                            content: TabContent::Label("Tabs".into()),
-                            id: DemoTabs::Tabs,
-                        },
-                        Tab {
-                            content: TabContent::Label("Data Table".into()),
-                            id: DemoTabs::DataTable,
-                        },
-                        Tab {
-                            content: TabContent::Label("Input".into()),
-                            id: DemoTabs::Input,
-                        },
-                        Tab {
-                            content: TabContent::Label("Navigation Drawer".into()),
-                            id: DemoTabs::NavigationDrawer,
-                        },
-                    ]),
-                    None,
-                ))
+                .header(tabs(active_tab.clone(), always(main_view_tabs()), None))
                 .main_signal(
                     active_tab
                         .signal()
@@ -95,4 +54,45 @@ pub fn main_view() -> Dom {
                 .fixed(),
         )
     })
+}
+
+fn main_view_tabs() -> Vec<Tab<DemoTabs>> {
+    vec![
+        Tab {
+            content: TabContent::Label("App Bar".into()),
+            id: DemoTabs::AppBar,
+        },
+        Tab {
+            content: TabContent::Label("Button".into()),
+            id: DemoTabs::Button,
+        },
+        Tab {
+            content: TabContent::Label("Carousel".into()),
+            id: DemoTabs::Carousel,
+        },
+        Tab {
+            content: TabContent::Label("Card".into()),
+            id: DemoTabs::Card,
+        },
+        Tab {
+            content: TabContent::Label("List".into()),
+            id: DemoTabs::List,
+        },
+        Tab {
+            content: TabContent::Label("Tabs".into()),
+            id: DemoTabs::Tabs,
+        },
+        Tab {
+            content: TabContent::Label("Data Table".into()),
+            id: DemoTabs::DataTable,
+        },
+        Tab {
+            content: TabContent::Label("Input".into()),
+            id: DemoTabs::Input,
+        },
+        Tab {
+            content: TabContent::Label("Navigation Drawer".into()),
+            id: DemoTabs::NavigationDrawer,
+        },
+    ]
 }
