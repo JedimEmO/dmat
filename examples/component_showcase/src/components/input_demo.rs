@@ -1,17 +1,16 @@
 use dominator::{html, Dom};
 use futures_signals::signal::Mutable;
 use futures_signals::signal::SignalExt;
-use futures_signals::signal_vec::always;
 
-use dominator_material::components::layouts::Container;
+use dominator_material::components::layouts::container;
 use dominator_material::components::{
-    card, list, static_list, text_element, CardProps, TextElementProps,
+    card, static_list, text_element, CardProps, TextElementProps,
 };
 
 pub fn input_demo() -> Dom {
     let text_value = Mutable::new("".to_string());
 
-    Container::new(
+    container(
         card(CardProps::new()
             .with_apply(|v| v.class("demo-card"))
             .body(static_list(vec![
@@ -39,5 +38,5 @@ pub fn input_demo() -> Dom {
                 })
             ]),
         )),
-    ).render()
+    )
 }

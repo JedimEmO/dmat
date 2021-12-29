@@ -5,7 +5,7 @@ use futures_signals::signal_vec::always;
 use wasm_bindgen::__rt::std::rc::Rc;
 
 use dominator_material::components::layouts::{app_bar, AppBarProps};
-use dominator_material::components::{layouts::Container, tabs, Tab, TabContent};
+use dominator_material::components::{layouts::container, tabs, Tab, TabContent};
 
 use crate::components::app_bar_demo::app_bar_demo;
 use crate::components::button_demo::button_demo;
@@ -103,7 +103,7 @@ impl MainView {
                                 DemoTabs::NavigationDrawer => NavigationDrawerDemo::new().render(),
                                 _ => html!("div"),
                             })
-                            .map(|v| Container::new(v).render()),
+                            .map(|v| container(v)),
                     )
                     .fixed(),
             )

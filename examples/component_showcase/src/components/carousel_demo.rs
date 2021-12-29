@@ -1,13 +1,9 @@
-use std::rc::Rc;
-
-use dominator::{clone, html, text_signal, Dom};
+use dominator::{html, Dom};
 use futures_signals::signal::{Mutable, MutableSignal};
-use futures_signals::signal_vec::{always, MutableSignalVec, MutableVec};
 
-use dominator_material::components::layouts::Container;
+use dominator_material::components::layouts::container;
 use dominator_material::components::{
-    button, card, carousel, static_list, text, ButtonProps, CardProps, CarouselProps,
-    CarouselSource,
+    card, carousel, static_list, CardProps, CarouselProps, CarouselSource,
 };
 
 pub fn carousel_demo() -> Dom {
@@ -35,7 +31,7 @@ impl CarouselDemoSource {
 
 impl CarouselSource for CarouselDemoSource {
     fn get_entry(&self, index: usize) -> Dom {
-        Container::new(html!("div", { .text(format!("{}", index).as_str()) })).render()
+        container(html!("div", { .text(format!("{}", index).as_str()) }))
     }
 
     fn total_count_signal(&self) -> MutableSignal<usize> {

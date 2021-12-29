@@ -1,18 +1,9 @@
+use crate::utils::component_signal::ComponentSignal;
 use dominator::{html, Dom};
 
-pub struct Container {
-    child: Dom,
-}
-
-impl Container {
-    pub fn new(child: Dom) -> Container {
-        Container { child }
-    }
-
-    pub fn render(self) -> Dom {
-        html!("div", {
-            .class("dmat-container")
-            .child(self.child)
-        })
-    }
+pub fn container<T: Into<ComponentSignal>>(child: T) -> Dom {
+    html!("div", {
+        .class("dmat-container")
+        .child_signal(child.into().0)
+    })
 }

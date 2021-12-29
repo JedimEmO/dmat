@@ -1,7 +1,7 @@
 use dominator::{html, Dom};
 use futures_signals::signal_vec::always;
 
-use dominator_material::components::layouts::Container;
+use dominator_material::components::layouts::container;
 use dominator_material::components::{
     card, list, navigation_drawer, CardProps, NavigationDrawerEntry, NavigationDrawerProps,
     NavigationEntry,
@@ -86,17 +86,14 @@ impl NavigationDrawerDemo {
                 }),
             ])
             .main_view_generator(move |v, _handle| {
-                Some(
-                    Container::new(match v {
-                        Some(ExampleViews::Main) => html!("span", {
-                            .text("Main view")
-                        }),
-                        Some(ExampleViews::Details) => html!("span", { .text("Details") }),
-                        Some(ExampleViews::Other) => html!("span", { .text("Other view") }),
-                        _ => html!("span", { .text("Some view") }),
-                    })
-                    .render(),
-                )
+                Some(container(match v {
+                    Some(ExampleViews::Main) => html!("span", {
+                        .text("Main view")
+                    }),
+                    Some(ExampleViews::Details) => html!("span", { .text("Details") }),
+                    Some(ExampleViews::Other) => html!("span", { .text("Other view") }),
+                    _ => html!("span", { .text("Some view") }),
+                }))
             })
     }
 }

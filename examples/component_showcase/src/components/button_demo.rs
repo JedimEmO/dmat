@@ -1,7 +1,6 @@
 use dominator::{clone, html, Dom};
 use futures_signals::map_ref;
 use futures_signals::signal::Mutable;
-use wasm_bindgen::__rt::std::rc::Rc;
 
 use dominator_material::components::{
     button, card, dynamic_text, text, ButtonProps, ButtonType, CardProps,

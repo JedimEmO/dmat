@@ -2,7 +2,7 @@ use dominator::{html, Dom};
 use futures_signals::signal::Mutable;
 use futures_signals::signal::MutableSignal;
 
-use dominator_material::components::layouts::{app_bar, AppBarProps, AppBarType, Container};
+use dominator_material::components::layouts::{app_bar, container, AppBarProps, AppBarType};
 use dominator_material::components::{
     card, carousel, navigation_drawer, CardProps, CarouselProps, CarouselSource,
     NavigationDrawerEntry, NavigationDrawerProps, NavigationEntry,
@@ -66,12 +66,9 @@ impl CarouselSource for AppBarCarousel {
                                     .header(html!("div", {
                                         .class("app-bar-demo-header")
                                     }))
-                                    .main(
-                                        Container::new(
-                                            html!("div", { .text(lipsum::lipsum(512).as_str())}),
-                                        )
-                                        .render(),
-                                    )
+                                    .main(container(
+                                        html!("div", { .text(lipsum::lipsum(512).as_str())}),
+                                    ))
                                     .fixed(),
                             ))
                         }),
