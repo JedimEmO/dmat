@@ -1,5 +1,5 @@
 use dominator::{html, Dom};
-use futures_signals::signal_vec::{always, MutableVec, SignalVec, SignalVecExt};
+use futures_signals::signal_vec::{always, SignalVec, SignalVecExt};
 
 #[inline]
 pub fn list<T: SignalVec<Item = Dom> + 'static>(children: T) -> Dom {
