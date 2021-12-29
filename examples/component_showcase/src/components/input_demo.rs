@@ -4,49 +4,40 @@ use futures_signals::signal::SignalExt;
 use futures_signals::signal_vec::always;
 
 use dominator_material::components::layouts::Container;
-use dominator_material::components::{card, list, text_element, CardProps, TextElementProps};
+use dominator_material::components::{
+    card, list, static_list, text_element, CardProps, TextElementProps,
+};
 
-pub struct InputDemo {
-    text_value: Mutable<String>,
-}
+pub fn input_demo() -> Dom {
+    let text_value = Mutable::new("".to_string());
 
-impl InputDemo {
-    pub fn new() -> InputDemo {
-        InputDemo {
-            text_value: Mutable::new("".into()),
-        }
-    }
-
-    pub fn render(self) -> Dom {
-        Container::new(
-            card(CardProps::new()
-                .with_apply(|v| v.class("demo-card"))
-                .body(list(always(vec![
-                                    html!("div", {
-                                        .children(&mut [
-                                            text_element(TextElementProps { value: self.text_value.clone(), ..Default::default()}).0,
-                                            html!("span", { 
-                                                .text_signal(self.text_value.signal_cloned().map(|v| format!(" Value: {}", v)))
-                                            })
-                                        ])
-                                    }),
-                                    html!("div", {
-                                        .children(&mut [
-                                            text_element(TextElementProps::new(self.text_value.clone())
-                                                .label("Invalid") 
-                                                .validator(|_| false)).0
-                                        ])
-                                    }),
-                                    html!("div", {  
-                                        .children(&mut [
-                                            text_element(TextElementProps::new(self.text_value.clone())
-                                                .label("Accepts `foobar`")
-                                                .validator(|v| v == "foobar")).0
-                                        ])
-                                    })
-                                ])),
-                )),
-        )
-        .render()
-    }
+    Container::new(
+        card(CardProps::new()
+            .with_apply(|v| v.class("demo-card"))
+            .body(static_list(vec![
+                html!("div", {
+                    .children(&mut [
+                        text_element(TextElementProps { value: text_value.clone(), ..Default::default()}).0,
+                        html!("span", { 
+                            .text_signal(text_value.signal_cloned().map(|v| format!(" Value: {}", v)))
+                        })
+                    ])
+                }),
+                html!("div", {
+                    .children(&mut [
+                        text_element(TextElementProps::new(text_value.clone())
+                            .label("Invalid") 
+                            .validator(|_| false)).0
+                    ])
+                }),
+                html!("div", {  
+                    .children(&mut [
+                        text_element(TextElementProps::new(text_value.clone())
+                            .label("Accepts `foobar`")
+                            .validator(|v| v == "foobar")).0
+                    ])
+                })
+            ]),
+        )),
+    ).render()
 }
