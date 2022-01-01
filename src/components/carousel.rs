@@ -123,7 +123,7 @@ impl<T: CarouselSource> Carousel<T> {
 
         web_sys::window().map(|window| {
             window.set_timeout_with_callback_and_timeout_and_arguments_0(
-                &transition_end_cb.as_ref().unchecked_ref(),
+                transition_end_cb.as_ref().unchecked_ref(),
                 200,
             )
         });
@@ -211,7 +211,7 @@ pub fn carousel<T: CarouselSource + 'static>(
 }
 
 #[inline]
-fn carousel_button<F: Fn(events::Click) -> () + 'static, TDir: AsStr>(f: F, dir: TDir) -> Dom {
+fn carousel_button<F: Fn(events::Click) + 'static, TDir: AsStr>(f: F, dir: TDir) -> Dom {
     html!("div", {
         .class(format!("dmat-carousel-{}-button", dir.as_str()).as_str())
         .class("dmat-carousel-button")

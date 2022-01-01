@@ -25,15 +25,10 @@ impl CardProps {
                 .children(
                     vec![
                         Some(html!("div", { .class("title").text(title.into().as_str()) })),
-                        match sub_title {
-                            Some(sub) => Some(
-                                html!("div", { .class("sub-title") .text(sub.into().as_str()) }),
-                            ),
-                            _ => None,
-                        },
+                        sub_title.map(|sub| html!("div", { .class("sub-title") .text(sub.into().as_str()) })),
                     ]
                     .into_iter()
-                    .filter_map(|v| v),
+                    .flatten(),
                 )
                 .into(),
         );

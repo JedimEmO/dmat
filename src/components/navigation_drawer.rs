@@ -51,7 +51,7 @@ impl<T: Clone + PartialEq + 'static> NavigationDrawerProps<T> {
     }
 
     fn activate_entry(&self, id: T) {
-        self.current_active.set(Some(id.clone()));
+        self.current_active.set(Some(id));
 
         if self.is_modal {
             self.expanded.set(false);
@@ -191,7 +191,7 @@ pub fn navigation_drawer<T: Clone + PartialEq + 'static>(
                                                 })),
                                                 false => None
                                             }
-                                        ].into_iter().filter_map(|v| v))
+                                        ].into_iter().flatten())
                                     }))
                                 }})
                             }))
@@ -248,7 +248,7 @@ pub fn navigation_drawer<T: Clone + PartialEq + 'static>(
                                 })
                             ])
                         }))
-                    }))].into_iter().filter_map(|v| v))
+                    }))].into_iter().flatten())
             })
         }),
     )
@@ -422,7 +422,7 @@ mod test {
             }
         };
 
-        let out = bind(ele, |v| always(v)).map(|db| db);
+        let out = bind(ele, always).map(|db| db);
         let mut out = out.to_stream().take(2);
 
         let dom: FakeDom = out.next().await.unwrap();

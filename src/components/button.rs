@@ -58,7 +58,7 @@ impl ButtonProps {
     }
 
     #[inline]
-    pub fn on_click<F>(mut self: Self, handler: F) -> Self
+    pub fn on_click<F>(mut self, handler: F) -> Self
     where
         F: Fn(events::Click) + 'static,
     {

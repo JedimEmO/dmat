@@ -46,7 +46,7 @@ where
         .class("dmat-icon")
         .class(size_class)
         .apply(apply)
-        .attribute("data-icon", format!("{}", icon_name.as_str()).as_str())
+        .attribute("data-icon", icon_name.as_str().to_string().as_str())
         .attribute("data-inline", "false")
     })
 }

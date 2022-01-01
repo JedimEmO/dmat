@@ -112,7 +112,7 @@ pub fn data_table<T: Clone + 'static>(props: DataTableProps<T>) -> Dom {
             web_sys::window()
                 .unwrap()
                 .set_timeout_with_callback_and_timeout_and_arguments_0(
-                    &loading_toggle_lambda.as_ref().unchecked_ref(),
+                    loading_toggle_lambda.as_ref().unchecked_ref(),
                     500,
                 )
                 .unwrap();

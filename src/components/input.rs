@@ -41,12 +41,12 @@ impl<T: Clone + From<InputValue> + Into<InputValue> + 'static> TextFieldProps<T>
         }
     }
 
-    pub fn depends_on(mut self: Self, depends_on: Mutable<()>) -> Self {
+    pub fn depends_on(mut self, depends_on: Mutable<()>) -> Self {
         self.depends_on = depends_on;
         self
     }
 
-    pub fn validator<F>(mut self: Self, validator: F) -> Self
+    pub fn validator<F>(mut self, validator: F) -> Self
     where
         F: Fn(&T) -> bool + 'static,
     {
@@ -54,7 +54,7 @@ impl<T: Clone + From<InputValue> + Into<InputValue> + 'static> TextFieldProps<T>
         self
     }
 
-    pub fn label<TLabel: AsStr>(mut self: Self, label: TLabel) -> Self {
+    pub fn label<TLabel: AsStr>(mut self, label: TLabel) -> Self {
         self.label = label.as_str().into();
         self
     }
@@ -96,7 +96,7 @@ pub fn text_field<T: Clone + From<InputValue> + Into<InputValue> + 'static>(
                     let deps = map_ref!(
                         let _deps = depends_on.signal(),
                         let val =  value.signal_cloned() => move {
-                            validate(&val);
+                            validate(val);
                         }
                     );
 
@@ -141,7 +141,7 @@ pub fn text_field<T: Clone + From<InputValue> + Into<InputValue> + 'static>(
                                 let focus = has_focus.signal_cloned(),
                                 let _value = value.signal_cloned() => move {
                                     let has_value = match value.get_cloned().into() {
-                                        InputValue::Text(txt) => txt.len() > 0,
+                                        InputValue::Text(txt) => !txt.is_empty(),
                                         _ => false
                                     };
 
