@@ -1,16 +1,15 @@
 use dominator::traits::AsStr;
 use dominator::{clone, events, html, DomBuilder};
+use futures_signals::map_ref;
 use futures_signals::signal::{Mutable, Signal};
 use futures_signals::signal::{MutableSignal, SignalExt};
-use futures_signals::{map_ref};
 use futures_util::future::ready;
 use wasm_bindgen::JsValue;
 use wasm_bindgen::__rt::std::rc::Rc;
 use web_sys::Element;
 
-use crate::components::{text};
+use crate::components::text;
 use crate::elements::elements::new_html;
-
 
 #[derive(Default)]
 pub struct TextFieldProps<T: Clone> {
@@ -245,5 +244,45 @@ impl From<InputValue> for JsValue {
             InputValue::Text(v) => v.into(),
             InputValue::Bool(v) => v.into(),
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use crate::components::{text_field, TextFieldProps};
+    use futures_signals::signal::{Mutable, SignalExt};
+    use futures_util::StreamExt;
+    use std::default::Default;
+    use std::rc::Rc;
+    use wasm_bindgen_test::*;
+
+    #[wasm_bindgen_test]
+    async fn text_field_validation() {
+        let val = Mutable::new("".to_string());
+
+        let field = text_field(TextFieldProps {
+            value: val.clone(),
+            validator: Some(Rc::new(|v| v == "hello")),
+            ..Default::default()
+        });
+
+        let field_dom = field.0.attribute("id", "testfield").into_dom();
+        let field_out = field.1;
+
+        dominator::append_dom(
+            &web_sys::window()
+                .unwrap()
+                .document()
+                .unwrap()
+                .body()
+                .unwrap(),
+            field_dom,
+        );
+
+        val.set("hello".to_string());
+
+        let mut valid_stream = field_out.is_valid.to_stream();
+
+        while !valid_stream.next().await.unwrap() {}
     }
 }

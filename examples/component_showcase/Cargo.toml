@@ -13,7 +13,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 dominator = "0.5.14"
-dominator-material = { path = "../../" }
+dominator-material = { path = "../../crates/dominator-material" }
 futures = "0.3.6"
 futures-signals = "0.3.15"
 futures-util = "0.3.6"
