@@ -1,3 +1,4 @@
+use crate::components::text;
 use dominator::{clone, events, html, Dom, DomBuilder};
 use futures_signals::map_ref;
 use futures_signals::signal::Mutable;
@@ -8,10 +9,9 @@ use wasm_bindgen::__rt::std::rc::Rc;
 use web_sys::HtmlElement;
 
 #[derive(Default)]
-pub struct TextElementProps<T: Clone> {
+pub struct TextFieldProps<T: Clone> {
     pub label: Option<String>,
     pub value: Mutable<T>,
-    pub id: Option<String>,
     pub validator: Option<Rc<dyn Fn(&T) -> bool>>,
     pub depends_on: Mutable<()>,
     pub has_focus: Mutable<bool>,
@@ -23,12 +23,11 @@ pub enum InputValue {
     Bool(bool),
 }
 
-impl<T: Clone + From<InputValue> + Into<InputValue> + 'static> TextElementProps<T> {
+impl<T: Clone + From<InputValue> + Into<InputValue> + 'static> TextFieldProps<T> {
     pub fn new(value: Mutable<T>) -> Self {
-        TextElementProps {
+        TextFieldProps {
             value,
             label: None,
-            id: None,
             validator: None,
             depends_on: Mutable::new(()),
             has_focus: Mutable::new(false),
@@ -54,11 +53,6 @@ impl<T: Clone + From<InputValue> + Into<InputValue> + 'static> TextElementProps<
         self
     }
 
-    pub fn id(mut self: Self, id: &str) -> Self {
-        self.id = Some(id.into());
-        self
-    }
-
     pub fn with_apply<F: 'static>(mut self, f: F) -> Self
     where
         F: FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>,
@@ -68,7 +62,7 @@ impl<T: Clone + From<InputValue> + Into<InputValue> + 'static> TextElementProps<
     }
 }
 
-pub struct TextElementOutput {
+pub struct TextFieldOutput {
     pub is_valid: MutableSignal<bool>,
 }
 
@@ -77,18 +71,13 @@ pub struct TextElementOutput {
 /// The return tuple contains:
 /// 0: input Dom entry
 /// 1: output of the component, containing a boolean signal for the  validity of the input according to the validator
-pub fn text_element<T: Clone + From<InputValue> + Into<InputValue> + 'static>(
-    props: TextElementProps<T>,
-) -> (Dom, TextElementOutput) {
+pub fn text_field<T: Clone + From<InputValue> + Into<InputValue> + 'static>(
+    props: TextFieldProps<T>,
+) -> (Dom, TextFieldOutput) {
     let is_valid = Mutable::new(true);
 
     (
         clone!(is_valid => Dom::with_state(props, move |field_props| {
-            let id = match &field_props.id {
-                Some(v) => v.clone(),
-                _ => "".into(),
-            };
-
             let validator = field_props.validator.clone();
             let depends_on = field_props.depends_on.clone();
             let has_focus = field_props.has_focus.clone();
@@ -139,7 +128,6 @@ pub fn text_element<T: Clone + From<InputValue> + Into<InputValue> + 'static>(
                         has_focus.set(false);
                     }
                 }))
-                .attribute("id", id.as_str())
                 .property_signal("value", field_props.value.signal_cloned().map(|v: T| {
                     let val: InputValue = v.into();
                     val
@@ -150,23 +138,26 @@ pub fn text_element<T: Clone + From<InputValue> + Into<InputValue> + 'static>(
 
             let mut children = match &field_props.label {
                 Some(label) => vec![
-                    input,
                     html!("label", {
-                        .text(label.as_str())
-                        .attribute("for", id.as_str())
-                        .class_signal("above",
-                            clone!(has_focus, value => map_ref!(
-                                let focus = has_focus.signal_cloned(),
-                                let _value = value.signal_cloned() => move {
-                                    let has_value = match value.get_cloned().into() {
-                                        InputValue::Text(txt) => txt.len() > 0,
-                                        _ => false
-                                    };
+                        .children(&mut [
+                            input,
+                            text(label.as_str())
+                            .class_signal("above",
+                                    clone!(has_focus, value => map_ref!(
+                                        let focus = has_focus.signal_cloned(),
+                                        let _value = value.signal_cloned() => move {
+                                            let has_value = match value.get_cloned().into() {
+                                                InputValue::Text(txt) => txt.len() > 0,
+                                                _ => false
+                                            };
 
-                                    *focus || has_value
-                                }
-                            ))
-                        )
+                                            *focus || has_value
+                                        }
+                                    ))
+                                )
+                                .class("dmat-input-label-text").into_dom()
+
+                        ])
                         .class("dmat-floating-label")
                     }),
                 ],
@@ -181,7 +172,7 @@ pub fn text_element<T: Clone + From<InputValue> + Into<InputValue> + 'static>(
                 .class("dmat-input")
             })
         })),
-        TextElementOutput {
+        TextFieldOutput {
             is_valid: is_valid.signal(),
         },
     )

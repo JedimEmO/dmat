@@ -29,7 +29,7 @@ enum DemoTabs {
 }
 
 pub fn main_view() -> Dom {
-    let active_tab = Mutable::new(DemoTabs::AppBar);
+    let active_tab = Mutable::new(DemoTabs::Input);
 
     Dom::with_state(active_tab, |active_tab| {
         app_bar(
