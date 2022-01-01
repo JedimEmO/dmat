@@ -1,10 +1,14 @@
+
+
 use dominator::{html, Dom};
+use futures_signals::map_ref;
+use futures_signals::signal::always;
 use futures_signals::signal::Mutable;
 use futures_signals::signal::SignalExt;
 
 use dominator_material::components::layouts::container;
 use dominator_material::components::{card, static_list, text_field, CardProps, TextFieldProps};
-use dominator_material::utils::component_signal::ComponentSignal;
+
 
 pub fn input_demo() -> Dom {
     let text_value = Mutable::new("".to_string());
@@ -15,7 +19,14 @@ pub fn input_demo() -> Dom {
             .body(static_list(vec![
                 html!("div", {
                     .children(&mut [
-                        text_field(TextFieldProps { value: text_value.clone(), ..Default::default()}.label("Label")).0.into_dom(),
+                        text_field(TextFieldProps {
+                            value: text_value.clone(),
+                            assistive_text_signal: Some(Box::new(
+                                map_ref!(let cur_val = text_value.signal_cloned() =>
+                                    Some(format!("Assistive text - {}", cur_val).to_string())))
+                            ),
+                            ..Default::default()
+                        }.label("First name")).0.into_dom(),
                         html!("span", { 
                             .text_signal(text_value.signal_cloned().map(|v| format!(" Value: {}", v)))
                         })
@@ -25,18 +36,9 @@ pub fn input_demo() -> Dom {
                     .children(&mut [
                         text_field(TextFieldProps{
                             value: text_value.clone(),
-                            error_message_signal_factory: Some(Box::new(move |is_valid| {
-                                ComponentSignal::from_signal(is_valid.map(|valid| {
-                                    match valid {
-                                        true => None,
-                                        false => Some(html!("span", {
-                                            .text("Only accepts the value `foobar`")
-                                        }))
-                                    }
-                                }))
-                            })) ,
+                            error_text_signal: Some(Box::new(always(Some("Only accepts the value `foobar`".to_string())))),
                             ..Default::default()}
-                            .label("Accepts `foobar`")
+                            .label("Occupation")
                             .validator(|v| v == "foobar")).0.into_dom()
                     ])
                 }),

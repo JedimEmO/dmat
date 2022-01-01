@@ -1,25 +1,26 @@
+use dominator::traits::AsStr;
 use dominator::{clone, events, html, DomBuilder};
-use futures_signals::map_ref;
-use futures_signals::signal::{always, Mutable, MutableSignalCloned};
+use futures_signals::signal::{Mutable, Signal};
 use futures_signals::signal::{MutableSignal, SignalExt};
+use futures_signals::{map_ref};
 use futures_util::future::ready;
 use wasm_bindgen::JsValue;
 use wasm_bindgen::__rt::std::rc::Rc;
 use web_sys::Element;
 
-use crate::components::text;
+use crate::components::{text};
 use crate::elements::elements::new_html;
-use crate::utils::component_signal::ComponentSignal;
+
 
 #[derive(Default)]
 pub struct TextFieldProps<T: Clone> {
-    pub label: Option<String>,
+    pub label: String,
     pub value: Mutable<T>,
     pub validator: Option<Rc<dyn Fn(&T) -> bool>>,
     pub depends_on: Mutable<()>,
     pub has_focus: Mutable<bool>,
-    pub error_message_signal_factory:
-        Option<Box<dyn FnOnce(MutableSignalCloned<bool>) -> ComponentSignal>>,
+    pub assistive_text_signal: Option<Box<dyn Signal<Item = Option<String>> + Unpin>>,
+    pub error_text_signal: Option<Box<dyn Signal<Item = Option<String>> + Unpin>>,
 }
 
 pub enum InputValue {
@@ -31,11 +32,12 @@ impl<T: Clone + From<InputValue> + Into<InputValue> + 'static> TextFieldProps<T>
     pub fn new(value: Mutable<T>) -> Self {
         TextFieldProps {
             value,
-            label: None,
+            label: "".to_string(),
             validator: None,
             depends_on: Mutable::new(()),
             has_focus: Mutable::new(false),
-            error_message_signal_factory: None,
+            assistive_text_signal: None,
+            error_text_signal: None,
         }
     }
 
@@ -52,8 +54,8 @@ impl<T: Clone + From<InputValue> + Into<InputValue> + 'static> TextFieldProps<T>
         self
     }
 
-    pub fn label(mut self: Self, label: &str) -> Self {
-        self.label = Some(label.into());
+    pub fn label<TLabel: AsStr>(mut self: Self, label: TLabel) -> Self {
+        self.label = label.as_str().into();
         self
     }
 }
@@ -71,11 +73,6 @@ pub fn text_field<T: Clone + From<InputValue> + Into<InputValue> + 'static>(
     props: TextFieldProps<T>,
 ) -> (DomBuilder<Element>, TextFieldOutput) {
     let is_valid = Mutable::new(true);
-
-    let error_text_signal = match props.error_message_signal_factory {
-        Some(factory) => (factory)(is_valid.signal_cloned()),
-        _ => ComponentSignal(Box::new(always(None))),
-    };
 
     (
         {
@@ -137,40 +134,86 @@ pub fn text_field<T: Clone + From<InputValue> + Into<InputValue> + 'static>(
                 .class("dmat-input-element")
             });
 
-            let error_text = html!("span", {
-                .child_signal(error_text_signal.0)
-                .class("dmat-error-text")
+            let label_element = html!("span", {
+                                .class_signal(
+                            "above",
+                            clone!(has_focus, value => map_ref!(
+                                let focus = has_focus.signal_cloned(),
+                                let _value = value.signal_cloned() => move {
+                                    let has_value = match value.get_cloned().into() {
+                                        InputValue::Text(txt) => txt.len() > 0,
+                                        _ => false
+                                    };
+
+                                    *focus || has_value
+                                })))
+                .child(text(props.label.as_str()).into_dom())
+                .class("dmat-input-label-text")
             });
 
-            let mut children = match &props.label {
-                Some(label) => vec![html!("label", {
-                    .children(&mut [
-                        input,
-                        text(label.as_str())
-                        .class_signal("above",
-                                clone!(has_focus, value => map_ref!(
-                                    let focus = has_focus.signal_cloned(),
-                                    let _value = value.signal_cloned() => move {
-                                        let has_value = match value.get_cloned().into() {
-                                            InputValue::Text(txt) => txt.len() > 0,
-                                            _ => false
-                                        };
+            let mut children = vec![input, label_element];
+            let has_assistive = Mutable::new(false);
+            let has_error = Mutable::new(false);
 
-                                        *focus || has_value
-                                    }
-                                ))
-                            )
-                            .class("dmat-input-label-text").into_dom(),
-                        error_text
-                    ])
-                    .class("dmat-floating-label")
-                })],
-                _ => vec![input, error_text],
-            };
+            if let Some(error) = props.error_text_signal {
+                let has_error = has_error.clone();
+
+                let error_text_signal = map_ref!(
+                    let valid = is_valid.signal_cloned(),
+                    let error_text = error => move {
+                        if !*valid && error_text.is_some() {
+                            has_error.set(true);
+                            return Some(text(error_text.clone().unwrap()).class("dmat-assistive-text").class("dmat-error-text").into_dom());
+                        }
+
+                        has_error.set(false);
+
+                        None
+                    }
+                );
+
+                children.push(html!("span", {
+                    .child_signal(error_text_signal)
+                }));
+            }
+
+            if let Some(assistive) = props.assistive_text_signal {
+                let has_assistive = has_assistive.clone();
+                let assistive_element_signal = map_ref!(
+                    let assistive_text = assistive => move {
+                        let ass = has_assistive.clone();
+                        if assistive_text.is_some() {
+                            ass.set(true);
+                            return Some(text(assistive_text.clone().unwrap()).class("dmat-assistive-text").into_dom())
+                        }
+
+                        ass.set(false);
+                        None
+                    }
+                );
+
+                children.push(html!("span", {
+                    .child_signal(assistive_element_signal)
+                }));
+            }
+
+            let children = html!("label", {
+                .children(children.as_mut_slice())
+                .class("dmat-floating-label")
+            });
 
             new_html("div")
-                .children(children.as_mut_slice())
+                .child(children)
                 .class("dmat-input")
+                .class_signal(
+                    "assistive",
+                    map_ref!(
+                        let assistive = has_assistive.signal(),
+                        let err = has_error.signal() => {
+                            *assistive || *err
+                        }
+                    ),
+                )
         },
         TextFieldOutput {
             is_valid: is_valid.signal(),
