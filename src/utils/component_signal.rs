@@ -32,6 +32,12 @@ impl From<Dom> for DomOption {
     }
 }
 
+impl From<Option<Dom>> for DomOption {
+    fn from(v: Option<Dom>) -> Self {
+        DomOption(v)
+    }
+}
+
 impl From<DomBuilder<Element>> for DomOption {
     fn from(v: DomBuilder<Element>) -> Self {
         DomOption(Some(v.into_dom()))

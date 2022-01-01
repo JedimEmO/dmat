@@ -235,6 +235,19 @@ ul.dmat-list {
   color: $dmat-text-on-secondary;
   padding: 0;
 
+  & .dmat-error-text > span {
+    position: absolute;
+    top: 30px;
+    color: #b00020;
+    background: rgba(255, 255, 255, 0.8);
+
+    white-space: nowrap;
+    font-size: small;
+    font-weight: bolder;
+    padding: 2px;
+    left: 4px;
+  }
+
   .dmat-input-element {
     position: relative;
     font-weight: 400;

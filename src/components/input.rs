@@ -1,12 +1,15 @@
-use crate::components::text;
-use dominator::{clone, events, html, Dom, DomBuilder};
+use dominator::{clone, events, html, DomBuilder};
 use futures_signals::map_ref;
-use futures_signals::signal::Mutable;
+use futures_signals::signal::{always, Mutable, MutableSignalCloned};
 use futures_signals::signal::{MutableSignal, SignalExt};
 use futures_util::future::ready;
 use wasm_bindgen::JsValue;
 use wasm_bindgen::__rt::std::rc::Rc;
-use web_sys::HtmlElement;
+use web_sys::Element;
+
+use crate::components::text;
+use crate::elements::elements::new_html;
+use crate::utils::component_signal::ComponentSignal;
 
 #[derive(Default)]
 pub struct TextFieldProps<T: Clone> {
@@ -15,7 +18,9 @@ pub struct TextFieldProps<T: Clone> {
     pub validator: Option<Rc<dyn Fn(&T) -> bool>>,
     pub depends_on: Mutable<()>,
     pub has_focus: Mutable<bool>,
-    pub apply: Option<Box<dyn FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>>>,
+    pub apply: Option<Box<dyn FnOnce(DomBuilder<Element>) -> DomBuilder<Element>>>,
+    pub error_message_signal_factory:
+        Option<Box<dyn FnOnce(MutableSignalCloned<bool>) -> ComponentSignal>>,
 }
 
 pub enum InputValue {
@@ -32,6 +37,7 @@ impl<T: Clone + From<InputValue> + Into<InputValue> + 'static> TextFieldProps<T>
             depends_on: Mutable::new(()),
             has_focus: Mutable::new(false),
             apply: None,
+            error_message_signal_factory: None,
         }
     }
 
@@ -55,7 +61,7 @@ impl<T: Clone + From<InputValue> + Into<InputValue> + 'static> TextFieldProps<T>
 
     pub fn with_apply<F: 'static>(mut self, f: F) -> Self
     where
-        F: FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>,
+        F: FnOnce(DomBuilder<Element>) -> DomBuilder<Element>,
     {
         self.apply = Some(Box::new(f));
         self
@@ -73,15 +79,20 @@ pub struct TextFieldOutput {
 /// 1: output of the component, containing a boolean signal for the  validity of the input according to the validator
 pub fn text_field<T: Clone + From<InputValue> + Into<InputValue> + 'static>(
     props: TextFieldProps<T>,
-) -> (Dom, TextFieldOutput) {
+) -> (DomBuilder<Element>, TextFieldOutput) {
     let is_valid = Mutable::new(true);
 
+    let error_text_signal = match props.error_message_signal_factory {
+        Some(factory) => (factory)(is_valid.signal_cloned()),
+        _ => ComponentSignal(Box::new(always(None))),
+    };
+
     (
-        clone!(is_valid => Dom::with_state(props, move |field_props| {
-            let validator = field_props.validator.clone();
-            let depends_on = field_props.depends_on.clone();
-            let has_focus = field_props.has_focus.clone();
-            let value = field_props.value.clone();
+        {
+            let validator = props.validator.clone();
+            let depends_on = props.depends_on.clone();
+            let has_focus = props.has_focus.clone();
+            let value = props.value.clone();
 
             let validate = clone!(validator, is_valid => move |val: &T| {
                 if let Some(validator_inner) = &validator {
@@ -91,7 +102,7 @@ pub fn text_field<T: Clone + From<InputValue> + Into<InputValue> + 'static>(
                 }
             });
 
-            validate(&field_props.value.get_cloned());
+            validate(&props.value.get_cloned());
 
             let input = html!("input", {
                 .future(clone!(validate, value, depends_on => async move {
@@ -128,7 +139,7 @@ pub fn text_field<T: Clone + From<InputValue> + Into<InputValue> + 'static>(
                         has_focus.set(false);
                     }
                 }))
-                .property_signal("value", field_props.value.signal_cloned().map(|v: T| {
+                .property_signal("value", props.value.signal_cloned().map(|v: T| {
                     let val: InputValue = v.into();
                     val
                 }))
@@ -136,42 +147,49 @@ pub fn text_field<T: Clone + From<InputValue> + Into<InputValue> + 'static>(
                 .class("dmat-input-element")
             });
 
-            let mut children = match &field_props.label {
-                Some(label) => vec![
-                    html!("label", {
-                        .children(&mut [
-                            input,
-                            text(label.as_str())
-                            .class_signal("above",
-                                    clone!(has_focus, value => map_ref!(
-                                        let focus = has_focus.signal_cloned(),
-                                        let _value = value.signal_cloned() => move {
-                                            let has_value = match value.get_cloned().into() {
-                                                InputValue::Text(txt) => txt.len() > 0,
-                                                _ => false
-                                            };
+            let error_text = html!("span", {
+                .child_signal(error_text_signal.0)
+                .class("dmat-error-text")
+            });
 
-                                            *focus || has_value
-                                        }
-                                    ))
-                                )
-                                .class("dmat-input-label-text").into_dom()
+            let mut children = match &props.label {
+                Some(label) => vec![html!("label", {
+                    .children(&mut [
+                        input,
+                        text(label.as_str())
+                        .class_signal("above",
+                                clone!(has_focus, value => map_ref!(
+                                    let focus = has_focus.signal_cloned(),
+                                    let _value = value.signal_cloned() => move {
+                                        let has_value = match value.get_cloned().into() {
+                                            InputValue::Text(txt) => txt.len() > 0,
+                                            _ => false
+                                        };
 
-                        ])
-                        .class("dmat-floating-label")
-                    }),
-                ],
-                _ => vec![input],
+                                        *focus || has_value
+                                    }
+                                ))
+                            )
+                            .class("dmat-input-label-text").into_dom(),
+                        error_text
+                    ])
+                    .class("dmat-floating-label")
+                })],
+                _ => vec![input, error_text],
             };
 
-            html!("div", {
-                .apply_if(field_props.apply.is_some(), |dom_builder| {
-                    (field_props.apply.take().unwrap())(dom_builder)
-                })
+            let output = new_html("div")
                 .children(children.as_mut_slice())
-                .class("dmat-input")
-            })
-        })),
+                .class("dmat-input");
+
+            let output = if let Some(apply) = props.apply {
+                output.apply(|dom_builder| (apply)(dom_builder))
+            } else {
+                output
+            };
+
+            output
+        },
         TextFieldOutput {
             is_valid: is_valid.signal(),
         },
