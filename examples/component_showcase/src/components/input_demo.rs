@@ -43,7 +43,7 @@ pub fn input_demo() -> Dom {
                 html!("div", {
                     .children(&mut [
                         text_field(TextFieldProps::new(text_value.clone())
-                            .label("Invalid") 
+                            .label("Always invalid") 
                             .validator(|_| false)).0.into_dom()
                     ])
                 }),

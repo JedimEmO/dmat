@@ -18,7 +18,6 @@ pub struct TextFieldProps<T: Clone> {
     pub validator: Option<Rc<dyn Fn(&T) -> bool>>,
     pub depends_on: Mutable<()>,
     pub has_focus: Mutable<bool>,
-    pub apply: Option<Box<dyn FnOnce(DomBuilder<Element>) -> DomBuilder<Element>>>,
     pub error_message_signal_factory:
         Option<Box<dyn FnOnce(MutableSignalCloned<bool>) -> ComponentSignal>>,
 }
@@ -36,7 +35,6 @@ impl<T: Clone + From<InputValue> + Into<InputValue> + 'static> TextFieldProps<T>
             validator: None,
             depends_on: Mutable::new(()),
             has_focus: Mutable::new(false),
-            apply: None,
             error_message_signal_factory: None,
         }
     }
@@ -56,14 +54,6 @@ impl<T: Clone + From<InputValue> + Into<InputValue> + 'static> TextFieldProps<T>
 
     pub fn label(mut self: Self, label: &str) -> Self {
         self.label = Some(label.into());
-        self
-    }
-
-    pub fn with_apply<F: 'static>(mut self, f: F) -> Self
-    where
-        F: FnOnce(DomBuilder<Element>) -> DomBuilder<Element>,
-    {
-        self.apply = Some(Box::new(f));
         self
     }
 }
@@ -178,17 +168,9 @@ pub fn text_field<T: Clone + From<InputValue> + Into<InputValue> + 'static>(
                 _ => vec![input, error_text],
             };
 
-            let output = new_html("div")
+            new_html("div")
                 .children(children.as_mut_slice())
-                .class("dmat-input");
-
-            let output = if let Some(apply) = props.apply {
-                output.apply(|dom_builder| (apply)(dom_builder))
-            } else {
-                output
-            };
-
-            output
+                .class("dmat-input")
         },
         TextFieldOutput {
             is_valid: is_valid.signal(),
