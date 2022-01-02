@@ -1,9 +1,9 @@
 use dominator::DomBuilder;
 
-use web_sys::Element;
+use web_sys::HtmlElement;
 
 #[inline]
-pub fn new_html<T: AsRef<str>>(node: T) -> DomBuilder<Element> {
+pub fn new_html<T: AsRef<str>>(node: T) -> DomBuilder<HtmlElement> {
     DomBuilder::new_html(node.as_ref())
 }
 

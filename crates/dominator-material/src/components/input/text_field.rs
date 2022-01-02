@@ -5,7 +5,7 @@ use futures_signals::signal::{MutableSignal, SignalExt};
 use futures_util::future::ready;
 use wasm_bindgen::JsValue;
 use wasm_bindgen::__rt::std::rc::Rc;
-use web_sys::Element;
+use web_sys::HtmlElement;
 
 use crate::components::text;
 use crate::elements::new_html::new_html;
@@ -75,7 +75,7 @@ pub struct TextFieldOutput {
 /// 1: output of the component, containing a boolean signal for the  validity of the input according to the validator
 pub fn text_field<T: Clone + From<InputValue> + Into<InputValue> + 'static>(
     props: TextFieldProps<T>,
-) -> (DomBuilder<Element>, TextFieldOutput) {
+) -> (DomBuilder<HtmlElement>, TextFieldOutput) {
     let is_valid = Mutable::new(true);
 
     (

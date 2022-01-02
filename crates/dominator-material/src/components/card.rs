@@ -2,7 +2,7 @@ use crate::elements::new_html::new_html;
 use crate::utils::component_signal::{ComponentSignal, DomOption};
 use dominator::{html, DomBuilder};
 use futures_signals::signal::Signal;
-use web_sys::Element;
+use web_sys::HtmlElement;
 
 #[derive(Default)]
 pub struct CardProps {
@@ -71,7 +71,7 @@ impl CardProps {
     }
 }
 
-pub fn card(props: CardProps) -> DomBuilder<Element> {
+pub fn card(props: CardProps) -> DomBuilder<HtmlElement> {
     let head = props.header_view;
     let body = props.body_view;
     let footer = props.footer;

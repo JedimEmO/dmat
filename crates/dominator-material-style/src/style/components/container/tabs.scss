@@ -1,0 +1,57 @@
+@import "../../utils/map_get_strict";
+
+@mixin tabs($theme) {
+  $colors: map-get-strict($theme, "colors");
+
+  .dmat-tabs {
+    display: flex;
+    flex: 1 0 auto;
+    position: absolute;
+    width: 100%;
+    top: 0;
+    left: 0;
+
+    button.tab {
+      text-decoration: none;
+      text-transform: uppercase;
+      text-align: center;
+      line-height: 2.25rem;
+      font-weight: 500;
+      font-family: Roboto, sans-serif;
+      padding: 0 24px;
+      display: flex;
+      box-sizing: border-box;
+      outline: none;
+      border: none;
+      flex: 1 0 auto;
+      justify-content: center;
+      cursor: pointer;
+      background: map-get-strict($colors, "primary");
+      color: map-get-strict($colors, "text_on_primary");
+      height: 2.3rem;
+      position: relative;
+
+      &:hover {
+        background: map-get-strict($colors, "primary_light");
+      }
+
+      & .dmat-tab-indicator {
+        opacity: 0;
+        transition: opacity 250ms cubic-bezier(0.4, 0, 0.2, 1) 0s;
+        border-color: map-get-strict($colors, "secondary") !important;
+        border-bottom: 4px solid;
+        display: flex;
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        z-index: 1;
+      }
+
+      &.active .dmat-tab-indicator {
+        opacity: 1;
+      }
+    }
+  }
+}

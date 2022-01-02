@@ -12,3 +12,6 @@ rust-embed = "6.3.0"
 
 [dev-dependencies]
 grass = "0.10.8"
+
+[build-dependencies]
+walkdir = "2.3.2"

@@ -40,7 +40,7 @@ pub fn button_demo() -> Dom {
                         button(
                             ButtonProps::new()
                             .content_signal(map_ref! {
-                                let value = counter.signal() => text(format!("Clicked {} times", value).as_str())
+                                let value = counter.signal() => text(format!("Clicked {} times", value).as_str()).into_dom()
                             })
                             .on_click(clone!(counter => move |_| {
                                 let v = *counter.lock_ref();

@@ -81,13 +81,16 @@ fn make_drawer() -> NavigationDrawerProps<ExampleViews> {
             }),
         ])
         .main_view_generator(move |v, _handle| {
-            Some(container(match v {
-                Some(ExampleViews::Main) => html!("span", {
-                    .text("Main view")
-                }),
-                Some(ExampleViews::Details) => html!("span", { .text("Details") }),
-                Some(ExampleViews::Other) => html!("span", { .text("Other view") }),
-                _ => html!("span", { .text("Some view") }),
-            }))
+            Some(
+                container(match v {
+                    Some(ExampleViews::Main) => html!("span", {
+                        .text("Main view")
+                    }),
+                    Some(ExampleViews::Details) => html!("span", { .text("Details") }),
+                    Some(ExampleViews::Other) => html!("span", { .text("Other view") }),
+                    _ => html!("span", { .text("Some view") }),
+                })
+                .into_dom(),
+            )
         })
 }

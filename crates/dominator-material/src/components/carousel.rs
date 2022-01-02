@@ -7,7 +7,7 @@ use futures_signals::signal::{Mutable, MutableSignal, Signal};
 use wasm_bindgen::__rt::std::rc::Rc;
 use wasm_bindgen::prelude::Closure;
 use wasm_bindgen::JsCast;
-use web_sys::Element;
+use web_sys::HtmlElement;
 
 use crate::futures_signals::signal::SignalExt;
 
@@ -156,7 +156,7 @@ pub struct CarouselProps<T: CarouselSource> {
 
 pub fn carousel<T: CarouselSource + 'static>(
     props: CarouselProps<T>,
-) -> (DomBuilder<Element>, CarouselControls<T>) {
+) -> (DomBuilder<HtmlElement>, CarouselControls<T>) {
     let source = props.source;
 
     let state = Rc::new(Carousel {

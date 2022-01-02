@@ -1,0 +1,9 @@
+@import "../../utils/map_get_strict";
+
+@mixin surface($theme) {
+  $colors: map-get-strict($theme, "colors");
+
+  .dmat-surface {
+    background: map-get-strict($colors, "surface_dark")
+  }
+}

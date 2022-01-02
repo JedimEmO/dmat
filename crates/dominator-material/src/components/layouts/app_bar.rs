@@ -2,7 +2,7 @@ use crate::elements::new_html::new_html;
 use crate::utils::component_signal::{ComponentSignal, DomOption};
 use dominator::{html, DomBuilder};
 use futures_signals::signal::Signal;
-use web_sys::Element;
+use web_sys::HtmlElement;
 
 #[derive(Clone)]
 pub enum AppBarType {
@@ -73,7 +73,7 @@ impl AppBarProps {
     }
 }
 
-pub fn app_bar(props: AppBarProps) -> DomBuilder<Element> {
+pub fn app_bar(props: AppBarProps) -> DomBuilder<HtmlElement> {
     let type_class = match props.app_bar_type {
         AppBarType::Normal => "-normal",
         AppBarType::Prominent => "-prominent",

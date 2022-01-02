@@ -1,0 +1,71 @@
+@import "../../utils/map_get_strict";
+
+@mixin carousel($theme) {
+  $colors: map-get-strict($theme, "colors");
+
+  .dmat-carousel {
+    width: 100%;
+    height: 100%;
+
+    & > .container {
+      position: relative;
+      display: grid;
+      width: 100%;
+      height: 100%;
+
+      & > .dmat-carousel-item {
+        overflow: hidden;
+        grid-area: 1 / 1 / 2 / 2;
+        transition: margin-left 0.5s, margin-right 0.5s;
+        z-index: 0;
+        margin-left: 0;
+        margin-right: 0;
+
+        & > .dmat-carousel-item-inner {
+          position: relative;
+        }
+
+        &.-leave-left {
+          margin-right: 100%;
+          opacity: 0.3;
+          background-color: map-get-strict($colors, "surface_dark");
+          z-index: 100;
+        }
+
+        &.-leave-right {
+          margin-left: 100%;
+          opacity: 0.5;
+          background-color: map-get-strict($colors, "surface_dark");
+          z-index: 100;
+        }
+
+        &.-hidden {
+          display: none;
+        }
+      }
+
+      & .dmat-carousel-button {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 3rem;
+        background-color: map-get-strict($colors, "surface_dark");
+        opacity: 20%;
+        transition: opacity 250ms;
+        z-index: 3;
+
+        &:hover {
+          opacity: 80%;
+        }
+      }
+
+      & .dmat-carousel-left-button {
+        left: 0;
+      }
+
+      & .dmat-carousel-right-button {
+        right: 0;
+      }
+    }
+  }
+}

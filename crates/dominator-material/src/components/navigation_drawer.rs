@@ -12,7 +12,7 @@ use futures_signals::signal::{Mutable, MutableSignalCloned, Signal};
 use futures_signals::signal_vec::MutableVec;
 use futures_signals::signal_vec::SignalVecExt;
 use wasm_bindgen::__rt::std::rc::Rc;
-use web_sys::Element;
+use web_sys::{Element, HtmlElement};
 
 #[derive(Clone)]
 pub struct NavigationEntry<T: Clone + 'static> {
@@ -133,7 +133,7 @@ pub struct NavigationDrawerOut {
 
 pub fn navigation_drawer<T: Clone + PartialEq + 'static>(
     props: NavigationDrawerProps<T>,
-) -> (DomBuilder<Element>, Rc<NavigationDrawerOut>) {
+) -> (DomBuilder<HtmlElement>, Rc<NavigationDrawerOut>) {
     let out = Rc::new(NavigationDrawerOut {
         is_expanded: props.expanded.signal_cloned(),
     });
@@ -340,7 +340,7 @@ fn with_id<B: Signal<Item = DomBuilder<A>>, A: AsRef<Element>>(
     }
 }
 
-pub fn test() -> impl Signal<Item = DomBuilder<Element>> {
+pub fn test() -> impl Signal<Item = DomBuilder<HtmlElement>> {
     let v = Mutable::new(42);
 
     let r = map_ref! {

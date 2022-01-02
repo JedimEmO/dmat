@@ -1,7 +1,7 @@
 use dominator::{Dom, DomBuilder};
 use futures_signals::signal::{always, Always, Signal, SignalExt};
 use std::iter::{once, Once};
-use web_sys::Element;
+use web_sys::{Element, HtmlElement};
 
 pub fn once_cmp(c: DomBuilder<Element>) -> Once<Always<Option<DomBuilder<Element>>>> {
     once(always(Some(c)))
@@ -50,8 +50,8 @@ impl From<Dom> for ComponentSignal {
     }
 }
 
-impl From<DomBuilder<Element>> for ComponentSignal {
-    fn from(dom_builder: DomBuilder<Element>) -> Self {
+impl From<DomBuilder<HtmlElement>> for ComponentSignal {
+    fn from(dom_builder: DomBuilder<HtmlElement>) -> Self {
         Self(Box::new(always(Some(dom_builder.into_dom()))))
     }
 }

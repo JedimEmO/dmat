@@ -1,5 +1,22 @@
 @import "components/input/text_field";
 
+@import "components/container/card";
+@import "components/container/container";
+@import "components/container/carousel";
+@import "components/container/list";
+@import "components/container/surface";
+@import "components/container/tabs";
+
 @mixin dmat($theme) {
+  // inputs
+  @include button($theme);
   @include text_field($theme);
+
+  // containers
+  @include card($theme);
+  @include container($theme);
+  @include carousel($theme);
+  @include list($theme);
+  @include surface($theme);
+  @include tabs($theme);
 }

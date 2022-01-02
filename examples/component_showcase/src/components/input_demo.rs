@@ -43,5 +43,5 @@ pub fn input_demo() -> Dom {
                 }),
             ]),
         )).apply(|v| v.class("demo-card")).into_dom()
-    )
+    ).into_dom()
 }

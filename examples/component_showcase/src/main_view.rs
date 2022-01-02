@@ -29,7 +29,7 @@ enum DemoTabs {
 }
 
 pub fn main_view() -> Dom {
-    let active_tab = Mutable::new(DemoTabs::Input);
+    let active_tab = Mutable::new(DemoTabs::Carousel);
 
     app_bar(
         AppBarProps::new()
@@ -48,7 +48,8 @@ pub fn main_view() -> Dom {
                         DemoTabs::NavigationDrawer => navigation_drawers_demo(),
                         _ => html!("div"),
                     })
-                    .map(container),
+                    .map(container)
+                    .map(|e| e.into_dom()),
             )
             .fixed(),
     )

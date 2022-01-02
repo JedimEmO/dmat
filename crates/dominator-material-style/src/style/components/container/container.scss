@@ -1,0 +1,13 @@
+@import "../../utils/map_get_strict";
+
+@mixin container($theme) {
+  $colors: map-get-strict($theme, "colors");
+
+  .dmat-container {
+    padding: 16px;
+    height: fit-content;
+    display: flex;
+    justify-content: center;
+    background-color: map-get-strict($colors, "surface");
+  }
+}

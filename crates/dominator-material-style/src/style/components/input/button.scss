@@ -1,0 +1,60 @@
+@import "../../utils/map_get_strict";
+
+
+@mixin button($theme) {
+  $colors: map-get-strict($theme, "colors");
+
+  button.dmat-button {
+    display: flex;
+    align-self: flex-start;
+    height: 36px;
+    text-transform: uppercase;
+    font-weight: 500;
+    min-width: 64px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    padding: 0 16px;
+    cursor: pointer;
+
+    &:focus {
+      outline: 0;
+    }
+
+    &.-contained {
+      background: map-get-strict($colors, "primary");
+      color: map-get-strict($colors, "text_on_primary");
+
+      &:hover {
+        background: map-get-strict($colors, "primary_light");
+      }
+    }
+
+    &.-outlined {
+      background: none;
+      color: map-get-strict($colors, "secondary");
+      border: 2px map-get-strict($colors, "secondary_light") solid;
+      font-weight: bolder;
+
+      &:hover {
+        background: map-get-strict($colors, "secondary_lightest");
+      }
+    }
+
+    &.-text {
+      background: none;
+      color: map-get-strict($colors, "secondary");
+      font-weight: bolder;
+      border: none;
+
+      &:hover {
+        background: map-get-strict($colors, "secondary_lightest");
+      }
+    }
+
+    &:active {
+      background: map-get-strict($colors, "primary_dark");
+    }
+  }
+
+}
