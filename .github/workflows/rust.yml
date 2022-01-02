@@ -15,14 +15,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: rust-toolchain
-        # You may pin to the exact commit or the version.
-        # uses: actions-rs/toolchain@b2417cde72dcf67f306c0ae8e0828a81bf0b189f
-        uses: actions-rs/toolchain@v1.0.6
-        with:
-          # Rust toolchain name.
-          toolchain: stable
-          target: wasm32-unknown-unknown
       - uses: actions/checkout@v2
       - name: wasm-bindgen-action
         # You may pin to the exact commit or the version.
@@ -34,6 +26,6 @@ jobs:
       - name: clippy checks
         run: cargo clippy
       - name: Run chrome tests
-        run: CHROMEDRIVER=/usr/local/share/chrome_driver cargo test --target wasm32-unknown-unknwon
+        run: CHROMEDRIVER=/usr/local/share/chrome_driver cargo test --target wasm32-unknown-unknown
       - name: Run unit tests
         run: cargo test
