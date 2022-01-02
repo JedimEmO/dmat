@@ -34,6 +34,6 @@ jobs:
       - name: clippy checks
         run: cargo clippy
       - name: Run chrome tests
-        run: CHROMEDRIVER=/usr/local/share/chrome_driver cargo test --target wasm32-unknown-unknown
+        run: RUST_BACKTRACE=1 CHROMEDRIVER=/usr/local/share/chrome_driver cargo test --target wasm32-unknown-unknown
       - name: Run unit tests
         run: cargo test
