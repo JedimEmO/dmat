@@ -23,3 +23,6 @@ wasm-bindgen = { version = "0.2.74", features = ["serde-serialize"] }
 wasm-bindgen-futures = "0.4.28"
 web-sys = { version = "0.3.55", features = ["DocumentFragment", "Storage", "Url", "console", "Window", "Request", "Response", "RequestInit"] }
 uuid = { version = "0.8.1", features = ["v4", "wasm-bindgen"] }
+
+[build-dependencies]
+dominator-material-style = { path = "../../crates/dominator-material-style"}

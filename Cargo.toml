@@ -1,5 +1,6 @@
 [workspace]
 members = [
     "crates/dominator-material",
+    "crates/dominator-material-style",
     "examples/component_showcase"
 ]

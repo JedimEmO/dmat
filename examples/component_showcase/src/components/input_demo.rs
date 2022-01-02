@@ -2,7 +2,6 @@ use dominator::{html, Dom};
 use futures_signals::map_ref;
 use futures_signals::signal::always;
 use futures_signals::signal::Mutable;
-use futures_signals::signal::SignalExt;
 
 use dominator_material::components::layouts::container;
 use dominator_material::components::{card, static_list, text_field, CardProps, TextFieldProps};

@@ -1,0 +1,5 @@
+@import "components/input/text_field";
+
+@mixin dmat($theme) {
+  @include text_field($theme);
+}

@@ -203,7 +203,7 @@ pub fn text_field<T: Clone + From<InputValue> + Into<InputValue> + 'static>(
 
             new_html("div")
                 .child(children)
-                .class("dmat-input")
+                .class("dmat-input-text-field")
                 .class_signal(
                     "assistive",
                     map_ref!(

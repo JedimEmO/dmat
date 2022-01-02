@@ -1,0 +1,8 @@
+// credits  cimmanon: https://stackoverflow.com/questions/31945400/why-doesnt-sass-map-get-return-an-error-for-a-non-existent-key
+@function map-get-strict($map, $key) {
+  @if map-has-key($map, $key) {
+    @return map-get($map, $key);
+  } @else {
+    @error "ERROR: Specified index '#{$key}' does not exist in the mapping";
+  }
+}

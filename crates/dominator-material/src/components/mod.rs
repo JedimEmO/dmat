@@ -3,7 +3,7 @@ pub use card::*;
 pub use carousel::*;
 pub use data_table::*;
 pub use icon::*;
-pub use input::*;
+pub use input::text_field::*;
 pub use list::*;
 pub use navigation_drawer::*;
 pub use progress_indicator::*;
