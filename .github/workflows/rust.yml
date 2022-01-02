@@ -1,4 +1,4 @@
-name: Rust
+name: Code checking and unit testing
 
 on:
   push:
@@ -23,5 +23,7 @@ jobs:
       with:
         # Optional version of wasm-bindgen to install (eg. "0.2.68", "latest")
         version: 0.2.68
+    - name: clippy checks
+      run: cargo clippy
     - name: Run chrome tests
       run: CHROMEDRIVER=/usr/local/share/chrome_driver cargo test
