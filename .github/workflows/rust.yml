@@ -26,6 +26,6 @@ jobs:
     - name: clippy checks
       run: cargo clippy
     - name: Run chrome tests
-      run: CHROMEDRIVER=/usr/local/share/chrome_driver cargo test
+      run: CHROMEDRIVER=/usr/local/share/chrome_driver cargo test --target wasm32-unknown-unknwon
     - name: Run unit tests
       run: cargo test
