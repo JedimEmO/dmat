@@ -11,7 +11,7 @@ mod test {
     use crate::elements::elements::new_html;
     use dominator::Dom;
     use wasm_bindgen_test::*;
-    use web_sys::{window, Document};
+    use web_sys::Document;
 
     #[wasm_bindgen_test]
     fn create_basic_element() {
@@ -20,11 +20,11 @@ mod test {
             .attribute("id", "test")
             .into_dom();
 
-        let mut document: Document = web_sys::window().unwrap().document().unwrap();
+        let document: Document = web_sys::window().unwrap().document().unwrap();
 
         dominator::append_dom(&document.body().unwrap(), ele);
 
-        let found = web_sys::window()
+        let _found = web_sys::window()
             .unwrap()
             .document()
             .unwrap()

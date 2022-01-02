@@ -1,7 +1,6 @@
 use dominator_material_style::render_dmat_scss;
-use dominator_material_style::theme::{Color, Colors, DmatTheme};
-use std::path::Path;
-use std::{env, fs};
+use dominator_material_style::theme::{Colors, DmatTheme};
+use std::fs;
 
 fn main() {
     let theme = DmatTheme {
