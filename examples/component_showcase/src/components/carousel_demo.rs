@@ -10,10 +10,10 @@ pub fn carousel_demo() -> Dom {
     card(CardProps::new().body(static_list(vec![
         carousel(CarouselProps {
             source: CarouselDemoSource::new(),
-            apply: Some(Box::new(|d| d.class("demo-carousel"))),
             initial_view_index: Default::default(),
-        }).0
+        }).0.apply(|d| d.class("demo-carousel")).into_dom()
     ])))
+    .into_dom()
 }
 
 #[derive(Clone)]

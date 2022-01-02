@@ -15,10 +15,7 @@ enum ExampleViews {
 }
 
 pub fn navigation_drawers_demo() -> Dom {
-    card(
-        CardProps::new()
-            .with_apply(|v| v.class("demo-card"))
-            .body(list(always(vec![
+    card(CardProps::new().body(list(always(vec![
                 card(
                     CardProps::new()
                         .with_title("Static navigation drawer", None)
@@ -26,7 +23,7 @@ pub fn navigation_drawers_demo() -> Dom {
                             .class("navigation-drawer-demo")
                             .child(static_drawers(true))
                         })),
-                ),
+                ).into_dom(),
                 card(
                     CardProps::new()
                         .with_title("Modal navigation drawer", None)
@@ -34,7 +31,7 @@ pub fn navigation_drawers_demo() -> Dom {
                             .class("navigation-drawer-demo")
                             .child(modal_drawers())
                         })),
-                ),
+                ).into_dom(),
                 card(
                     CardProps::new()
                         .with_title("Static navigation drawer without toggle controls", None)
@@ -42,17 +39,22 @@ pub fn navigation_drawers_demo() -> Dom {
                             .class("navigation-drawer-demo")
                             .child(static_drawers(false))
                         })),
-                ),
-            ]))),
-    )
+                ).into_dom(),
+            ]))))
+    .apply(|v| v.class("demo-card"))
+    .into_dom()
 }
 
 pub fn static_drawers(toggle: bool) -> Dom {
-    navigation_drawer(make_drawer().show_toggle_controls(toggle)).1
+    navigation_drawer(make_drawer().show_toggle_controls(toggle))
+        .0
+        .into_dom()
 }
 
 fn modal_drawers() -> Dom {
-    navigation_drawer(make_drawer().show_toggle_controls(true).modal(true)).1
+    navigation_drawer(make_drawer().show_toggle_controls(true).modal(true))
+        .0
+        .into_dom()
 }
 
 fn make_drawer() -> NavigationDrawerProps<ExampleViews> {

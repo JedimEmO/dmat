@@ -9,7 +9,7 @@ use wasm_bindgen::__rt::std::rc::Rc;
 use web_sys::Element;
 
 use crate::components::text;
-use crate::elements::elements::new_html;
+use crate::elements::new_html::new_html;
 
 #[derive(Default)]
 pub struct TextFieldProps<T: Clone> {

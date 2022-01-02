@@ -1,7 +1,8 @@
+use crate::elements::new_html::new_html;
 use crate::utils::component_signal::{ComponentSignal, DomOption};
-use dominator::{html, Dom, DomBuilder};
+use dominator::{html, DomBuilder};
 use futures_signals::signal::Signal;
-use web_sys::HtmlElement;
+use web_sys::{Element};
 
 #[derive(Clone)]
 pub enum AppBarType {
@@ -9,8 +10,14 @@ pub enum AppBarType {
     Prominent,
 }
 
+impl Default for AppBarType {
+    fn default() -> Self {
+        Self::Normal
+    }
+}
+
+#[derive(Default)]
 pub struct AppBarProps {
-    apply: Option<Box<dyn FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>>>,
     main_view: Option<ComponentSignal>,
     header_view: Option<ComponentSignal>,
     app_bar_type: AppBarType,
@@ -20,7 +27,6 @@ pub struct AppBarProps {
 impl AppBarProps {
     pub fn new() -> Self {
         Self {
-            apply: None,
             main_view: None,
             header_view: None,
             app_bar_type: AppBarType::Normal,
@@ -37,15 +43,6 @@ impl AppBarProps {
     #[inline]
     pub fn fixed(mut self) -> Self {
         self.fixed = true;
-        self
-    }
-
-    #[inline]
-    pub fn apply<F: 'static>(mut self, apply: F) -> Self
-    where
-        F: FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>,
-    {
-        self.apply = Some(Box::new(apply));
         self
     }
 
@@ -71,8 +68,7 @@ impl AppBarProps {
     }
 }
 
-pub fn app_bar(props: AppBarProps) -> Dom {
-    let mut apply = props.apply;
+pub fn app_bar(props: AppBarProps) -> DomBuilder<Element> {
     let type_class = match props.app_bar_type {
         AppBarType::Normal => "-normal",
         AppBarType::Prominent => "-prominent",
@@ -81,11 +77,8 @@ pub fn app_bar(props: AppBarProps) -> Dom {
     let main_view = props.main_view;
     let header_view = props.header_view;
 
-    html!("div", {
+    new_html("div")
         .class("dmat-app-bar")
-        .apply_if(apply.is_some(), move |dom| {
-            dom.apply(apply.take().unwrap())
-        })
         .apply_if(props.fixed, move |dom| dom.class("-fixed"))
         .child(html!("div", {
             .class("viewport")
@@ -105,5 +98,4 @@ pub fn app_bar(props: AppBarProps) -> Dom {
                 })
             ])
         }))
-    })
 }

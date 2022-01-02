@@ -49,10 +49,11 @@ pub fn main_view() -> Dom {
                             DemoTabs::NavigationDrawer => navigation_drawers_demo(),
                             _ => html!("div"),
                         })
-                        .map(|v| container(v)),
+                        .map(container),
                 )
                 .fixed(),
         )
+        .into_dom()
     })
 }
 

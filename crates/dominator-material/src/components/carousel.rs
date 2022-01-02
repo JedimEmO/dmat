@@ -1,5 +1,6 @@
 use std::error::Error;
 
+use crate::elements::new_html::new_html_with_state;
 use dominator::traits::AsStr;
 use dominator::{clone, events, html, Dom, DomBuilder};
 use futures_signals::map_ref;
@@ -7,7 +8,7 @@ use futures_signals::signal::{Mutable, MutableSignal, Signal};
 use wasm_bindgen::__rt::std::rc::Rc;
 use wasm_bindgen::prelude::Closure;
 use wasm_bindgen::JsCast;
-use web_sys::HtmlElement;
+use web_sys::{Element};
 
 use crate::futures_signals::signal::SignalExt;
 
@@ -151,15 +152,13 @@ impl<T: CarouselSource + 'static> CarouselControls<T> {
 
 pub struct CarouselProps<T: CarouselSource> {
     pub source: T,
-    pub apply: Option<Box<dyn FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>>>,
     pub initial_view_index: usize,
 }
 
 pub fn carousel<T: CarouselSource + 'static>(
     props: CarouselProps<T>,
-) -> (Dom, CarouselControls<T>) {
+) -> (DomBuilder<Element>, CarouselControls<T>) {
     let source = props.source;
-    let apply = props.apply;
 
     let state = Rc::new(Carousel {
         current_item_index: Mutable::new(props.initial_view_index),
@@ -173,39 +172,35 @@ pub fn carousel<T: CarouselSource + 'static>(
     });
 
     (
-        Dom::with_state(state.clone(), move |state| {
-            html!("div", {
-                .apply_if(apply.is_some(), |dom_builder| { (apply.unwrap())(dom_builder) })
-                .class("dmat-carousel")
-                .child(html!("div", {
-                    .class("container")
-                    .children(&mut [
-                        carousel_item(
-                            state.child_signal(0),
-                            state.hidden_signal(0),
-                            state.child_leave_signal(0, OutgoingItemDirection::Left),
-                            state.child_leave_signal(0, OutgoingItemDirection::Right)
-                        ),
-                        carousel_item(
-                            state.child_signal(1),
-                            state.hidden_signal(1),
-                            state.child_leave_signal(1, OutgoingItemDirection::Left),
-                            state.child_leave_signal(1, OutgoingItemDirection::Right)
-                        ),
-                        carousel_button(clone!(state => {
-                                move |_: events::Click| {
-                                    state.transition(OutgoingItemDirection::Left, None);
-                                }
-                            }), "left"),
-                        carousel_button(clone!(state => {
-                                move |_: events::Click| {
-                                    state.transition(OutgoingItemDirection::Right, None);
-                                }
-                            }), "right")
-                    ])
-                }))
-            })
-        }),
+        new_html_with_state("div", state.clone())
+            .class("dmat-carousel")
+            .child(html!("div", {
+                .class("container")
+                .children(&mut [
+                    carousel_item(
+                        state.child_signal(0),
+                        state.hidden_signal(0),
+                        state.child_leave_signal(0, OutgoingItemDirection::Left),
+                        state.child_leave_signal(0, OutgoingItemDirection::Right)
+                    ),
+                    carousel_item(
+                        state.child_signal(1),
+                        state.hidden_signal(1),
+                        state.child_leave_signal(1, OutgoingItemDirection::Left),
+                        state.child_leave_signal(1, OutgoingItemDirection::Right)
+                    ),
+                    carousel_button(clone!(state => {
+                            move |_: events::Click| {
+                                state.transition(OutgoingItemDirection::Left, None);
+                            }
+                        }), "left"),
+                    carousel_button(clone!(state => {
+                            move |_: events::Click| {
+                                state.transition(OutgoingItemDirection::Right, None);
+                            }
+                        }), "right")
+                ])
+            })),
         CarouselControls::new(state),
     )
 }

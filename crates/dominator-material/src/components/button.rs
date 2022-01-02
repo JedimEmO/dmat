@@ -27,6 +27,7 @@ impl Default for ButtonContent {
     }
 }
 
+#[derive(Default)]
 pub struct ButtonProps {
     pub content_signal: Option<ComponentSignal>,
     pub click_handler: Option<Rc<dyn Fn(events::Click)>>,

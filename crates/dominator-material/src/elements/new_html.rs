@@ -1,14 +1,24 @@
+use dominator::traits::AsStr;
 use dominator::DomBuilder;
+
+use std::rc::Rc;
 use web_sys::Element;
 
 #[inline]
-pub fn new_html(node: &str) -> DomBuilder<Element> {
-    DomBuilder::new_html(node)
+pub fn new_html<T: AsStr>(node: T) -> DomBuilder<Element> {
+    DomBuilder::new_html(node.as_str())
+}
+
+#[inline]
+pub fn new_html_with_state<T: AsStr, A: 'static>(node: T, state: Rc<A>) -> DomBuilder<Element> {
+    let ret = new_html(node);
+
+    ret.after_removed(move |_| std::mem::drop(state))
 }
 
 #[cfg(test)]
 mod test {
-    use crate::elements::elements::new_html;
+    use crate::elements::new_html::new_html;
     use dominator::Dom;
     use wasm_bindgen_test::*;
     use web_sys::Document;

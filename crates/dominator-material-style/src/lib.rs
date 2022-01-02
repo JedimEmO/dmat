@@ -27,7 +27,7 @@ pub(crate) fn get_concatenated_scss() -> String {
         .map(|file| String::from_utf8(file.data.to_vec()).unwrap())
         .collect::<Vec<String>>()
         .join("\n")
-        .split("\n")
+        .split('\n')
         .filter(|v| !v.contains("@import"))
         .collect::<Vec<&str>>()
         .join("\n")

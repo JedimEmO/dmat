@@ -11,7 +11,6 @@ pub fn input_demo() -> Dom {
 
     container(
         card(CardProps::new()
-            .with_apply(|v| v.class("demo-card"))
             .body(static_list(vec![
                 html!("div", {
                     .children(&mut [
@@ -19,7 +18,7 @@ pub fn input_demo() -> Dom {
                             value: text_value.clone(),
                             assistive_text_signal: Some(Box::new(
                                 map_ref!(let cur_val = text_value.signal_cloned() =>
-                                    Some(format!("Assistive text - {}", cur_val).to_string())))
+                                    Some(format!("Assistive text - {}", cur_val))))
                             ),
                             ..Default::default()
                         }.label("With dynamic help text")).0.into_dom()
@@ -37,12 +36,12 @@ pub fn input_demo() -> Dom {
                 }),
                 html!("div", {
                     .children(&mut [
-                        text_field(TextFieldProps::new(text_value.clone())
+                        text_field(TextFieldProps::new(text_value)
                             .label("Always invalid") 
                             .validator(|_| false)).0.into_dom()
                     ])
                 }),
             ]),
-        )),
+        )).apply(|v| v.class("demo-card")).into_dom()
     )
 }

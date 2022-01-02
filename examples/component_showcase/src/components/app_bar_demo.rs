@@ -11,15 +11,18 @@ use dominator_material::components::{
 
 pub fn app_bar_demo() -> Dom {
     card(
-        CardProps::new().with_apply(|v| v.class("demo-card")).body(
+        CardProps::new().body(
             carousel(CarouselProps {
                 source: AppBarCarousel::new(),
-                apply: Some(Box::new(|d| d.class("demo-carousel"))),
                 initial_view_index: Default::default(),
             })
-            .0,
+            .0
+            .apply(|d| d.class("demo-carousel"))
+            .into_dom(),
         ),
     )
+    .apply(|v| v.class("demo-card"))
+    .into_dom()
 }
 
 #[derive(Clone)]
@@ -38,29 +41,26 @@ impl AppBarCarousel {
 impl CarouselSource for AppBarCarousel {
     fn get_entry(&self, index: usize) -> Dom {
         let inner = match index {
-            0 => {
-                navigation_drawer(
-                    NavigationDrawerProps::new()
-                        .apply(|_, dom| dom.class("demo-drawer-with-app-bar"))
-                        .show_toggle_controls(true)
-                        .expanded(true)
-                        .initial_selected(0)
-                        .entries(vec![
-                            NavigationDrawerEntry::Item(NavigationEntry {
-                                id: 0,
-                                text: "Inbox".to_string(),
-                            }),
-                            NavigationDrawerEntry::Item(NavigationEntry {
-                                id: 1,
-                                text: "Spam".to_string(),
-                            }),
-                        ])
-                        .title_view_generator(|_, _| {
-                            Some(html!("div", {.text("Outer modal drawer")}))
-                        })
-                        .modal(true)
-                        .main_view_generator(|_, _| {
-                            Some(app_bar(
+            0 => navigation_drawer(
+                NavigationDrawerProps::new()
+                    .show_toggle_controls(true)
+                    .expanded(true)
+                    .initial_selected(0)
+                    .entries(vec![
+                        NavigationDrawerEntry::Item(NavigationEntry {
+                            id: 0,
+                            text: "Inbox".to_string(),
+                        }),
+                        NavigationDrawerEntry::Item(NavigationEntry {
+                            id: 1,
+                            text: "Spam".to_string(),
+                        }),
+                    ])
+                    .title_view_generator(|_, _| Some(html!("div", {.text("Outer modal drawer")})))
+                    .modal(true)
+                    .main_view_generator(|_, _| {
+                        Some(
+                            app_bar(
                                 AppBarProps::new()
                                     .header(html!("div", {
                                         .class("app-bar-demo-header")
@@ -69,11 +69,14 @@ impl CarouselSource for AppBarCarousel {
                                         html!("div", { .text(lipsum::lipsum(512).as_str())}),
                                     ))
                                     .fixed(),
-                            ))
-                        }),
-                )
-                .1
-            }
+                            )
+                            .into_dom(),
+                        )
+                    }),
+            )
+            .0
+            .class("demo-drawer-with-app-bar")
+            .into_dom(),
             1 => app_bar(
                 AppBarProps::new()
                     .header(html!("h1", {
@@ -83,7 +86,8 @@ impl CarouselSource for AppBarCarousel {
                     .main(html!("div", {
                         .text(lipsum::lipsum(1024).as_str())
                     })),
-            ),
+            )
+            .into_dom(),
             _ => app_bar(
                 AppBarProps::new()
                     .header(html!("h1", {
@@ -93,7 +97,8 @@ impl CarouselSource for AppBarCarousel {
                     .main(static_drawers(true))
                     .bar_type(AppBarType::Prominent)
                     .fixed(),
-            ),
+            )
+            .into_dom(),
         };
 
         html!("div", {

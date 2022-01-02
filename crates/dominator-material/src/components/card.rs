@@ -1,15 +1,14 @@
-use crate::elements::elements::new_html;
+use crate::elements::new_html::new_html;
 use crate::utils::component_signal::{ComponentSignal, DomOption};
-use dominator::{html, Dom, DomBuilder};
+use dominator::{html, DomBuilder};
 use futures_signals::signal::Signal;
-use web_sys::HtmlElement;
+use web_sys::{Element};
 
 #[derive(Default)]
 pub struct CardProps {
     pub header_view: Option<ComponentSignal>,
     pub body_view: Option<ComponentSignal>,
     pub footer: Option<ComponentSignal>,
-    pub apply: Option<Box<dyn FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>>>,
 }
 
 impl CardProps {
@@ -25,7 +24,9 @@ impl CardProps {
                 .children(
                     vec![
                         Some(html!("div", { .class("title").text(title.into().as_str()) })),
-                        sub_title.map(|sub| html!("div", { .class("sub-title") .text(sub.into().as_str()) })),
+                        sub_title.map(
+                            |sub| html!("div", { .class("sub-title") .text(sub.into().as_str()) }),
+                        ),
                     ]
                     .into_iter()
                     .flatten(),
@@ -33,14 +34,6 @@ impl CardProps {
                 .into(),
         );
 
-        self
-    }
-
-    pub fn with_apply<F: 'static>(mut self, apply: F) -> Self
-    where
-        F: FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>,
-    {
-        self.apply = Some(Box::new(apply));
         self
     }
 
@@ -68,8 +61,7 @@ impl CardProps {
     }
 }
 
-pub fn card(props: CardProps) -> Dom {
-    let mut apply = props.apply;
+pub fn card(props: CardProps) -> DomBuilder<Element> {
     let head = props.header_view;
     let body = props.body_view;
     let footer = props.footer;
@@ -95,11 +87,7 @@ pub fn card(props: CardProps) -> Dom {
         }),
     ];
 
-    html!("div", {
+    new_html("div")
         .class("dmat-card")
-        .apply_if(apply.is_some(), move |dom| {
-            dom.apply(apply.take().unwrap())
-        })
         .children(children.into_iter())
-    })
 }

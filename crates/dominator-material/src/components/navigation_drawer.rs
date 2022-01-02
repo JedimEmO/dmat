@@ -3,7 +3,7 @@ use std::pin::Pin;
 use std::sync::RwLock;
 use std::task::{Context, Poll};
 
-use crate::elements::elements::new_html;
+use crate::elements::new_html::{new_html, new_html_with_state};
 use dominator::{clone, events, html, Dom, DomBuilder};
 
 use futures_signals::signal::{Mutable, MutableSignalCloned, Signal};
@@ -11,7 +11,7 @@ use futures_signals::signal_vec::MutableVec;
 use futures_signals::signal_vec::SignalVecExt;
 use futures_signals::{map_ref, unsafe_project};
 use wasm_bindgen::__rt::std::rc::Rc;
-use web_sys::{Element, HtmlElement};
+use web_sys::Element;
 
 #[derive(Clone)]
 pub struct NavigationEntry<T: Clone + 'static> {
@@ -25,24 +25,18 @@ pub enum NavigationDrawerEntry<T: Clone + 'static> {
     Separator,
 }
 
+pub type TitleViewGenerator<T> = dyn Fn(&Option<T>, &Rc<NavigationDrawerProps<T>>) -> Option<Dom>;
+pub type MainViewGenerator<T> = dyn Fn(&Option<T>, &Rc<NavigationDrawerProps<T>>) -> Option<Dom>;
+
+#[derive(Default)]
 pub struct NavigationDrawerProps<T: Clone + PartialEq + 'static> {
     pub entries: MutableVec<NavigationDrawerEntry<T>>,
-    pub main_view_generator:
-        Option<Rc<dyn Fn(&Option<T>, &Rc<NavigationDrawerProps<T>>) -> Option<Dom>>>,
-    pub title_view_generator:
-        Option<Rc<dyn Fn(&Option<T>, &Rc<NavigationDrawerProps<T>>) -> Option<Dom>>>,
+    pub main_view_generator: Option<Rc<MainViewGenerator<T>>>,
+    pub title_view_generator: Option<Rc<TitleViewGenerator<T>>>,
     pub show_toggle_controls: bool,
     pub is_modal: bool,
     pub expanded: Mutable<bool>,
     pub current_active: Mutable<Option<T>>,
-    pub apply_func: Option<
-        Box<
-            dyn FnOnce(
-                Rc<NavigationDrawerProps<T>>,
-                DomBuilder<HtmlElement>,
-            ) -> DomBuilder<HtmlElement>,
-        >,
-    >,
 }
 
 impl<T: Clone + PartialEq + 'static> NavigationDrawerProps<T> {
@@ -73,18 +67,7 @@ impl<T: Clone + PartialEq + 'static> NavigationDrawerProps<T> {
             show_toggle_controls: false,
             is_modal: false,
             expanded: Mutable::new(true),
-            apply_func: None,
         }
-    }
-
-    #[inline]
-    pub fn apply<F>(mut self, apply_func: F) -> Self
-    where
-        F: FnOnce(Rc<NavigationDrawerProps<T>>, DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>
-            + 'static,
-    {
-        self.apply_func = Some(Box::new(apply_func));
-        self
     }
 
     #[inline]
@@ -141,22 +124,18 @@ pub struct NavigationDrawerOut {
 }
 
 pub fn navigation_drawer<T: Clone + PartialEq + 'static>(
-    mut props: NavigationDrawerProps<T>,
-) -> (Rc<NavigationDrawerOut>, Dom) {
-    let apply_func = props.apply_func.take().or(None);
-
+    props: NavigationDrawerProps<T>,
+) -> (DomBuilder<Element>, Rc<NavigationDrawerOut>) {
     let out = Rc::new(NavigationDrawerOut {
         is_expanded: props.expanded.signal_cloned(),
     });
 
+    let s = Rc::new(props);
+
     (
-        out,
-        Dom::with_state(Rc::new(props), move |s| {
-            html!("div", {
+        new_html_with_state("div", s.clone())
                 .class("dmat-navigation-drawer-container")
-                .apply_if(apply_func.is_some(), clone!(s => move |dom| {
-                    apply_func.unwrap()(s, dom)
-                }))
+
                 .children(vec![
                     match s.main_view_generator.clone() {
                         Some(generator) => {
@@ -199,7 +178,7 @@ pub fn navigation_drawer<T: Clone + PartialEq + 'static>(
                         _ => None
                     },
 
-                Some(html!("div", {
+                    Some(html!("div", {
                         .class("drawer")
                         .class_signal("-expanded", s.expanded.signal())
                         .child(html!("div", {
@@ -248,9 +227,8 @@ pub fn navigation_drawer<T: Clone + PartialEq + 'static>(
                                 })
                             ])
                         }))
-                    }))].into_iter().flatten())
-            })
-        }),
+                    }))].into_iter().flatten()),
+        out,
     )
 }
 

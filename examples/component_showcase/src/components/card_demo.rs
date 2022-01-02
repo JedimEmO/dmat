@@ -6,7 +6,7 @@ pub fn card_demo() -> Dom {
         card(CardProps {
             header_view: Some(html!("span", {.text("functional card 2")}).into()),
             ..Default::default()
-        }),
+        }).into_dom(),
         card(CardProps::new()
             .header(html!("div", { .text("A header element") }))
             .body(html!("div", { .text("This is the body") }), )
@@ -17,22 +17,20 @@ pub fn card_demo() -> Dom {
                                 html!("div", { .class("demo-button") .child(button(ButtonProps::new().content(text("A button")).button_type(ButtonType::Text))) }),
                                 html!("div", { .class("demo-button") .child(button(ButtonProps::new().content(text("Another button")).button_type(ButtonType::Text))) }),
                             ])
-                        }))),
+                        }))).into_dom(),
         card(CardProps::new()
             .body(html!("div", { .text("Only a body") }), )
-        ),
+        ).into_dom(),
 
         card(CardProps::new()
             .with_title("With a title", Some("and a sub title"))
             .body(html!("div", { .text("This card has a title. It is mutually exclusive with the header element") }), )
-        )
+        ).into_dom()
     ];
 
-    card(
-        CardProps::new()
-            .with_apply(|v| v.class("demo-cards").class("demo-card"))
-            .body(html!("div", {
-                .children(cards.into_iter())
-            })),
-    )
+    card(CardProps::new().body(html!("div", {
+        .children(cards.into_iter())
+    })))
+    .apply(|v| v.class("demo-cards").class("demo-card"))
+    .into_dom()
 }

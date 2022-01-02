@@ -42,7 +42,8 @@ pub fn data_table_demo() -> Dom {
                 "Data table with pagination",
                 Some("Page change triggers data regeneration"),
             )
-            .with_apply(|v| v.class("demo-card"))
             .body(table),
     )
+    .apply(|v| v.class("demo-card"))
+    .into_dom()
 }

@@ -44,18 +44,18 @@ impl From<DomBuilder<Element>> for DomOption {
     }
 }
 
-impl Into<ComponentSignal> for Dom {
-    fn into(self) -> ComponentSignal {
-        ComponentSignal {
-            0: Box::new(always(Some(self))),
+impl From<Dom> for ComponentSignal {
+    fn from(dom_builder: Dom) -> Self {
+        Self {
+            0: Box::new(always(Some(dom_builder))),
         }
     }
 }
 
-impl Into<ComponentSignal> for DomBuilder<Element> {
-    fn into(self) -> ComponentSignal {
-        ComponentSignal {
-            0: Box::new(always(Some(self.into_dom()))),
+impl From<DomBuilder<Element>> for ComponentSignal {
+    fn from(dom_builder: DomBuilder<Element>) -> Self {
+        Self {
+            0: Box::new(always(Some(dom_builder.into_dom()))),
         }
     }
 }
