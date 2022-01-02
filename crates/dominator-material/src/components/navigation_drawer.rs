@@ -3,7 +3,7 @@ use std::pin::Pin;
 use std::sync::RwLock;
 use std::task::{Context, Poll};
 
-use crate::elements::new_html::{new_html, new_html_with_state};
+use crate::elements::new_html::new_html;
 use dominator::{clone, events, html, Dom, DomBuilder};
 
 use futures_signals::signal::{Mutable, MutableSignalCloned, Signal};
@@ -133,7 +133,7 @@ pub fn navigation_drawer<T: Clone + PartialEq + 'static>(
     let s = Rc::new(props);
 
     (
-        new_html_with_state("div", s.clone())
+        new_html("div")
                 .class("dmat-navigation-drawer-container")
 
                 .children(vec![

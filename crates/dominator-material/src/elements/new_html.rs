@@ -9,17 +9,11 @@ pub fn new_html<T: AsStr>(node: T) -> DomBuilder<Element> {
     DomBuilder::new_html(node.as_str())
 }
 
-#[inline]
-pub fn new_html_with_state<T: AsStr, A: 'static>(node: T, state: Rc<A>) -> DomBuilder<Element> {
-    let ret = new_html(node);
-
-    ret.after_removed(move |_| std::mem::drop(state))
-}
-
 #[cfg(test)]
 mod test {
     use crate::elements::new_html::new_html;
-    use dominator::Dom;
+    use dominator::{clone, Dom};
+    use std::rc::Rc;
     use wasm_bindgen_test::*;
     use web_sys::Document;
 
@@ -40,5 +34,34 @@ mod test {
             .unwrap()
             .get_element_by_id("test")
             .unwrap();
+    }
+
+    #[wasm_bindgen_test]
+    fn ensure_state_drop() {
+        let state = Rc::new(42);
+        let document: Document = web_sys::window().unwrap().document().unwrap();
+
+        {
+            let cmp = new_html("div")
+                .attribute("id", "test")
+                .apply(clone!(state => move |d| {
+                    assert_eq!(Rc::strong_count(&state), 2);
+                    d.text(format!("{}", state).as_str())
+                }))
+                .after_removed(clone!(state => move |_| {
+                    // Make sure the RC would be kept alive by the callback all the way to removal from the DOM
+                    assert_eq!(Rc::strong_count(&state), 2)
+                }));
+
+            dominator::append_dom(&document.body().unwrap(), cmp.into_dom());
+
+            assert_eq!(Rc::strong_count(&state), 1);
+        };
+
+        assert_eq!(Rc::strong_count(&state), 1);
+
+        document.get_element_by_id("test").unwrap().remove();
+
+        assert_eq!(Rc::strong_count(&state), 1);
     }
 }
