@@ -1,19 +1,22 @@
-use dominator::traits::AsStr;
 use dominator::DomBuilder;
 
-use std::rc::Rc;
 use web_sys::Element;
 
 #[inline]
-pub fn new_html<T: AsStr>(node: T) -> DomBuilder<Element> {
-    DomBuilder::new_html(node.as_str())
+pub fn new_html<T: AsRef<str>>(node: T) -> DomBuilder<Element> {
+    DomBuilder::new_html(node.as_ref())
 }
 
 #[cfg(test)]
 mod test {
+    use crate::components::text;
     use crate::elements::new_html::new_html;
-    use dominator::{clone, Dom};
+    use dominator::events::Click;
+    use dominator::{body, clone, Dom};
+    use futures_signals::signal::{Mutable, SignalExt};
+    use futures_util::StreamExt;
     use std::rc::Rc;
+    use wasm_bindgen::JsCast;
     use wasm_bindgen_test::*;
     use web_sys::Document;
 
@@ -36,32 +39,68 @@ mod test {
             .unwrap();
     }
 
+    // This is for my own sanity and trust of the closure-based state handling soundness
     #[wasm_bindgen_test]
-    fn ensure_state_drop() {
-        let state = Rc::new(42);
-        let document: Document = web_sys::window().unwrap().document().unwrap();
+    async fn ensure_state_drop() {
+        let state = Rc::new(Mutable::new(42));
+        let child_count = Mutable::new(0);
+
+        let _document: Document = web_sys::window().unwrap().document().unwrap();
 
         {
             let cmp = new_html("div")
-                .attribute("id", "test")
-                .apply(clone!(state => move |d| {
-                    assert_eq!(Rc::strong_count(&state), 2);
-                    d.text(format!("{}", state).as_str())
-                }))
-                .after_removed(clone!(state => move |_| {
-                    // Make sure the RC would be kept alive by the callback all the way to removal from the DOM
-                    assert_eq!(Rc::strong_count(&state), 2)
-                }));
+                .attribute("id", "test2")
+                .child_signal(state.signal().map(clone!(state, child_count => move |v| {
+                    child_count.set(child_count.get() + 1);
 
-            dominator::append_dom(&document.body().unwrap(), cmp.into_dom());
+                    Some(
+                        text(format!("{}", v).as_str())
+                            .attribute("id", "inner")
+                            .event(clone!(state => move |_: Click| {
+                                // This is what we are checking; that each
+                                // child yielded by this signal (which will generate a new clone of state)
+                                // will be properly discarded when a new child arrives
+                                assert_eq!(Rc::strong_count(&state), 3);
+                            }))
+                            .into_dom(),
+                    )
+                })));
 
-            assert_eq!(Rc::strong_count(&state), 1);
+            dominator::append_dom(&body(), cmp.into_dom());
         };
 
-        assert_eq!(Rc::strong_count(&state), 1);
+        assert_eq!(Rc::strong_count(&state), 2);
 
-        document.get_element_by_id("test").unwrap().remove();
+        let mut child_stream = child_count.signal().to_stream();
 
-        assert_eq!(Rc::strong_count(&state), 1);
+        state.set(state.get() + 1);
+
+        while child_stream.next().await.unwrap() == 0 {}
+
+        web_sys::window()
+            .unwrap()
+            .document()
+            .unwrap()
+            .get_element_by_id("inner")
+            .unwrap()
+            .dyn_into::<web_sys::HtmlElement>()
+            .unwrap()
+            .click();
+
+        state.set(state.get() + 1);
+
+        while child_stream.next().await.unwrap() < 2 {}
+
+        web_sys::window()
+            .unwrap()
+            .document()
+            .unwrap()
+            .get_element_by_id("inner")
+            .unwrap()
+            .dyn_into::<web_sys::HtmlElement>()
+            .unwrap()
+            .click();
+
+        assert_eq!(Rc::strong_count(&state), 3);
     }
 }

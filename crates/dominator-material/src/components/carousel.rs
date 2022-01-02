@@ -1,7 +1,6 @@
 use std::error::Error;
 
 use crate::elements::new_html::new_html;
-use dominator::traits::AsStr;
 use dominator::{clone, events, html, Dom, DomBuilder};
 use futures_signals::map_ref;
 use futures_signals::signal::{Mutable, MutableSignal, Signal};
@@ -204,9 +203,9 @@ pub fn carousel<T: CarouselSource + 'static>(
 }
 
 #[inline]
-fn carousel_button<F: Fn(events::Click) + 'static, TDir: AsStr>(f: F, dir: TDir) -> Dom {
+fn carousel_button<F: Fn(events::Click) + 'static>(f: F, dir: &str) -> Dom {
     html!("div", {
-        .class(format!("dmat-carousel-{}-button", dir.as_str()).as_str())
+        .class(format!("dmat-carousel-{}-button", dir).as_str())
         .class("dmat-carousel-button")
         .event(f)
     })

@@ -1,4 +1,3 @@
-use dominator::traits::AsStr;
 use dominator::{html, Dom, DomBuilder};
 use web_sys::HtmlElement;
 
@@ -18,7 +17,7 @@ pub enum IconSize {
 /// customization
 ///
 /// icon_name must be a valid iconify selector, on the form {collection}:{icon-name}
-pub fn icon<T: AsStr>(size: IconSize, icon_name: T) -> Dom {
+pub fn icon<T: Into<String>>(size: IconSize, icon_name: T) -> Dom {
     icon_with_apply(size, icon_name, |d| d)
 }
 
@@ -29,7 +28,7 @@ pub fn icon<T: AsStr>(size: IconSize, icon_name: T) -> Dom {
 /// The apply function will be called with the containers DomBuilder, allowing
 /// customization
 /// icon_name must be a valid iconify selector, on the form {collection}:{icon-name}
-pub fn icon_with_apply<F, T: AsStr>(size: IconSize, icon_name: T, apply: F) -> Dom
+pub fn icon_with_apply<F, T: Into<String>>(size: IconSize, icon_name: T, apply: F) -> Dom
 where
     F: FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement> + 'static,
 {
@@ -46,7 +45,7 @@ where
         .class("dmat-icon")
         .class(size_class)
         .apply(apply)
-        .attribute("data-icon", icon_name.as_str().to_string().as_str())
+        .attribute("data-icon", icon_name.into().as_str())
         .attribute("data-inline", "false")
     })
 }

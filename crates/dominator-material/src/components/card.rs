@@ -2,7 +2,7 @@ use crate::elements::new_html::new_html;
 use crate::utils::component_signal::{ComponentSignal, DomOption};
 use dominator::{html, DomBuilder};
 use futures_signals::signal::Signal;
-use web_sys::{Element};
+use web_sys::Element;
 
 #[derive(Default)]
 pub struct CardProps {
@@ -18,6 +18,8 @@ impl CardProps {
         }
     }
 
+    #[inline]
+    #[must_use]
     pub fn with_title<A: Into<String>>(mut self, title: A, sub_title: Option<A>) -> Self {
         self.header_view = Some(
             new_html("div")
@@ -37,16 +39,22 @@ impl CardProps {
         self
     }
 
+    #[inline]
+    #[must_use]
     pub fn body<T: Into<ComponentSignal>>(mut self, body: T) -> Self {
         self.body_view = Some(body.into());
         self
     }
 
+    #[inline]
+    #[must_use]
     pub fn header<T: Into<ComponentSignal>>(mut self, header: T) -> Self {
         self.header_view = Some(header.into());
         self
     }
 
+    #[inline]
+    #[must_use]
     pub fn header_signal<T: Signal<Item = U> + Unpin + 'static, U>(mut self, header: T) -> Self
     where
         U: Into<DomOption>,
@@ -55,6 +63,8 @@ impl CardProps {
         self
     }
 
+    #[inline]
+    #[must_use]
     pub fn footer<T: Into<ComponentSignal>>(mut self, footer: T) -> Self {
         self.footer = Some(footer.into());
         self

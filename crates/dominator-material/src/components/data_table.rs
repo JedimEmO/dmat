@@ -47,12 +47,15 @@ impl<T: Clone + 'static> DataTableProps<T> {
         }
     }
 
+    #[inline]
+    #[must_use]
     pub fn headers(mut self, headers: Vec<String>) -> Self {
         self.headers = Some(headers);
         self
     }
 
     #[inline]
+    #[must_use]
     pub fn row_render_func<F: 'static>(mut self, func: F) -> Self
     where
         F: Fn(&T) -> Dom,
@@ -61,6 +64,8 @@ impl<T: Clone + 'static> DataTableProps<T> {
         self
     }
 
+    #[inline]
+    #[must_use]
     pub fn cell_render_func<F: 'static>(mut self, func: F) -> Self
     where
         F: Fn(&T) -> Vec<Dom>,
@@ -69,6 +74,8 @@ impl<T: Clone + 'static> DataTableProps<T> {
         self
     }
 
+    #[inline]
+    #[must_use]
     pub fn page_meta<F>(
         mut self,
         page_size: Mutable<usize>,
@@ -94,73 +101,73 @@ impl<T: Clone + 'static> DataTableProps<T> {
 
 #[inline]
 pub fn data_table<T: Clone + 'static>(props: DataTableProps<T>) -> Dom {
-    Dom::with_state(Rc::new(props), |data_table| {
-        let heads = match &data_table.headers {
-            Some(headers) => html!("tr", {
-            .children(headers.iter().map(|th| html!("th", {
-                    .text(th)
-                })).collect::<Vec<Dom>>().as_mut_slice())
-            }),
-            _ => html!("tr"),
-        };
+    let data_table = Rc::new(props);
 
-        let rows = clone!(data_table => data_table.data.signal_vec_cloned().map(move |val| {
-            let loading_toggle_lambda = Closure::wrap(Box::new(clone!(data_table => move || {
-                data_table.is_loading.replace(false);
-            })) as Box<dyn Fn()>);
+    let heads = match &data_table.headers {
+        Some(headers) => html!("tr", {
+        .children(headers.iter().map(|th| html!("th", {
+                .text(th)
+            })).collect::<Vec<Dom>>().as_mut_slice())
+        }),
+        _ => html!("tr"),
+    };
 
-            web_sys::window()
-                .unwrap()
-                .set_timeout_with_callback_and_timeout_and_arguments_0(
-                    loading_toggle_lambda.as_ref().unchecked_ref(),
-                    500,
-                )
-                .unwrap();
+    let rows = clone!(data_table => data_table.data.signal_vec_cloned().map(move |val| {
+        let loading_toggle_lambda = Closure::wrap(Box::new(clone!(data_table => move || {
+            data_table.is_loading.replace(false);
+        })) as Box<dyn Fn()>);
 
-            loading_toggle_lambda.forget();
+        web_sys::window()
+            .unwrap()
+            .set_timeout_with_callback_and_timeout_and_arguments_0(
+                loading_toggle_lambda.as_ref().unchecked_ref(),
+                500,
+            )
+            .unwrap();
 
-            match &data_table.render_func {
-                RenderFunc::Row(render) => render(&val),
-                RenderFunc::Cells(render) => {
-                    html!("tr", {
-                        .children(render(&val).as_mut_slice())
-                    })
-                }
+        loading_toggle_lambda.forget();
+
+        match &data_table.render_func {
+            RenderFunc::Row(render) => render(&val),
+            RenderFunc::Cells(render) => {
+                html!("tr", {
+                    .children(render(&val).as_mut_slice())
+                })
             }
-        }));
+        }
+    }));
 
-        let foot = match &data_table.page_meta {
-            Some(meta) => table_pagination(meta, data_table.is_loading.clone()),
-            _ => html!("tfoot"),
-        };
+    let foot = match &data_table.page_meta {
+        Some(meta) => table_pagination(meta, data_table.is_loading.clone()),
+        _ => html!("tfoot"),
+    };
 
-        html!("table", {
-            .class("dmat-table")
-            .class_signal("--loading", data_table.is_loading.signal_cloned())
-            .children(&mut [
-                html!("thead", {
-                    .children(&mut [
-                        heads,
-                        html!("tr", {
-                            .class("loading-row")
-                            .child(html!("th", {
-                                .attribute("colspan", "100")
-                                .child_signal(data_table.is_loading.signal_cloned().map(|loading| {
-                                    match loading {
-                                        true => Some(progress_indicator(Duration::from_millis(500), ProgressIndicatorIterations::Count(1))),
-                                        _ => None
-                                    }
-                                }))
+    html!("table", {
+        .class("dmat-table")
+        .class_signal("--loading", data_table.is_loading.signal_cloned())
+        .children(&mut [
+            html!("thead", {
+                .children(&mut [
+                    heads,
+                    html!("tr", {
+                        .class("loading-row")
+                        .child(html!("th", {
+                            .attribute("colspan", "100")
+                            .child_signal(data_table.is_loading.signal_cloned().map(|loading| {
+                                match loading {
+                                    true => Some(progress_indicator(Duration::from_millis(500), ProgressIndicatorIterations::Count(1))),
+                                    _ => None
+                                }
                             }))
-                        })
-                    ])
-                }),
-                html!("tbody", {
-                    .children_signal_vec(rows)
-                }),
-                foot
-            ])
-        })
+                        }))
+                    })
+                ])
+            }),
+            html!("tbody", {
+                .children_signal_vec(rows)
+            }),
+            foot
+        ])
     })
 }
 

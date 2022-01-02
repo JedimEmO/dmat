@@ -2,7 +2,7 @@ use crate::elements::new_html::new_html;
 use crate::utils::component_signal::{ComponentSignal, DomOption};
 use dominator::{html, DomBuilder};
 use futures_signals::signal::Signal;
-use web_sys::{Element};
+use web_sys::Element;
 
 #[derive(Clone)]
 pub enum AppBarType {
@@ -35,30 +35,35 @@ impl AppBarProps {
     }
 
     #[inline]
+    #[must_use]
     pub fn bar_type(mut self, bar_type: AppBarType) -> Self {
         self.app_bar_type = bar_type;
         self
     }
 
     #[inline]
+    #[must_use]
     pub fn fixed(mut self) -> Self {
         self.fixed = true;
         self
     }
 
     #[inline]
+    #[must_use]
     pub fn header<T: Into<ComponentSignal>>(mut self, child: T) -> Self {
         self.header_view = Some(child.into());
         self
     }
 
     #[inline]
+    #[must_use]
     pub fn main<T: Into<ComponentSignal>>(mut self, child: T) -> Self {
         self.main_view = Some(child.into());
         self
     }
 
     #[inline]
+    #[must_use]
     pub fn main_signal<T: Signal<Item = U> + Unpin + 'static, U>(mut self, child: T) -> Self
     where
         U: Into<DomOption>,

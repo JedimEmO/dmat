@@ -1,3 +1,4 @@
+use pin_project::pin_project;
 use std::marker::PhantomData;
 use std::pin::Pin;
 use std::sync::RwLock;
@@ -6,10 +7,10 @@ use std::task::{Context, Poll};
 use crate::elements::new_html::new_html;
 use dominator::{clone, events, html, Dom, DomBuilder};
 
+use futures_signals::map_ref;
 use futures_signals::signal::{Mutable, MutableSignalCloned, Signal};
 use futures_signals::signal_vec::MutableVec;
 use futures_signals::signal_vec::SignalVecExt;
-use futures_signals::{map_ref, unsafe_project};
 use wasm_bindgen::__rt::std::rc::Rc;
 use web_sys::Element;
 
@@ -71,6 +72,7 @@ impl<T: Clone + PartialEq + 'static> NavigationDrawerProps<T> {
     }
 
     #[inline]
+    #[must_use]
     pub fn main_view_generator<S>(mut self, main_view_generator: S) -> Self
     where
         S: Fn(&Option<T>, &Rc<NavigationDrawerProps<T>>) -> Option<Dom> + 'static,
@@ -80,6 +82,7 @@ impl<T: Clone + PartialEq + 'static> NavigationDrawerProps<T> {
     }
 
     #[inline]
+    #[must_use]
     pub fn title_view_generator<S>(mut self, title_view_generator: S) -> Self
     where
         S: Fn(&Option<T>, &Rc<NavigationDrawerProps<T>>) -> Option<Dom> + 'static,
@@ -89,30 +92,35 @@ impl<T: Clone + PartialEq + 'static> NavigationDrawerProps<T> {
     }
 
     #[inline]
+    #[must_use]
     pub fn expanded(self, expanded: bool) -> Self {
         self.expanded.set(expanded);
         self
     }
 
     #[inline]
+    #[must_use]
     pub fn show_toggle_controls(mut self, show_toggle_controls: bool) -> Self {
         self.show_toggle_controls = show_toggle_controls;
         self
     }
 
     #[inline]
+    #[must_use]
     pub fn modal(mut self, is_modal: bool) -> Self {
         self.is_modal = is_modal;
         self
     }
 
     #[inline]
+    #[must_use]
     pub fn initial_selected(self, initial: T) -> Self {
         self.current_active.set(Some(initial));
         self
     }
 
     #[inline]
+    #[must_use]
     pub fn entries(self, entries: Vec<NavigationDrawerEntry<T>>) -> Self {
         self.entries.lock_mut().replace_cloned(entries);
         self
@@ -232,11 +240,13 @@ pub fn navigation_drawer<T: Clone + PartialEq + 'static>(
     )
 }
 
+#[pin_project(project = UiMonadProj)]
 struct UiMonad<
     T: Signal<Item = DomBuilder<A>>,
     A: AsRef<Element>,
     C: Fn(DomBuilder<A>) -> DomBuilder<A>,
 > {
+    #[pin]
     signal: T,
     closure: C,
 }
@@ -247,18 +257,15 @@ impl<T: Signal<Item = DomBuilder<A>>, A: AsRef<Element>, C: Fn(DomBuilder<A>) ->
     type Item = DomBuilder<A>;
 
     fn poll_change(self: Pin<&mut Self>, cx: &mut Context) -> Poll<Option<Self::Item>> {
-        unsafe_project!(self => {
-            pin signal,
-            mut closure,
-        });
+        let UiMonadProj { signal, closure } = self.project();
 
-        signal
-            .poll_change(cx)
-            .map(|opt| opt.map(|value| closure(value)))
+        signal.poll_change(cx).map(|opt| opt.map(closure))
     }
 }
 
+#[pin_project(project = BindProj)]
 struct Bind<Tm: Signal<Item = A>, To: Signal<Item = B> + Unpin, A, B, F: Fn(A) -> To> {
+    #[pin]
     input: Tm,
     current_signal: RwLock<Option<To>>,
     function: F,
@@ -271,11 +278,12 @@ impl<Tm: Signal<Item = A>, To: Signal<Item = B> + Unpin, A, B, F: Fn(A) -> To> S
     type Item = B;
 
     fn poll_change(self: Pin<&mut Self>, cx: &mut Context) -> Poll<Option<Self::Item>> {
-        unsafe_project!(self => {
-            pin input,
-            pin current_signal,
-            mut function,
-        });
+        let BindProj {
+            input,
+            current_signal,
+            function,
+            not_used: _,
+        } = self.project();
 
         if let Poll::Ready(v) = input.poll_change(cx) {
             if let Some(new_input) = v {

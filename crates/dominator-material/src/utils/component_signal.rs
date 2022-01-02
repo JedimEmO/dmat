@@ -46,16 +46,12 @@ impl From<DomBuilder<Element>> for DomOption {
 
 impl From<Dom> for ComponentSignal {
     fn from(dom_builder: Dom) -> Self {
-        Self {
-            0: Box::new(always(Some(dom_builder))),
-        }
+        Self(Box::new(always(Some(dom_builder))))
     }
 }
 
 impl From<DomBuilder<Element>> for ComponentSignal {
     fn from(dom_builder: DomBuilder<Element>) -> Self {
-        Self {
-            0: Box::new(always(Some(dom_builder.into_dom()))),
-        }
+        Self(Box::new(always(Some(dom_builder.into_dom()))))
     }
 }

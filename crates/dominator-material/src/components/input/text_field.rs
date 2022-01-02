@@ -1,4 +1,3 @@
-use dominator::traits::AsStr;
 use dominator::{clone, events, html, DomBuilder};
 use futures_signals::map_ref;
 use futures_signals::signal::{Mutable, Signal};
@@ -40,11 +39,15 @@ impl<T: Clone + From<InputValue> + Into<InputValue> + 'static> TextFieldProps<T>
         }
     }
 
+    #[inline]
+    #[must_use]
     pub fn depends_on(mut self, depends_on: Mutable<()>) -> Self {
         self.depends_on = depends_on;
         self
     }
 
+    #[inline]
+    #[must_use]
     pub fn validator<F>(mut self, validator: F) -> Self
     where
         F: Fn(&T) -> bool + 'static,
@@ -53,8 +56,10 @@ impl<T: Clone + From<InputValue> + Into<InputValue> + 'static> TextFieldProps<T>
         self
     }
 
-    pub fn label<TLabel: AsStr>(mut self, label: TLabel) -> Self {
-        self.label = label.as_str().into();
+    #[inline]
+    #[must_use]
+    pub fn label<TLabel: Into<String>>(mut self, label: TLabel) -> Self {
+        self.label = label.into();
         self
     }
 }
@@ -105,6 +110,7 @@ pub fn text_field<T: Clone + From<InputValue> + Into<InputValue> + 'static>(
                     }).await;
                 }))
                 .event(clone!(validate, value => move |e: events::Input| {
+                    #[allow(deprecated)]
                     let val =  match e.value() {
                         Some(v) => v.as_str().into(), _ => "".into()
                     };
@@ -160,9 +166,11 @@ pub fn text_field<T: Clone + From<InputValue> + Into<InputValue> + 'static>(
                 let error_text_signal = map_ref!(
                     let valid = is_valid.signal_cloned(),
                     let error_text = error => move {
-                        if !*valid && error_text.is_some() {
-                            has_error.set(true);
-                            return Some(text(error_text.clone().unwrap()).class("dmat-assistive-text").class("dmat-error-text").into_dom());
+                        if let Some(str) = error_text {
+                            if !*valid {
+                                has_error.set(true);
+                                return Some(text(str).class("dmat-assistive-text").class("dmat-error-text").into_dom());
+                            }
                         }
 
                         has_error.set(false);
@@ -181,9 +189,10 @@ pub fn text_field<T: Clone + From<InputValue> + Into<InputValue> + 'static>(
                 let assistive_element_signal = map_ref!(
                     let assistive_text = assistive => move {
                         let ass = has_assistive.clone();
-                        if assistive_text.is_some() {
+
+                        if let Some(str) = assistive_text {
                             ass.set(true);
-                            return Some(text(assistive_text.clone().unwrap()).class("dmat-assistive-text").into_dom())
+                            return Some(text(str).class("dmat-assistive-text").into_dom())
                         }
 
                         ass.set(false);

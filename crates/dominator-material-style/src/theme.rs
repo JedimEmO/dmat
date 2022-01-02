@@ -5,7 +5,7 @@ pub trait ToSass {
 pub fn render_theme(theme_name: &str, theme: DmatTheme) -> String {
     format!(
         "// Auto generated dmat theme file \n${}:{};",
-        theme_name.to_string(),
+        theme_name,
         theme.to_sass()
     )
 }

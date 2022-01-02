@@ -10,10 +10,11 @@ description = "Collection of material components to use with the dominator rust 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-dominator = "0.5.14"
-futures = "0.3.6"
+dominator = "0.5.23"
+futures = "0.3.19"
 futures-signals = "0.3.15"
-futures-util = "0.3.6"
+futures-util = "0.3.19"
+pin-project = "1.0.10"
 wasm-bindgen = "0.2.78"
 wasm-bindgen-futures = "0.4.28"
 web-sys = { version = "0.3.55", features = ["console", "Document", "HtmlDocument", "EventTarget", "HtmlSelectElement", "Element", "Window"] }
