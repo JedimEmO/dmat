@@ -7,6 +7,7 @@ fn main() {
         colors: Colors {
             ..Default::default()
         },
+        ..Default::default()
     };
 
     let scss_file_content = render_dmat_scss("example-app", theme);

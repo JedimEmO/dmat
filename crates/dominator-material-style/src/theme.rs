@@ -12,11 +12,16 @@ pub fn render_theme(theme_name: &str, theme: DmatTheme) -> String {
 #[derive(Default)]
 pub struct DmatTheme {
     pub colors: Colors,
+    pub components: Components,
 }
 
 impl ToSass for DmatTheme {
     fn to_sass(&self) -> String {
-        format!("(\n\t\"colors\": {}\t\n)", self.colors.to_sass())
+        format!(
+            "(\n\t\"colors\": {},\t\n\"components\": {}\n\t)",
+            self.colors.to_sass(),
+            self.components.to_sass()
+        )
     }
 }
 
@@ -115,6 +120,44 @@ impl ToSass for Colors {
         .collect();
 
         format!("(\n{})", colors.join(",\n"))
+    }
+}
+
+#[derive(Default)]
+pub struct Components {
+    pub app_bar: AppBar,
+}
+
+impl ToSass for Components {
+    fn to_sass(&self) -> String {
+        format!("(\n\t\t\"app_bar\": {})", self.app_bar.to_sass())
+    }
+}
+
+pub struct AppBar {
+    pub height: String,
+    pub height_prominent: String,
+}
+
+impl Default for AppBar {
+    fn default() -> Self {
+        Self {
+            height: "2rem".to_string(),
+            height_prominent: "4rem".to_string(),
+        }
+    }
+}
+
+impl ToSass for AppBar {
+    fn to_sass(&self) -> String {
+        let props: Vec<String> = vec![
+            format!("\"height\": {}", self.height),
+            format!("\"height_prominent\": {}", self.height_prominent),
+        ]
+        .into_iter()
+        .map(|c| format!("\t\t{}", c))
+        .collect();
+        format!("(\n{})", props.join(",\n"))
     }
 }
 
