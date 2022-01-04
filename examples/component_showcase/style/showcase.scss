@@ -18,30 +18,6 @@ button.current-page {
 
 table
 
-.dmat-progress-indicator {
-  position: relative;
-  width: 100%;
-  height: 100%;
-
-  & .dmat-progress-bar {
-    position: absolute;
-    background: $dmat-secondary;
-    height: 4px;
-    animation-name: loading-pulsating;
-
-    @keyframes loading-pulsating {
-      0% {
-        width: 0;
-      }
-      50% {
-        width: 50%;
-      }
-      100% {
-        width: 100%;
-      }
-    }
-  }
-}
 
 
 .dmat-modal-cover {

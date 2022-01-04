@@ -9,6 +9,8 @@
 @import "components/container/surface";
 @import "components/container/tabs";
 
+@import "components/doodads/progress_indicator";
+
 @mixin dmat($theme) {
   // inputs
   @include button($theme);
@@ -23,4 +25,7 @@
   @include list($theme);
   @include surface($theme);
   @include tabs($theme);
+
+  // doodads
+  @include progress_indicator($theme)
 }
