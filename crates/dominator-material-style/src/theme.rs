@@ -18,7 +18,9 @@ pub struct DmatTheme {
 impl ToSass for DmatTheme {
     fn to_sass(&self) -> String {
         format!(
-            "(\n\t\"colors\": {},\t\n\"components\": {}\n\t)",
+            "(\
+            \n\t\"colors\": {},\
+            \n\t\"components\": {}\n\t)",
             self.colors.to_sass(),
             self.components.to_sass()
         )
@@ -126,11 +128,16 @@ impl ToSass for Colors {
 #[derive(Default)]
 pub struct Components {
     pub app_bar: AppBar,
+    pub navigation_drawer: NavigationDrawer,
 }
 
 impl ToSass for Components {
     fn to_sass(&self) -> String {
-        format!("(\n\t\t\"app_bar\": {})", self.app_bar.to_sass())
+        format!(
+            "(\n\t\t\"app_bar\": {},\n\t\t\n\t\t\"navigation_drawer\": {})",
+            self.app_bar.to_sass(),
+            self.navigation_drawer.to_sass()
+        )
     }
 }
 
@@ -157,6 +164,28 @@ impl ToSass for AppBar {
         .into_iter()
         .map(|c| format!("\t\t{}", c))
         .collect();
+        format!("(\n{})", props.join(",\n"))
+    }
+}
+
+pub struct NavigationDrawer {
+    pub full_width: String,
+}
+
+impl Default for NavigationDrawer {
+    fn default() -> Self {
+        Self {
+            full_width: "15rem".to_string(),
+        }
+    }
+}
+
+impl ToSass for NavigationDrawer {
+    fn to_sass(&self) -> String {
+        let props: Vec<String> = vec![format!("\"full_width\": {}", self.full_width)]
+            .into_iter()
+            .map(|c| format!("\t\t{}", c))
+            .collect();
         format!("(\n{})", props.join(",\n"))
     }
 }

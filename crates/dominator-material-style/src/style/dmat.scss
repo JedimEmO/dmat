@@ -6,6 +6,7 @@
 @import "components/container/carousel";
 @import "components/container/data_table";
 @import "components/container/list";
+@import "components/container/navigation_drawer";
 @import "components/container/surface";
 @import "components/container/tabs";
 
@@ -23,6 +24,7 @@
   @include carousel($theme);
   @include data_table($theme);
   @include list($theme);
+  @include navigation_drawer($theme);
   @include surface($theme);
   @include tabs($theme);
 

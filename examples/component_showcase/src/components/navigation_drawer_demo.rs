@@ -23,7 +23,7 @@ pub fn navigation_drawers_demo() -> Dom {
                             .class("navigation-drawer-demo")
                             .child(static_drawers(true))
                         })),
-                ).into_dom(),
+                ).class("drawer-demo-card").into_dom(),
                 card(
                     CardProps::new()
                         .with_title("Modal navigation drawer", None)
@@ -31,7 +31,7 @@ pub fn navigation_drawers_demo() -> Dom {
                             .class("navigation-drawer-demo")
                             .child(modal_drawers())
                         })),
-                ).into_dom(),
+                ).class("drawer-demo-card").into_dom(),
                 card(
                     CardProps::new()
                         .with_title("Static navigation drawer without toggle controls", None)
@@ -39,7 +39,7 @@ pub fn navigation_drawers_demo() -> Dom {
                             .class("navigation-drawer-demo")
                             .child(static_drawers(false))
                         })),
-                ).into_dom(),
+                ).class("drawer-demo-card").into_dom(),
             ]))))
     .apply(|v| v.class("demo-card"))
     .into_dom()
