@@ -1,0 +1,87 @@
+@import "../../utils/map_get_strict";
+
+@mixin data_table($theme) {
+  $colors: map-get-strict($theme, "colors");
+
+  .dmat-table {
+    min-width: 100%;
+    border: 0;
+    table-layout: fixed;
+    border-collapse: collapse;
+    box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, .12);
+
+    & thead {
+      background: map-get-strict($colors, "primary");
+      color: map-get-strict($colors, "text_on_primary");
+    }
+
+    & tr {
+      vertical-align: middle;
+      height: 35px;
+    }
+
+    & tbody {
+      background: map-get-strict($colors, "surface");
+      color: map-get-strict($colors, "text_on_secondary");
+    }
+
+    & > tbody > tr {
+      border-top: 1px solid #aaaaaa;
+
+      &:hover {
+        background: map-get-strict($colors, "secondary_light");
+      }
+    }
+
+    & td, & th {
+      border: none;
+      text-align: left;
+      padding: 8px;
+    }
+
+    & .dmat-pagination {
+      background: map-get-strict($colors, "surface");
+      color: map-get-strict($colors, "text_on_secondary");
+      font-weight: 500;
+      font-family: Robota, sans-serif;
+      border-top: 1px solid #aaaaaa;
+
+      & > * {
+        float: right;
+      }
+
+      & .dmat-pagination-button {
+        font-family: inherit;
+        appearance: unset;
+        border: none;
+        background: transparent;
+        font-size: 1.5rem;
+
+        &:hover {
+          color: map-get-strict($colors, "secondary");
+        }
+      }
+    }
+
+    & .loading-row {
+      padding: 0;
+      height: 0px;
+
+      & th {
+        padding: 0;
+
+        & > div {
+          left: 0;
+          bottom: 0;
+          top: -4px;
+        }
+      }
+    }
+
+    &.--loading {
+      & * {
+        color: map-get-strict($colors, "text_diffuse");
+      }
+    }
+  }
+}
