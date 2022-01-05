@@ -1,6 +1,5 @@
-use crate::elements::new_html::new_html;
 use crate::utils::component_signal::{ComponentSignal, DomOption};
-use dominator::{html, DomBuilder};
+use dominator::{html, Dom, DomBuilder};
 use futures_signals::signal::Signal;
 use web_sys::HtmlElement;
 
@@ -22,18 +21,18 @@ impl CardProps {
     #[must_use]
     pub fn with_title<A: Into<String>>(mut self, title: A, sub_title: Option<A>) -> Self {
         self.header_view = Some(
-            new_html("div")
+            html!("div", {
                 .children(
                     vec![
                         Some(html!("div", { .class("title").text(title.into().as_str()) })),
                         sub_title.map(
                             |sub| html!("div", { .class("sub-title") .text(sub.into().as_str()) }),
                         ),
-                    ]
-                    .into_iter()
-                    .flatten(),
+                    ].into_iter()
+                    .filter_map(|d| d)
                 )
-                .into(),
+            })
+            .into(),
         );
 
         self
@@ -71,7 +70,10 @@ impl CardProps {
     }
 }
 
-pub fn card(props: CardProps) -> DomBuilder<HtmlElement> {
+pub fn card<F>(props: CardProps, mixin: F) -> Dom
+where
+    F: FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>,
+{
     let head = props.header_view;
     let body = props.body_view;
     let footer = props.footer;
@@ -97,7 +99,9 @@ pub fn card(props: CardProps) -> DomBuilder<HtmlElement> {
         }),
     ];
 
-    new_html("div")
+    html!("div", {
         .class("dmat-card")
+        .apply(mixin)
         .children(children.into_iter())
+    })
 }

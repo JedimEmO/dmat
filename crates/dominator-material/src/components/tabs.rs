@@ -1,11 +1,12 @@
 use std::fmt::Debug;
 
-use dominator::{clone, events, html, Dom};
+use dominator::{clone, events, html, Dom, DomBuilder};
 use futures_signals::signal::Mutable;
 use futures_signals::signal::SignalExt;
 use futures_signals::signal_vec::SignalVec;
 use futures_signals::signal_vec::SignalVecExt;
 use wasm_bindgen::__rt::std::rc::Rc;
+use web_sys::HtmlElement;
 
 #[derive(Clone)]
 pub enum TabContent {
@@ -19,16 +20,23 @@ pub struct Tab<TabId: Clone> {
     pub id: TabId,
 }
 
+#[inline]
 pub fn tabs<
     TabList: SignalVec<Item = Tab<TabId>> + 'static,
     TabId: Clone + std::cmp::PartialEq + Debug + 'static,
+    F,
 >(
     current_tab: Mutable<TabId>,
     tabs_list: TabList,
     on_tab_change: Option<Rc<dyn Fn(TabId)>>,
-) -> Dom {
+    mixin: F,
+) -> Dom
+where
+    F: FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>,
+{
     html!("div", {
         .class("dmat-tabs")
+        .apply(mixin)
         .children_signal_vec(tabs_list.map(clone!(current_tab, on_tab_change => move |v| {
             tab(&v, &current_tab, on_tab_change.clone())
         })))

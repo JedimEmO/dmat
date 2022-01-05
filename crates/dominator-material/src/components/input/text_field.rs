@@ -1,4 +1,4 @@
-use dominator::{clone, events, html, DomBuilder};
+use dominator::{clone, events, html, Dom, DomBuilder};
 use futures_signals::map_ref;
 use futures_signals::signal::{Mutable, Signal};
 use futures_signals::signal::{MutableSignal, SignalExt};
@@ -8,7 +8,7 @@ use wasm_bindgen::__rt::std::rc::Rc;
 use web_sys::HtmlElement;
 
 use crate::components::text;
-use crate::elements::new_html::new_html;
+use crate::utils::mixin::no_mixin;
 
 #[derive(Default)]
 pub struct TextFieldProps<T: Clone> {
@@ -73,9 +73,13 @@ pub struct TextFieldOutput {
 /// The return tuple contains:
 /// 0: input Dom entry
 /// 1: output of the component, containing a boolean signal for the  validity of the input according to the validator
-pub fn text_field<T: Clone + From<InputValue> + Into<InputValue> + 'static>(
+pub fn text_field<T: Clone + From<InputValue> + Into<InputValue> + 'static, F>(
     props: TextFieldProps<T>,
-) -> (DomBuilder<HtmlElement>, TextFieldOutput) {
+    mixin: F,
+) -> (Dom, TextFieldOutput)
+where
+    F: FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>,
+{
     let is_valid = Mutable::new(true);
 
     (
@@ -152,7 +156,7 @@ pub fn text_field<T: Clone + From<InputValue> + Into<InputValue> + 'static>(
 
                                     *focus || has_value
                                 })))
-                .child(text(props.label.as_str()).into_dom())
+                .child(text(props.label.as_str(), no_mixin))
                 .class("dmat-input-label-text")
             });
 
@@ -169,7 +173,7 @@ pub fn text_field<T: Clone + From<InputValue> + Into<InputValue> + 'static>(
                         if let Some(str) = error_text {
                             if !*valid {
                                 has_error.set(true);
-                                return Some(text(str).class("dmat-assistive-text").class("dmat-error-text").into_dom());
+                                return Some(text(str, |d| d.class("dmat-assistive-text").class("dmat-error-text")));
                             }
                         }
 
@@ -192,7 +196,7 @@ pub fn text_field<T: Clone + From<InputValue> + Into<InputValue> + 'static>(
 
                         if let Some(str) = assistive_text {
                             ass.set(true);
-                            return Some(text(str).class("dmat-assistive-text").into_dom())
+                            return Some(text(str, |d| d.class("dmat-assistive-text")))
                         }
 
                         ass.set(false);
@@ -210,9 +214,9 @@ pub fn text_field<T: Clone + From<InputValue> + Into<InputValue> + 'static>(
                 .class("dmat-floating-label")
             });
 
-            new_html("div")
+            html!("div", {
                 .child(children)
-                .class("dmat-input-text-field")
+                .apply(mixin)
                 .class_signal(
                     "assistive",
                     map_ref!(
@@ -220,8 +224,10 @@ pub fn text_field<T: Clone + From<InputValue> + Into<InputValue> + 'static>(
                         let err = has_error.signal() => {
                             *assistive || *err
                         }
-                    ),
+                    )
                 )
+                .class("dmat-input-text-field")
+            })
         },
         TextFieldOutput {
             is_valid: is_valid.signal(),
@@ -269,13 +275,16 @@ mod test {
     async fn text_field_validation() {
         let val = Mutable::new("".to_string());
 
-        let field = text_field(TextFieldProps {
-            value: val.clone(),
-            validator: Some(Rc::new(|v| v == "hello")),
-            ..Default::default()
-        });
+        let field = text_field(
+            TextFieldProps {
+                value: val.clone(),
+                validator: Some(Rc::new(|v| v == "hello")),
+                ..Default::default()
+            },
+            |d| d.attribute("id", "testfield"),
+        );
 
-        let field_dom = field.0.attribute("id", "testfield").into_dom();
+        let field_dom = field.0;
         let field_out = field.1;
 
         dominator::append_dom(

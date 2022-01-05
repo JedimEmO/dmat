@@ -1,12 +1,21 @@
-use dominator::{html, Dom};
+use dominator::{html, Dom, DomBuilder};
 use wasm_bindgen::__rt::core::time::Duration;
+use web_sys::HtmlElement;
 
 pub enum ProgressIndicatorIterations {
     Infinite,
     Count(usize),
 }
 
-pub fn progress_indicator(duration: Duration, iterations: ProgressIndicatorIterations) -> Dom {
+#[inline]
+pub fn progress_indicator<F>(
+    duration: Duration,
+    iterations: ProgressIndicatorIterations,
+    mixin: F,
+) -> Dom
+where
+    F: FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>,
+{
     let animation_iterations = match iterations {
         ProgressIndicatorIterations::Infinite => "infinite".into(),
         ProgressIndicatorIterations::Count(count) => format!("{}", count),
@@ -16,6 +25,7 @@ pub fn progress_indicator(duration: Duration, iterations: ProgressIndicatorItera
 
     html!("div", {
         .class("dmat-progress-indicator")
+        .apply(mixin)
         .child(html!("div", {
             .class("dmat-progress-bar")
             .style("animation-duration", animation_duration.as_str())

@@ -43,7 +43,6 @@ pub fn data_table_demo() -> Dom {
                 Some("Page change triggers data regeneration"),
             )
             .body(table),
+        |v| v.class("demo-card"),
     )
-    .apply(|v| v.class("demo-card"))
-    .into_dom()
 }

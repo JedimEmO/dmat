@@ -1,24 +1,19 @@
-use dominator::DomBuilder;
-
-use web_sys::HtmlElement;
-
-#[inline]
-pub fn new_html<T: AsRef<str>>(node: T) -> DomBuilder<HtmlElement> {
-    DomBuilder::new_html(node.as_ref())
-}
-
 #[cfg(test)]
 mod test {
     use crate::components::text;
-    use crate::elements::new_html::new_html;
     use dominator::events::Click;
-    use dominator::{body, clone, Dom};
+    use dominator::{body, clone, Dom, DomBuilder};
     use futures_signals::signal::{Mutable, SignalExt};
     use futures_util::StreamExt;
     use std::rc::Rc;
     use wasm_bindgen::JsCast;
     use wasm_bindgen_test::*;
-    use web_sys::Document;
+    use web_sys::{Document, HtmlElement};
+
+    #[inline]
+    pub fn new_html<T: AsRef<str>>(node: T) -> DomBuilder<HtmlElement> {
+        DomBuilder::new_html(node.as_ref())
+    }
 
     #[wasm_bindgen_test]
     fn create_basic_element() {
@@ -54,15 +49,15 @@ mod test {
                     child_count.set(child_count.get() + 1);
 
                     Some(
-                        text(format!("{}", v).as_str())
-                            .attribute("id", "inner")
-                            .event(clone!(state => move |_: Click| {
-                                // This is what we are checking; that each
-                                // child yielded by this signal (which will generate a new clone of state)
-                                // will be properly discarded when a new child arrives
-                                assert_eq!(Rc::strong_count(&state), 3);
-                            }))
-                            .into_dom(),
+                        text(format!("{}", v).as_str(), clone!(state => move |d| {
+                            d.attribute("id", "inner")
+                                .event(move |_: Click| {
+                                    // This is what we are checking; that each
+                                    // child yielded by this signal (which will generate a new clone of state)
+                                    // will be properly discarded when a new child arrives
+                                    assert_eq!(Rc::strong_count(&state), 3);
+                                })
+                        })),
                     )
                 })));
 

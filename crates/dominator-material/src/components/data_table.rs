@@ -11,6 +11,7 @@ use wasm_bindgen::closure::Closure;
 use wasm_bindgen::JsCast;
 
 use crate::components::{progress_indicator, ProgressIndicatorIterations};
+use crate::utils::mixin::mixin_id;
 
 enum RenderFunc<T: 'static> {
     Row(Rc<dyn Fn(&T) -> Dom>),
@@ -155,7 +156,7 @@ pub fn data_table<T: Clone + 'static>(props: DataTableProps<T>) -> Dom {
                             .attribute("colspan", "100")
                             .child_signal(data_table.is_loading.signal_cloned().map(|loading| {
                                 match loading {
-                                    true => Some(progress_indicator(Duration::from_millis(500), ProgressIndicatorIterations::Count(1))),
+                                    true => Some(progress_indicator(Duration::from_millis(500), ProgressIndicatorIterations::Count(1), mixin_id())),
                                     _ => None
                                 }
                             }))

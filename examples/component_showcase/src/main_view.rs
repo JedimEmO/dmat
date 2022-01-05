@@ -5,6 +5,7 @@ use futures_signals::signal_vec::always;
 
 use dominator_material::components::layouts::{app_bar, AppBarProps};
 use dominator_material::components::{layouts::container, tabs, Tab, TabContent};
+use dominator_material::utils::mixin::mixin_id;
 
 use crate::components::app_bar_demo::app_bar_demo;
 use crate::components::button_demo::button_demo;
@@ -33,7 +34,12 @@ pub fn main_view() -> Dom {
 
     app_bar(
         AppBarProps::new()
-            .header(tabs(active_tab.clone(), always(main_view_tabs()), None))
+            .header(tabs(
+                active_tab.clone(),
+                always(main_view_tabs()),
+                None,
+                mixin_id(),
+            ))
             .main_signal(
                 active_tab
                     .signal()
@@ -48,12 +54,11 @@ pub fn main_view() -> Dom {
                         DemoTabs::NavigationDrawer => navigation_drawers_demo(),
                         _ => html!("div"),
                     })
-                    .map(container)
-                    .map(|e| e.into_dom()),
+                    .map(|v| container(v, mixin_id())),
             )
             .fixed(),
+        mixin_id(),
     )
-    .into_dom()
 }
 
 fn main_view_tabs() -> Vec<Tab<DemoTabs>> {

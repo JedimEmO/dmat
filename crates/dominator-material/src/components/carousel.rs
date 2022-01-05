@@ -1,6 +1,5 @@
 use std::error::Error;
 
-use crate::elements::new_html::new_html;
 use dominator::{clone, events, html, Dom, DomBuilder};
 use futures_signals::map_ref;
 use futures_signals::signal::{Mutable, MutableSignal, Signal};
@@ -154,9 +153,13 @@ pub struct CarouselProps<T: CarouselSource> {
     pub initial_view_index: usize,
 }
 
-pub fn carousel<T: CarouselSource + 'static>(
+pub fn carousel<
+    T: CarouselSource + 'static,
+    F: FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>,
+>(
     props: CarouselProps<T>,
-) -> (DomBuilder<HtmlElement>, CarouselControls<T>) {
+    mixin: F,
+) -> (Dom, CarouselControls<T>) {
     let source = props.source;
 
     let state = Rc::new(Carousel {
@@ -171,8 +174,9 @@ pub fn carousel<T: CarouselSource + 'static>(
     });
 
     (
-        new_html("div").class("dmat-carousel").child(html!("div", {
+        html!("div", {.class("dmat-carousel").child(html!("div", {
             .class("container")
+            .apply(mixin)
             .children(&mut [
                 carousel_item(
                     state.child_signal(0),
@@ -197,7 +201,8 @@ pub fn carousel<T: CarouselSource + 'static>(
                         }
                     }), "right")
             ])
-        })),
+        }))
+        }),
         CarouselControls::new(state),
     )
 }

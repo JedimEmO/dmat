@@ -1,8 +1,9 @@
 use crate::utils::component_signal::{ComponentSignal, DomOption};
-use dominator::{clone, events, html, Dom};
+use dominator::{clone, events, html, Dom, DomBuilder};
 use futures_signals::signal::Signal;
 
 use wasm_bindgen::__rt::std::rc::Rc;
+use web_sys::HtmlElement;
 
 pub enum ButtonType {
     Contained,
@@ -78,13 +79,18 @@ impl ButtonProps {
     }
 }
 
-pub fn button(mut button_props: ButtonProps) -> Dom {
+#[inline]
+pub fn button<F>(mut button_props: ButtonProps, mixin: F) -> Dom
+where
+    F: FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>,
+{
     let content = button_props.content_signal.take();
 
     let click_handler = button_props.click_handler.clone();
 
     html!("button", {
         .class("dmat-button")
+        .apply(mixin)
         .class( match button_props.button_type {
             ButtonType::Contained => "-contained",
             ButtonType::Outlined => "-outlined",

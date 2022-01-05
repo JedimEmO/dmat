@@ -1,6 +1,5 @@
-use crate::elements::new_html::new_html;
 use crate::utils::component_signal::{ComponentSignal, DomOption};
-use dominator::{html, DomBuilder};
+use dominator::{html, Dom, DomBuilder};
 use futures_signals::signal::Signal;
 use web_sys::HtmlElement;
 
@@ -73,7 +72,10 @@ impl AppBarProps {
     }
 }
 
-pub fn app_bar(props: AppBarProps) -> DomBuilder<HtmlElement> {
+pub fn app_bar<F>(props: AppBarProps, mixin: F) -> Dom
+where
+    F: FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>,
+{
     let type_class = match props.app_bar_type {
         AppBarType::Normal => "-normal",
         AppBarType::Prominent => "-prominent",
@@ -82,8 +84,9 @@ pub fn app_bar(props: AppBarProps) -> DomBuilder<HtmlElement> {
     let main_view = props.main_view;
     let header_view = props.header_view;
 
-    new_html("div")
+    html!("div", {
         .class("dmat-app-bar")
+        .apply(mixin)
         .apply_if(props.fixed, move |dom| dom.class("-fixed"))
         .child(html!("div", {
             .class("viewport")
@@ -103,4 +106,5 @@ pub fn app_bar(props: AppBarProps) -> DomBuilder<HtmlElement> {
                 })
             ])
         }))
+    })
 }
