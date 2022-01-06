@@ -1,5 +1,5 @@
 use dominator::{clone, html, Dom};
-use dominator_material::components::{card, data_table, CardProps, DataTableProps};
+use dominator_material::components::{data_table, CardProps, DataTableProps};
 use futures_signals::signal::Mutable;
 use futures_signals::signal_vec::MutableVec;
 use wasm_bindgen::__rt::std::rc::Rc;
@@ -36,13 +36,13 @@ pub fn data_table_demo() -> Dom {
             ),
     );
 
-    card(
+    card!(
         CardProps::new()
             .with_title(
                 "Data table with pagination",
                 Some("Page change triggers data regeneration"),
             )
             .body(table),
-        |v| v.class("demo-card"),
+        |v| v.class("demo-card")
     )
 }

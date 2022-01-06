@@ -7,9 +7,6 @@ use wasm_bindgen::JsValue;
 use wasm_bindgen::__rt::std::rc::Rc;
 use web_sys::HtmlElement;
 
-use crate::components::text;
-use crate::utils::mixin::no_mixin;
-
 #[derive(Default)]
 pub struct TextFieldProps<T: Clone> {
     pub label: String,
@@ -156,7 +153,7 @@ where
 
                                     *focus || has_value
                                 })))
-                .child(text(props.label.as_str(), no_mixin))
+                .child(crate::text!(props.label.as_str()))
                 .class("dmat-input-label-text")
             });
 
@@ -173,7 +170,7 @@ where
                         if let Some(str) = error_text {
                             if !*valid {
                                 has_error.set(true);
-                                return Some(text(str, |d| d.class("dmat-assistive-text").class("dmat-error-text")));
+                                return Some(crate::text!(str, |d| d.class("dmat-assistive-text").class("dmat-error-text")));
                             }
                         }
 
@@ -196,7 +193,7 @@ where
 
                         if let Some(str) = assistive_text {
                             ass.set(true);
-                            return Some(text(str, |d| d.class("dmat-assistive-text")))
+                            return Some(crate::text!(str, |d| d.class("dmat-assistive-text")))
                         }
 
                         ass.set(false);

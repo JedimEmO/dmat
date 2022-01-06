@@ -153,6 +153,18 @@ pub struct CarouselProps<T: CarouselSource> {
     pub initial_view_index: usize,
 }
 
+#[macro_export]
+macro_rules! carousel {
+    ($props: expr) => {{
+        $crate::components::carousel::carousel($props, |d| d)
+    }};
+
+    ($props: expr, $mixin: expr) => {{
+        $crate::components::carousel::carousel($props, $mixin)
+    }};
+}
+
+#[inline]
 pub fn carousel<
     T: CarouselSource + 'static,
     F: FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>,

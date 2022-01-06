@@ -1,13 +1,10 @@
 use dominator::{html, Dom};
 
-
-
 use dominator_material::components::layouts::container;
 use dominator_material::components::{
-    card, navigation_drawer, static_list, CardProps, NavigationDrawerEntry,
-    NavigationDrawerProps, NavigationEntry,
+    CardProps, NavigationDrawerEntry, NavigationDrawerProps, NavigationEntry,
 };
-use dominator_material::utils::mixin::{mixin_id};
+use dominator_material::utils::mixin::mixin_id;
 
 #[derive(Clone, PartialEq)]
 enum ExampleViews {
@@ -18,53 +15,46 @@ enum ExampleViews {
 
 #[inline]
 pub fn navigation_drawers_demo() -> Dom {
-    card(
-        CardProps::new().body(static_list(
-            vec![
-                card(
-                    CardProps::new()
-                        .with_title("Static navigation drawer", None)
-                        .body(html!("div", {
-                            .class("navigation-drawer-demo")
-                            .child(static_drawers(true))
-                        })),
-                    |d| d.class("drawer-demo-card"),
-                ),
-                card(
-                    CardProps::new()
-                        .with_title("Modal navigation drawer", None)
-                        .body(html!("div", {
-                            .class("navigation-drawer-demo")
-                            .child(modal_drawers())
-                        })),
-                    |d| d.class("drawer-demo-card"),
-                ),
-                card(
-                    CardProps::new()
-                        .with_title("Static navigation drawer without toggle controls", None)
-                        .body(html!("div", {
-                            .class("navigation-drawer-demo")
-                            .child(static_drawers(false))
-                        })),
-                    |d| d.class("drawer-demo-card"),
-                ),
-            ],
-            mixin_id(),
-        )),
-        |v| v.class("demo-card"),
+    card!(
+        CardProps::new().body(static_list!(vec![
+            card!(
+                CardProps::new()
+                    .with_title("Static navigation drawer", None)
+                    .body(html!("div", {
+                        .class("navigation-drawer-demo")
+                        .child(static_drawers(true))
+                    })),
+                |d| d.class("drawer-demo-card")
+            ),
+            card!(
+                CardProps::new()
+                    .with_title("Modal navigation drawer", None)
+                    .body(html!("div", {
+                        .class("navigation-drawer-demo")
+                        .child(modal_drawers())
+                    })),
+                |d| d.class("drawer-demo-card")
+            ),
+            card!(
+                CardProps::new()
+                    .with_title("Static navigation drawer without toggle controls", None)
+                    .body(html!("div", {
+                        .class("navigation-drawer-demo")
+                        .child(static_drawers(false))
+                    })),
+                |d| d.class("drawer-demo-card")
+            ),
+        ])),
+        |v| v.class("demo-card")
     )
 }
 
 pub fn static_drawers(toggle: bool) -> Dom {
-    navigation_drawer(make_drawer().show_toggle_controls(toggle), mixin_id()).0
+    navigation_drawer!(make_drawer().show_toggle_controls(toggle)).0
 }
 
 fn modal_drawers() -> Dom {
-    navigation_drawer(
-        make_drawer().show_toggle_controls(true).modal(true),
-        mixin_id(),
-    )
-    .0
+    navigation_drawer!(make_drawer().show_toggle_controls(true).modal(true)).0
 }
 
 fn make_drawer() -> NavigationDrawerProps<ExampleViews> {

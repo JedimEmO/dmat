@@ -4,15 +4,15 @@ use futures_signals::signal::always;
 use futures_signals::signal::Mutable;
 
 use dominator_material::components::layouts::container;
-use dominator_material::components::{card, static_list, text_field, CardProps, TextFieldProps};
+use dominator_material::components::{text_field, CardProps, TextFieldProps};
 use dominator_material::utils::mixin::mixin_id;
 
 pub fn input_demo() -> Dom {
     let text_value = Mutable::new("".to_string());
 
     container(
-        card(CardProps::new()
-            .body(static_list(vec![
+        card!(CardProps::new()
+            .body(static_list!(vec![
                 html!("div", {
                     .children(&mut [
                         text_field(TextFieldProps {

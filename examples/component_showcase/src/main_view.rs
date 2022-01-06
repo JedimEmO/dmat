@@ -4,7 +4,7 @@ use futures_signals::signal::SignalExt;
 use futures_signals::signal_vec::always;
 
 use dominator_material::components::layouts::{app_bar, AppBarProps};
-use dominator_material::components::{layouts::container, tabs, Tab, TabContent};
+use dominator_material::components::{layouts::container, Tab, TabContent};
 use dominator_material::utils::mixin::mixin_id;
 
 use crate::components::app_bar_demo::app_bar_demo;
@@ -34,12 +34,7 @@ pub fn main_view() -> Dom {
 
     app_bar(
         AppBarProps::new()
-            .header(tabs(
-                active_tab.clone(),
-                always(main_view_tabs()),
-                None,
-                mixin_id(),
-            ))
+            .header(tabs!(active_tab.clone(), always(main_view_tabs()), None))
             .main_signal(
                 active_tab
                     .signal()

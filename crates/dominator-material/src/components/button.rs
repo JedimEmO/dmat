@@ -1,6 +1,4 @@
-use crate::utils::component_signal::{ComponentSignal, DomOption};
 use dominator::{clone, events, html, Dom, DomBuilder};
-use futures_signals::signal::Signal;
 
 use wasm_bindgen::__rt::std::rc::Rc;
 use web_sys::HtmlElement;
@@ -19,18 +17,12 @@ impl Default for ButtonType {
 
 pub enum ButtonContent {
     Label(String),
-    Signal(Option<Box<dyn Signal<Item = Dom>>>),
-}
-
-impl Default for ButtonContent {
-    fn default() -> Self {
-        ButtonContent::Label("".to_string())
-    }
+    Dom(Dom),
 }
 
 #[derive(Default)]
 pub struct ButtonProps {
-    pub content_signal: Option<ComponentSignal>,
+    pub content: Option<ButtonContent>,
     pub click_handler: Option<Rc<dyn Fn(events::Click)>>,
     pub button_type: ButtonType,
 }
@@ -38,7 +30,7 @@ pub struct ButtonProps {
 impl ButtonProps {
     pub fn new() -> Self {
         Self {
-            content_signal: None,
+            content: None,
             click_handler: None,
             button_type: ButtonType::Contained,
         }
@@ -46,18 +38,11 @@ impl ButtonProps {
 
     #[inline]
     #[must_use]
-    pub fn content<T: Into<ComponentSignal>>(mut self, content: T) -> Self {
-        self.content_signal = Some(content.into());
-        self
-    }
-
-    #[inline]
-    #[must_use]
-    pub fn content_signal<T: Signal<Item = U> + Unpin + 'static, U>(mut self, content: T) -> Self
+    pub fn content<U>(mut self, content: U) -> Self
     where
-        U: Into<DomOption>,
+        U: Into<Dom>,
     {
-        self.content_signal = Some(ComponentSignal::from_signal(content));
+        self.content = Some(ButtonContent::Dom(content.into()));
         self
     }
 
@@ -79,13 +64,23 @@ impl ButtonProps {
     }
 }
 
+#[macro_export]
+macro_rules! button {
+    ($props: expr) => {{
+        $crate::components::button::button($props, |d| d)
+    }};
+
+    ($props: expr, $mixin: expr) => {{
+        $crate::components::button::button($props, $mixin)
+    }};
+}
+
 #[inline]
-pub fn button<F>(mut button_props: ButtonProps, mixin: F) -> Dom
+pub fn button<F>(button_props: ButtonProps, mixin: F) -> Dom
 where
     F: FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>,
 {
-    let content = button_props.content_signal.take();
-
+    let content = button_props.content;
     let click_handler = button_props.click_handler.clone();
 
     html!("button", {
@@ -96,8 +91,12 @@ where
             ButtonType::Outlined => "-outlined",
             ButtonType::Text => "-text",
         })
-        .apply_if(content.is_some(), move |bdom| {
-            bdom.child_signal(content.unwrap().0)
+        .apply(move |bdom| {
+            match content {
+                Some(ButtonContent::Label(label)) => bdom.text(label.as_str()),
+                Some(ButtonContent::Dom(dom)) => bdom.child(dom),
+                _ => bdom
+            }
         })
         .apply_if(button_props.click_handler.is_some(), |dom| {
             dom.event(clone!(click_handler => move |e: events::Click| {

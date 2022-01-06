@@ -20,6 +20,17 @@ pub struct Tab<TabId: Clone> {
     pub id: TabId,
 }
 
+#[macro_export]
+macro_rules! tabs {
+    ($a: expr, $b: expr, $c: expr) => {{
+        $crate::components::tabs::tabs($a, $b, $c, |d| d)
+    }};
+
+    ($a: expr, $b: expr, $c: expr, $mixin: expr) => {{
+        $crate::components::tabs::tabs($a, $b, $c, $mixin)
+    }};
+}
+
 #[inline]
 pub fn tabs<
     TabList: SignalVec<Item = Tab<TabId>> + 'static,

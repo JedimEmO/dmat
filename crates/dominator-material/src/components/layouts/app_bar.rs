@@ -72,6 +72,7 @@ impl AppBarProps {
     }
 }
 
+#[inline]
 pub fn app_bar<F>(props: AppBarProps, mixin: F) -> Dom
 where
     F: FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>,

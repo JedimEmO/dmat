@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod test {
-    use crate::components::text;
+
     use dominator::events::Click;
     use dominator::{body, clone, Dom, DomBuilder};
     use futures_signals::signal::{Mutable, SignalExt};
@@ -49,7 +49,7 @@ mod test {
                     child_count.set(child_count.get() + 1);
 
                     Some(
-                        text(format!("{}", v).as_str(), clone!(state => move |d| {
+                        crate::text!(format!("{}", v).as_str(), clone!(state => move |d| {
                             d.attribute("id", "inner")
                                 .event(move |_: Click| {
                                     // This is what we are checking; that each

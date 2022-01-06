@@ -123,6 +123,17 @@ pub struct NavigationDrawerOut {
     pub is_expanded: MutableSignalCloned<bool>,
 }
 
+#[macro_export]
+macro_rules! navigation_drawer {
+    ($props: expr) => {{
+        $crate::components::navigation_drawer::navigation_drawer($props, |d| d)
+    }};
+
+    ($props: expr, $mixin: expr) => {{
+        $crate::components::navigation_drawer::navigation_drawer($props, $mixin)
+    }};
+}
+
 pub fn navigation_drawer<T: Clone + PartialEq + 'static, F>(
     props: NavigationDrawerProps<T>,
     mixin: F,

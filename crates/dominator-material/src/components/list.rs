@@ -2,6 +2,17 @@ use dominator::{html, Dom, DomBuilder};
 use futures_signals::signal_vec::{always, SignalVec, SignalVecExt};
 use web_sys::HtmlElement;
 
+#[macro_export]
+macro_rules! list {
+    ($props: expr) => {{
+        $crate::components::list::list($props, |d| d)
+    }};
+
+    ($props: expr, $mixin: expr) => {{
+        $crate::components::list::list($props, $mixin)
+    }};
+}
+
 #[inline]
 pub fn list<
     T: SignalVec<Item = Dom> + 'static,
@@ -20,6 +31,17 @@ pub fn list<
             })
         }))
     })
+}
+
+#[macro_export]
+macro_rules! static_list {
+    ($props: expr) => {{
+        $crate::components::list::static_list($props, |d| d)
+    }};
+
+    ($props: expr, $mixin: expr) => {{
+        $crate::components::list::static_list($props, $mixin)
+    }};
 }
 
 #[inline]

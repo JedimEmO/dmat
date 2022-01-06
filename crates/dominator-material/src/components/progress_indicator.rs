@@ -7,6 +7,17 @@ pub enum ProgressIndicatorIterations {
     Count(usize),
 }
 
+#[macro_export]
+macro_rules! progress_indicator {
+    ($a: expr, $b: expr) => {{
+        $crate::components::progress_indicator::progress_indicator($a, $b, |d| d)
+    }};
+
+    ($a: expr, $b: expr, $mixin: expr) => {{
+        $crate::components::progress_indicator::progress_indicator($a, $b, $mixin)
+    }};
+}
+
 #[inline]
 pub fn progress_indicator<F>(
     duration: Duration,

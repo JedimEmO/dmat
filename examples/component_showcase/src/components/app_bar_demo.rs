@@ -5,24 +5,24 @@ use futures_signals::signal::MutableSignal;
 use crate::components::navigation_drawer_demo::static_drawers;
 use dominator_material::components::layouts::{app_bar, container, AppBarProps, AppBarType};
 use dominator_material::components::{
-    card, carousel, navigation_drawer, CardProps, CarouselProps, CarouselSource,
-    NavigationDrawerEntry, NavigationDrawerProps, NavigationEntry,
+    CardProps, CarouselProps, CarouselSource, NavigationDrawerEntry, NavigationDrawerProps,
+    NavigationEntry,
 };
 use dominator_material::utils::mixin::mixin_id;
 
 pub fn app_bar_demo() -> Dom {
-    card(
+    card!(
         CardProps::new().body(
-            carousel(
+            carousel!(
                 CarouselProps {
                     source: AppBarCarousel::new(),
                     initial_view_index: Default::default(),
                 },
-                |d| d.class("demo-carousel"),
+                |d| d.class("demo-carousel")
             )
             .0,
         ),
-        |v| v.class("demo-card"),
+        |v| v.class("demo-card")
     )
 }
 
@@ -43,7 +43,7 @@ impl CarouselSource for AppBarCarousel {
     fn get_entry(&self, index: usize) -> Dom {
         let inner = match index {
             0 => {
-                navigation_drawer(
+                navigation_drawer!(
                     NavigationDrawerProps::new()
                         .show_toggle_controls(true)
                         .expanded(true)
@@ -76,7 +76,7 @@ impl CarouselSource for AppBarCarousel {
                                 mixin_id(),
                             ))
                         }),
-                    |d| d.class("demo-drawer-with-app-bar"),
+                    |d| d.class("demo-drawer-with-app-bar")
                 )
                 .0
             }

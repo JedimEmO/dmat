@@ -2,23 +2,19 @@ use dominator::{html, Dom};
 use futures_signals::signal::{Mutable, MutableSignal};
 
 use dominator_material::components::layouts::container;
-use dominator_material::components::{card, carousel, CardProps, CarouselProps, CarouselSource};
-use dominator_material::utils::mixin::mixin_id;
+use dominator_material::components::{CardProps, CarouselProps, CarouselSource};
 
 pub fn carousel_demo() -> Dom {
-    card(
-        CardProps::new().body(
-            carousel(
-                CarouselProps {
-                    source: CarouselDemoSource::new(),
-                    initial_view_index: Default::default(),
-                },
-                |d| d.class("demo-carousel"),
-            )
-            .0,
-        ),
-        mixin_id(),
-    )
+    card!(CardProps::new().body(
+        carousel!(
+            CarouselProps {
+                source: CarouselDemoSource::new(),
+                initial_view_index: Default::default(),
+            },
+            |d| d.class("demo-carousel")
+        )
+        .0,
+    ))
 }
 
 #[derive(Clone)]
