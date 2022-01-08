@@ -64,7 +64,7 @@ impl Default for Colors {
 
 impl ToSass for Colors {
     fn to_sass(&self) -> String {
-        let colors: Vec<String> = vec![
+        let colors = [
             render_sass_property("primary", &self.primary),
             render_sass_property("primary_light", &self.primary_light),
             render_sass_property("primary_dark", &self.primary_dark),
@@ -80,11 +80,8 @@ impl ToSass for Colors {
             render_sass_property("text_diffuser", &self.text_diffuser),
             render_sass_property("error_text_color", &self.error_text_color),
             render_sass_property("invalid_element_backdrop", &self.invalid_element_backdrop),
-        ]
-        .into_iter()
-        .map(|c| format!("\t\t{}", c))
-        .collect();
+        ];
 
-        render_sass_map(colors)
+        render_sass_map(&colors)
     }
 }

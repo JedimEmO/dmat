@@ -6,7 +6,7 @@ pub fn render_sass_property<N: AsRef<str>, T: ToSass>(name: N, prop: &T) -> Stri
     format!("\"{}\": {}", name.as_ref(), prop.to_sass())
 }
 
-pub fn render_sass_map(props: Vec<String>) -> String {
+pub fn render_sass_map(props: &[String]) -> String {
     format!("({})", props.join(",\n"))
 }
 

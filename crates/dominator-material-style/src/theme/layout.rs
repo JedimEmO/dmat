@@ -23,7 +23,7 @@ impl Default for Layout {
 
 impl ToSass for Layout {
     fn to_sass(&self) -> String {
-        render_sass_map(vec![render_sass_property("margin", &self.margin)])
+        render_sass_map(&[render_sass_property("margin", &self.margin)])
     }
 }
 

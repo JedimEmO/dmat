@@ -4,6 +4,7 @@
 @mixin container($theme) {
   $colors: map-get-strict($theme, "colors");
   $layout: map-get-strict($theme, "layout");
+  $breakpoints: map-get-strict($theme, "breakpoints");
   $margin: map-get-strict($layout, "margin");
 
   .dmat-container {
@@ -12,15 +13,15 @@
     justify-content: center;
     background-color: map-get-strict($colors, "surface");
 
-    @include respond-to("small") {
+    @include respond-to($breakpoints, "small") {
       padding: map-get-strict($margin, "small");
     }
 
-    @include respond-to("medium") {
+    @include respond-to($breakpoints, "medium") {
       padding: map-get-strict($margin, "medium");
     }
 
-    @include respond-to("large") {
+    @include respond-to($breakpoints, "large") {
       padding: map-get-strict($margin, "large");
     }
   }

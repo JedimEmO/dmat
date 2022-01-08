@@ -8,7 +8,7 @@ pub struct Components {
 
 impl ToSass for Components {
     fn to_sass(&self) -> String {
-        render_sass_map(vec![
+        render_sass_map(&[
             render_sass_property("app_bar", &self.app_bar),
             render_sass_property("navigation_drawer", &self.navigation_drawer),
         ])
@@ -31,7 +31,7 @@ impl Default for AppBar {
 
 impl ToSass for AppBar {
     fn to_sass(&self) -> String {
-        render_sass_map(vec![
+        render_sass_map(&[
             render_sass_property("height", &self.height),
             render_sass_property("height_prominent", &self.height_prominent),
         ])
@@ -52,6 +52,6 @@ impl Default for NavigationDrawer {
 
 impl ToSass for NavigationDrawer {
     fn to_sass(&self) -> String {
-        render_sass_map(vec![render_sass_property("full_width", &self.full_width)])
+        render_sass_map(&[render_sass_property("full_width", &self.full_width)])
     }
 }
