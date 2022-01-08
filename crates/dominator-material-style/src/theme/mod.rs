@@ -14,6 +14,8 @@ mod test {
         let theme = DmatTheme::default();
         let theme_file_content = render_theme("test-theme", theme);
 
+        println!("{}", theme_file_content);
+
         grass::from_string(theme_file_content, &Options::default()).unwrap();
     }
 }

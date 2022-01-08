@@ -1,6 +1,6 @@
 use crate::theme::to_sass::ToSass;
 
-#[derive(Default, Clone)]
+#[derive(Default)]
 pub struct Components {
     pub app_bar: AppBar,
     pub navigation_drawer: NavigationDrawer,
@@ -16,7 +16,6 @@ impl ToSass for Components {
     }
 }
 
-#[derive(Clone)]
 pub struct AppBar {
     pub height: String,
     pub height_prominent: String,
@@ -44,7 +43,6 @@ impl ToSass for AppBar {
     }
 }
 
-#[derive(Clone)]
 pub struct NavigationDrawer {
     pub full_width: String,
 }
