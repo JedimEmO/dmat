@@ -1,4 +1,4 @@
-use crate::theme::to_sass::ToSass;
+use crate::theme::to_sass::{render_sass_map, render_sass_property, ToSass};
 
 #[derive(Default)]
 pub struct Components {
@@ -8,11 +8,10 @@ pub struct Components {
 
 impl ToSass for Components {
     fn to_sass(&self) -> String {
-        format!(
-            "(\n\t\t\"app_bar\": {},\n\t\t\n\t\t\"navigation_drawer\": {})",
-            self.app_bar.to_sass(),
-            self.navigation_drawer.to_sass()
-        )
+        render_sass_map(vec![
+            render_sass_property("app_bar", &self.app_bar),
+            render_sass_property("navigation_drawer", &self.navigation_drawer),
+        ])
     }
 }
 
@@ -32,14 +31,10 @@ impl Default for AppBar {
 
 impl ToSass for AppBar {
     fn to_sass(&self) -> String {
-        let props: Vec<String> = vec![
-            format!("\"height\": {}", self.height),
-            format!("\"height_prominent\": {}", self.height_prominent),
-        ]
-        .into_iter()
-        .map(|c| format!("\t\t{}", c))
-        .collect();
-        format!("(\n{})", props.join(",\n"))
+        render_sass_map(vec![
+            render_sass_property("height", &self.height),
+            render_sass_property("height_prominent", &self.height_prominent),
+        ])
     }
 }
 
@@ -57,10 +52,6 @@ impl Default for NavigationDrawer {
 
 impl ToSass for NavigationDrawer {
     fn to_sass(&self) -> String {
-        let props: Vec<String> = vec![format!("\"full_width\": {}", self.full_width)]
-            .into_iter()
-            .map(|c| format!("\t\t{}", c))
-            .collect();
-        format!("(\n{})", props.join(",\n"))
+        render_sass_map(vec![render_sass_property("full_width", &self.full_width)])
     }
 }

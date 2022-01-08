@@ -1,13 +1,27 @@
+@import "../../utils/breakpoints";
 @import "../../utils/map_get_strict";
 
 @mixin container($theme) {
   $colors: map-get-strict($theme, "colors");
+  $layout: map-get-strict($theme, "layout");
+  $margin: map-get-strict($layout, "margin");
 
   .dmat-container {
-    padding: 16px;
     height: fit-content;
     display: flex;
     justify-content: center;
     background-color: map-get-strict($colors, "surface");
+
+    @include respond-to("small") {
+      padding: map-get-strict($margin, "small");
+    }
+
+    @include respond-to("medium") {
+      padding: map-get-strict($margin, "medium");
+    }
+
+    @include respond-to("large") {
+      padding: map-get-strict($margin, "large");
+    }
   }
 }
