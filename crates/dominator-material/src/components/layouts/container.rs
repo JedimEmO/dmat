@@ -1,4 +1,3 @@
-use crate::utils::component_signal::ComponentSignal;
 use dominator::{html, Dom, DomBuilder};
 use web_sys::HtmlElement;
 

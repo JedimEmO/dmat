@@ -4,43 +4,40 @@
   $colors: map-get-strict($theme, "colors");
   $components: map-get-strict($theme, "components");
   $app_bar: map-get-strict($components, "app_bar");
-
-  .dmat-app-bar.-fixed {
-    & > .viewport {
-      position: absolute;
-
-      & > .header {
-        position: fixed;
-      }
-    } .header {
-
-      }
-  }
+  $layout: map-get-strict($theme, "layout");
+  $breakpoints: map-get-strict($theme, "breakpoints");
 
   .dmat-app-bar {
+    display: grid;
     position: absolute;
     transform: translateZ(0);
     top: 0;
     left: 0;
     bottom: 0;
     right: 0;
+    overflow: hidden;
 
     & > .viewport {
-      position: absolute;
-      overflow: scroll;
-      top: 0;
-      left: 0;
-      bottom: 0;
-      right: 0;
+      height: 100vh;
+      display: grid;
+      grid-template-rows: max-content 1fr;
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        'header'
+        'main';
 
-      & > .header {
-        position: absolute;
-        z-index: 2;
-        left: 0;
-        right: 0;
-        top: 0;
-        height: map-get-strict($app_bar, "height");
+      @include respond-to($breakpoints, "medium") {
+        grid-template-rows: map-get-strict($app_bar, "height") 1fr;
+
+        &.-prominent {
+          grid-template-rows: map-get-strict($app_bar, "height_prominent") 1fr;
+        }
+      }
+
+      & > header {
+        grid-area: header;
         display: flex;
+        height: fit-content;
         align-items: center;
 
         &.-prominent {
@@ -51,17 +48,11 @@
         color: map-get-strict($colors, "text_on_primary");
       }
 
-      & > .main {
-        position: relative;
-        width: 100%;
+      & > main {
+        grid-area: main;
+        overflow: auto;
         height: 100%;
-        top: map-get-strict($app_bar, "height");
-
-        &.-prominent {
-          top: map-get-strict($app_bar, "height_prominent");
-        }
       }
     }
   }
-
 }

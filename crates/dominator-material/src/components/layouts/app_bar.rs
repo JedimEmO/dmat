@@ -89,20 +89,20 @@ where
         .class("dmat-app-bar")
         .apply(mixin)
         .apply_if(props.fixed, move |dom| dom.class("-fixed"))
-        .child(html!("div", {
+        .child(html!("article", {
             .class("viewport")
             .children(&mut [
-                html!("div", {
+                html!("header", {
+                    .apply_if(header_view.is_some(), move |header| {
+                         header.class("header")
+                        .child_signal(header_view.unwrap().0)
+                    })
+                }),
+                html!("main", {
                     .apply_if(main_view.is_some(), move |main| {
                         main.class("main")
                         .class(type_class)
                         .child_signal(main_view.unwrap().0)
-                    })
-                }),
-                html!("div", {
-                    .apply_if(header_view.is_some(), move |header| {
-                         header.class("header")
-                        .child_signal(header_view.unwrap().0)
                     })
                 })
             ])

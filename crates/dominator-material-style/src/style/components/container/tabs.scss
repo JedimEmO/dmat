@@ -1,15 +1,23 @@
 @import "../../utils/map_get_strict";
+@import "../../utils/breakpoints";
 
 @mixin tabs($theme) {
   $colors: map-get-strict($theme, "colors");
+  $layout: map-get-strict($theme, "layout");
+  $breakpoints: map-get-strict($theme, "breakpoints");
+  $gutter: map-get-strict($layout, "gutter");
 
   .dmat-tabs {
-    display: flex;
-    flex: 1 0 auto;
-    position: absolute;
+    display: grid;
     width: 100%;
-    bottom: 0;
-    left: 0;
+    grid-template-columns: repeat(4, 1fr);
+    font-size: x-small;
+
+    @include respond-to($breakpoints, "medium") {
+      font-size: unset;
+      grid-auto-flow: column;
+      grid-auto-columns: 1fr;
+    }
 
     button.tab {
       text-decoration: none;
@@ -18,13 +26,16 @@
       line-height: 2.25rem;
       font-weight: 500;
       font-family: Roboto, sans-serif;
-      padding: 0 24px;
-      display: flex;
+      padding: 0;
+
+      @include respond-to($breakpoints, "medium") {
+        $g: map-get-strict($gutter, "medium");
+        padding: 0 $g;
+      }
+
       box-sizing: border-box;
       outline: none;
       border: none;
-      flex: 1 0 auto;
-      justify-content: center;
       cursor: pointer;
       background: map-get-strict($colors, "primary");
       color: map-get-strict($colors, "text_on_primary");
