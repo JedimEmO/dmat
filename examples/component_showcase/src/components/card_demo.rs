@@ -4,7 +4,7 @@ use dominator_material::components::{ButtonProps, ButtonType, CardProps};
 use dominator_material::utils::mixin::with_id;
 
 pub fn card_demo() -> Dom {
-    let cards = vec![
+    let mut cards = [
         card!(CardProps {
             header_view: Some(html!("span", {.text("functional card 2")}).into()),
             ..Default::default()
@@ -39,10 +39,5 @@ pub fn card_demo() -> Dom {
             }))),
     ];
 
-    card!(
-        CardProps::new().body(html!("div", {
-            .children(cards.into_iter())
-        })),
-        |v| v.class("demo-cards").class("demo-card")
-    )
+    container!(|d| d.children(&mut cards))
 }

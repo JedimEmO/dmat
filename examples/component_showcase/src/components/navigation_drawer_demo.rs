@@ -12,38 +12,35 @@ enum ExampleViews {
 
 #[inline]
 pub fn navigation_drawers_demo() -> Dom {
-    card!(
-        CardProps::new().body(static_list!(vec![
-            card!(
-                CardProps::new()
-                    .with_title("Static navigation drawer", None)
-                    .body(html!("div", {
-                        .class("navigation-drawer-demo")
-                        .child(static_drawers(true))
-                    })),
-                |d| d.class("drawer-demo-card")
-            ),
-            card!(
-                CardProps::new()
-                    .with_title("Modal navigation drawer", None)
-                    .body(html!("div", {
-                        .class("navigation-drawer-demo")
-                        .child(modal_drawers())
-                    })),
-                |d| d.class("drawer-demo-card")
-            ),
-            card!(
-                CardProps::new()
-                    .with_title("Static navigation drawer without toggle controls", None)
-                    .body(html!("div", {
-                        .class("navigation-drawer-demo")
-                        .child(static_drawers(false))
-                    })),
-                |d| d.class("drawer-demo-card")
-            ),
-        ])),
-        |v| v.class("demo-card")
-    )
+    container!(|d| d.children(&mut [
+        card!(
+            CardProps::new()
+                .with_title("Static navigation drawer", None)
+                .body(html!("div", {
+                    .class("navigation-drawer-demo")
+                    .child(static_drawers(true))
+                })),
+            |d| d.class("drawer-demo-card").style("height", "250px")
+        ),
+        card!(
+            CardProps::new()
+                .with_title("Modal navigation drawer", None)
+                .body(html!("div", {
+                    .class("navigation-drawer-demo")
+                    .child(modal_drawers())
+                })),
+            |d| d.class("drawer-demo-card").style("height", "250px")
+        ),
+        card!(
+            CardProps::new()
+                .with_title("Static navigation drawer without toggle controls", None)
+                .body(html!("div", {
+                    .class("navigation-drawer-demo")
+                    .child(static_drawers(false))
+                })),
+            |d| d.class("drawer-demo-card").style("height", "250px")
+        ),
+    ]))
 }
 
 pub fn static_drawers(toggle: bool) -> Dom {
@@ -78,13 +75,15 @@ fn make_drawer() -> NavigationDrawerProps<ExampleViews> {
             }),
         ])
         .main_view_generator(move |v, _handle| {
-            Some(container!(match v {
-                Some(ExampleViews::Main) => html!("span", {
-                    .text("Main view")
-                }),
-                Some(ExampleViews::Details) => html!("span", { .text("Details") }),
-                Some(ExampleViews::Other) => html!("span", { .text("Other view") }),
-                _ => html!("span", { .text("Some view") }),
+            Some(container!(|d| {
+                d.child(match v {
+                    Some(ExampleViews::Main) => html!("span", {
+                        .text("Main view")
+                    }),
+                    Some(ExampleViews::Details) => html!("span", { .text("Details") }),
+                    Some(ExampleViews::Other) => html!("span", { .text("Other view") }),
+                    _ => html!("span", { .text("Some view") }),
+                })
             }))
         })
 }

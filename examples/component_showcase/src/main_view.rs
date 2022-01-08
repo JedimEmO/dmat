@@ -35,22 +35,17 @@ pub fn main_view() -> Dom {
     app_bar(
         AppBarProps::new()
             .header(tabs!(active_tab.clone(), always(main_view_tabs()), None))
-            .main_signal(
-                active_tab
-                    .signal()
-                    .map(|tab_id| match tab_id {
-                        DemoTabs::AppBar => app_bar_demo(),
-                        DemoTabs::Button => button_demo(),
-                        DemoTabs::List => list_demo(),
-                        DemoTabs::Carousel => carousel_demo(),
-                        DemoTabs::Card => card_demo(),
-                        DemoTabs::DataTable => data_table_demo(),
-                        DemoTabs::Input => input_demo(),
-                        DemoTabs::NavigationDrawer => navigation_drawers_demo(),
-                        _ => html!("div"),
-                    })
-                    .map(|v| container!(v)),
-            )
+            .main_signal(active_tab.signal().map(|tab_id| match tab_id {
+                DemoTabs::AppBar => app_bar_demo(),
+                DemoTabs::Button => button_demo(),
+                DemoTabs::List => list_demo(),
+                DemoTabs::Carousel => carousel_demo(),
+                DemoTabs::Card => card_demo(),
+                DemoTabs::DataTable => data_table_demo(),
+                DemoTabs::Input => input_demo(),
+                DemoTabs::NavigationDrawer => navigation_drawers_demo(),
+                _ => html!("div"),
+            }))
             .fixed(),
         mixin_id(),
     )

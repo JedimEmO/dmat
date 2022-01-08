@@ -12,6 +12,7 @@ fn main() {
                 medium: DisplayUnit::Pixels(16),
                 large: DisplayUnit::Pixels(32),
             },
+            ..Default::default()
         },
         ..Default::default()
     };

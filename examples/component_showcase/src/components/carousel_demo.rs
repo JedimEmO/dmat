@@ -31,12 +31,13 @@ impl CarouselDemoSource {
 
 impl CarouselSource for CarouselDemoSource {
     fn get_entry(&self, index: usize) -> Dom {
-        container!(
-            html!("div", {
+        container!(|d| {
+            d.child(html!("div", {
                 .text(format!("{}", index).as_str())
-            }),
-            |d| d.style("width", "30rem").style("height", "30rem")
-        )
+            }))
+            .style("width", "30rem")
+            .style("height", "30rem")
+        })
     }
 
     fn total_count_signal(&self) -> MutableSignal<usize> {

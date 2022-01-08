@@ -186,7 +186,8 @@ pub fn carousel<
     });
 
     (
-        html!("div", {.class("dmat-carousel").child(html!("div", {
+        html!("div", {.class("dmat-carousel")
+            .child(html!("div", {
             .class("container")
             .apply(mixin)
             .children(&mut [

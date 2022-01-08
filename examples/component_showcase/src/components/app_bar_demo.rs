@@ -11,19 +11,16 @@ use dominator_material::components::{
 use dominator_material::utils::mixin::mixin_id;
 
 pub fn app_bar_demo() -> Dom {
-    card!(
-        CardProps::new().body(
-            carousel!(
-                CarouselProps {
-                    source: AppBarCarousel::new(),
-                    initial_view_index: Default::default(),
-                },
-                |d| d.class("demo-carousel")
-            )
-            .0,
-        ),
-        |v| v.class("demo-card")
-    )
+    card!(CardProps::new().body(
+        carousel!(
+            CarouselProps {
+                source: AppBarCarousel::new(),
+                initial_view_index: Default::default(),
+            },
+            |d| d.class("demo-carousel")
+        )
+        .0,
+    ))
 }
 
 #[derive(Clone)]
@@ -68,9 +65,9 @@ impl CarouselSource for AppBarCarousel {
                                     .header(html!("div", {
                                         .class("app-bar-demo-header")
                                     }))
-                                    .main(container!(
+                                    .main(container!(|d| d.child(
                                         html!("div", { .text(lipsum::lipsum(512).as_str())})
-                                    ))
+                                    )))
                                     .fixed(),
                                 mixin_id(),
                             ))
@@ -103,10 +100,11 @@ impl CarouselSource for AppBarCarousel {
             ),
         };
 
-        html!("div", {
-            .class("showcase-drawer-carousel-inner")
+        container!(|d| d
             .child(inner)
-        })
+            .style("width", "500px")
+            .style("padding", "16px")
+            .style("height", "500px"))
     }
 
     fn total_count_signal(&self) -> MutableSignal<usize> {

@@ -6,23 +6,34 @@
   $layout: map-get-strict($theme, "layout");
   $breakpoints: map-get-strict($theme, "breakpoints");
   $margin: map-get-strict($layout, "margin");
+  $gutter: map-get-strict($layout, "gutter");
 
   .dmat-container {
-    height: fit-content;
-    display: flex;
-    justify-content: center;
+    display: grid;
+    grid-auto-columns: 1fr;
+    grid-auto-rows: 1fr;
+    grid-auto-flow: column;
     background-color: map-get-strict($colors, "surface");
 
     @include respond-to($breakpoints, "small") {
-      padding: map-get-strict($margin, "small");
+      $m: map-get-strict($margin, "small");
+      $g: map-get-strict($gutter, "small");
+      padding: $m;
+      gap: $g;
     }
 
     @include respond-to($breakpoints, "medium") {
-      padding: map-get-strict($margin, "medium");
+      $m: map-get-strict($margin, "medium");
+      $g: map-get-strict($gutter, "medium");
+      padding: $m;
+      gap: $g;
     }
 
     @include respond-to($breakpoints, "large") {
-      padding: map-get-strict($margin, "large");
+      $m: map-get-strict($margin, "large");
+      $g: map-get-strict($gutter, "large");
+      padding: $m;
+      gap: $g;
     }
   }
 }

@@ -1,7 +1,5 @@
 .demo-cards  .dmat-card {
-  margin: 8px;
   float: left;
-  width: 350px;
 
   .demo-buttons {
     display: flex;
@@ -12,13 +10,6 @@
     }
   }
 }
-
-.navigation-drawer-demo {
-  height: 400px;
-  width: 800px;
-  position: relative;
-}
-
 .main-view {
   position: absolute;
   padding: 0;
@@ -40,19 +31,9 @@
   padding: 8px 8px 8px 32px;
 }
 
-.demo-card {
-  width: 70rem;
-}
-
-.showcase-drawer-carousel-inner {
-  position: relative;
-  margin-left: auto;
-  margin-right: auto;
-  width: 50rem;
-  height: 40rem;
-}
-
-.demo-carousel {
-  width: 60rem;
-  height: 40rem;
+.demo-carousel, .showcase-drawer-carousel-inner{
+  & .dmat-carousel-item-inner {
+    padding: 32px;
+    height: 100%;
+  }
 }

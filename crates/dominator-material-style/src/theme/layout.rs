@@ -7,6 +7,7 @@ pub enum DisplayUnit {
 
 pub struct Layout {
     pub margin: BreakpointValue<DisplayUnit>,
+    pub gutter: BreakpointValue<DisplayUnit>,
 }
 
 impl Default for Layout {
@@ -17,13 +18,21 @@ impl Default for Layout {
                 medium: DisplayUnit::Pixels(16),
                 large: DisplayUnit::Pixels(32),
             },
+            gutter: BreakpointValue {
+                small: DisplayUnit::Pixels(8),
+                medium: DisplayUnit::Pixels(16),
+                large: DisplayUnit::Pixels(24),
+            },
         }
     }
 }
 
 impl ToSass for Layout {
     fn to_sass(&self) -> String {
-        render_sass_map(&[render_sass_property("margin", &self.margin)])
+        render_sass_map(&[
+            render_sass_property("margin", &self.margin),
+            render_sass_property("gutter", &self.gutter),
+        ])
     }
 }
 

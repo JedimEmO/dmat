@@ -9,8 +9,8 @@ use dominator_material::utils::mixin::mixin_id;
 pub fn input_demo() -> Dom {
     let text_value = Mutable::new("".to_string());
 
-    container!(
-        card!(CardProps::new()
+    container!(|d| {
+        d.child(card!(CardProps::new()
             .body(static_list!(vec![
                 html!("div", {
                     .children(&mut [
@@ -42,7 +42,6 @@ pub fn input_demo() -> Dom {
                     ])
                 }),
             ], mixin_id()),
-        ), |v| v.class("demo-card")),
-        mixin_id()
-    )
+        ), |v| v.class("demo-card")))
+    })
 }

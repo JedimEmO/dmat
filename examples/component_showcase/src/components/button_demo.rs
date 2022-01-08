@@ -8,11 +8,8 @@ use futures_signals::signal::Mutable;
 pub fn button_demo() -> Dom {
     let counter = Mutable::new(0);
 
-    card!(CardProps::new()
-        .body(html!("div", {
-            .class("demo-cards")
-            .class("demo-card")
-            .children(&mut[
+    container!(|d| {
+        d.children(&mut[
                 card!(CardProps::new()
                     .header(html!("div", { .text("ButtonType::Contained") }))
                     .body(
@@ -46,6 +43,5 @@ pub fn button_demo() -> Dom {
                                 *counter.lock_mut() = v + 1;
                             })))))
             ])
-        }),
-    ), |v| v.class("demo-cards"))
+    })
 }

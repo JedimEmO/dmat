@@ -4,22 +4,17 @@ use web_sys::HtmlElement;
 
 #[macro_export]
 macro_rules! container {
-    ($props: expr) => {{
-        $crate::components::layouts::container::container($props, |d| d)
-    }};
-
-    ($props: expr, $mixin: expr) => {{
-        $crate::components::layouts::container::container($props, $mixin)
+    ($mixin: expr) => {{
+        $crate::components::layouts::container::container($mixin)
     }};
 }
 
-pub fn container<T: Into<ComponentSignal>, F>(child: T, mixin: F) -> Dom
+pub fn container<F>(mixin: F) -> Dom
 where
     F: FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>,
 {
     html!("div", {
         .class("dmat-container")
         .apply(mixin)
-        .child_signal(child.into().0)
     })
 }
