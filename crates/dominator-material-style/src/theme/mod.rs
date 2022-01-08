@@ -1,3 +1,4 @@
+pub mod breakpoints;
 pub mod colors;
 pub mod components;
 pub mod dmat_theme;

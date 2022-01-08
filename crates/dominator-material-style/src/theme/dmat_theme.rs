@@ -1,6 +1,6 @@
 use crate::theme::colors::Colors;
 use crate::theme::components::Components;
-use crate::theme::to_sass::ToSass;
+use crate::theme::to_sass::{render_sass_map, SassProperty, ToSass};
 
 #[derive(Default)]
 pub struct DmatTheme {
@@ -10,13 +10,18 @@ pub struct DmatTheme {
 
 impl ToSass for DmatTheme {
     fn to_sass(&self) -> String {
-        format!(
-            "(\
-            \n\t\"colors\": {},\
-            \n\t\"components\": {}\n\t)",
-            self.colors.to_sass(),
-            self.components.to_sass()
-        )
+        render_sass_map(vec![
+            SassProperty {
+                name: "colors".to_string(),
+                value: self.colors.clone(),
+            }
+            .to_sass(),
+            SassProperty {
+                name: "components".to_string(),
+                value: self.components.clone(),
+            }
+            .to_sass(),
+        ])
     }
 }
 

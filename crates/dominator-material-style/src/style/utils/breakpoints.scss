@@ -1,0 +1,14 @@
+@import "map_get_strict";
+
+$breakpoints: (
+        'small': 767px,
+        'medium': 992px,
+        'large': 1200px
+);
+
+@mixin respond-to($breakpoint) {
+  // Prints a media query based on the value
+  @media (min-width: map-get-strict($breakpoints, $breakpoint)) {
+    @content;
+  }
+}
