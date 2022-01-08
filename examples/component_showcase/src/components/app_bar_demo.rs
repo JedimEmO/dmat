@@ -3,7 +3,7 @@ use futures_signals::signal::Mutable;
 use futures_signals::signal::MutableSignal;
 
 use crate::components::navigation_drawer_demo::static_drawers;
-use dominator_material::components::layouts::{app_bar, container, AppBarProps, AppBarType};
+use dominator_material::components::layouts::{app_bar, AppBarProps, AppBarType};
 use dominator_material::components::{
     CardProps, CarouselProps, CarouselSource, NavigationDrawerEntry, NavigationDrawerProps,
     NavigationEntry,
@@ -68,9 +68,8 @@ impl CarouselSource for AppBarCarousel {
                                     .header(html!("div", {
                                         .class("app-bar-demo-header")
                                     }))
-                                    .main(container(
-                                        html!("div", { .text(lipsum::lipsum(512).as_str())}),
-                                        mixin_id(),
+                                    .main(container!(
+                                        html!("div", { .text(lipsum::lipsum(512).as_str())})
                                     ))
                                     .fixed(),
                                 mixin_id(),

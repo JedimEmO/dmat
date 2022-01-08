@@ -1,7 +1,6 @@
 use dominator::{html, Dom};
 use futures_signals::signal::{Mutable, MutableSignal};
 
-use dominator_material::components::layouts::container;
 use dominator_material::components::{CardProps, CarouselProps, CarouselSource};
 
 pub fn carousel_demo() -> Dom {
@@ -32,11 +31,11 @@ impl CarouselDemoSource {
 
 impl CarouselSource for CarouselDemoSource {
     fn get_entry(&self, index: usize) -> Dom {
-        container(
+        container!(
             html!("div", {
                 .text(format!("{}", index).as_str())
             }),
-            |d| d.style("width", "30rem").style("height", "30rem"),
+            |d| d.style("width", "30rem").style("height", "30rem")
         )
     }
 

@@ -4,7 +4,7 @@ use futures_signals::signal::SignalExt;
 use futures_signals::signal_vec::always;
 
 use dominator_material::components::layouts::{app_bar, AppBarProps};
-use dominator_material::components::{layouts::container, Tab, TabContent};
+use dominator_material::components::{Tab, TabContent};
 use dominator_material::utils::mixin::mixin_id;
 
 use crate::components::app_bar_demo::app_bar_demo;
@@ -49,7 +49,7 @@ pub fn main_view() -> Dom {
                         DemoTabs::NavigationDrawer => navigation_drawers_demo(),
                         _ => html!("div"),
                     })
-                    .map(|v| container(v, mixin_id())),
+                    .map(|v| container!(v)),
             )
             .fixed(),
         mixin_id(),

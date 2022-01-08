@@ -1,4 +1,4 @@
-use crate::theme::{render_theme, DmatTheme};
+use crate::theme::dmat_theme::{render_theme, DmatTheme};
 use rust_embed::RustEmbed;
 
 pub mod theme;

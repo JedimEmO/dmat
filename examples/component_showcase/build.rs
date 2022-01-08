@@ -1,5 +1,6 @@
 use dominator_material_style::render_dmat_scss;
-use dominator_material_style::theme::{Colors, DmatTheme};
+use dominator_material_style::theme::colors::Colors;
+use dominator_material_style::theme::dmat_theme::DmatTheme;
 use std::fs;
 
 fn main() {
