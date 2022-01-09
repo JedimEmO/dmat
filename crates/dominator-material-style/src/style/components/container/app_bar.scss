@@ -18,21 +18,12 @@
     overflow: hidden;
 
     & > .viewport {
-      height: 100vh;
       display: grid;
       grid-template-rows: max-content 1fr;
       grid-template-columns: 1fr;
       grid-template-areas:
         'header'
         'main';
-
-      @include respond-to($breakpoints, "medium") {
-        grid-template-rows: map-get-strict($app_bar, "height") 1fr;
-
-        &.-prominent {
-          grid-template-rows: map-get-strict($app_bar, "height_prominent") 1fr;
-        }
-      }
 
       & > header {
         grid-area: header;

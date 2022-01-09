@@ -97,12 +97,11 @@ where
                 dom.child_signal(head.unwrap().0)
             })
         }),
-        html!("div", {
-            .class("dmat-card-body-container")
+        crate::container!(|d| d
+            // .class("dmat-card-body-container")
             .apply_if(body.is_some(), move |dom| {
                 dom.child_signal(body.unwrap().0)
-            })
-        }),
+            })),
         html!("div", {
             .class("dmat-card-footer-container")
             .apply_if(footer.is_some(), move |dom| {

@@ -151,48 +151,8 @@ where
         html!("div", {
             .class("dmat-navigation-drawer-container")
             .apply(mixin)
+            .class_signal("-expanded", s.expanded.signal())
             .children(vec![
-                match s.main_view_generator.clone() {
-                    Some(generator) => {
-                        let exp = s.expanded.signal_cloned();
-                        let active = s.current_active.signal_cloned();
-                        let state = s.clone();
-
-                        Some(html!("div", {
-                            .class("main")
-                            .class_signal("-expanded", s.expanded.signal())
-                            .apply_if(s.is_modal, |dom| dom.class("-modal"))
-                            .class("dmat-surface")
-                            .child_signal(map_ref!{ let active = active, let expanded = exp => move {
-                                Some(html!("div", {
-                                    .children(vec![
-                                        generator(active, &state),
-                                        match !*expanded && state.show_toggle_controls {
-                                            true => Some(html!("span", {
-                                                    .class("dmat-navigation-drawer-expand")
-                                                    .event(clone!(state => move |_:events::Click| {
-                                                        state.toggle(true);
-                                                    }))
-                                                }))                                                ,
-                                            false => None
-                                        },
-                                        match state.is_modal && *expanded {
-                                            true => Some(html!("div", {
-                                                .class("dmat-modal-cover")
-                                                .event(clone!(state => move |_: events::Click| {
-                                                    state.expanded.set(false);
-                                                }))
-                                            })),
-                                            false => None
-                                        }
-                                    ].into_iter().flatten())
-                                }))
-                            }})
-                        }))
-                    },
-                    _ => None
-                },
-
                 Some(html!("div", {
                     .class("drawer")
                     .class_signal("-expanded", s.expanded.signal())
@@ -242,7 +202,48 @@ where
                             })
                         ])
                     }))
-                }))].into_iter().flatten())
+                })),
+                match s.main_view_generator.clone() {
+                    Some(generator) => {
+                        let exp = s.expanded.signal_cloned();
+                        let active = s.current_active.signal_cloned();
+                        let state = s.clone();
+
+                        Some(html!("div", {
+                            .class("main")
+                            .class_signal("-expanded", s.expanded.signal())
+                            .apply_if(s.is_modal, |dom| dom.class("-modal"))
+                            .class("dmat-surface")
+                            .child_signal(map_ref!{ let active = active, let expanded = exp => move {
+                                Some(html!("div", {
+                                    .children(vec![
+                                        generator(active, &state),
+                                        match !*expanded && state.show_toggle_controls {
+                                            true => Some(html!("span", {
+                                                    .class("dmat-navigation-drawer-expand")
+                                                    .event(clone!(state => move |_:events::Click| {
+                                                        state.toggle(true);
+                                                    }))
+                                                }))                                                ,
+                                            false => None
+                                        },
+                                        match state.is_modal && *expanded {
+                                            true => Some(html!("div", {
+                                                .class("dmat-modal-cover")
+                                                .event(clone!(state => move |_: events::Click| {
+                                                    state.expanded.set(false);
+                                                }))
+                                            })),
+                                            false => None
+                                        }
+                                    ].into_iter().flatten())
+                                }))
+                            }})
+                        }))
+                    },
+                    _ => None
+                },
+            ].into_iter().flatten())
         }),
         out,
     )

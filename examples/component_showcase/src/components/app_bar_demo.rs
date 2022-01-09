@@ -102,8 +102,10 @@ impl CarouselSource for AppBarCarousel {
 
         container!(|d| d
             .child(inner)
-            .style("width", "500px")
             .style("padding", "16px")
+            .style("position", "relative")
+            .style("margin", "auto")
+            .style("width", "500px")
             .style("height", "500px"))
     }
 

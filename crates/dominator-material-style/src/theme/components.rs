@@ -23,8 +23,8 @@ pub struct AppBar {
 impl Default for AppBar {
     fn default() -> Self {
         Self {
-            height: "2rem".to_string(),
-            height_prominent: "4rem".to_string(),
+            height: "40px".to_string(),
+            height_prominent: "80px".to_string(),
         }
     }
 }

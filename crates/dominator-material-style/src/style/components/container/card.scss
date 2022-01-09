@@ -4,14 +4,15 @@
   $colors: map-get-strict($theme, "colors");
 
   .dmat-card {
-    display: flex;
-    flex-direction: column;
+    display: grid;
     position: relative;
-    box-sizing: border-box;
     padding: 8px;
     box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, .12);
     background: map-get-strict($colors, "surface");
     color: map-get-strict($colors, "text_on_secondary");
+
+    grid-template-rows: max-content 1fr max-content;
+    grid-auto-flow: row;
 
     &:hover {
       box-shadow: 0px 4px 2px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 2px 6px 0px rgba(0, 0, 0, 0.12);
