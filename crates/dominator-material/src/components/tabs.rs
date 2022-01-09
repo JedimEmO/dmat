@@ -1,10 +1,9 @@
-use std::fmt::Debug;
-
 use dominator::{clone, events, html, Dom, DomBuilder};
-use futures_signals::signal::Mutable;
-use futures_signals::signal::SignalExt;
+use futures_signals::signal::Signal;
 use futures_signals::signal_vec::SignalVec;
 use futures_signals::signal_vec::SignalVecExt;
+use std::cell::RefCell;
+use std::fmt::Debug;
 use wasm_bindgen::__rt::std::rc::Rc;
 use web_sys::HtmlElement;
 
@@ -31,33 +30,38 @@ macro_rules! tabs {
     }};
 }
 
+pub type TabChangeCallbackFnMut<TabId> = Rc<RefCell<dyn FnMut(TabId)>>;
+
 #[inline]
-pub fn tabs<
-    TabList: SignalVec<Item = Tab<TabId>> + 'static,
-    TabId: Clone + std::cmp::PartialEq + Debug + 'static,
-    F,
->(
-    current_tab: Mutable<TabId>,
+pub fn tabs<TabList, TabId, TActiveSignal, FActiveFn, F>(
+    active_tab_signal_factory: FActiveFn,
     tabs_list: TabList,
-    on_tab_change: Option<Rc<dyn Fn(TabId)>>,
+    on_tab_change: Option<TabChangeCallbackFnMut<TabId>>,
     mixin: F,
 ) -> Dom
 where
+    TabList: SignalVec<Item = Tab<TabId>> + 'static,
+    TabId: Copy + std::cmp::PartialEq + Debug + 'static,
     F: FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>,
+    FActiveFn: Fn(TabId) -> TActiveSignal + 'static,
+    TActiveSignal: Signal<Item = bool> + 'static,
 {
     html!("div", {
         .class("dmat-tabs")
         .apply(mixin)
-        .children_signal_vec(tabs_list.map(clone!(current_tab, on_tab_change => move |v| {
-            tab(&v, &current_tab, on_tab_change.clone())
-        })))
+        .children_signal_vec(tabs_list.map(move |v| {
+            tab(&v, active_tab_signal_factory(v.id), on_tab_change.clone())
+        }))
     })
 }
 
-fn tab<TabId: Clone + std::cmp::PartialEq + Debug + 'static>(
+fn tab<
+    TabId: Copy + std::cmp::PartialEq + Debug + 'static,
+    TIsActiveSignal: Signal<Item = bool> + 'static,
+>(
     tab: &Tab<TabId>,
-    meta: &Mutable<TabId>,
-    select_cb: Option<Rc<dyn Fn(TabId)>>,
+    is_active: TIsActiveSignal,
+    select_cb: Option<TabChangeCallbackFnMut<TabId>>,
 ) -> Dom {
     let content_node = match &tab.content {
         TabContent::Label(label) => html!("span", {
@@ -74,19 +78,10 @@ fn tab<TabId: Clone + std::cmp::PartialEq + Debug + 'static>(
             })
         ])
         .class("tab")
-        .class_signal("active", meta.signal_cloned().map(clone!(tab => move |e| {
-                tab.id == e
-            }))
-        )
-        .event(clone!(meta, tab, select_cb => move |_: events::Click| {
-            let active = meta.get_cloned();
-
-            if active != tab.id {
-                if let Some(cb) = &select_cb {
-                    cb(tab.id.clone())
-                } else {
-                    meta.set(tab.id.clone())
-                }
+        .class_signal("active", is_active)
+        .event(clone!(tab, select_cb => move |_: events::Click| {
+            if let Some(cb) = &select_cb {
+                cb.borrow_mut()(tab.id)
             }
         }))
     })
