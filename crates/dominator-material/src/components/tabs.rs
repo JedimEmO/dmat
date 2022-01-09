@@ -7,50 +7,57 @@ use std::fmt::Debug;
 use wasm_bindgen::__rt::std::rc::Rc;
 use web_sys::HtmlElement;
 
-#[derive(Clone)]
-pub enum TabContent {
-    Label(String),
-    NodeFn(Rc<dyn Fn() -> Dom>),
-}
-
-#[derive(Clone)]
-pub struct Tab<TabId: Clone> {
-    pub content: TabContent,
-    pub id: TabId,
+pub struct TabsProps<
+    TabList: SignalVec<Item = TabId> + 'static,
+    TabId: Copy + std::cmp::PartialEq + Debug + 'static,
+    ActiveFn: 'static,
+    ActiveSignal: 'static,
+    TabFn: Fn(TabId) -> Dom + 'static,
+> where
+    ActiveFn: Fn(TabId) -> ActiveSignal,
+    ActiveSignal: Signal<Item = bool>,
+{
+    pub tab_fn: TabFn,
+    pub active_tab_signal_factory: ActiveFn,
+    pub tabs_list: TabList,
+    pub on_tab_change: Option<TabChangeCallbackFnMut<TabId>>,
 }
 
 #[macro_export]
 macro_rules! tabs {
-    ($a: expr, $b: expr, $c: expr) => {{
-        $crate::components::tabs::tabs($a, $b, $c, |d| d)
+    ($props: expr) => {{
+        $crate::components::tabs::tabs($props, |d| d)
     }};
 
-    ($a: expr, $b: expr, $c: expr, $mixin: expr) => {{
-        $crate::components::tabs::tabs($a, $b, $c, $mixin)
+    ($props: expr, $mixin: expr) => {{
+        $crate::components::tabs::tabs($props, $mixin)
     }};
 }
 
 pub type TabChangeCallbackFnMut<TabId> = Rc<RefCell<dyn FnMut(TabId)>>;
 
 #[inline]
-pub fn tabs<TabList, TabId, TActiveSignal, FActiveFn, F>(
-    active_tab_signal_factory: FActiveFn,
-    tabs_list: TabList,
-    on_tab_change: Option<TabChangeCallbackFnMut<TabId>>,
+pub fn tabs<TabList, TabId, TActiveSignal, ActiveFn, F, TabFn>(
+    props: TabsProps<TabList, TabId, ActiveFn, TActiveSignal, TabFn>,
     mixin: F,
 ) -> Dom
 where
-    TabList: SignalVec<Item = Tab<TabId>> + 'static,
+    TabList: SignalVec<Item = TabId> + 'static,
     TabId: Copy + std::cmp::PartialEq + Debug + 'static,
     F: FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>,
-    FActiveFn: Fn(TabId) -> TActiveSignal + 'static,
+    ActiveFn: Fn(TabId) -> TActiveSignal + 'static,
     TActiveSignal: Signal<Item = bool> + 'static,
+    TabFn: Fn(TabId) -> Dom + 'static,
 {
+    let tab_list = props.tabs_list;
+    let tab_fn = props.tab_fn;
+    let active_tab_signal_factory = props.active_tab_signal_factory;
+    let on_tab_change = props.on_tab_change;
     html!("div", {
         .class("dmat-tabs")
         .apply(mixin)
-        .children_signal_vec(tabs_list.map(move |v| {
-            tab(&v, active_tab_signal_factory(v.id), on_tab_change.clone())
+        .children_signal_vec(tab_list.map(move |v| {
+            tab(tab_fn(v), v, active_tab_signal_factory(v), on_tab_change.clone())
         }))
     })
 }
@@ -59,17 +66,11 @@ fn tab<
     TabId: Copy + std::cmp::PartialEq + Debug + 'static,
     TIsActiveSignal: Signal<Item = bool> + 'static,
 >(
-    tab: &Tab<TabId>,
+    content_node: Dom,
+    tab_id: TabId,
     is_active: TIsActiveSignal,
     select_cb: Option<TabChangeCallbackFnMut<TabId>>,
 ) -> Dom {
-    let content_node = match &tab.content {
-        TabContent::Label(label) => html!("span", {
-            .text(label.as_str())
-        }),
-        TabContent::NodeFn(content) => content(),
-    };
-
     html!("button", {
         .children(&mut [
             content_node,
@@ -79,9 +80,9 @@ fn tab<
         ])
         .class("tab")
         .class_signal("active", is_active)
-        .event(clone!(tab, select_cb => move |_: events::Click| {
+        .event(clone!(select_cb => move |_: events::Click| {
             if let Some(cb) = &select_cb {
-                cb.borrow_mut()(tab.id)
+                cb.borrow_mut()(tab_id)
             }
         }))
     })

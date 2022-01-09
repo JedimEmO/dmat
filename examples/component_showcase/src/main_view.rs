@@ -1,10 +1,9 @@
 use dominator::{clone, html, Dom};
 use dominator_material::components::layouts::{app_bar, AppBarProps};
-use dominator_material::components::{Tab, TabContent};
+use dominator_material::components::TabsProps;
 use dominator_material::utils::mixin::mixin_id;
 use futures_signals::signal::SignalExt;
-
-use futures_signals::signal_vec::always;
+use futures_signals::signal_vec::MutableVec;
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -23,13 +22,15 @@ pub fn main_view() -> Dom {
 
     app_bar(
         AppBarProps::new()
-            .header(tabs!(
-                |id| DemoRoute::signal().map(clone!(id => move |v| v == id)),
-                always(main_view_tabs()),
-                Some(Rc::new(RefCell::new(|new_tab| {
+            .header(tabs!(TabsProps {
+                tab_fn: main_view_tabs,
+                active_tab_signal_factory: |id| DemoRoute::signal()
+                    .map(clone!(id => move |v| v == id)),
+                tabs_list: MutableVec::new_with_values(main_view_tab_list().into()).signal_vec(),
+                on_tab_change: Some(Rc::new(RefCell::new(|new_tab| {
                     DemoRoute::goto(new_tab)
                 })))
-            ))
+            }))
             .main_signal(active_tab.map(|tab_id| match tab_id {
                 DemoRoute::AppBar => app_bar_demo(),
                 DemoRoute::Button => button_demo(),
@@ -46,43 +47,29 @@ pub fn main_view() -> Dom {
     )
 }
 
-fn main_view_tabs() -> Vec<Tab<DemoRoute>> {
-    vec![
-        Tab {
-            content: TabContent::Label("App Bar".into()),
-            id: DemoRoute::AppBar,
-        },
-        Tab {
-            content: TabContent::Label("Button".into()),
-            id: DemoRoute::Button,
-        },
-        Tab {
-            content: TabContent::Label("Carousel".into()),
-            id: DemoRoute::Carousel,
-        },
-        Tab {
-            content: TabContent::Label("Card".into()),
-            id: DemoRoute::Card,
-        },
-        Tab {
-            content: TabContent::Label("List".into()),
-            id: DemoRoute::List,
-        },
-        Tab {
-            content: TabContent::Label("Tabs".into()),
-            id: DemoRoute::Tabs,
-        },
-        Tab {
-            content: TabContent::Label("Data Table".into()),
-            id: DemoRoute::DataTable,
-        },
-        Tab {
-            content: TabContent::Label("Input".into()),
-            id: DemoRoute::Input,
-        },
-        Tab {
-            content: TabContent::Label("Navigation Drawer".into()),
-            id: DemoRoute::NavigationDrawer,
-        },
+fn main_view_tab_list() -> [DemoRoute; 9] {
+    [
+        DemoRoute::AppBar,
+        DemoRoute::List,
+        DemoRoute::Button,
+        DemoRoute::Tabs,
+        DemoRoute::DataTable,
+        DemoRoute::Carousel,
+        DemoRoute::Input,
+        DemoRoute::NavigationDrawer,
+        DemoRoute::Card,
     ]
+}
+fn main_view_tabs(tab_id: DemoRoute) -> Dom {
+    match tab_id {
+        DemoRoute::Tabs => text!("Tabs"),
+        DemoRoute::DataTable => text!("Data Table"),
+        DemoRoute::AppBar => text!("App Bar"),
+        DemoRoute::Card => text!("Card"),
+        DemoRoute::List => text!("List"),
+        DemoRoute::NavigationDrawer => text!("Navigation Drawer"),
+        DemoRoute::Input => text!("Input"),
+        DemoRoute::Carousel => text!("Carousel"),
+        DemoRoute::Button => text!("Button"),
+    }
 }
