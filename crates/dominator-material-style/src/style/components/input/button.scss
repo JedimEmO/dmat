@@ -52,12 +52,31 @@
 
     &.-outlined {
       background: none;
-      color: map-get-strict($colors, "secondary");
       border: 2px map-get-strict($colors, "secondary_light") solid;
       font-weight: bolder;
 
-      &:hover {
-        background: map-get-strict($colors, "secondary_lightest");
+      &.-prominent {
+        color: map-get-strict($colors, "secondary");
+
+        &:hover {
+          color: scale-color(map-get-strict($colors, "secondary"), $lightness: 30%);
+        }
+      }
+
+      &.-neutral {
+        color: map-get-strict($colors, "secondary_light");
+
+        &:hover {
+          color: scale-color(map-get-strict($colors, "secondary_light"), $lightness: 30%);
+        }
+      }
+
+      &.-unimportant {
+        color: map-get-strict($colors, "secondary_lightest");
+
+        &:hover {
+          color: scale-color(map-get-strict($colors, "secondary_lightest"), $lightness: 30%);
+        }
       }
     }
 
@@ -67,8 +86,31 @@
       font-weight: bolder;
       border: none;
 
-      &:hover {
-        background: map-get-strict($colors, "secondary_lightest");
+      &.-prominent {
+        color: map-get-strict($colors, "secondary");
+
+        &:hover {
+          color: scale-color(map-get-strict($colors, "secondary"), $lightness: 30%);
+          background: scale-color(map-get-strict($colors, "secondary"), $lightness: 70%);
+        }
+      }
+
+      &.-neutral {
+        color: map-get-strict($colors, "secondary_light");
+
+        &:hover {
+          color: scale-color(map-get-strict($colors, "secondary_light"), $lightness: 30%);
+          background: scale-color(map-get-strict($colors, "secondary_light"), $lightness: 70%);
+        }
+      }
+
+      &.-unimportant {
+        color: map-get-strict($colors, "secondary_lightest");
+
+        &:hover {
+          color: scale-color(map-get-strict($colors, "secondary_lightest"), $lightness: 30%);
+          background: scale-color(map-get-strict($colors, "secondary_lightest"), $lightness: 70%);
+        }
       }
     }
 
