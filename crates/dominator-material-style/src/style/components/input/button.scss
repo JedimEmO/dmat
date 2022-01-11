@@ -22,11 +22,30 @@
     }
 
     &.-contained {
-      background: map-get-strict($colors, "primary");
-      color: map-get-strict($colors, "text_on_primary");
+      color: map-get-strict($colors, "text_on_secondary");
 
-      &:hover {
-        background: map-get-strict($colors, "primary_light");
+      &.-prominent {
+        background: map-get-strict($colors, "secondary");
+
+        &:hover {
+          background: scale-color(map-get-strict($colors, "secondary"), $lightness: 30%);
+        }
+      }
+
+      &.-neutral {
+        background: map-get-strict($colors, "secondary_light");
+
+        &:hover {
+          background: scale-color(map-get-strict($colors, "secondary_light"), $lightness: 30%);
+        }
+      }
+
+      &.-unimportant {
+        background: map-get-strict($colors, "secondary_lightest");
+
+        &:hover {
+          background: scale-color(map-get-strict($colors, "secondary_lightest"), $lightness: 30%);
+        }
       }
     }
 
@@ -53,8 +72,7 @@
     }
 
     &:active {
-      background: map-get-strict($colors, "primary_dark");
+      //background: map-get-strict($colors, "primary_dark");
     }
   }
-
 }

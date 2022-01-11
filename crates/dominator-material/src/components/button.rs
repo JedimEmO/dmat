@@ -9,9 +9,21 @@ pub enum ButtonType {
     Text,
 }
 
+pub enum ButtonStyle {
+    Prominent,
+    Neutral,
+    Unimportant,
+}
+
 impl Default for ButtonType {
     fn default() -> Self {
         ButtonType::Contained
+    }
+}
+
+impl Default for ButtonStyle {
+    fn default() -> Self {
+        Self::Prominent
     }
 }
 
@@ -25,6 +37,7 @@ pub struct ButtonProps {
     pub content: Option<ButtonContent>,
     pub click_handler: Option<Rc<dyn Fn(events::Click)>>,
     pub button_type: ButtonType,
+    pub style: ButtonStyle,
 }
 
 impl ButtonProps {
@@ -33,6 +46,7 @@ impl ButtonProps {
             content: None,
             click_handler: None,
             button_type: ButtonType::Contained,
+            style: ButtonStyle::Prominent,
         }
     }
 
@@ -60,6 +74,13 @@ impl ButtonProps {
     #[must_use]
     pub fn button_type(mut self, button_type: ButtonType) -> Self {
         self.button_type = button_type;
+        self
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn style(mut self, style: ButtonStyle) -> Self {
+        self.style = style;
         self
     }
 }
@@ -90,6 +111,11 @@ where
             ButtonType::Contained => "-contained",
             ButtonType::Outlined => "-outlined",
             ButtonType::Text => "-text",
+        })
+        .class(match button_props.style {
+            ButtonStyle::Prominent => "-prominent",
+            ButtonStyle::Neutral => "-neutral",
+            ButtonStyle::Unimportant => "-unimportant",
         })
         .apply(move |bdom| {
             match content {

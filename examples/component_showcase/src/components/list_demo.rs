@@ -17,6 +17,7 @@ pub fn list_demo() -> Dom {
                     entries.lock_mut().push_cloned("Hello!".into());
                 }))),
                 button_type: ButtonType::Contained,
+                style: Default::default()
             }),
             list!(entries
                 .signal_vec_cloned()

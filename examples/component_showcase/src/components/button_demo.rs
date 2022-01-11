@@ -1,8 +1,7 @@
 use dominator::{clone, html, Dom};
 
-use dominator_material::components::{ButtonProps, ButtonType, CardProps};
+use dominator_material::components::{ButtonProps, ButtonStyle, ButtonType, CardProps};
 
-use dominator_material::utils::mixin::mixin_id;
 use futures_signals::map_ref;
 use futures_signals::signal::Mutable;
 pub fn button_demo() -> Dom {
@@ -13,21 +12,52 @@ pub fn button_demo() -> Dom {
                 card!(CardProps::new()
                     .header(html!("div", { .text("ButtonType::Contained") }))
                     .body(
-                        button!(ButtonProps::new()
-                            .content(text!("Click me!"))
-                            .on_click(|_| {
-                                web_sys::window().unwrap().alert_with_message("You clicked?").unwrap();
-                            })))),
+                        static_list!(vec![
+                            button!(ButtonProps::new()
+                                .style(ButtonStyle::Prominent)
+                                .content(text!("prominent"))),
+                            button!(ButtonProps::new()
+                                .style(ButtonStyle::Neutral)
+                                .content(text!("neutral"))),
+                            button!(ButtonProps::new()
+                                .style(ButtonStyle::Unimportant)
+                                .content(text!("unimportant")))
+                    ])
+                )),
                 card!(CardProps::new()
                     .header(html!("div", { .text("ButtonType::Text") }))
-                    .body(button!(ButtonProps::new()
-                        .content(text!("Click me!"))
-                        .button_type(ButtonType::Text),mixin_id()))),
+                    .body(static_list!(vec![
+                            button!(ButtonProps::new()
+                                .style(ButtonStyle::Prominent)
+                                .button_type(ButtonType::Text)
+                                .content(text!("prominent"))),
+                            button!(ButtonProps::new()
+                                .style(ButtonStyle::Neutral)
+                                .button_type(ButtonType::Text)
+                                .content(text!("neutral"))),
+                            button!(ButtonProps::new()
+                                .style(ButtonStyle::Unimportant)
+                                .button_type(ButtonType::Text)
+                                .content(text!("unimportant")))
+                    ]
+                ))),
                 card!(CardProps::new()
                     .header(html!("div", { .text("ButtonType::Outlined") }))
-                    .body(button!(ButtonProps::new()
-                        .content(text!("Click me!"))
-                        .button_type(ButtonType::Outlined)))),
+                    .body(static_list!(vec![
+                            button!(ButtonProps::new()
+                                .style(ButtonStyle::Prominent)
+                                .button_type(ButtonType::Outlined)
+                                .content(text!("prominent"))),
+                            button!(ButtonProps::new()
+                                .style(ButtonStyle::Neutral)
+                                .button_type(ButtonType::Outlined)
+                                .content(text!("neutral"))),
+                            button!(ButtonProps::new()
+                                .style(ButtonStyle::Unimportant)
+                                .button_type(ButtonType::Outlined)
+                                .content(text!("unimportant")))
+                    ]
+                ))),
                 card!(CardProps::new()
                     .header(dynamic_text!(map_ref! {
                         let value = counter.signal() => format!("Button with dynamic content -  value is {}", value)
