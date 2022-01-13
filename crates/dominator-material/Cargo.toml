@@ -8,7 +8,6 @@ repository = "https://github.com/JedimEmO/dominator-material"
 description = "Collection of material components to use with the dominator rust library"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 dominator = "0.5.23"
 futures = "0.3.19"

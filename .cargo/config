@@ -1,2 +1,6 @@
 [target.wasm32-unknown-unknown]
 runner = 'wasm-bindgen-test-runner'
+[profile.release]
+lto = true
+codegen-units = 1
+opt-level = "z"

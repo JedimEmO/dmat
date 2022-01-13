@@ -4,9 +4,6 @@ version = "0.1.0"
 authors = ["Mathias Myrland <jedimemo@gmail.com>"]
 edition = "2018"
 
-[profile.release]
-lto = true
-
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
 crate-type = ["cdylib"]
@@ -16,7 +13,6 @@ dominator = "0.5.23"
 dominator-material = { path = "../../crates/dominator-material" }
 futures = "0.3.19"
 futures-signals = "0.3.15"
-futures-util = "0.3.19"
 js-sys = "0.3.44"
 lipsum = "0.8.0"
 wasm-bindgen = { version = "0.2.74", features = ["serde-serialize"] }
