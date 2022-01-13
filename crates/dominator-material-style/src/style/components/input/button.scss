@@ -31,6 +31,10 @@
 
         &:hover {
           background: scale-color(map-get-strict($colors, "secondary"), $lightness: 30%);
+
+          &:active {
+            background: scale-color(map-get-strict($colors, "secondary"), $lightness: -10%);
+          }
         }
       }
 
@@ -39,6 +43,10 @@
 
         &:hover {
           background: scale-color(map-get-strict($colors, "secondary_light"), $lightness: 30%);
+
+          &:active {
+            background: scale-color(map-get-strict($colors, "secondary_light"), $lightness: -10%);
+          }
         }
       }
 
@@ -47,6 +55,10 @@
 
         &:hover {
           background: scale-color(map-get-strict($colors, "secondary_lightest"), $lightness: 30%);
+
+          &:active {
+            background: scale-color(map-get-strict($colors, "secondary_lightest"), $lightness: -10%);
+          }
         }
       }
     }
@@ -63,6 +75,10 @@
         &:hover {
           color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 30%);
           background: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 70%);
+
+          &:active {
+            color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: -10%);
+          }
         }
       }
 
@@ -74,6 +90,10 @@
         &:hover {
           color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 30%);
           background: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 70%);
+
+          &:active {
+            color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: -10%);
+          }
         }
       }
 
@@ -85,6 +105,10 @@
         &:hover {
           color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 30%);
           background: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 70%);
+
+          &:active {
+            color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: -10%);
+          }
         }
       }
     }
@@ -100,6 +124,10 @@
         &:hover {
           color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 30%);
           background: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 70%);
+
+          &:active {
+            color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: -10%);
+          }
         }
       }
 
@@ -111,6 +139,10 @@
         &:hover {
           color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 30%);
           background: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 70%);
+
+          &:active {
+            color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: -10%);
+          }
         }
       }
 
@@ -122,12 +154,12 @@
         &:hover {
           color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 30%);
           background: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 70%);
+
+          &:active {
+            color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: -10%);
+          }
         }
       }
-    }
-
-    &:active {
-      //background: map-get-strict($colors, "primary_dark");
     }
   }
 }

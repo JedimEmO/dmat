@@ -1,7 +1,9 @@
+@import "../../utils/breakpoints";
 @import "../../utils/map_get_strict";
 
 @mixin data_table($theme) {
   $colors: map-get-strict($theme, "colors");
+  $breakpoints: map-get-strict($theme, "breakpoints");
 
   .dmat-table {
     min-width: 100%;
@@ -60,6 +62,9 @@
         &:hover {
           color: map-get-strict($colors, "secondary");
         }
+
+        min-width: 28px;
+        min-height: 28px;
       }
     }
 
