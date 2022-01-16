@@ -48,7 +48,7 @@ impl CarouselSource for AppBarCarousel {
             0 => {
                 navigation_drawer!(
                     NavigationDrawerProps::new(
-                        |active_view| {
+                        |_active_view| {
                             Some(app_bar(
                                 AppBarProps::new()
                                     .header(html!("div", {
@@ -61,7 +61,7 @@ impl CarouselSource for AppBarCarousel {
                                 mixin_id(),
                             ))
                         },
-                        |item, expanded| {
+                        |item, _expanded| {
                             match item {
                                 DemoNavigationEntries::Inbox => text!("inbox"),
                                 DemoNavigationEntries::Spam => text!("spam"),

@@ -1,5 +1,5 @@
 use dominator::{html, Dom};
-use futures_signals::signal::{Mutable, ReadOnlyMutable};
+use futures_signals::signal::{Mutable};
 use futures_signals::signal_vec::MutableVec;
 
 use dominator_material::components::{
@@ -63,7 +63,7 @@ pub fn static_drawers(toggle: bool, width: DrawerWidth) -> Dom {
         entries: MutableVec::new_with_values(demo_items()),
         main_view_generator: |_| None,
         header_view_generator: None,
-        item_renderer: |item, width| render_example_view(item, width),
+        item_renderer: render_example_view,
         show_toggle_controls: false,
         is_modal: false,
         expanded: Mutable::new(true),
@@ -80,14 +80,14 @@ fn modal_drawers() -> Dom {
         entries: MutableVec::new_with_values(demo_items()),
         main_view_generator: |_| None,
         header_view_generator: None,
-        item_renderer: |item, width| render_example_view(item, width),
+        item_renderer: render_example_view,
         show_toggle_controls: true,
         is_modal: true,
         expanded: Mutable::new(true),
         current_active: Default::default(),
         width: Mutable::new(DrawerWidth::Full).read_only(),
     }
-    .header_view_generator(|item, width| Some(html!("Examples")));
+    .header_view_generator(|_item, _width| Some(html!("Examples")));
 
     navigation_drawer!(props).0
 }

@@ -45,17 +45,18 @@ impl<
     pub fn set_entries(&self, entries: Vec<NavigationDrawerEntry<T>>) {
         self.entries.lock_mut().replace_cloned(entries);
     }
+}
 
-    fn activate_entry(&self, id: T) {
-        self.current_active.set(Some(id));
+fn activate_entry<T: Clone + Copy + PartialEq + 'static>(
+    id: T,
+    current_active: Mutable<Option<T>>,
+    expanded: Mutable<bool>,
+    is_modal: bool,
+) {
+    current_active.set(Some(id));
 
-        if self.is_modal {
-            self.expanded.set(false);
-        }
-    }
-
-    fn toggle(&self, state: bool) {
-        self.expanded.set(state);
+    if is_modal {
+        expanded.set(false);
     }
 }
 
@@ -159,12 +160,17 @@ where
         is_expanded: props.expanded.signal_cloned(),
     };
 
+    let is_modal = props.is_modal;
     let current_active = props.current_active;
     let expanded = props.expanded;
     let header_view_generator = props.header_view_generator;
     let configured_width = props.width;
 
     let current_width = Mutable::new(configured_width.get());
+
+    let activate = Rc::new(
+        clone!(current_active, expanded => move |id: T| activate_entry(id, current_active.clone(), expanded.clone(), is_modal)),
+    );
 
     (
         html!("div", {
@@ -193,13 +199,13 @@ where
                         .children(&mut [
                             controls(expanded.clone(), props.show_toggle_controls),
                             header(header_view_generator, current_active.clone(), expanded.clone()),
-                            items(props.item_renderer, props.entries.signal_vec_cloned(), current_active.clone(), current_width.read_only())
+                            items(props.item_renderer, props.entries.signal_vec_cloned(), current_active.clone(), current_width.read_only(), activate)
                         ])
                     }))
                 })),
                 main_view(
                     props.main_view_generator,
-                    expanded.clone(),
+                    expanded,
                     current_active.signal_cloned(),
                     props.is_modal,
                     props.show_toggle_controls
@@ -252,6 +258,7 @@ fn items<T: Clone + Copy + PartialEq + 'static, FItem: Fn(T, DrawerWidth) -> Dom
     entries: MutableSignalVec<NavigationDrawerEntry<T>>,
     active: Mutable<Option<T>>,
     width: ReadOnlyMutable<DrawerWidth>,
+    activate_entry: Rc<dyn Fn(T)>,
 ) -> Dom {
     let render_item = Rc::new(render_item);
 
@@ -273,8 +280,8 @@ fn items<T: Clone + Copy + PartialEq + 'static, FItem: Fn(T, DrawerWidth) -> Dom
                                 Some(render_item(v, w))
                             })
                         }))
-                        .event(clone!(active, v => move |_: events::Click| {
-                            active.set(Some(v.clone()))
+                        .event(clone!(activate_entry, v => move |_: events::Click| {
+                            (*activate_entry)(v)
                         }))
                     })
                 },
