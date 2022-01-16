@@ -5,8 +5,8 @@ use futures_signals::signal::MutableSignal;
 use crate::components::navigation_drawer_demo::static_drawers;
 use dominator_material::components::layouts::{app_bar, AppBarProps, AppBarType};
 use dominator_material::components::{
-    CardProps, CarouselProps, CarouselSource, NavigationDrawerEntry, NavigationDrawerProps,
-    NavigationEntry,
+    CardProps, CarouselProps, CarouselSource, DrawerWidth, NavigationDrawerEntry,
+    NavigationDrawerProps,
 };
 use dominator_material::utils::mixin::mixin_id;
 
@@ -36,30 +36,19 @@ impl AppBarCarousel {
     }
 }
 
+#[derive(Clone, Copy, PartialEq)]
+enum DemoNavigationEntries {
+    Inbox,
+    Spam,
+}
+
 impl CarouselSource for AppBarCarousel {
     fn get_entry(&self, index: usize) -> Dom {
         let inner = match index {
             0 => {
                 navigation_drawer!(
-                    NavigationDrawerProps::new()
-                        .show_toggle_controls(true)
-                        .expanded(true)
-                        .initial_selected(0)
-                        .entries(vec![
-                            NavigationDrawerEntry::Item(NavigationEntry {
-                                id: 0,
-                                text: "Inbox".to_string(),
-                            }),
-                            NavigationDrawerEntry::Item(NavigationEntry {
-                                id: 1,
-                                text: "Spam".to_string(),
-                            }),
-                        ])
-                        .title_view_generator(|_, _| {
-                            Some(html!("div", {.text("Outer modal drawer")}))
-                        })
-                        .modal(true)
-                        .main_view_generator(|_, _| {
+                    NavigationDrawerProps::new(
+                        |active_view| {
                             Some(app_bar(
                                 AppBarProps::new()
                                     .header(html!("div", {
@@ -71,7 +60,25 @@ impl CarouselSource for AppBarCarousel {
                                     .fixed(),
                                 mixin_id(),
                             ))
-                        }),
+                        },
+                        |item, expanded| {
+                            match item {
+                                DemoNavigationEntries::Inbox => text!("inbox"),
+                                DemoNavigationEntries::Spam => text!("spam"),
+                            }
+                        }
+                    )
+                    .show_toggle_controls(true)
+                    .expanded(true)
+                    .initial_selected(DemoNavigationEntries::Inbox)
+                    .entries(vec![
+                        NavigationDrawerEntry::Item(DemoNavigationEntries::Inbox),
+                        NavigationDrawerEntry::Item(DemoNavigationEntries::Spam),
+                    ])
+                    .header_view_generator(|_, _| {
+                        Some(html!("div", {.text("Outer modal drawer")}))
+                    })
+                    .modal(true),
                     |d| d.class("demo-drawer-with-app-bar")
                 )
                 .0
@@ -93,7 +100,7 @@ impl CarouselSource for AppBarCarousel {
                         .class("app-bar-demo-header")
                         .text("Prominent fixed app bar")
                     }))
-                    .main(static_drawers(true))
+                    .main(static_drawers(true, DrawerWidth::Full))
                     .bar_type(AppBarType::Prominent)
                     .fixed(),
                 mixin_id(),

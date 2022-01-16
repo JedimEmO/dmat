@@ -40,18 +40,23 @@ impl ToSass for AppBar {
 
 pub struct NavigationDrawer {
     pub full_width: String,
+    pub narrow_width: String,
 }
 
 impl Default for NavigationDrawer {
     fn default() -> Self {
         Self {
-            full_width: "15rem".to_string(),
+            full_width: "150px".to_string(),
+            narrow_width: "50px".to_string(),
         }
     }
 }
 
 impl ToSass for NavigationDrawer {
     fn to_sass(&self) -> String {
-        render_sass_map(&[render_sass_property("full_width", &self.full_width)])
+        render_sass_map(&[
+            render_sass_property("full_width", &self.full_width),
+            render_sass_property("narrow_width", &self.narrow_width),
+        ])
     }
 }

@@ -12,9 +12,20 @@
 
     grid-auto-columns: 0 1fr;
     position: relative;
+
     &.-expanded {
       grid-auto-columns: map-get-strict($navigation_drawer, "full_width") 1fr;
       box-shadow: 0px 2px 5px -1px rgba(0, 0, 0, 0.2), 0px 1px 5px 0px rgba(0, 0, 0, 0.14), 0px 1px 4px 1px rgba(0, 0, 0, 0.12);
+
+      &.-narrow  {
+        & > .main {
+          left: map-get-strict($navigation_drawer, "narrow_width");
+        }
+
+        & > .drawer {
+          width: map-get-strict($navigation_drawer, "narrow_width");
+        }
+      }
     }
 
     & .drawer {
@@ -29,18 +40,25 @@
       overflow: hidden;
 
       &.-expanded {
-        width: map-get-strict($navigation_drawer, "full_width")
+        width: map-get-strict($navigation_drawer, "full_width");
+
+        & .drawer-container {
+          & > .controls {
+            display: block;
+          }
+        }
       }
 
       & .drawer-container {
         position: relative;
 
         & > .controls {
+          display: none;
           position: relative;
           height: 1.5rem;
           padding: 4px 8px 4px 4px;
 
-          & > .dmat-navigation-drawer-collapse {
+          & .dmat-navigation-drawer-collapse {
             &:before {
               content: '\3008';
             }
@@ -105,6 +123,7 @@
 
       &.-expanded {
         left: map-get-strict($navigation_drawer, "full_width");
+
         &.-modal {
           left: 0;
         }
