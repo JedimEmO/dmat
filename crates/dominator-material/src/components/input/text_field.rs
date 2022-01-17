@@ -1,21 +1,19 @@
 use dominator::{clone, events, html, Dom, DomBuilder};
 use futures_signals::map_ref;
-use futures_signals::signal::{Mutable, Signal};
-use futures_signals::signal::{MutableSignal, SignalExt};
-use futures_util::future::ready;
+use futures_signals::signal::SignalExt;
+use futures_signals::signal::{
+    Broadcaster, BroadcasterSignalCloned, Mutable, MutableSignalCloned, Signal,
+};
 use wasm_bindgen::JsValue;
-use wasm_bindgen::__rt::std::rc::Rc;
 use web_sys::HtmlElement;
 
-#[derive(Default)]
-pub struct TextFieldProps<T: Clone> {
+pub struct TextFieldProps<T: Clone, TValidSignal: Signal<Item = bool>> {
     pub label: String,
     pub value: Mutable<T>,
-    pub validator: Option<Rc<dyn Fn(&T) -> bool>>,
-    pub depends_on: Mutable<()>,
-    pub has_focus: Mutable<bool>,
+    pub is_valid: TValidSignal,
     pub assistive_text_signal: Option<Box<dyn Signal<Item = Option<String>> + Unpin>>,
     pub error_text_signal: Option<Box<dyn Signal<Item = Option<String>> + Unpin>>,
+    pub claim_focus: bool,
 }
 
 pub enum InputValue {
@@ -23,34 +21,20 @@ pub enum InputValue {
     Bool(bool),
 }
 
-impl<T: Clone + From<InputValue> + Into<InputValue> + 'static> TextFieldProps<T> {
-    pub fn new(value: Mutable<T>) -> Self {
+impl<
+        T: Clone + From<InputValue> + Into<InputValue> + 'static,
+        TValidSignal: Signal<Item = bool>,
+    > TextFieldProps<T, TValidSignal>
+{
+    pub fn new(value: Mutable<T>, is_valid: TValidSignal) -> Self {
         TextFieldProps {
             value,
+            is_valid,
             label: "".to_string(),
-            validator: None,
-            depends_on: Mutable::new(()),
-            has_focus: Mutable::new(false),
             assistive_text_signal: None,
             error_text_signal: None,
+            claim_focus: false,
         }
-    }
-
-    #[inline]
-    #[must_use]
-    pub fn depends_on(mut self, depends_on: Mutable<()>) -> Self {
-        self.depends_on = depends_on;
-        self
-    }
-
-    #[inline]
-    #[must_use]
-    pub fn validator<F>(mut self, validator: F) -> Self
-    where
-        F: Fn(&T) -> bool + 'static,
-    {
-        self.validator = Some(Rc::new(validator));
-        self
     }
 
     #[inline]
@@ -59,10 +43,49 @@ impl<T: Clone + From<InputValue> + Into<InputValue> + 'static> TextFieldProps<T>
         self.label = label.into();
         self
     }
+
+    #[inline]
+    #[must_use]
+    pub fn claim_focus(mut self) -> Self {
+        self.claim_focus = true;
+        self
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn assistive_text_signal<TSig: Signal<Item = Option<String>> + Unpin + 'static>(
+        mut self,
+        sig: TSig,
+    ) -> Self {
+        self.assistive_text_signal = Some(Box::new(sig));
+        self
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn error_text_signal<TSig: Signal<Item = Option<String>> + Unpin + 'static>(
+        mut self,
+        sig: TSig,
+    ) -> Self {
+        self.error_text_signal = Some(Box::new(sig));
+        self
+    }
 }
 
-pub struct TextFieldOutput {
-    pub is_valid: MutableSignal<bool>,
+pub struct TextFieldOutput<TValidSignal: Signal<Item = bool> + 'static> {
+    pub is_valid: BroadcasterSignalCloned<TValidSignal>,
+    pub has_focus: MutableSignalCloned<bool>,
+}
+
+#[macro_export]
+macro_rules! text_field {
+    ($props: expr) => {{
+        $crate::components::input::text_field::text_field($props, |d| d)
+    }};
+
+    ($props: expr, $mixin: expr) => {{
+        $crate::components::input::text_field::text_field($props, $mixin)
+    }};
 }
 
 /// Creates a text input element for accepting user data
@@ -70,94 +93,28 @@ pub struct TextFieldOutput {
 /// The return tuple contains:
 /// 0: input Dom entry
 /// 1: output of the component, containing a boolean signal for the  validity of the input according to the validator
-pub fn text_field<T: Clone + From<InputValue> + Into<InputValue> + 'static, F>(
-    props: TextFieldProps<T>,
+pub fn text_field<
+    T: Clone + From<InputValue> + Into<InputValue> + 'static,
+    F,
+    TValidSignal: Signal<Item = bool> + 'static,
+>(
+    props: TextFieldProps<T, TValidSignal>,
     mixin: F,
-) -> (Dom, TextFieldOutput)
+) -> (Dom, TextFieldOutput<TValidSignal>)
 where
     F: FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>,
 {
-    let is_valid = Mutable::new(true);
+    let has_focus = Mutable::new(false);
+    let value = props.value.clone();
+    let is_valid_bc = Broadcaster::new(props.is_valid);
+
+    let (input_element, is_valid_bc) =
+        text_field_input(&value, &has_focus, props.claim_focus, is_valid_bc);
+    let label_element = label_element(&value, &has_focus, props.label.as_str());
 
     (
         {
-            let validator = props.validator.clone();
-            let depends_on = props.depends_on.clone();
-            let has_focus = props.has_focus.clone();
-            let value = props.value.clone();
-
-            let validate = clone!(validator, is_valid => move |val: &T| {
-                if let Some(validator_inner) = &validator {
-                    is_valid.replace(validator_inner(val));
-                } else {
-                    is_valid.replace(true);
-                }
-            });
-
-            validate(&props.value.get_cloned());
-
-            let input = html!("input", {
-                .future(clone!(validate, value, depends_on => async move {
-                    let deps = map_ref!(
-                        let _deps = depends_on.signal(),
-                        let val =  value.signal_cloned() => move {
-                            validate(val);
-                        }
-                    );
-
-                    // Trigger validate every time a dependency changes
-                    deps.for_each(|_| {
-                        ready(())
-                    }).await;
-                }))
-                .event(clone!(validate, value => move |e: events::Input| {
-                    #[allow(deprecated)]
-                    let val =  match e.value() {
-                        Some(v) => v.as_str().into(), _ => "".into()
-                    };
-
-                    let val = InputValue::Text(val);
-                    let val = val.into();
-
-                    validate(&val);
-                    value.replace(val);
-                }))
-                .event(clone!(has_focus => {
-                    move |_e: events::Focus| {
-                        has_focus.set(true);
-                    }
-                }))
-                .event(clone!(has_focus => {
-                    move |_: events::Blur| {
-                        has_focus.set(false);
-                    }
-                }))
-                .property_signal("value", props.value.signal_cloned().map(|v: T| {
-                    let val: InputValue = v.into();
-                    val
-                }))
-                .class_signal("invalid", is_valid.signal_cloned().map(|e| !e))
-                .class("dmat-input-element")
-            });
-
-            let label_element = html!("span", {
-                                .class_signal(
-                            "above",
-                            clone!(has_focus, value => map_ref!(
-                                let focus = has_focus.signal_cloned(),
-                                let _value = value.signal_cloned() => move {
-                                    let has_value = match value.get_cloned().into() {
-                                        InputValue::Text(txt) => !txt.is_empty(),
-                                        _ => false
-                                    };
-
-                                    *focus || has_value
-                                })))
-                .child(crate::text!(props.label.as_str()))
-                .class("dmat-input-label-text")
-            });
-
-            let mut children = vec![input, label_element];
+            let mut children = vec![input_element, label_element];
             let has_assistive = Mutable::new(false);
             let has_error = Mutable::new(false);
 
@@ -165,7 +122,7 @@ where
                 let has_error = has_error.clone();
 
                 let error_text_signal = map_ref!(
-                    let valid = is_valid.signal_cloned(),
+                    let valid = is_valid_bc.signal_cloned(),
                     let error_text = error => move {
                         if let Some(str) = error_text {
                             if !*valid {
@@ -227,8 +184,80 @@ where
             })
         },
         TextFieldOutput {
-            is_valid: is_valid.signal(),
+            is_valid: is_valid_bc.signal_cloned(),
+            has_focus: has_focus.signal_cloned(),
         },
+    )
+}
+
+#[inline]
+fn label_element<T: Clone + From<InputValue> + Into<InputValue> + 'static>(
+    value: &Mutable<T>,
+    has_focus: &Mutable<bool>,
+    label: &str,
+) -> Dom {
+    html!("span", {
+        .class_signal(
+            "above",
+            clone!(value => map_ref!(
+                let focus = has_focus.signal_cloned(),
+                let _value = value.signal_cloned() => move {
+                    let has_value = match value.get_cloned().into() {
+                        InputValue::Text(txt) => !txt.is_empty(),
+                        _ => false
+                    };
+
+                    *focus || has_value
+                })))
+        .child(crate::text!(label))
+        .class("dmat-input-label-text")
+    })
+}
+#[inline]
+fn text_field_input<
+    T: Clone + From<InputValue> + Into<InputValue> + 'static,
+    TValidSignal: Signal<Item = bool> + 'static,
+>(
+    value: &Mutable<T>,
+    has_focus: &Mutable<bool>,
+    claim_focus: bool,
+    is_valid_bc: Broadcaster<TValidSignal>,
+) -> (Dom, Broadcaster<TValidSignal>) {
+    (
+        html!("input", {
+            .apply_if(claim_focus, clone!(has_focus => move|builder| {
+                has_focus.set(true);
+                builder.focused(true)
+            }))
+            .event(clone!(value => move |e: events::Input| {
+                #[allow(deprecated)]
+                let val =  match e.value() {
+                    Some(v) => v.as_str().into(), _ => "".into()
+                };
+
+                let val = InputValue::Text(val);
+                let val = val.into();
+
+                value.replace(val);
+            }))
+            .event(clone!(has_focus => {
+                move |_e: events::Focus| {
+                    has_focus.set(true);
+                }
+            }))
+            .event(clone!(has_focus => {
+                move |_: events::Blur| {
+                    has_focus.set(false);
+                }
+            }))
+            .property_signal("value", value.signal_cloned().map(|v: T| {
+                let val: InputValue = v.into();
+                val
+            }))
+            .class_signal("invalid", is_valid_bc.signal_ref(|e| !e))
+            .class("dmat-input-element")
+        }),
+        is_valid_bc,
     )
 }
 
@@ -261,12 +290,11 @@ impl From<InputValue> for JsValue {
 
 #[cfg(test)]
 mod test {
-    use crate::components::{text_field, TextFieldProps};
     use futures_signals::signal::{Mutable, SignalExt};
     use futures_util::StreamExt;
-    use std::default::Default;
-    use std::rc::Rc;
     use wasm_bindgen_test::*;
+
+    use crate::components::{text_field, TextFieldProps};
 
     #[wasm_bindgen_test]
     async fn text_field_validation() {
@@ -274,9 +302,12 @@ mod test {
 
         let field = text_field(
             TextFieldProps {
+                label: "".to_string(),
                 value: val.clone(),
-                validator: Some(Rc::new(|v| v == "hello")),
-                ..Default::default()
+                is_valid: val.signal_ref(|v| v == "hello"),
+                assistive_text_signal: None,
+                error_text_signal: None,
+                claim_focus: false,
             },
             |d| d.attribute("id", "testfield"),
         );
