@@ -1,0 +1,9 @@
+@import "input_element";
+
+@mixin combo_box($theme) {
+  $colors: map-get-strict($theme, "colors");
+
+  .dmat-input-combo-box {
+    @include input_element($colors)
+  }
+}

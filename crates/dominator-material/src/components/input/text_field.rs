@@ -254,7 +254,7 @@ fn text_field_input<
                 let val: InputValue = v.into();
                 val
             }))
-            .class_signal("invalid", is_valid_bc.signal_ref(|e| !e))
+            .class_signal("-invalid", is_valid_bc.signal_ref(|e| !e))
             .class("dmat-input-element")
         }),
         is_valid_bc,

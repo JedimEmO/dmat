@@ -2,14 +2,36 @@ use dominator::{html, Dom};
 use futures_signals::map_ref;
 use futures_signals::signal::always;
 use futures_signals::signal::Mutable;
+use futures_signals::signal_vec::MutableVec;
 
+use dominator_material::components::input::ComboBoxProps;
 use dominator_material::components::{CardProps, TextFieldProps};
 
 pub fn input_demo() -> Dom {
+    container!(|d| { d.children(&mut [text_input_demo(), combo_box_demo()]) })
+}
+
+fn combo_box_demo() -> Dom {
+    let value = Mutable::new("".to_string());
+
+    card!(CardProps::new()
+        .header(text!("Combo box"))
+        .body(static_list!(vec![combo_box!(ComboBoxProps {
+            value: value.clone(),
+            options: MutableVec::new_with_values(vec![
+                "Banana".to_string(),
+                "Orange".to_string(),
+                "Apple".to_string()
+            ]),
+            id: "demo-list-a".into(),
+            valid_signal: Some(Box::new(value.signal_ref(|v| v == "Orange")))
+        })])))
+}
+fn text_input_demo() -> Dom {
     let text_value = Mutable::new("".to_string());
 
-    container!(|d| {
-        d.child(card!(CardProps::new()
+    card!(CardProps::new()
+        .header(text!("Text field"))
             .body(static_list!(vec![
                 html!("div", {
                     .children(&mut [
@@ -36,6 +58,5 @@ pub fn input_demo() -> Dom {
                     ])
                 }),
             ]),
-        ), |v| v.class("demo-card")))
-    })
+        ), |v| v.class("demo-card"))
 }

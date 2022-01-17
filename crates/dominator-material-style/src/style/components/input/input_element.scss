@@ -1,0 +1,16 @@
+@mixin input_element($colors) {
+  .dmat-input-element {
+    position: relative;
+    font-weight: 400;
+    align-self: flex-end;
+    box-sizing: border-box;
+    padding: 8px 4px 3px;
+    top: 0;
+    width: 100%;
+    height: 100%;
+
+    &.-invalid {
+      background: map-get-strict($colors, "invalid_element_backdrop");
+    }
+  }
+}
