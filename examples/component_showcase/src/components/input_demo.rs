@@ -8,15 +8,15 @@ use dominator_material::components::input::ComboBoxProps;
 use dominator_material::components::{CardProps, TextFieldProps};
 
 pub fn input_demo() -> Dom {
-    container!(|d| { d.children(&mut [text_input_demo(), combo_box_demo()]) })
+    let value = Mutable::new("".to_string());
+    container!(|d| { d.children(&mut [text_input_demo(&value), combo_box_demo(&value)]) })
 }
 
-fn combo_box_demo() -> Dom {
-    let value = Mutable::new("".to_string());
-
+fn combo_box_demo(value: &Mutable<String>) -> Dom {
     card!(CardProps::new()
         .header(text!("Combo box"))
         .body(static_list!(vec![combo_box!(ComboBoxProps {
+            label: "Oranges are the best".to_string(),
             value: value.clone(),
             options: MutableVec::new_with_values(vec![
                 "Banana".to_string(),
@@ -27,16 +27,14 @@ fn combo_box_demo() -> Dom {
             valid_signal: Some(Box::new(value.signal_ref(|v| v == "Orange")))
         })])))
 }
-fn text_input_demo() -> Dom {
-    let text_value = Mutable::new("".to_string());
-
+fn text_input_demo(value: &Mutable<String>) -> Dom {
     card!(CardProps::new()
         .header(text!("Text field"))
             .body(static_list!(vec![
                 html!("div", {
                     .children(&mut [
-                        text_field!(TextFieldProps::new(text_value.clone(), text_value.signal_ref(|_| true))
-                            .assistive_text_signal(map_ref!(let cur_val = text_value.signal_cloned() =>
+                        text_field!(TextFieldProps::new(value.clone(), value.signal_ref(|_| true))
+                            .assistive_text_signal(map_ref!(let cur_val = value.signal_cloned() =>
                                     Some(format!("Assistive text - {}", cur_val))))
                             .claim_focus()
                             .label("With dynamic help text")).0
@@ -45,7 +43,7 @@ fn text_input_demo() -> Dom {
                 html!("div", {  
                     .children(&mut [
                         text_field!(
-                            TextFieldProps::new(text_value.clone(), text_value.signal_ref(|v| v == "foobar"))
+                            TextFieldProps::new(value.clone(), value.signal_ref(|v| v == "foobar"))
                             .label("With error text")
                             .error_text_signal(always(Some("Only accepts the value `foobar`".to_string())))
                             ).0
@@ -53,7 +51,7 @@ fn text_input_demo() -> Dom {
                 }),
                 html!("div", {
                     .children(&mut [
-                        text_field!(TextFieldProps::new(text_value.clone(), text_value.signal_ref(|_| false))
+                        text_field!(TextFieldProps::new(value.clone(), value.signal_ref(|_| false))
                             .label("Always invalid")).0
                     ])
                 }),
