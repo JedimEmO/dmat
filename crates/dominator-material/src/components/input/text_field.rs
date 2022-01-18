@@ -1,32 +1,21 @@
 use dominator::{clone, events, html, Dom, DomBuilder};
 use futures_signals::map_ref;
-use futures_signals::signal::SignalExt;
 use futures_signals::signal::{
     Broadcaster, BroadcasterSignalCloned, Mutable, MutableSignalCloned, Signal,
 };
-use wasm_bindgen::JsValue;
 use web_sys::HtmlElement;
 
-pub struct TextFieldProps<T: Clone, TValidSignal: Signal<Item = bool>> {
+pub struct TextFieldProps<TValidSignal: Signal<Item = bool>> {
     pub label: String,
-    pub value: Mutable<T>,
+    pub value: Mutable<String>,
     pub is_valid: TValidSignal,
     pub assistive_text_signal: Option<Box<dyn Signal<Item = Option<String>> + Unpin>>,
     pub error_text_signal: Option<Box<dyn Signal<Item = Option<String>> + Unpin>>,
     pub claim_focus: bool,
 }
 
-pub enum InputValue {
-    Text(String),
-    Bool(bool),
-}
-
-impl<
-        T: Clone + From<InputValue> + Into<InputValue> + 'static,
-        TValidSignal: Signal<Item = bool>,
-    > TextFieldProps<T, TValidSignal>
-{
-    pub fn new(value: Mutable<T>, is_valid: TValidSignal) -> Self {
+impl<TValidSignal: Signal<Item = bool>> TextFieldProps<TValidSignal> {
+    pub fn new(value: Mutable<String>, is_valid: TValidSignal) -> Self {
         TextFieldProps {
             value,
             is_valid,
@@ -93,12 +82,8 @@ macro_rules! text_field {
 /// The return tuple contains:
 /// 0: input Dom entry
 /// 1: output of the component, containing a boolean signal for the  validity of the input according to the validator
-pub fn text_field<
-    T: Clone + From<InputValue> + Into<InputValue> + 'static,
-    F,
-    TValidSignal: Signal<Item = bool> + 'static,
->(
-    props: TextFieldProps<T, TValidSignal>,
+pub fn text_field<F, TValidSignal: Signal<Item = bool> + 'static>(
+    props: TextFieldProps<TValidSignal>,
     mixin: F,
 ) -> (Dom, TextFieldOutput<TValidSignal>)
 where
@@ -191,21 +176,14 @@ where
 }
 
 #[inline]
-fn label_element<T: Clone + From<InputValue> + Into<InputValue> + 'static>(
-    value: &Mutable<T>,
-    has_focus: &Mutable<bool>,
-    label: &str,
-) -> Dom {
+fn label_element(value: &Mutable<String>, has_focus: &Mutable<bool>, label: &str) -> Dom {
     html!("span", {
         .class_signal(
             "above",
             clone!(value => map_ref!(
                 let focus = has_focus.signal_cloned(),
-                let _value = value.signal_cloned() => move {
-                    let has_value = match value.get_cloned().into() {
-                        InputValue::Text(txt) => !txt.is_empty(),
-                        _ => false
-                    };
+                let current_value = value.signal_cloned() => move {
+                    let has_value = current_value.len() > 0;
 
                     *focus || has_value
                 })))
@@ -214,11 +192,8 @@ fn label_element<T: Clone + From<InputValue> + Into<InputValue> + 'static>(
     })
 }
 #[inline]
-fn text_field_input<
-    T: Clone + From<InputValue> + Into<InputValue> + 'static,
-    TValidSignal: Signal<Item = bool> + 'static,
->(
-    value: &Mutable<T>,
+fn text_field_input<TValidSignal: Signal<Item = bool> + 'static>(
+    value: &Mutable<String>,
     has_focus: &Mutable<bool>,
     claim_focus: bool,
     is_valid_bc: Broadcaster<TValidSignal>,
@@ -231,14 +206,10 @@ fn text_field_input<
             }))
             .event(clone!(value => move |e: events::Input| {
                 #[allow(deprecated)]
-                let val =  match e.value() {
-                    Some(v) => v.as_str().into(), _ => "".into()
+                if let Some(val) = e.value() {
+                    value.replace(val);
                 };
 
-                let val = InputValue::Text(val);
-                let val = val.into();
-
-                value.replace(val);
             }))
             .event(clone!(has_focus => {
                 move |_e: events::Focus| {
@@ -250,42 +221,12 @@ fn text_field_input<
                     has_focus.set(false);
                 }
             }))
-            .property_signal("value", value.signal_cloned().map(|v: T| {
-                let val: InputValue = v.into();
-                val
-            }))
+            .property_signal("value", value.signal_cloned())
             .class_signal("-invalid", is_valid_bc.signal_ref(|e| !e))
             .class("dmat-input-element")
         }),
         is_valid_bc,
     )
-}
-
-impl From<InputValue> for String {
-    fn from(val: InputValue) -> Self {
-        match val {
-            InputValue::Text(v) => v,
-            InputValue::Bool(v) => match v {
-                true => "true".to_string(),
-                _ => "false".to_string(),
-            },
-        }
-    }
-}
-
-impl From<String> for InputValue {
-    fn from(val: String) -> Self {
-        InputValue::Text(val)
-    }
-}
-
-impl From<InputValue> for JsValue {
-    fn from(value: InputValue) -> Self {
-        match value {
-            InputValue::Text(v) => v.into(),
-            InputValue::Bool(v) => v.into(),
-        }
-    }
 }
 
 #[cfg(test)]
