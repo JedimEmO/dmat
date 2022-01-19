@@ -3,6 +3,10 @@
 @mixin floating_label($theme) {
   $colors: map-get-strict($theme, "colors");
 
+  & {
+    padding: 10px;
+  }
+
   &.-invalid {
     color: map-get-strict($colors, "error_text_color");
     border-color: map-get-strict($colors, "invalid_element_backdrop");

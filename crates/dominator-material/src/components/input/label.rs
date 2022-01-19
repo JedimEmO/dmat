@@ -9,7 +9,7 @@ pub fn label_element(
     has_focus: &Mutable<bool>,
     label: &str,
 ) -> Dom {
-    html!("span", {
+    html!("label", {
         .class_signal(
             "above",
             clone!(value => map_ref!(

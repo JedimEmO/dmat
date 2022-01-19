@@ -30,39 +30,34 @@ pub fn combo_box<F>(props: ComboBoxProps, mixin: F) -> Dom
 where
     F: Fn(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>,
 {
-    let (input, has_focus) = combo_box_input(props.id.as_str(), &props.value, props.valid_signal);
+    let valid_signal = props.valid_signal;
+    let (input, has_focus) = combo_box_input(props.id.as_str(), &props.value);
 
     html!("div", {
-        .apply(mixin)
-        .class("dmat-input-combo-box")
-        .child(html!("div", {
+            .apply(mixin)
+            .class("dmat-input-combo-box")
+            .apply_if( valid_signal.is_some(), move |dom_builder| {
+                dom_builder.class_signal("-invalid", map_ref! {
+                    let is_valid =  valid_signal.unwrap() => move {
+                        !is_valid
+                    }
+                })
+            })
             .children([
                 label_element(input, &props.value, &has_focus, props.label.as_str()),
                 combo_box_datalist(props.id.as_str(), &props.options)
             ])
-        }))
     })
 }
 
 #[inline]
-fn combo_box_input(
-    data_list_id: &str,
-    value: &Mutable<String>,
-    valid: Option<Box<dyn Signal<Item = bool> + Unpin>>,
-) -> (Dom, Mutable<bool>) {
+fn combo_box_input(data_list_id: &str, value: &Mutable<String>) -> (Dom, Mutable<bool>) {
     let has_focus = Mutable::new(false);
 
     (
         html!("input", {
             .class("dmat-input-element")
             .attribute("list", data_list_id)
-            .apply_if(valid.is_some(), move |dom_builder| {
-                dom_builder.class_signal("-invalid", map_ref! {
-                    let is_valid = valid.unwrap() => move {
-                        !is_valid
-                    }
-                })
-            })
             .property_signal("value", value.signal_cloned())
             .event(clone!(value => move |e: events::Input| {
                 #[allow(deprecated)]
