@@ -35,11 +35,9 @@ where
     html!("div", {
         .apply(mixin)
         .class("dmat-input-combo-box")
-        .child(html!("label", {
-            .class("dmat-floating-label")
+        .child(html!("div", {
             .children([
-                input,
-                label_element(&props.value, &has_focus, props.label.as_str()),
+                label_element(input, &props.value, &has_focus, props.label.as_str()),
                 combo_box_datalist(props.id.as_str(), &props.options)
             ])
         }))

@@ -94,13 +94,12 @@ where
     let value = props.value.clone();
     let is_valid_bc = Broadcaster::new(props.is_valid);
 
-    let (input_element, is_valid_bc) =
-        text_field_input(&value, &has_focus, props.claim_focus, is_valid_bc);
-    let label_element = label_element(&value, &has_focus, props.label.as_str());
+    let input_element = text_field_input(&value, &has_focus, props.claim_focus);
+    let label_element = label_element(input_element, &value, &has_focus, props.label.as_str());
 
     (
         {
-            let mut children = vec![input_element, label_element];
+            let mut children = vec![label_element];
             let has_assistive = Mutable::new(false);
             let has_error = Mutable::new(false);
 
@@ -149,13 +148,8 @@ where
                 }));
             }
 
-            let children = html!("label", {
-                .children(children.as_mut_slice())
-                .class("dmat-floating-label")
-            });
-
             html!("div", {
-                .child(children)
+                .children(children.as_mut_slice())
                 .apply(mixin)
                 .class_signal(
                     "assistive",
@@ -166,6 +160,7 @@ where
                         }
                     )
                 )
+                .class_signal("-invalid", is_valid_bc.signal_ref(|e| !e))
                 .class("dmat-input-text-field")
             })
         },
@@ -177,41 +172,32 @@ where
 }
 
 #[inline]
-fn text_field_input<TValidSignal: Signal<Item = bool> + 'static>(
-    value: &Mutable<String>,
-    has_focus: &Mutable<bool>,
-    claim_focus: bool,
-    is_valid_bc: Broadcaster<TValidSignal>,
-) -> (Dom, Broadcaster<TValidSignal>) {
-    (
-        html!("input", {
-            .apply_if(claim_focus, clone!(has_focus => move|builder| {
-                has_focus.set(true);
-                builder.focused(true)
-            }))
-            .event(clone!(value => move |e: events::Input| {
-                #[allow(deprecated)]
-                if let Some(val) = e.value() {
-                    value.replace(val);
-                };
+fn text_field_input(value: &Mutable<String>, has_focus: &Mutable<bool>, claim_focus: bool) -> Dom {
+    html!("input", {
+        .apply_if(claim_focus, clone!(has_focus => move|builder| {
+            has_focus.set(true);
+            builder.focused(true)
+        }))
+        .event(clone!(value => move |e: events::Input| {
+            #[allow(deprecated)]
+            if let Some(val) = e.value() {
+                value.replace(val);
+            };
 
-            }))
-            .event(clone!(has_focus => {
-                move |_e: events::Focus| {
-                    has_focus.set(true);
-                }
-            }))
-            .event(clone!(has_focus => {
-                move |_: events::Blur| {
-                    has_focus.set(false);
-                }
-            }))
-            .property_signal("value", value.signal_cloned())
-            .class_signal("-invalid", is_valid_bc.signal_ref(|e| !e))
-            .class("dmat-input-element")
-        }),
-        is_valid_bc,
-    )
+        }))
+        .event(clone!(has_focus => {
+            move |_e: events::Focus| {
+                has_focus.set(true);
+            }
+        }))
+        .event(clone!(has_focus => {
+            move |_: events::Blur| {
+                has_focus.set(false);
+            }
+        }))
+        .property_signal("value", value.signal_cloned())
+        .class("dmat-input-element")
+    })
 }
 
 #[cfg(test)]

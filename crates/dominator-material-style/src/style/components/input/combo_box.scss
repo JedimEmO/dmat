@@ -7,6 +7,9 @@
   .dmat-input-combo-box {
     position: relative;
     @include input_element($colors);
-    @include floating_label($theme);
+
+    & > div {
+      @include floating_label($theme);
+    }
   }
 }
