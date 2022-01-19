@@ -5,6 +5,7 @@ use futures_signals::signal::Mutable;
 use futures_signals::signal_vec::MutableVec;
 
 use dominator_material::components::input::ComboBoxProps;
+use dominator_material::components::input::SelectProps;
 use dominator_material::components::{CardProps, TextFieldProps};
 
 pub fn input_demo() -> Dom {
@@ -14,18 +15,31 @@ pub fn input_demo() -> Dom {
 
 fn combo_box_demo(value: &Mutable<String>) -> Dom {
     card!(CardProps::new()
-        .header(text!("Combo box"))
-        .body(static_list!(vec![combo_box!(ComboBoxProps {
-            label: "Oranges are the best".to_string(),
-            value: value.clone(),
-            options: MutableVec::new_with_values(vec![
-                "Banana".to_string(),
-                "Orange".to_string(),
-                "Apple".to_string()
-            ]),
-            id: "demo-list-a".into(),
-            valid_signal: Some(Box::new(value.signal_ref(|v| v == "Orange")))
-        })])))
+        .header(text!("Selection"))
+        .body(static_list!(vec![
+            combo_box!(ComboBoxProps {
+                label: "Oranges are the best".to_string(),
+                value: value.clone(),
+                options: MutableVec::new_with_values(vec![
+                    "Banana".to_string(),
+                    "Orange".to_string(),
+                    "Apple".to_string()
+                ]),
+                id: "demo-list-a".into(),
+                valid_signal: Some(Box::new(value.signal_ref(|v| v == "Orange")))
+            }),
+            select!(SelectProps {
+                label: "Pick one".to_string(),
+                value: value.clone(),
+                options: MutableVec::new_with_values(vec![
+                    "Banana".to_string(),
+                    "Orange".to_string(),
+                    "Apple".to_string()
+                ]),
+                id: "demo-list-b".into(),
+                valid_signal: None
+            })
+        ])))
 }
 fn text_input_demo(value: &Mutable<String>) -> Dom {
     card!(CardProps::new()
@@ -43,9 +57,9 @@ fn text_input_demo(value: &Mutable<String>) -> Dom {
                 html!("div", {  
                     .children(&mut [
                         text_field!(
-                            TextFieldProps::new(value.clone(), value.signal_ref(|v| v == "foobar"))
+                            TextFieldProps::new(value.clone(), value.signal_ref(|v| v.contains("foobar")))
                             .label("With error text")
-                            .error_text_signal(always(Some("Only accepts the value `foobar`".to_string())))
+                            .error_text_signal(always(Some("Accepts string containing `foobar`".to_string())))
                             ).0
                     ])
                 }),

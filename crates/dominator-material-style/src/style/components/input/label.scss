@@ -22,7 +22,7 @@
     color: map-get-strict($colors, "error_text_color");
     border-color: map-get-strict($colors, "invalid_element_backdrop");
 
-    & input {
+    & input, & select {
       color: map-get-strict($colors, "error_text_color");
     }
   }
@@ -32,7 +32,7 @@
     position: relative;
     grid-template-columns: 10px 1fr 10px;
 
-    & > input {
+    & > input, & > select {
       grid-column: 2;
       grid-row: 1;
       border: none;

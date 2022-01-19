@@ -1,5 +1,6 @@
 @import "components/input/button";
 @import "components/input/combo_box";
+@import "components/input/select";
 @import "components/input/text_field";
 
 @import "components/container/app_bar";
@@ -18,6 +19,7 @@
   // inputs
   @include button($theme);
   @include combo_box($theme);
+  @include select($theme);
   @include text_field($theme);
 
   // containers

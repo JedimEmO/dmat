@@ -1,0 +1,21 @@
+@import "label";
+@import "input_element";
+
+@mixin select($theme) {
+  $colors: map-get-strict($theme, "colors");
+
+  .dmat-input-select {
+    height: 45px;
+
+    & >.dmat-floating-label > select {
+      border: none;
+      background: none;
+      width: 100%;
+      line-height: inherit;
+      outline: none;
+    }
+
+    @include input_element($colors);
+    @include floating_label($theme);
+  }
+}
