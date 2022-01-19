@@ -5,7 +5,6 @@
   $colors: map-get-strict($theme, "colors");
 
   .dmat-input-combo-box {
-    position: relative;
     @include input_element($colors);
     @include floating_label($theme);
   }

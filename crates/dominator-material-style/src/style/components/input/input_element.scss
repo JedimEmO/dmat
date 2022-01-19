@@ -1,5 +1,13 @@
+@import "../../utils/map_get_strict";
+
 @mixin input_element($colors) {
-  .dmat-input-element {
+  display: inline-flex;
+  position: relative;
+  background: map-get-strict($colors, "surface");
+  color: map-get-strict($colors, "text_on_secondary");
+  padding: 0;
+
+  & .dmat-input-element {
     font-weight: 400;
   }
 }
