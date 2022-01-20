@@ -1,36 +1,42 @@
-use crate::components::input::label::label_element;
+use crate::components::input::input::input;
+use crate::components::input::input_props::InputProps;
 use dominator::{clone, events, html, Dom, DomBuilder};
-use futures_signals::map_ref;
-use futures_signals::signal::{
-    Broadcaster, BroadcasterSignalCloned, Mutable, MutableSignalCloned, Signal,
-};
+use futures_signals::signal::{always, Mutable, MutableSignalCloned, Signal};
 use web_sys::HtmlElement;
 
-pub struct TextFieldProps<TValidSignal: Signal<Item = bool>> {
-    pub label: String,
-    pub value: Mutable<String>,
-    pub is_valid: TValidSignal,
-    pub assistive_text_signal: Option<Box<dyn Signal<Item = Option<String>> + Unpin>>,
-    pub error_text_signal: Option<Box<dyn Signal<Item = Option<String>> + Unpin>>,
+pub struct TextFieldProps {
     pub claim_focus: bool,
+    pub input_props: InputProps,
 }
 
-impl<TValidSignal: Signal<Item = bool>> TextFieldProps<TValidSignal> {
-    pub fn new(value: Mutable<String>, is_valid: TValidSignal) -> Self {
+impl TextFieldProps {
+    pub fn new(value: Mutable<String>) -> Self {
         TextFieldProps {
-            value,
-            is_valid,
-            label: "".to_string(),
-            assistive_text_signal: None,
-            error_text_signal: None,
             claim_focus: false,
+            input_props: InputProps {
+                label: None,
+                value,
+                is_valid: None,
+                assistive_text_signal: None,
+                error_text_signal: None,
+            },
         }
     }
 
     #[inline]
     #[must_use]
     pub fn label<TLabel: Into<String>>(mut self, label: TLabel) -> Self {
-        self.label = label.into();
+        self.input_props.label = Some(Box::new(always(label.into())));
+        self
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn label_signal<TLabel: Signal<Item = String> + Unpin + 'static>(
+        mut self,
+        label: TLabel,
+    ) -> Self {
+        self.input_props.label = Some(Box::new(label));
         self
     }
 
@@ -47,7 +53,7 @@ impl<TValidSignal: Signal<Item = bool>> TextFieldProps<TValidSignal> {
         mut self,
         sig: TSig,
     ) -> Self {
-        self.assistive_text_signal = Some(Box::new(sig));
+        self.input_props.assistive_text_signal = Some(Box::new(sig));
         self
     }
 
@@ -57,13 +63,19 @@ impl<TValidSignal: Signal<Item = bool>> TextFieldProps<TValidSignal> {
         mut self,
         sig: TSig,
     ) -> Self {
-        self.error_text_signal = Some(Box::new(sig));
+        self.input_props.error_text_signal = Some(Box::new(sig));
+        self
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn validator<TSig: Signal<Item = bool> + Unpin + 'static>(mut self, sig: TSig) -> Self {
+        self.input_props.is_valid = Some(Box::new(sig));
         self
     }
 }
 
-pub struct TextFieldOutput<TValidSignal: Signal<Item = bool> + 'static> {
-    pub is_valid: BroadcasterSignalCloned<TValidSignal>,
+pub struct TextFieldOutput {
     pub has_focus: MutableSignalCloned<bool>,
 }
 
@@ -83,89 +95,24 @@ macro_rules! text_field {
 /// The return tuple contains:
 /// 0: input Dom entry
 /// 1: output of the component, containing a boolean signal for the  validity of the input according to the validator
-pub fn text_field<F, TValidSignal: Signal<Item = bool> + 'static>(
-    props: TextFieldProps<TValidSignal>,
-    mixin: F,
-) -> (Dom, TextFieldOutput<TValidSignal>)
+pub fn text_field<F>(props: TextFieldProps, mixin: F) -> (Dom, TextFieldOutput)
 where
     F: FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>,
 {
     let has_focus = Mutable::new(false);
-    let value = props.value.clone();
-    let is_valid_bc = Broadcaster::new(props.is_valid);
 
-    let input_element = text_field_input(&value, &has_focus, props.claim_focus);
-    let label_element = label_element(input_element, &value, &has_focus, props.label.as_str());
+    let input_element = text_field_input(&props.input_props.value, &has_focus, props.claim_focus);
 
     (
-        {
-            let mut children = vec![label_element];
-            let has_assistive = Mutable::new(false);
-            let has_error = Mutable::new(false);
-
-            if let Some(error) = props.error_text_signal {
-                let has_error = has_error.clone();
-
-                let error_text_signal = map_ref!(
-                    let valid = is_valid_bc.signal_cloned(),
-                    let error_text = error => move {
-                        if let Some(str) = error_text {
-                            if !*valid {
-                                has_error.set(true);
-                                return Some(crate::text!(str, |d| d.class("dmat-assistive-text").class("dmat-error-text")));
-                            }
-                        }
-
-                        has_error.set(false);
-
-                        None
-                    }
-                );
-
-                children.push(html!("span", {
-                    .child_signal(error_text_signal)
-                }));
-            }
-
-            if let Some(assistive) = props.assistive_text_signal {
-                let has_assistive = has_assistive.clone();
-                let assistive_element_signal = map_ref!(
-                    let assistive_text = assistive => move {
-                        let ass = has_assistive.clone();
-
-                        if let Some(str) = assistive_text {
-                            ass.set(true);
-                            return Some(crate::text!(str, |d| d.class("dmat-assistive-text")))
-                        }
-
-                        ass.set(false);
-                        None
-                    }
-                );
-
-                children.push(html!("span", {
-                    .child_signal(assistive_element_signal)
-                }));
-            }
-
-            html!("div", {
-                .children(children.as_mut_slice())
-                .apply(mixin)
-                .class_signal(
-                    "assistive",
-                    map_ref!(
-                        let assistive = has_assistive.signal(),
-                        let err = has_error.signal() => {
-                            *assistive || *err
-                        }
-                    )
-                )
-                .class_signal("-invalid", is_valid_bc.signal_ref(|e| !e))
-                .class("dmat-input-text-field")
-            })
-        },
+        input(
+            input_element,
+            &has_focus,
+            props.input_props,
+            mixin,
+            "dmat-input-text-field",
+            None,
+        ),
         TextFieldOutput {
-            is_valid: is_valid_bc.signal_cloned(),
             has_focus: has_focus.signal_cloned(),
         },
     )
@@ -202,10 +149,10 @@ fn text_field_input(value: &Mutable<String>, has_focus: &Mutable<bool>, claim_fo
 
 #[cfg(test)]
 mod test {
-    use futures_signals::signal::{Mutable, SignalExt};
-    use futures_util::StreamExt;
+    use futures_signals::signal::Mutable;
     use wasm_bindgen_test::*;
 
+    use crate::components::input::input_props::InputProps;
     use crate::components::{text_field, TextFieldProps};
 
     #[wasm_bindgen_test]
@@ -214,18 +161,20 @@ mod test {
 
         let field = text_field(
             TextFieldProps {
-                label: "".to_string(),
-                value: val.clone(),
-                is_valid: val.signal_ref(|v| v == "hello"),
-                assistive_text_signal: None,
-                error_text_signal: None,
                 claim_focus: false,
+                input_props: InputProps {
+                    value: val.clone(),
+                    is_valid: Some(Box::new(val.signal_ref(|v| v == "hello"))),
+                    label: None,
+                    assistive_text_signal: None,
+                    error_text_signal: None,
+                },
             },
             |d| d.attribute("id", "testfield"),
         );
 
         let field_dom = field.0;
-        let field_out = field.1;
+        let _field_out = field.1;
 
         dominator::append_dom(
             &web_sys::window()
@@ -239,8 +188,8 @@ mod test {
 
         val.set("hello".to_string());
 
-        let mut valid_stream = field_out.is_valid.to_stream();
-
-        while !valid_stream.next().await.unwrap() {}
+        // let mut valid_stream = field_out.is_valid.to_stream();
+        //
+        // while !valid_stream.next().await.unwrap() {}
     }
 }

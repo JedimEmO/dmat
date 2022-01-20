@@ -1,10 +1,9 @@
+use crate::components::input::input::input;
+use crate::components::input::input_props::InputProps;
 use dominator::{clone, events, html, Dom, DomBuilder};
-use futures_signals::map_ref;
-use futures_signals::signal::{Mutable, Signal};
+use futures_signals::signal::Mutable;
 use futures_signals::signal_vec::{MutableVec, SignalVecExt};
 use web_sys::HtmlElement;
-
-use crate::components::input::label::label_element;
 
 #[macro_export]
 macro_rules! combo_box {
@@ -18,11 +17,9 @@ macro_rules! combo_box {
 }
 
 pub struct ComboBoxProps {
-    pub label: String,
-    pub value: Mutable<String>,
     pub options: MutableVec<String>,
-    pub id: String,
-    pub valid_signal: Option<Box<dyn Signal<Item = bool> + Unpin>>,
+    pub data_list_id: String,
+    pub input_props: InputProps,
 }
 
 #[inline]
@@ -30,24 +27,20 @@ pub fn combo_box<F>(props: ComboBoxProps, mixin: F) -> Dom
 where
     F: Fn(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>,
 {
-    let valid_signal = props.valid_signal;
-    let (input, has_focus) = combo_box_input(props.id.as_str(), &props.value);
+    let (combo_input, has_focus) =
+        combo_box_input(props.data_list_id.as_str(), &props.input_props.value);
 
-    html!("div", {
-            .apply(mixin)
-            .class("dmat-input-combo-box")
-            .apply_if( valid_signal.is_some(), move |dom_builder| {
-                dom_builder.class_signal("-invalid", map_ref! {
-                    let is_valid =  valid_signal.unwrap() => move {
-                        !is_valid
-                    }
-                })
-            })
-            .children([
-                label_element(input, &props.value, &has_focus, props.label.as_str()),
-                combo_box_datalist(props.id.as_str(), &props.options)
-            ])
-    })
+    input(
+        combo_input,
+        &has_focus,
+        props.input_props,
+        mixin,
+        "dmat-input-combo-box",
+        Some(combo_box_datalist(
+            props.data_list_id.as_str(),
+            &props.options,
+        )),
+    )
 }
 
 #[inline]

@@ -1,13 +1,13 @@
 use dominator::{clone, html, Dom};
 use futures_signals::map_ref;
-use futures_signals::signal::Mutable;
+use futures_signals::signal::{Mutable, Signal};
 
 #[inline]
 pub fn label_element(
     input: Dom,
     value: &Mutable<String>,
     has_focus: &Mutable<bool>,
-    label: &str,
+    label: Option<Box<dyn Signal<Item = String> + Unpin>>,
 ) -> Dom {
     html!("label", {
         .class_signal(
@@ -22,7 +22,12 @@ pub fn label_element(
         .children(&mut [
             input,
             html!("div", {.class("dmat-notch-left")}),
-            html!("div", {.class("dmat-notch-middle").child(crate::text!(label, |dom_builder| dom_builder.class("dmat-input-label-text")))}),
+            html!("div", {
+                .class("dmat-notch-middle")
+                .apply_if(label.is_some(), |dom_builder| {
+                    dom_builder.child(crate::dynamic_text!(label.unwrap(), |dom_builder| dom_builder.class("dmat-input-label-text")))
+                })
+            }),
             html!("div", {.class("dmat-notch-right")}),
         ])
         .class("dmat-floating-label")

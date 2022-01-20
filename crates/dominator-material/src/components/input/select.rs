@@ -1,13 +1,10 @@
-use crate::components::input::label::label_element;
-use crate::components::input::ComboBoxProps;
+use crate::components::input::input::input;
+use crate::components::input::input_props::InputProps;
 use dominator::{clone, events, html, Dom, DomBuilder};
-use futures_signals::map_ref;
 use futures_signals::signal::Mutable;
 use futures_signals::signal_vec::{MutableVec, SignalVecExt};
 use wasm_bindgen::JsCast;
 use web_sys::{HtmlElement, HtmlSelectElement};
-
-pub type SelectProps = ComboBoxProps;
 
 #[macro_export]
 macro_rules! select {
@@ -20,26 +17,28 @@ macro_rules! select {
     }};
 }
 
+pub struct SelectProps {
+    pub options: MutableVec<String>,
+    pub data_list_id: String,
+    pub input_props: InputProps,
+}
+
 pub fn select<F>(props: SelectProps, mixin: F) -> Dom
 where
     F: Fn(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>,
 {
-    let value = props.value;
     let has_focus = Mutable::new(true);
     let options = props.options;
-    let input = select_input_ele(&value, &options);
-    let label = label_element(input, &value, &has_focus, props.label.as_str());
+    let input_ele = select_input_ele(&props.input_props.value, &options);
 
-    html!("div", {
-        .apply(mixin)
-        .class("dmat-input-select")
-        .child(label)
-        .class_signal("-invalid", map_ref! {
-            let cur_val =  value.signal_cloned() => move {
-                !options.lock_ref().contains(cur_val)
-            }
-        })
-    })
+    input(
+        input_ele,
+        &has_focus,
+        props.input_props,
+        mixin,
+        "dmat-input-select",
+        None,
+    )
 }
 
 fn select_input_ele(value: &Mutable<String>, options: &MutableVec<String>) -> Dom {
