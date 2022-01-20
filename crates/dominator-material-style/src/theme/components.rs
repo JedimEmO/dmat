@@ -1,9 +1,11 @@
+use crate::theme::inputs::Inputs;
 use crate::theme::to_sass::{render_sass_map, render_sass_property, ToSass};
 
 #[derive(Default)]
 pub struct Components {
     pub app_bar: AppBar,
     pub navigation_drawer: NavigationDrawer,
+    pub inputs: Inputs,
 }
 
 impl ToSass for Components {
@@ -11,6 +13,7 @@ impl ToSass for Components {
         render_sass_map(&[
             render_sass_property("app_bar", &self.app_bar),
             render_sass_property("navigation_drawer", &self.navigation_drawer),
+            render_sass_property("inputs", &self.inputs),
         ])
     }
 }

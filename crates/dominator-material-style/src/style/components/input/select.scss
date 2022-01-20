@@ -3,9 +3,11 @@
 
 @mixin select($theme) {
   $colors: map-get-strict($theme, "colors");
+  $components: map-get-strict($theme, "components");
+  $inputs: map-get-strict($components, "inputs");
 
   .dmat-input-select {
-    height: 45px;
+    height: map-get-strict($inputs, "input_height");
 
     & >.dmat-floating-label > select {
       border: none;

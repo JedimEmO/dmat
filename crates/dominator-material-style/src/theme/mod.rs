@@ -2,6 +2,7 @@ pub mod breakpoints;
 pub mod colors;
 pub mod components;
 pub mod dmat_theme;
+pub mod inputs;
 pub mod layout;
 pub mod to_sass;
 
