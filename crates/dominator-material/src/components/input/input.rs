@@ -42,10 +42,10 @@ where
 
     let assistive = assistive_text(props.assistive_text_signal, &has_assistive);
 
-    let mut children = build_children(&mut [Some(label_element), extra_child, error, assistive]);
+    let children = build_children(&mut [Some(label_element), extra_child, error, assistive]);
 
     html!("div", {
-        .children(children.as_mut_slice())
+        .children(children.into_iter())
         .apply(mixin)
         .class_signal(
             "assistive",

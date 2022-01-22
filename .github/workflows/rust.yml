@@ -22,7 +22,7 @@ jobs:
         uses: jetli/wasm-bindgen-action@v0.1.0
         with:
           # Optional version of wasm-bindgen to install (eg. "0.2.68", "latest")
-          version: 0.2.78
+          version: 0.2.79
       - name: rust-toolchain
         # You may pin to the exact commit or the version.
         # uses: actions-rs/toolchain@b2417cde72dcf67f306c0ae8e0828a81bf0b189f
