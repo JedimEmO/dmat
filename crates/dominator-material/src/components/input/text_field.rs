@@ -19,6 +19,7 @@ impl TextFieldProps {
                 is_valid: None,
                 assistive_text_signal: None,
                 error_text_signal: None,
+                disabled_signal: None,
             },
         }
     }
@@ -71,6 +72,16 @@ impl TextFieldProps {
     #[must_use]
     pub fn validator<TSig: Signal<Item = bool> + Unpin + 'static>(mut self, sig: TSig) -> Self {
         self.input_props.is_valid = Some(Box::new(sig));
+        self
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn disabled_signal<TSig>(mut self, signal: TSig) -> Self
+    where
+        TSig: Signal<Item = bool> + Unpin + 'static,
+    {
+        self.input_props.disabled_signal = Some(Box::new(signal));
         self
     }
 }
@@ -168,6 +179,7 @@ mod test {
                     label: None,
                     assistive_text_signal: None,
                     error_text_signal: None,
+                    disabled_signal: None,
                 },
             },
             |d| d.attribute("id", "testfield"),

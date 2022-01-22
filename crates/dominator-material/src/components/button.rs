@@ -1,9 +1,10 @@
 use dominator::{clone, events, html, Dom, DomBuilder};
-use futures_signals::map_ref;
 use futures_signals::signal::Signal;
 
 use wasm_bindgen::__rt::std::rc::Rc;
 use web_sys::HtmlElement;
+
+use crate::components::mixins::with_disabled_signal;
 
 pub enum ButtonType {
     Contained,
@@ -146,14 +147,7 @@ where
                 }
             }))
         })
-        .apply_if(disabled_signal.is_some(), move |dom_builder| {
-            dom_builder.attribute_signal("disabled", map_ref!(let is_disabled = disabled_signal.unwrap() => {
-                match is_disabled {
-                    true => Some("disabled"),
-                    _ => None
-                }
-            }))
-        })
+        .apply(with_disabled_signal(disabled_signal))
     })
 }
 
@@ -162,13 +156,13 @@ mod test {
     use crate::components::ButtonProps;
     use dominator::events::Click;
     use dominator::{clone, html};
-    use dominator_testing::{mount_test_dom, test_dyn_element_by_id};
-    use futures_signals::signal::Mutable;
+    use dominator_testing::{async_yield, mount_test_dom, test_dyn_element_by_id};
+    use futures_signals::signal::{Mutable, SignalExt};
     use wasm_bindgen_test::*;
-    use web_sys::HtmlElement;
+    use web_sys::{HtmlButtonElement, HtmlElement};
 
     #[wasm_bindgen_test]
-    fn button_test() {
+    async fn button_test() {
         let counter = Mutable::new(0);
 
         let btn = button!(
@@ -176,7 +170,8 @@ mod test {
                 .content(html!("span"))
                 .on_click(clone!(counter => move |_: Click| {
                     counter.set(counter.get() + 1)
-                })),
+                }))
+                .disabled_signal(counter.signal_cloned().map(|v| v > 0)),
             |d| d.attribute("id", "test-button")
         );
 
@@ -188,10 +183,20 @@ mod test {
 
         assert_eq!(counter.get(), 1);
 
+        // We need to yield to v8 so that the disabled property actually propagates here :/
+        async_yield().await;
+
+        // Verify the counter won't increment after disabling the button
         test_dyn_element_by_id("test-button", |ele: &HtmlElement| {
             ele.click();
         });
 
-        assert_eq!(counter.get(), 2);
+        assert_eq!(counter.get(), 1);
+
+        async_yield().await;
+
+        test_dyn_element_by_id("test-button", |ele: &HtmlButtonElement| {
+            assert!(ele.disabled());
+        });
     }
 }

@@ -18,6 +18,7 @@ pub mod icon;
 pub mod input;
 pub mod layouts;
 pub mod list;
+pub mod mixins;
 pub mod navigation_drawer;
 pub mod progress_indicator;
 pub mod tabs;

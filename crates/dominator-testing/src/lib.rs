@@ -1,5 +1,6 @@
 use dominator::Dom;
-use wasm_bindgen::JsCast;
+use wasm_bindgen::{JsCast, JsValue};
+use wasm_bindgen_futures::JsFuture;
 
 pub fn mount_test_dom(dom: Dom) -> () {
     dominator::append_dom(
@@ -26,4 +27,10 @@ where
         .unwrap();
 
     tester(cmp.dyn_ref::<T>().unwrap());
+}
+
+pub async fn async_yield() {
+    JsFuture::from(js_sys::Promise::resolve(&JsValue::null()))
+        .await
+        .unwrap();
 }

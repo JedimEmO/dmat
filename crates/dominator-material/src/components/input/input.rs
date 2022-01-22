@@ -5,6 +5,10 @@ use web_sys::HtmlElement;
 
 use crate::components::input::input_props::InputProps;
 use crate::components::input::label::label_element;
+use crate::components::mixins::children_builder::build_children;
+use crate::components::mixins::{
+    assistive_text, error_text, with_disabled_signal, with_invalid_signal,
+};
 
 pub(crate) fn input<F>(
     input_element: Dom,
@@ -19,15 +23,10 @@ where
 {
     let label_element = label_element(input_element, &props.value, &has_focus, props.label);
 
-    let mut children = vec![label_element];
-
-    if let Some(extra_child) = extra_child {
-        children.push(extra_child);
-    }
-
     let has_assistive = Mutable::new(false);
     let has_error = Mutable::new(false);
     let is_valid = props.is_valid;
+    let disabled_signal = props.disabled_signal;
 
     let is_valid = if let Some(is_valid) = is_valid {
         Some(Broadcaster::new(is_valid))
@@ -35,52 +34,15 @@ where
         None
     };
 
-    if let Some(error) = props.error_text_signal {
-        let has_error = has_error.clone();
+    let error = error_text(
+        props.error_text_signal,
+        is_valid.as_ref().map(|v| v.signal_cloned()),
+        &has_error,
+    );
 
-        if let Some(valid_sig) = &is_valid {
-            let error_text_signal = map_ref!(
-                let valid = valid_sig.signal_cloned(),
-                let error_text = error => move {
-                    if let Some(str) = error_text {
-                        if !*valid {
-                            has_error.set(true);
-                            return Some(crate::text!(str, |d| d.class("dmat-assistive-text").class("dmat-error-text")));
-                        }
-                    }
+    let assistive = assistive_text(props.assistive_text_signal, &has_assistive);
 
-                    has_error.set(false);
-
-                    None
-                }
-            );
-
-            children.push(html!("span", {
-                .child_signal(error_text_signal)
-            }));
-        }
-    }
-
-    if let Some(assistive) = props.assistive_text_signal {
-        let has_assistive = has_assistive.clone();
-        let assistive_element_signal = map_ref!(
-            let assistive_text = assistive => move {
-                let ass = has_assistive.clone();
-
-                if let Some(str) = assistive_text {
-                    ass.set(true);
-                    return Some(crate::text!(str, |d| d.class("dmat-assistive-text")))
-                }
-
-                ass.set(false);
-                None
-            }
-        );
-
-        children.push(html!("span", {
-            .child_signal(assistive_element_signal)
-        }));
-    }
+    let mut children = build_children(&mut [Some(label_element), extra_child, error, assistive]);
 
     html!("div", {
         .children(children.as_mut_slice())
@@ -94,13 +56,8 @@ where
                 }
             )
         )
-        .apply_if(is_valid.is_some(),  move |builder| {
-            if let Some(is_valid) = is_valid {
-                builder.class_signal("-invalid", map_ref!(let valid = is_valid.signal_cloned() => !valid))
-            } else {
-                builder
-            }
-        })
+        .apply(with_disabled_signal(disabled_signal))
+        .apply(with_invalid_signal(is_valid.map(|v| v.signal_cloned())))
         .class(class_name)
     })
 }

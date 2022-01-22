@@ -6,4 +6,5 @@ pub struct InputProps {
     pub is_valid: Option<Box<dyn Signal<Item = bool> + Unpin>>,
     pub assistive_text_signal: Option<Box<dyn Signal<Item = Option<String>> + Unpin>>,
     pub error_text_signal: Option<Box<dyn Signal<Item = Option<String>> + Unpin>>,
+    pub disabled_signal: Option<Box<dyn Signal<Item = bool> + Unpin>>,
 }

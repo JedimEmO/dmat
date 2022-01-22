@@ -30,7 +30,8 @@ fn combo_box_demo(value: &Mutable<String>) -> Dom {
                     value: value.clone(),
                     is_valid: Some(Box::new(value.signal_ref(|v| v == "Orange"))),
                     assistive_text_signal: None,
-                    error_text_signal: None
+                    error_text_signal: None,
+                    disabled_signal: None
                 }
             }),
             combo_box!(ComboBoxProps {
@@ -47,7 +48,8 @@ fn combo_box_demo(value: &Mutable<String>) -> Dom {
                     assistive_text_signal: None,
                     error_text_signal: Some(Box::new(always(Some(
                         "With assistive/error text signal".to_string()
-                    ))))
+                    )))),
+                    disabled_signal: None
                 }
             }),
             select!(SelectProps {
@@ -62,7 +64,8 @@ fn combo_box_demo(value: &Mutable<String>) -> Dom {
                     value: value.clone(),
                     is_valid: None,
                     assistive_text_signal: None,
-                    error_text_signal: None
+                    error_text_signal: None,
+                    disabled_signal: None
                 }
             }),
             select!(SelectProps {
@@ -79,7 +82,8 @@ fn combo_box_demo(value: &Mutable<String>) -> Dom {
                     assistive_text_signal: Some(Box::new(always(Some(
                         "This one likes Bananas".to_string()
                     )))),
-                    error_text_signal: None
+                    error_text_signal: None,
+                    disabled_signal: None
                 }
             })
         ])))
