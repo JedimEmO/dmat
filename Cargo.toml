@@ -2,5 +2,6 @@
 members = [
     "crates/dominator-material",
     "crates/dominator-material-style",
+    "crates/dominator-testing",
     "examples/component_showcase"
 ]

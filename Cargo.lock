@@ -150,6 +150,7 @@ name = "dominator-material"
 version = "0.1.0"
 dependencies = [
  "dominator",
+ "dominator-testing",
  "futures",
  "futures-signals",
  "futures-util",
@@ -185,6 +186,17 @@ dependencies = [
  "grass",
  "rust-embed",
  "walkdir",
+]
+
+[[package]]
+name = "dominator-testing"
+version = "0.1.0"
+dependencies = [
+ "dominator",
+ "rust-embed",
+ "wasm-bindgen",
+ "wasm-bindgen-test",
+ "web-sys",
 ]
 
 [[package]]

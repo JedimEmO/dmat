@@ -1,4 +1,5 @@
 use dominator::{clone, html, Dom};
+use futures_signals::signal::SignalExt;
 
 use futures_signals::signal_vec::{MutableVec, SignalVecExt};
 
@@ -17,8 +18,10 @@ pub fn list_demo() -> Dom {
                     entries.lock_mut().push_cloned("Hello!".into());
                 }))),
                 button_type: ButtonType::Contained,
-                style: Default::default()
-            }),
+                style: Default::default(),
+                disabled_signal: None
+            }
+            .disabled_signal(entries.signal_vec_cloned().len().map(|v| v >= 5))),
             list!(entries
                 .signal_vec_cloned()
                 .map(|entry| html!("span", { .text(entry.as_str())}))),

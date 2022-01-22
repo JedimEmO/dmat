@@ -16,8 +16,9 @@ futures-util = "0.3.19"
 pin-project = "1.0.10"
 wasm-bindgen = "0.2.78"
 wasm-bindgen-futures = "0.4.28"
-web-sys = { version = "0.3.55", features = ["console", "Document", "HtmlDocument", "EventTarget", "HtmlSelectElement", "Element", "Window"] }
+web-sys = { version = "0.3.55", features = ["console", "Document", "HtmlDocument", "HtmlButtonElement", "EventTarget", "HtmlSelectElement", "Element", "Window"] }
 
 [dev-dependencies]
+dominator-testing = {path = "../dominator-testing"}
 tokio = { version = "1.14.0", features = ["macros", "rt"] }
 wasm-bindgen-test = "0.3.28"
