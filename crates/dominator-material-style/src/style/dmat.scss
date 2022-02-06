@@ -10,6 +10,8 @@
 @import "components/container/data_table";
 @import "components/container/list";
 @import "components/container/navigation_drawer";
+@import "components/container/sheet";
+@import "components/container/scrim";
 @import "components/container/surface";
 @import "components/container/tabs";
 
@@ -30,7 +32,9 @@
   @include data_table($theme);
   @include list($theme);
   @include navigation_drawer($theme);
+  @include sheet($theme);
   @include surface($theme);
+  @include scrim($theme);
   @include tabs($theme);
 
   // doodads

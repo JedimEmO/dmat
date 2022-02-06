@@ -14,6 +14,7 @@ pub enum DemoRoute {
     DataTable,
     Input,
     NavigationDrawer,
+    Sheet,
 }
 
 impl DemoRoute {
@@ -28,6 +29,7 @@ impl DemoRoute {
             "#/data-table" => DemoRoute::DataTable,
             "#/input" => DemoRoute::Input,
             "#/navigation-drawer" => DemoRoute::NavigationDrawer,
+            "#/sheet" => DemoRoute::Sheet,
             _ => DemoRoute::AppBar,
         }
     }
@@ -52,6 +54,7 @@ impl DemoRoute {
             DemoRoute::Tabs => "#/tabs",
             DemoRoute::DataTable => "#/data-table",
             DemoRoute::Input => "#/input",
+            DemoRoute::Sheet => "#/sheet",
             DemoRoute::NavigationDrawer => "#/navigation-drawer",
         }
     }

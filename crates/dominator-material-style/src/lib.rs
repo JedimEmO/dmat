@@ -42,6 +42,7 @@ mod test {
     fn verify_theme_compilation() {
         let files = render_dmat_scss("test-theme", DmatTheme::default());
 
+        println!("{}", files);
         grass::from_string(files, &Options::default()).unwrap();
     }
 }

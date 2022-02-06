@@ -6,6 +6,7 @@ pub struct Components {
     pub app_bar: AppBar,
     pub navigation_drawer: NavigationDrawer,
     pub inputs: Inputs,
+    pub sheet: Sheet,
 }
 
 impl ToSass for Components {
@@ -14,6 +15,7 @@ impl ToSass for Components {
             render_sass_property("app_bar", &self.app_bar),
             render_sass_property("navigation_drawer", &self.navigation_drawer),
             render_sass_property("inputs", &self.inputs),
+            render_sass_property("sheet", &self.sheet),
         ])
     }
 }
@@ -60,6 +62,29 @@ impl ToSass for NavigationDrawer {
         render_sass_map(&[
             render_sass_property("full_width", &self.full_width),
             render_sass_property("narrow_width", &self.narrow_width),
+        ])
+    }
+}
+
+pub struct Sheet {
+    pub side_width: String,
+    pub bottom_height: String,
+}
+
+impl Default for Sheet {
+    fn default() -> Self {
+        Self {
+            side_width: "150px".to_string(),
+            bottom_height: "30px".to_string(),
+        }
+    }
+}
+
+impl ToSass for Sheet {
+    fn to_sass(&self) -> String {
+        render_sass_map(&[
+            render_sass_property("side_width", &self.side_width),
+            render_sass_property("bottom_height", &self.bottom_height),
         ])
     }
 }

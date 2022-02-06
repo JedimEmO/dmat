@@ -1,0 +1,25 @@
+@mixin scrim($theme) {
+  .dmat-scrim {
+    height: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+
+    & > .scrim-overlay {
+      &.-hidden {
+        display: none;
+        pointer-events: none;
+      }
+
+      &:not(.-hidden) {
+        background: rgba(0.25, 0.25, 0.25, 0.5);
+        pointer-events: all;
+      }
+    }
+
+    & > * {
+      grid-row: 1;
+      grid-column: 1;
+    }
+  }
+}

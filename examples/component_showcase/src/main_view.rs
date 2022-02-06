@@ -15,6 +15,7 @@ use crate::components::data_table_demo::data_table_demo;
 use crate::components::input_demo::input_demo;
 use crate::components::list_demo::list_demo;
 use crate::components::navigation_drawer_demo::navigation_drawers_demo;
+use crate::components::sheet_demo::sheet_demo;
 use crate::route::DemoRoute;
 
 pub fn main_view() -> Dom {
@@ -40,6 +41,7 @@ pub fn main_view() -> Dom {
                 DemoRoute::DataTable => data_table_demo(),
                 DemoRoute::Input => input_demo(),
                 DemoRoute::NavigationDrawer => navigation_drawers_demo(),
+                DemoRoute::Sheet => sheet_demo(),
                 _ => html!("div"),
             }))
             .fixed(),
@@ -47,7 +49,7 @@ pub fn main_view() -> Dom {
     )
 }
 
-fn main_view_tab_list() -> [DemoRoute; 9] {
+fn main_view_tab_list() -> [DemoRoute; 10] {
     [
         DemoRoute::AppBar,
         DemoRoute::List,
@@ -58,6 +60,7 @@ fn main_view_tab_list() -> [DemoRoute; 9] {
         DemoRoute::Input,
         DemoRoute::NavigationDrawer,
         DemoRoute::Card,
+        DemoRoute::Sheet,
     ]
 }
 fn main_view_tabs(tab_id: DemoRoute) -> Dom {
@@ -71,5 +74,6 @@ fn main_view_tabs(tab_id: DemoRoute) -> Dom {
         DemoRoute::Input => text!("Input"),
         DemoRoute::Carousel => text!("Carousel"),
         DemoRoute::Button => text!("Button"),
+        DemoRoute::Sheet => text!("Sheet"),
     }
 }
