@@ -6,7 +6,7 @@ use dominator_material::components::ButtonProps;
 use dominator_material::utils::mixin::with_stream_flipflop;
 
 pub fn sheet_demo() -> Dom {
-    container!(|d| { d.child(bottom_sheet()) })
+    bottom_sheet()
 }
 
 fn bottom_sheet() -> Dom {
@@ -16,7 +16,7 @@ fn bottom_sheet() -> Dom {
 
     let (sheet_dom, modal_sheet_out) = modal_sheet!(ModalSheetProps {
         sheet_props: SheetProps {
-            sheet_content: container!(|d| d.text("Bottom sheet")),
+            sheet_content: text!("Bottom sheet"),
             wrapped_view: html!("div", {
                 .child(left_sheet(
                     show_bottom

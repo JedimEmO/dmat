@@ -15,8 +15,7 @@
 
     @include respond-to($breakpoints, "medium") {
       font-size: unset;
-      grid-auto-flow: column;
-      grid-auto-columns: 1fr;
+      grid-template-columns: repeat(5, 1fr);
     }
 
     button.tab {

@@ -75,7 +75,7 @@ impl Default for Sheet {
     fn default() -> Self {
         Self {
             side_width: "150px".to_string(),
-            bottom_height: "30px".to_string(),
+            bottom_height: "50px".to_string(),
         }
     }
 }

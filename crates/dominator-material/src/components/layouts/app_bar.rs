@@ -1,7 +1,8 @@
-use crate::utils::component_signal::{ComponentSignal, DomOption};
 use dominator::{html, Dom, DomBuilder};
 use futures_signals::signal::Signal;
 use web_sys::HtmlElement;
+
+use crate::utils::component_signal::{ComponentSignal, DomOption};
 
 #[derive(Clone)]
 pub enum AppBarType {
@@ -89,23 +90,20 @@ where
         .class("dmat-app-bar")
         .apply(mixin)
         .apply_if(props.fixed, move |dom| dom.class("-fixed"))
-        .child(html!("article", {
-            .class("viewport")
-            .children(&mut [
-                html!("header", {
-                    .apply_if(header_view.is_some(), move |header| {
-                         header.class("header")
-                        .child_signal(header_view.unwrap().0)
-                    })
-                }),
-                html!("main", {
-                    .apply_if(main_view.is_some(), move |main| {
-                        main.class("main")
-                        .class(type_class)
-                        .child_signal(main_view.unwrap().0)
-                    })
+        .children(&mut [
+            html!("header", {
+                .apply_if(header_view.is_some(), move |header| {
+                     header.class("header")
+                    .child_signal(header_view.unwrap().0)
                 })
-            ])
-        }))
+            }),
+            html!("main", {
+                .apply_if(main_view.is_some(), move |main| {
+                    main.class("main")
+                    .class(type_class)
+                    .child_signal(main_view.unwrap().0)
+                })
+            })
+        ])
     })
 }
