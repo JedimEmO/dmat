@@ -76,3 +76,69 @@ where
         ScrimOut { click_stream: rx },
     )
 }
+
+#[cfg(test)]
+mod test {
+    use dominator::html;
+    use futures_signals::signal::Mutable;
+    use wasm_bindgen_test::*;
+
+    use dominator_testing::{
+        as_html_element, async_yield, get_elements_by_class_name, has_class_name, mount_test_dom,
+    };
+
+    use crate::components::ScrimProps;
+    use crate::utils::mixin::with_id;
+    use crate::utils::mixin::with_stream_flipflop;
+
+    #[wasm_bindgen_test]
+    async fn test_scrim_click_toggle() {
+        let visible = Mutable::new(true);
+
+        let (scrim_dom, scrim_out) = scrim!(
+            ScrimProps {
+                content: html!("div"),
+                hide_signal: visible.signal_ref(|v| !v)
+            },
+            with_id("test-scrim")
+        );
+
+        let flipflop_mixin = with_stream_flipflop(scrim_out.click_stream, visible.clone());
+
+        let outter = html!("div", {
+            .child(scrim_dom)
+            .apply(flipflop_mixin)
+        });
+
+        mount_test_dom(outter);
+
+        // Click the overlay element
+        get_elements_by_class_name("scrim-overlay")
+            .into_iter()
+            .for_each(|e| as_html_element(&e).click());
+
+        async_yield().await;
+
+        assert_eq!(visible.get(), false);
+
+        let overlays = get_elements_by_class_name("scrim-overlay");
+
+        // Ensure that the overlay is now -hidden
+        overlays
+            .iter()
+            .for_each(|ele| assert!(has_class_name(as_html_element(ele), "-hidden")));
+
+        async_yield().await;
+
+        visible.set(true);
+
+        async_yield().await;
+
+        let overlays = get_elements_by_class_name("scrim-overlay");
+
+        // The overlay should now be visible, i.e not have the -hidden class
+        overlays
+            .iter()
+            .for_each(|ele| assert!(!has_class_name(as_html_element(ele), "-hidden")))
+    }
+}
