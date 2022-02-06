@@ -13,7 +13,7 @@ fn my_cmp<F>(props: MyCmpProps, mixin: F) -> Dom
 }
 ```
 
-A more complex type will return a ```rust (Dom, MyCmpOut)``` tuple, where `MyCmpOut` has outputs that will be used to trigger actions in your application.
+A more complex type will return a ```(Dom, MyCmpOut)``` tuple, where `MyCmpOut` has outputs that will be used to trigger actions in your application.
 
 For instance, here is the definition of the scrim components output, which returns a stream of unit values representing clicks on the scrim overlay:
 
@@ -21,7 +21,23 @@ For instance, here is the definition of the scrim components output, which retur
 pub struct ScrimOut {
     pub click_stream: Receiver<()>,
 }
+pub fn scrim<THideSig, F>(props: ScrimProps<THideSig>, mixin: F) -> (Dom, ScrimOut)
+    where
+        THideSig: Signal<Item = bool> + 'static,
+        F: FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>,
+{ /* ... */ }
 ```
+
+All components have a corresponding macro rule, which will insert the identity mixin for us by default to avoid pointless ```|d| d``` parameters everywhere:
+
+```rust
+// Text with no mixin
+text!("Hi there!");
+
+// Text with an ID property mixin:
+text!("Hi, I have an id!", with_id("some-text-element-id"));
+```
+
 
 # dominator-material-style
 
