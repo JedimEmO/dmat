@@ -1,6 +1,6 @@
 use dominator::{html, Dom};
 use futures_signals::map_ref;
-use futures_signals::signal::{Mutable, Signal, SignalExt};
+use futures_signals::signal::{Mutable, Signal};
 
 pub fn error_text<TValidSig, TErrorTextSignal>(
     error_text_signal: TErrorTextSignal,

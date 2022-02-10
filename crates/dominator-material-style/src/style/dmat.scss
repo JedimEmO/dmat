@@ -8,6 +8,7 @@
 @import "components/container/container";
 @import "components/container/carousel";
 @import "components/container/data_table";
+@import "components/container/dock_overlay";
 @import "components/container/list";
 @import "components/container/navigation_drawer";
 @import "components/container/sheet";
@@ -30,6 +31,7 @@
   @include container($theme);
   @include carousel($theme);
   @include data_table($theme);
+  @include dock_overlay($theme);
   @include list($theme);
   @include navigation_drawer($theme);
   @include sheet($theme);

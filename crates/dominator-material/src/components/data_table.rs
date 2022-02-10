@@ -1,17 +1,13 @@
 use std::str::FromStr;
 
-use dominator::with_node;
-use dominator::{clone, events, html, Dom, DomBuilder};
-use futures_signals::signal::{channel, Broadcaster, SignalExt};
+use dominator::{clone, events, html, Dom};
+use futures_signals::signal::SignalExt;
 use futures_signals::signal::{Mutable, ReadOnlyMutable};
 use futures_signals::signal_vec::MutableVec;
 use futures_signals::signal_vec::SignalVecExt;
-use futures_util::StreamExt;
+use wasm_bindgen::JsCast;
 use wasm_bindgen::__rt::core::time::Duration;
 use wasm_bindgen::__rt::std::rc::Rc;
-use wasm_bindgen::closure::Closure;
-use wasm_bindgen::{JsCast, UnwrapThrowExt};
-use web_sys::{window, DomRect};
 
 use crate::components::ProgressIndicatorIterations;
 

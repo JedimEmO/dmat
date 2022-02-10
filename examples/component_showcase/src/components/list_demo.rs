@@ -1,5 +1,4 @@
 use dominator::{clone, html, Dom};
-use futures_signals::signal::always;
 use futures_signals::signal::SignalExt;
 use futures_signals::signal_vec::{MutableVec, SignalVecExt};
 use wasm_bindgen::__rt::std::rc::Rc;

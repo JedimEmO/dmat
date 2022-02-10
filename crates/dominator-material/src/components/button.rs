@@ -1,7 +1,5 @@
-use dominator::{clone, events, html, Dom, DomBuilder};
-use futures_signals::signal::{always, Always, Signal};
-
-use wasm_bindgen::__rt::std::rc::Rc;
+use dominator::{events, html, Dom, DomBuilder};
+use futures_signals::signal::Signal;
 use web_sys::HtmlElement;
 
 use crate::components::mixins::with_disabled_signal;
@@ -142,13 +140,15 @@ where
 
 #[cfg(test)]
 mod test {
-    use crate::components::ButtonProps;
     use dominator::events::Click;
     use dominator::{clone, html};
-    use dominator_testing::{async_yield, mount_test_dom, test_dyn_element_by_id};
     use futures_signals::signal::{Mutable, SignalExt};
     use wasm_bindgen_test::*;
     use web_sys::{HtmlButtonElement, HtmlElement};
+
+    use dominator_testing::{async_yield, mount_test_dom, test_dyn_element_by_id};
+
+    use crate::components::ButtonProps;
 
     #[wasm_bindgen_test]
     async fn button_test() {

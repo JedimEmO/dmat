@@ -1,5 +1,5 @@
 use dominator::{clone, events, html, Dom, DomBuilder};
-use futures_signals::signal::{always, Mutable, MutableSignalCloned, Signal};
+use futures_signals::signal::{Mutable, MutableSignalCloned, Signal};
 use web_sys::HtmlElement;
 
 use crate::components::input::input::input;

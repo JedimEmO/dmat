@@ -1,6 +1,5 @@
 use dominator::{clone, html, Dom};
 use dominator_material::components::input::input_props::InputProps;
-use dominator_material::components::ScrimProps;
 use dominator_material::components::TextFieldProps;
 use dominator_material::components::{data_table, CardProps, DataTableProps};
 use futures_signals::map_ref;
