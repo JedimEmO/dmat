@@ -1,87 +1,67 @@
-use crate::components::input::input::input;
-use crate::components::input::input_props::InputProps;
 use dominator::{clone, events, html, Dom, DomBuilder};
 use futures_signals::signal::{always, Mutable, MutableSignalCloned, Signal};
 use web_sys::HtmlElement;
 
-pub struct TextFieldProps {
+use crate::components::input::input::input;
+use crate::components::input::input_props::InputProps;
+
+pub struct TextFieldProps<
+    TLabelSignal: Signal<Item = Option<String>> + Unpin + 'static,
+    TValidSignal: Signal<Item = bool> + Unpin + 'static,
+    TAssistiveTextSignal: Signal<Item = Option<String>> + Unpin + 'static,
+    TErrorTextSignal: Signal<Item = Option<String>> + Unpin + 'static,
+    TDisabledSignal: Signal<Item = bool> + Unpin + 'static,
+> {
     pub claim_focus: bool,
-    pub input_props: InputProps,
+    pub input_props: InputProps<
+        TLabelSignal,
+        TValidSignal,
+        TAssistiveTextSignal,
+        TErrorTextSignal,
+        TDisabledSignal,
+    >,
 }
 
-impl TextFieldProps {
-    pub fn new(value: Mutable<String>) -> Self {
+impl<
+        TLabelSignal: Signal<Item = Option<String>> + Unpin + 'static,
+        TValidSignal: Signal<Item = bool> + Unpin + 'static,
+        TAssistiveTextSignal: Signal<Item = Option<String>> + Unpin + 'static,
+        TErrorTextSignal: Signal<Item = Option<String>> + Unpin + 'static,
+        TDisabledSignal: Signal<Item = bool> + Unpin + 'static,
+    >
+    TextFieldProps<
+        TLabelSignal,
+        TValidSignal,
+        TAssistiveTextSignal,
+        TErrorTextSignal,
+        TDisabledSignal,
+    >
+{
+    pub fn new(
+        value: Mutable<String>,
+        label: TLabelSignal,
+        is_valid: TValidSignal,
+        assistive_text_signal: TAssistiveTextSignal,
+        error_text_signal: TErrorTextSignal,
+        disabled_signal: TDisabledSignal,
+    ) -> Self {
         TextFieldProps {
             claim_focus: false,
             input_props: InputProps {
-                label: None,
+                label,
                 value,
-                is_valid: None,
-                assistive_text_signal: None,
-                error_text_signal: None,
-                disabled_signal: None,
+                is_valid,
+                assistive_text_signal,
+                error_text_signal,
+                disabled_signal,
             },
         }
     }
 
     #[inline]
     #[must_use]
-    pub fn label<TLabel: Into<String>>(mut self, label: TLabel) -> Self {
-        self.input_props.label = Some(Box::new(always(label.into())));
-        self
-    }
-
-    #[inline]
-    #[must_use]
-    pub fn label_signal<TLabel: Signal<Item = String> + Unpin + 'static>(
-        mut self,
-        label: TLabel,
-    ) -> Self {
-        self.input_props.label = Some(Box::new(label));
-        self
-    }
-
-    #[inline]
-    #[must_use]
     pub fn claim_focus(mut self) -> Self {
         self.claim_focus = true;
-        self
-    }
-
-    #[inline]
-    #[must_use]
-    pub fn assistive_text_signal<TSig: Signal<Item = Option<String>> + Unpin + 'static>(
-        mut self,
-        sig: TSig,
-    ) -> Self {
-        self.input_props.assistive_text_signal = Some(Box::new(sig));
-        self
-    }
-
-    #[inline]
-    #[must_use]
-    pub fn error_text_signal<TSig: Signal<Item = Option<String>> + Unpin + 'static>(
-        mut self,
-        sig: TSig,
-    ) -> Self {
-        self.input_props.error_text_signal = Some(Box::new(sig));
-        self
-    }
-
-    #[inline]
-    #[must_use]
-    pub fn validator<TSig: Signal<Item = bool> + Unpin + 'static>(mut self, sig: TSig) -> Self {
-        self.input_props.is_valid = Some(Box::new(sig));
-        self
-    }
-
-    #[inline]
-    #[must_use]
-    pub fn disabled_signal<TSig>(mut self, signal: TSig) -> Self
-    where
-        TSig: Signal<Item = bool> + Unpin + 'static,
-    {
-        self.input_props.disabled_signal = Some(Box::new(signal));
         self
     }
 }
@@ -106,7 +86,23 @@ macro_rules! text_field {
 /// The return tuple contains:
 /// 0: input Dom entry
 /// 1: output of the component, containing a boolean signal for the  validity of the input according to the validator
-pub fn text_field<F>(props: TextFieldProps, mixin: F) -> (Dom, TextFieldOutput)
+pub fn text_field<
+    TLabelSignal: Signal<Item = Option<String>> + Unpin + 'static,
+    TValidSignal: Signal<Item = bool> + Unpin + 'static,
+    TAssistiveTextSignal: Signal<Item = Option<String>> + Unpin + 'static,
+    TErrorTextSignal: Signal<Item = Option<String>> + Unpin + 'static,
+    TDisabledSignal: Signal<Item = bool> + Unpin + 'static,
+    F,
+>(
+    props: TextFieldProps<
+        TLabelSignal,
+        TValidSignal,
+        TAssistiveTextSignal,
+        TErrorTextSignal,
+        TDisabledSignal,
+    >,
+    mixin: F,
+) -> (Dom, TextFieldOutput)
 where
     F: FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>,
 {
@@ -160,7 +156,7 @@ fn text_field_input(value: &Mutable<String>, has_focus: &Mutable<bool>, claim_fo
 
 #[cfg(test)]
 mod test {
-    use futures_signals::signal::Mutable;
+    use futures_signals::signal::{always, Mutable};
     use wasm_bindgen_test::*;
 
     use crate::components::input::input_props::InputProps;
@@ -175,11 +171,11 @@ mod test {
                 claim_focus: false,
                 input_props: InputProps {
                     value: val.clone(),
-                    is_valid: Some(Box::new(val.signal_ref(|v| v == "hello"))),
-                    label: None,
-                    assistive_text_signal: None,
-                    error_text_signal: None,
-                    disabled_signal: None,
+                    is_valid: val.signal_ref(|v| v == "hello"),
+                    label: always(None),
+                    assistive_text_signal: always(None),
+                    error_text_signal: always(None),
+                    disabled_signal: always(false),
                 },
             },
             |d| d.attribute("id", "testfield"),

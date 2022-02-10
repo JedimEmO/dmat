@@ -1,13 +1,14 @@
+use crate::futures_signals::signal::SignalExt;
 use dominator::{clone, html, Dom};
 use futures_signals::map_ref;
 use futures_signals::signal::{Mutable, Signal};
 
 #[inline]
-pub fn label_element(
+pub fn label_element<TLabelSignal: Signal<Item = Option<String>> + Unpin + 'static>(
     input: Dom,
     value: &Mutable<String>,
     has_focus: &Mutable<bool>,
-    label: Option<Box<dyn Signal<Item = String> + Unpin>>,
+    label: TLabelSignal,
 ) -> Dom {
     html!("label", {
         .class_signal(
@@ -24,8 +25,14 @@ pub fn label_element(
             html!("div", {.class("dmat-notch-left")}),
             html!("div", {
                 .class("dmat-notch-middle")
-                .apply_if(label.is_some(), |dom_builder| {
-                    dom_builder.child(crate::dynamic_text!(label.unwrap(), |dom_builder| dom_builder.class("dmat-input-label-text")))
+                .apply(|dom_builder| {
+                    dom_builder.child_signal(label.map(|label_content| {
+                        if let Some(label_text) = label_content {
+                            Some(crate::text!(label_text, |dom_builder| dom_builder.class("dmat-input-label-text")))
+                        } else {
+                            None
+                        }
+                    }))
                 })
             }),
             html!("div", {.class("dmat-notch-right")}),

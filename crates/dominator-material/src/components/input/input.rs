@@ -1,6 +1,7 @@
+use crate::futures_signals::signal::SignalExt;
 use dominator::{html, Dom, DomBuilder};
 use futures_signals::map_ref;
-use futures_signals::signal::{Broadcaster, Mutable};
+use futures_signals::signal::{Broadcaster, Mutable, Signal};
 use web_sys::HtmlElement;
 
 use crate::components::input::input_props::InputProps;
@@ -10,10 +11,23 @@ use crate::components::mixins::{
     assistive_text, error_text, with_disabled_signal, with_invalid_signal,
 };
 
-pub(crate) fn input<F>(
+pub(crate) fn input<
+    TLabelSignal: Signal<Item = Option<String>> + Unpin + 'static,
+    TValidSignal: Signal<Item = bool> + Unpin + 'static,
+    TAssistiveTextSignal: Signal<Item = Option<String>> + Unpin + 'static,
+    TErrorTextSignal: Signal<Item = Option<String>> + Unpin + 'static,
+    TDisabledSignal: Signal<Item = bool> + Unpin + 'static,
+    F,
+>(
     input_element: Dom,
     has_focus: &Mutable<bool>,
-    props: InputProps,
+    props: InputProps<
+        TLabelSignal,
+        TValidSignal,
+        TAssistiveTextSignal,
+        TErrorTextSignal,
+        TDisabledSignal,
+    >,
     mixin: F,
     class_name: &str,
     extra_child: Option<Dom>,
@@ -28,21 +42,22 @@ where
     let is_valid = props.is_valid;
     let disabled_signal = props.disabled_signal;
 
-    let is_valid = if let Some(is_valid) = is_valid {
-        Some(Broadcaster::new(is_valid))
-    } else {
-        None
-    };
+    let is_valid = Broadcaster::new(is_valid);
 
     let error = error_text(
         props.error_text_signal,
-        is_valid.as_ref().map(|v| v.signal_cloned()),
+        is_valid.signal_ref(|v| *v),
         &has_error,
     );
 
     let assistive = assistive_text(props.assistive_text_signal, &has_assistive);
 
-    let children = build_children(&mut [Some(label_element), extra_child, error, assistive]);
+    let children = build_children(&mut [
+        Some(label_element),
+        extra_child,
+        Some(error),
+        Some(assistive),
+    ]);
 
     html!("div", {
         .children(children.into_iter())
@@ -57,7 +72,7 @@ where
             )
         )
         .apply(with_disabled_signal(disabled_signal))
-        .apply(with_invalid_signal(is_valid.map(|v| v.signal_cloned())))
+        .apply(with_invalid_signal(is_valid.signal().map(|v| v)))
         .class(class_name)
     })
 }

@@ -1,9 +1,10 @@
-use crate::components::input::input::input;
-use crate::components::input::input_props::InputProps;
 use dominator::{clone, events, html, Dom, DomBuilder};
-use futures_signals::signal::Mutable;
+use futures_signals::signal::{Mutable, Signal};
 use futures_signals::signal_vec::{MutableVec, SignalVecExt};
 use web_sys::HtmlElement;
+
+use crate::components::input::input::input;
+use crate::components::input::input_props::InputProps;
 
 #[macro_export]
 macro_rules! combo_box {
@@ -16,14 +17,42 @@ macro_rules! combo_box {
     }};
 }
 
-pub struct ComboBoxProps {
+pub struct ComboBoxProps<
+    TLabelSignal: Signal<Item = Option<String>> + Unpin + 'static,
+    TValidSignal: Signal<Item = bool> + Unpin + 'static,
+    TAssistiveTextSignal: Signal<Item = Option<String>> + Unpin + 'static,
+    TErrorTextSignal: Signal<Item = Option<String>> + Unpin + 'static,
+    TDisabledSignal: Signal<Item = bool> + Unpin + 'static,
+> {
     pub options: MutableVec<String>,
     pub data_list_id: String,
-    pub input_props: InputProps,
+    pub input_props: InputProps<
+        TLabelSignal,
+        TValidSignal,
+        TAssistiveTextSignal,
+        TErrorTextSignal,
+        TDisabledSignal,
+    >,
 }
 
 #[inline]
-pub fn combo_box<F>(props: ComboBoxProps, mixin: F) -> Dom
+pub fn combo_box<
+    TLabelSignal: Signal<Item = Option<String>> + Unpin + 'static,
+    TValidSignal: Signal<Item = bool> + Unpin + 'static,
+    TAssistiveTextSignal: Signal<Item = Option<String>> + Unpin + 'static,
+    TErrorTextSignal: Signal<Item = Option<String>> + Unpin + 'static,
+    TDisabledSignal: Signal<Item = bool> + Unpin + 'static,
+    F,
+>(
+    props: ComboBoxProps<
+        TLabelSignal,
+        TValidSignal,
+        TAssistiveTextSignal,
+        TErrorTextSignal,
+        TDisabledSignal,
+    >,
+    mixin: F,
+) -> Dom
 where
     F: Fn(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>,
 {

@@ -12,6 +12,7 @@ use crate::components::button_demo::button_demo;
 use crate::components::card_demo::card_demo;
 use crate::components::carousel_demo::carousel_demo;
 use crate::components::data_table_demo::data_table_demo;
+use crate::components::dock_overlay_demo::dock_overlay_demo;
 use crate::components::input_demo::input_demo;
 use crate::components::list_demo::list_demo;
 use crate::components::navigation_drawer_demo::navigation_drawers_demo;
@@ -42,6 +43,7 @@ pub fn main_view() -> Dom {
                 DemoRoute::Input => input_demo(),
                 DemoRoute::NavigationDrawer => navigation_drawers_demo(),
                 DemoRoute::Sheet => sheet_demo(),
+                DemoRoute::DockOverlay => dock_overlay_demo(),
                 _ => html!("div"),
             }))
             .fixed(),
@@ -49,7 +51,7 @@ pub fn main_view() -> Dom {
     )
 }
 
-fn main_view_tab_list() -> [DemoRoute; 10] {
+fn main_view_tab_list() -> [DemoRoute; 11] {
     [
         DemoRoute::AppBar,
         DemoRoute::List,
@@ -61,6 +63,7 @@ fn main_view_tab_list() -> [DemoRoute; 10] {
         DemoRoute::NavigationDrawer,
         DemoRoute::Card,
         DemoRoute::Sheet,
+        DemoRoute::DockOverlay,
     ]
 }
 fn main_view_tabs(tab_id: DemoRoute) -> Dom {
@@ -69,6 +72,7 @@ fn main_view_tabs(tab_id: DemoRoute) -> Dom {
         DemoRoute::DataTable => text!("Data Table"),
         DemoRoute::AppBar => text!("App Bar"),
         DemoRoute::Card => text!("Card"),
+        DemoRoute::DockOverlay => text!("Dock Overlay"),
         DemoRoute::List => text!("List"),
         DemoRoute::NavigationDrawer => text!("Navigation Drawer"),
         DemoRoute::Input => text!("Input"),

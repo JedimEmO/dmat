@@ -1,7 +1,7 @@
 use dominator::{html, Dom};
-
 use dominator_material::components::{ButtonProps, ButtonType, CardProps};
 use dominator_material::utils::mixin::with_id;
+use futures_signals::signal::always;
 
 pub fn card_demo() -> Dom {
     let mut cards = [
@@ -17,12 +17,12 @@ pub fn card_demo() -> Dom {
                 .children(&mut [
                     text!("Footer"),
                     button!(
-                        ButtonProps::new()
+                        ButtonProps::new(|_|{}, always(false))
                             .content(text!("A button"))
                             .button_type(ButtonType::Text),
                         with_id("demo-button")),
                     button!(
-                        ButtonProps::new()
+                        ButtonProps::new(|_|{}, always(false))
                             .content(text!("Another button"))
                             .button_type(ButtonType::Text),
                         with_id("demo-button"))
