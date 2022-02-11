@@ -1,8 +1,8 @@
 use std::str::FromStr;
 
 use dominator::{clone, events, html, Dom};
+use futures_signals::signal::Mutable;
 use futures_signals::signal::SignalExt;
-use futures_signals::signal::{Mutable, ReadOnlyMutable};
 use futures_signals::signal_vec::MutableVec;
 use futures_signals::signal_vec::SignalVecExt;
 use wasm_bindgen::JsCast;
@@ -20,10 +20,7 @@ struct PageMeta {
     allowed_page_sizes: Option<Vec<usize>>,
 }
 
-pub struct DataTableProps<
-    TData: Clone + 'static,
-    TRenderFunc: Fn(&TData, &ReadOnlyMutable<bool>) -> Dom,
-> {
+pub struct DataTableProps<TData: Clone + 'static, TRenderFunc: Fn(&TData) -> Dom> {
     data: Rc<MutableVec<TData>>,
     page_meta: Option<PageMeta>,
     headers: Option<Vec<String>>,
@@ -31,9 +28,7 @@ pub struct DataTableProps<
     is_loading: Mutable<bool>,
 }
 
-impl<TData: Clone + 'static, TRenderFunc: Fn(&TData, &ReadOnlyMutable<bool>) -> Dom>
-    DataTableProps<TData, TRenderFunc>
-{
+impl<TData: Clone + 'static, TRenderFunc: Fn(&TData) -> Dom> DataTableProps<TData, TRenderFunc> {
     pub fn new(
         data: Rc<MutableVec<TData>>,
         render_func: TRenderFunc,
@@ -80,10 +75,7 @@ impl<TData: Clone + 'static, TRenderFunc: Fn(&TData, &ReadOnlyMutable<bool>) -> 
 }
 
 #[inline]
-pub fn data_table<
-    TData: Clone + 'static,
-    TRenderFunc: Fn(&TData, &ReadOnlyMutable<bool>) -> Dom + 'static,
->(
+pub fn data_table<TData: Clone + 'static, TRenderFunc: Fn(&TData) -> Dom + 'static>(
     props: DataTableProps<TData, TRenderFunc>,
 ) -> Dom {
     let headers = props.headers;
@@ -99,48 +91,10 @@ pub fn data_table<
         _ => html!("tr"),
     };
 
-    // let (tx, mut rx) = channel(());
-    // let scroll_broadcaster = Broadcaster::new(rx);
-
-    let rows = props.data.signal_vec_cloned().map(move |val| {
-        // let loading_toggle_lambda = Closure::wrap(Box::new(clone!(data_table => move || {
-        //     data_table.is_loading.replace(false);
-        // })) as Box<dyn Fn()>);
-        //
-        // web_sys::window()
-        //     .unwrap()
-        //     .set_timeout_with_callback_and_timeout_and_arguments_0(
-        //         loading_toggle_lambda.as_ref().unchecked_ref(),
-        //         500,
-        //     )
-        //     .unwrap();
-        //
-        // loading_toggle_lambda.forget();
-
-        let is_visible = Mutable::new(true);
-        // let mut scroll_stream = scroll_broadcaster.signal_cloned().to_stream();
-
-        // html!("tr", {
-        //     .children(cells.as_mut_slice())
-        //     // .with_node!(tr_element => {
-        //     //     .apply(move |tr_builder| {
-        //     //         tr_builder.future(async move {
-        //     //             while let Some(_) = scroll_stream.next().await {
-        //     //                 let rect: DomRect = tr_element.get_bounding_client_rect();
-        //     //                 is_visible.set(
-        //     //                     rect.y() + rect.height() >= 0.0
-        //     //                         && rect.x() + rect.width() >= 0.0
-        //     //                         && rect.y() < 1200.0
-        //     //                         && rect.x() < 1200.0,
-        //     //                 )
-        //     //             }
-        //     //         })
-        //     //     })
-        //     // })
-        // })
-
-        (render_func)(&val, &is_visible)
-    });
+    let rows = props
+        .data
+        .signal_vec_cloned()
+        .map(move |val| (render_func)(&val));
 
     let foot = match &page_meta {
         Some(meta) => table_pagination(meta, props.is_loading.clone()),
@@ -150,9 +104,6 @@ pub fn data_table<
     html!("table", {
         .class("dmat-table")
         .class_signal("--loading", props.is_loading.signal_cloned())
-        // .event(move |_: events::Scroll| {
-        //     tx.send(());
-        // })
         .children(&mut [
             html!("thead", {
                 .children(&mut [

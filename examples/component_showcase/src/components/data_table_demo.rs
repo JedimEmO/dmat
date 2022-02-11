@@ -13,7 +13,7 @@ pub fn data_table_demo() -> Dom {
     let current_top = Mutable::new(0);
 
     let table = data_table(
-        DataTableProps::new(data.clone(), |v, visible| {
+        DataTableProps::new(data.clone(), |v| {
             let input_test_value = Mutable::new("".to_string());
 
             html!("tr", {
@@ -22,9 +22,7 @@ pub fn data_table_demo() -> Dom {
                     .text(format!("{}", v).as_str())
                     }),
                     html!("td", {
-                        .child_signal(visible.signal_ref(move |v| {
-                            Some(if *v {
-                                text_field!(TextFieldProps {
+                        .child(text_field!(TextFieldProps {
                                     claim_focus: false,
                                     input_props: InputProps{
                                         label: always(Some("With dynamic help text".to_string())),
@@ -35,11 +33,7 @@ pub fn data_table_demo() -> Dom {
                                         error_text_signal: always(None),
                                         disabled_signal: always(false)
                                     }
-                                }).0
-                            } else {
-                                text!("hidden")
-                            })
-                        }))
+                                }).0)
                     })
                 ])
             })
