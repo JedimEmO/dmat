@@ -37,7 +37,7 @@ jobs:
       - name: Install and Build 🔧
         run: |
           pushd examples/component_showcase/
-          trunk build --release
+          cargo build && trunk build --release
           popd
 
       - name: Deploy 🚀
