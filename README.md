@@ -65,7 +65,10 @@ fn main() {
 
 To run the showcase application locally, go to the `examples/component_showcase` directory, and do the following:
 
-Requires rust 1.47.0+  and trunk (https://trunkrs.dev/)
+Requires 
+* rust 1.47.0+ 
+* `wasm32-unknown-unknown` toolchain (`rustup target add wasm32-unknown-unknown`)
+* trunk (https://trunkrs.dev/) (`cargo install trunk`)
 
 ```
 cargo build && trunk serve --release
