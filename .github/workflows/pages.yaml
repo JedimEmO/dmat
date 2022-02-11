@@ -37,7 +37,7 @@ jobs:
       - name: Install and Build 🔧
         run: |
           pushd examples/component_showcase/
-          cargo build && trunk build --release
+          trunk build --release --public-url dominator-material/
           popd
 
       - name: Deploy 🚀

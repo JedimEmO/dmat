@@ -1,0 +1,1107 @@
+// Auto generated DMAT scss file - please consult your build.rs file for sources 
+// Auto generated dmat theme file 
+$example-app:("colors": ("primary": #263238,
+"primary_light": #4f5b62,
+"primary_dark": #000a12,
+"text_on_primary": #ffffff,
+"surface": #ffffff,
+"surface_dark": rgba(47,47,47,0.67),
+"secondary": #03a9f4,
+"secondary_dark": #0276aa,
+"secondary_light": #35baf6,
+"secondary_lightest": #72cff8,
+"text_on_secondary": #000000,
+"text_diffuse": #474747,
+"text_diffuser": #5d5d5d,
+"error_text_color": #b00020,
+"invalid_element_backdrop": #ffb3a9),
+"components": ("app_bar": ("height": 40px,
+"height_prominent": 80px),
+"navigation_drawer": ("full_width": 150px,
+"narrow_width": 50px),
+"inputs": ("border_radius": 5px,
+"border": 1px solid black,
+"input_height": 45px,
+"input_height_with_help_text": 30px),
+"sheet": ("side_width": 150px,
+"bottom_height": 50px)),
+"layout": ("margin": ("small": 8px,
+"medium": 16px,
+"large": 32px),
+"gutter": ("small": 8px,
+"medium": 16px,
+"large": 24px),
+"border_radius": 1rem),
+"breakpoints": ("small": 599px,
+"medium": 900px,
+"large": 1200px));
+
+
+@mixin respond-to($breakpoints, $breakpoint) {
+  // Prints a media query based on the value
+  @media (min-width: map-get-strict($breakpoints, $breakpoint)) {
+    @content;
+  }
+}
+
+// credits  cimmanon: https://stackoverflow.com/questions/31945400/why-doesnt-sass-map-get-return-an-error-for-a-non-existent-key
+@function map-get-strict($map, $key) {
+  @if map-has-key($map, $key) {
+    @return map-get($map, $key);
+  } @else {
+    @error "ERROR: Specified index '#{$key}' does not exist in the mapping";
+  }
+}
+
+
+
+
+@mixin dmat($theme) {
+  // inputs
+  @include button($theme);
+  @include combo_box($theme);
+  @include select($theme);
+  @include text_field($theme);
+
+  // containers
+  @include app_bar($theme);
+  @include card($theme);
+  @include container($theme);
+  @include carousel($theme);
+  @include data_table($theme);
+  @include dock_overlay($theme);
+  @include list($theme);
+  @include navigation_drawer($theme);
+  @include sheet($theme);
+  @include surface($theme);
+  @include scrim($theme);
+  @include tabs($theme);
+
+  // doodads
+  @include progress_indicator($theme)
+}
+
+
+@mixin progress_indicator($theme) {
+  $colors: map-get-strict($theme, "colors");
+
+  .dmat-progress-indicator {
+    position: relative;
+    width: 100%;
+    height: 100%;
+
+    & .dmat-progress-bar {
+      position: absolute;
+      background: map-get-strict($colors, "secondary");
+      height: 4px;
+      animation-name: loading-pulsating;
+
+      @keyframes loading-pulsating {
+        0% {
+          width: 0;
+        }
+        50% {
+          width: 50%;
+        }
+        100% {
+          width: 100%;
+        }
+      }
+    }
+  }
+}
+
+
+@mixin combo_box($theme) {
+  $colors: map-get-strict($theme, "colors");
+
+  .dmat-input-combo-box {
+    @include input_element($colors);
+    @include floating_label($theme);
+  }
+}
+
+
+@mixin input_element($colors) {
+  display: inline-flex;
+  position: relative;
+  background: map-get-strict($colors, "surface");
+  color: map-get-strict($colors, "text_on_secondary");
+  padding: 0;
+
+  & .dmat-input-element {
+    font-weight: 400;
+  }
+}
+
+
+@mixin select($theme) {
+  $colors: map-get-strict($theme, "colors");
+  $components: map-get-strict($theme, "components");
+  $inputs: map-get-strict($components, "inputs");
+
+  .dmat-input-select {
+    height: map-get-strict($inputs, "input_height");
+
+    & >.dmat-floating-label > select {
+      border: none;
+      background: none;
+      width: 100%;
+      line-height: inherit;
+      outline: none;
+    }
+
+    @include input_element($colors);
+    @include floating_label($theme);
+  }
+}
+
+
+
+@mixin button($theme) {
+  $colors: map-get-strict($theme, "colors");
+  $layout: map-get-strict($theme, "layout");
+
+  button.dmat-button {
+    display: flex;
+    align-self: flex-start;
+    height: 36px;
+    text-transform: uppercase;
+    font-weight: bolder;
+    min-width: 64px;
+    align-items: center;
+    justify-content: center;
+    border-radius: map-get-strict($layout, "border_radius");
+    padding: 0 16px;
+    cursor: pointer;
+    border: none;
+
+    &:focus {
+      outline: 0;
+    }
+
+    &.-contained {
+      color: map-get-strict($colors, "text_on_secondary");
+
+      &.-prominent {
+        background: map-get-strict($colors, "secondary");
+
+        &:hover {
+          background: scale-color(map-get-strict($colors, "secondary"), $lightness: 30%);
+
+          &:active {
+            background: scale-color(map-get-strict($colors, "secondary"), $lightness: -10%);
+          }
+        }
+      }
+
+      &.-neutral {
+        background: map-get-strict($colors, "secondary_light");
+
+        &:hover {
+          background: scale-color(map-get-strict($colors, "secondary_light"), $lightness: 30%);
+
+          &:active {
+            background: scale-color(map-get-strict($colors, "secondary_light"), $lightness: -10%);
+          }
+        }
+      }
+
+      &.-unimportant {
+        background: map-get-strict($colors, "secondary_lightest");
+
+        &:hover {
+          background: scale-color(map-get-strict($colors, "secondary_lightest"), $lightness: 30%);
+
+          &:active {
+            background: scale-color(map-get-strict($colors, "secondary_lightest"), $lightness: -10%);
+          }
+        }
+      }
+    }
+
+    &.-outlined {
+      background: none;
+      border: 2px map-get-strict($colors, "secondary_light") solid;
+      font-weight: bolder;
+
+      &.-prominent {
+        font-weight: bolder;
+        color: map-get-strict($colors, "secondary_dark");
+
+        &:hover {
+          color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 30%);
+          background: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 70%);
+
+          &:active {
+            color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: -10%);
+          }
+        }
+      }
+
+      &.-neutral {
+        font-weight: bold;
+
+        color: map-get-strict($colors, "secondary_dark");
+
+        &:hover {
+          color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 30%);
+          background: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 70%);
+
+          &:active {
+            color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: -10%);
+          }
+        }
+      }
+
+      &.-unimportant {
+        font-weight: normal;
+
+        color: map-get-strict($colors, "secondary_dark");
+
+        &:hover {
+          color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 30%);
+          background: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 70%);
+
+          &:active {
+            color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: -10%);
+          }
+        }
+      }
+    }
+
+    &.-text {
+      background: none;
+      border: none;
+
+      &.-prominent {
+        font-weight: bolder;
+        color: map-get-strict($colors, "secondary_dark");
+
+        &:hover {
+          color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 30%);
+          background: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 70%);
+
+          &:active {
+            color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: -10%);
+          }
+        }
+      }
+
+      &.-neutral {
+        font-weight: bold;
+
+        color: map-get-strict($colors, "secondary_dark");
+
+        &:hover {
+          color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 30%);
+          background: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 70%);
+
+          &:active {
+            color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: -10%);
+          }
+        }
+      }
+
+      &.-unimportant {
+        font-weight: normal;
+
+        color: map-get-strict($colors, "secondary_dark");
+
+        &:hover {
+          color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 30%);
+          background: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 70%);
+
+          &:active {
+            color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: -10%);
+          }
+        }
+      }
+    }
+  }
+}
+
+
+@mixin text_field($theme) {
+  $colors: map-get-strict($theme, "colors");
+
+  .dmat-input-text-field {
+    @include floating_label($theme);
+    @include input_element($colors);
+  }
+}
+
+
+@mixin floating_label($theme) {
+  $colors: map-get-strict($theme, "colors");
+  $components: map-get-strict($theme, "components");
+  $inputs: map-get-strict($components, "inputs");
+
+  $border_radius: map-get-strict($inputs, "border_radius");
+  $border: map-get-strict($inputs, "border");
+
+  & {
+    height: map-get-strict($inputs, "input_height");
+  }
+
+  &.assistive {
+    display: grid;
+    grid-template-rows: map-get-strict($inputs, "input_height_with_help_text") 1fr;
+    grid-auto-flow: row;
+  }
+
+  .dmat-assistive-text {
+    font-size: small;
+    white-space: nowrap;
+  }
+
+  &.-invalid {
+    color: map-get-strict($colors, "error_text_color");
+    border-color: map-get-strict($colors, "invalid_element_backdrop");
+
+    & input, & select {
+      color: map-get-strict($colors, "error_text_color");
+    }
+  }
+
+  & > .dmat-floating-label {
+    display: grid;
+    position: relative;
+    grid-template-columns: 10px 10fr 1fr;
+
+    & > input, & > select {
+      grid-column: 2;
+      grid-row: 1;
+      border: none;
+      outline: none;
+    }
+
+    & > .dmat-notch-left {
+      grid-column: 1;
+      grid-row: 1;
+      border-top-left-radius: $border_radius;
+      border-bottom-left-radius: $border_radius;
+      border-left: $border;
+      border-bottom: $border;
+      border-top: $border;
+      pointer-events: none;
+    }
+
+    &.above > .dmat-notch-middle {
+      border-top: none;
+
+      & > span {
+        display: block;
+        transform: translateY(-80%) scale(0.8) translateX(-10%);
+
+        transition: transform 100ms cubic-bezier(0.4, 0, 0.2, 1),
+        color 150ms cubic-bezier(0.4, 0, 0.2, 1),
+        left 100ms cubic-bezier(0.4, 0, 0.2, 1);
+      }
+    }
+
+    & > .dmat-notch-middle {
+      grid-column: 2;
+      grid-row: 1;
+      border-bottom: $border;
+      border-top: $border;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+
+      & > span {
+        color: map-get-strict($colors, "text_diffuse");
+        transform: translateY(0) scale(1) translateX(0);
+        transition: transform 100ms cubic-bezier(0.4, 0, 0.2, 1),
+        color 150ms cubic-bezier(0.4, 0, 0.2, 1),
+        left 100ms cubic-bezier(0.4, 0, 0.2, 1);
+      }
+    }
+
+    & > .dmat-notch-right {
+      grid-row: 1;
+      grid-column: 3;
+      border-top-right-radius: $border_radius;
+      border-bottom-right-radius: $border_radius;
+      border-right: $border;
+      border-bottom: $border;
+      border-top: $border;
+      pointer-events: none;
+    }
+  }
+}
+
+
+@mixin container($theme) {
+  $colors: map-get-strict($theme, "colors");
+  $layout: map-get-strict($theme, "layout");
+  $breakpoints: map-get-strict($theme, "breakpoints");
+  $margin: map-get-strict($layout, "margin");
+  $gutter: map-get-strict($layout, "gutter");
+
+  .dmat-container {
+    display: grid;
+    grid-auto-columns: 1fr;
+    grid-auto-rows: 1fr;
+    grid-auto-flow: row;
+    background-color: map-get-strict($colors, "surface");
+
+    $m: map-get-strict($margin, "small");
+    $g: map-get-strict($gutter, "small");
+    padding: $m;
+    gap: $g;
+
+    @include respond-to($breakpoints, "medium") {
+      $m: map-get-strict($margin, "medium");
+      $g: map-get-strict($gutter, "medium");
+      padding: $m;
+      gap: $g;
+      grid-auto-flow: column;
+    }
+
+    @include respond-to($breakpoints, "large") {
+      $m: map-get-strict($margin, "large");
+      $g: map-get-strict($gutter, "large");
+      padding: $m;
+      gap: $g;
+    }
+  }
+}
+
+@mixin scrim($theme) {
+  .dmat-scrim {
+    height: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+
+    & > .scrim-overlay {
+      &.-hidden {
+        display: none;
+        pointer-events: none;
+      }
+
+      &:not(.-hidden) {
+        background: rgba(0.25, 0.25, 0.25, 0.5);
+        pointer-events: all;
+      }
+    }
+
+    & > * {
+      grid-row: 1;
+      grid-column: 1;
+    }
+  }
+}
+
+
+@mixin app_bar($theme) {
+  $colors: map-get-strict($theme, "colors");
+  $components: map-get-strict($theme, "components");
+  $app_bar: map-get-strict($components, "app_bar");
+  $layout: map-get-strict($theme, "layout");
+  $breakpoints: map-get-strict($theme, "breakpoints");
+
+  .dmat-app-bar {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-rows: max-content 1fr;
+    grid-template-columns: 1fr;
+
+    & > header {
+      grid-row: 1;
+      display: flex;
+      height: fit-content;
+      align-items: center;
+
+      &.-prominent {
+        height: map-get-strict($app_bar, "height_prominent");
+      }
+
+      background: map-get-strict($colors, "primary");
+      color: map-get-strict($colors, "text_on_primary");
+    }
+
+    & > main {
+      grid-row: 2;
+      overflow: auto;
+      height: 100%;
+
+      display: grid;
+      grid-template-rows: 1fr;
+      grid-auto-flow: row;
+    }
+  }
+}
+
+
+@mixin sheet($theme) {
+  $colors: map-get-strict($theme, "colors");
+  $surface: map-get-strict($colors, "surface");
+  $components: map-get-strict($theme, "components");
+  $sheet: map-get-strict($components, "sheet");
+  $width: map-get-strict($sheet, "side_width");
+  $height: map-get-strict($sheet, "bottom_height");
+
+  .dmat-sheet {
+    display: grid;
+    grid-template-columns: $width 1fr $width;
+    grid-template-rows: 1fr $height;
+    grid-auto-flow: column;
+    height: 100%;
+
+    & > .dmat-sheet-right {
+      grid-column: 3;
+      grid-row: 1/3;
+      z-index: 1;
+      background: $surface;
+      box-shadow: -3px 2px 3px 0 rgba(0, 0, 0, 0.2), -4px 1px 1px 0 rgba(0, 0, 0, 0.2), -6px 4px 0 0 rgba(0, 0, 0, 0.2);
+    }
+
+    & > .dmat-sheet-left {
+      grid-column: 1;
+      grid-row: 1/3;
+      z-index: 1;
+      background: $surface;
+      box-shadow: 3px 2px 3px 0 rgba(0, 0, 0, 0.2), 4px 1px 1px 0 rgba(0, 0, 0, 0.2), 6px 4px 0 0 rgba(0, 0, 0, 0.2);
+    }
+
+    & > .dmat-sheet-bottom {
+      grid-column: 1/4;
+      grid-row: 2;
+      z-index: 1;
+      text-align: center;
+      background: $surface;
+      box-shadow: 3px -1px 2px 0 rgba(0, 0, 0, 0.2), 2px -3px 1px 0 rgba(0, 0, 0, 0.2), 0 -3px 6px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    & > .dmat-sheet-main-view {
+      grid-column: 1/4;
+      grid-row: 1/3;
+    }
+
+    & > .dmat-sheet-content:not(.-expanded) {
+      visibility: hidden;
+    }
+  }
+}
+
+
+@mixin surface($theme) {
+  $colors: map-get-strict($theme, "colors");
+
+  .dmat-surface {
+    background: map-get-strict($colors, "surface_dark")
+  }
+}
+
+@mixin list($theme) {
+  ul.dmat-list {
+    padding: 8px 0;
+    list-style-type: none;
+
+    & .dmat-list-item {
+      display: flex;
+      position: relative;
+      justify-content: flex-start;
+      padding: 4px 8px;
+    }
+  }
+}
+
+
+@mixin dock_overlay($theme) {
+  .dmat-dock-overlay {
+    position: relative;
+    display: grid;
+    grid-template-rows: 1fr;
+    grid-auto-flow: row;
+
+    & > * {
+      grid-row: 1;
+      grid-column: 1;
+    }
+
+    &.-hidden {
+      & > .dmat-scrim > .scrim-overlay {
+        display: none;
+      }
+
+      & > .dmat-overlay-view {
+        display: none;
+      }
+    }
+
+    & > .dmat-overlay-view {
+      &.top-left {
+        margin: 0 auto auto 0;
+      }
+
+      &.top-center {
+        margin: 0 auto auto;
+      }
+
+      &.top-right {
+        margin: 0 0 auto auto;
+      }
+
+      &.middle-left {
+        margin: auto auto auto 0;
+      }
+
+      &.middle-center {
+        margin: auto;
+        top: 50%;
+        bottom: 50%;
+      }
+
+      &.middle-right {
+        margin: auto;
+        margin-right: 0;
+        top: 50%;
+        bottom: 50%;
+      }
+
+      &.bottom-left {
+        margin: auto auto 0 0;
+      }
+
+      &.bottom-center {
+        margin: auto auto 0;
+      }
+
+      &.bottom-right {
+        margin: auto 0 0 auto;
+      }
+    }
+  }
+}
+
+
+@mixin navigation_drawer($theme) {
+  $colors: map-get-strict($theme, "colors");
+  $components: map-get-strict($theme, "components");
+  $navigation_drawer: map-get-strict($components, "navigation_drawer");
+
+  .dmat-navigation-drawer-container {
+    height: 100%;
+
+    display: grid;
+
+    grid-auto-columns: 0 1fr;
+    position: relative;
+
+    &.-expanded {
+      grid-auto-columns: map-get-strict($navigation_drawer, "full_width") 1fr;
+      box-shadow: 0px 2px 5px -1px rgba(0, 0, 0, 0.2), 0px 1px 5px 0px rgba(0, 0, 0, 0.14), 0px 1px 4px 1px rgba(0, 0, 0, 0.12);
+
+      &.-narrow  {
+        & > .main {
+          left: map-get-strict($navigation_drawer, "narrow_width");
+        }
+
+        & > .drawer {
+          width: map-get-strict($navigation_drawer, "narrow_width");
+        }
+      }
+    }
+
+    & .drawer {
+      position: absolute;
+      background: map-get-strict($colors, "surface");
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 0;
+      transition: width 0.2s ease-in;
+      z-index: 1;
+      overflow: hidden;
+
+      &.-expanded {
+        width: map-get-strict($navigation_drawer, "full_width");
+
+        & .drawer-container {
+          & > .controls {
+            display: block;
+          }
+        }
+      }
+
+      & .drawer-container {
+        position: relative;
+
+        & > .controls {
+          display: none;
+          position: relative;
+          height: 1.5rem;
+          padding: 4px 8px 4px 4px;
+
+          & .dmat-navigation-drawer-collapse {
+            &:before {
+              content: '\3008';
+            }
+
+            cursor: pointer;
+
+            position: absolute;
+            font-weight: 600;
+            font-size: 1rem;
+            top: 1rem;
+            right: 1rem;
+            width: 1rem;
+            height: 1rem;
+          }
+        }
+
+        & .title {
+          padding: 16px;
+        }
+
+        & .entry {
+          margin-left: 8px;
+          margin-right: 8px;
+          margin-top: 4px;
+          padding: 8px;
+          font-weight: 500;
+          color: map-get-strict($colors, "text_diffuse");
+          cursor: pointer;
+          transition: background-color 0.1s;
+          border-radius: 4px;
+
+          &:hover {
+            background: map-get-strict($colors, "secondary_lightest");
+          }
+
+          &.-active {
+            background: map-get-strict($colors, "secondary_light");
+          }
+        }
+      }
+    }
+
+    & .main {
+      position: absolute;
+      transition: left 0.2s ease-in;
+
+      & .dmat-navigation-drawer-expand {
+        &:before {
+          content: '\2630';
+        }
+
+        cursor: pointer;
+
+        position: absolute;
+        font-weight: 600;
+        font-size: 1.5rem;
+        top: 1rem;
+        left: 1rem;
+        width: 2rem;
+        height: 2rem;
+      }
+
+      &.-expanded {
+        left: map-get-strict($navigation_drawer, "full_width");
+
+        &.-modal {
+          left: 0;
+        }
+      }
+
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+    }
+  }
+
+  .dmat-modal-cover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    background-color: map-get-strict($colors, "primary_dark");
+    opacity: 0.5;
+  }
+}
+
+
+@mixin carousel($theme) {
+  $colors: map-get-strict($theme, "colors");
+
+  .dmat-carousel {
+    width: 100%;
+    height: 100%;
+
+    & > .container {
+      position: relative;
+      display: grid;
+      width: 100%;
+      height: 100%;
+
+      & > .dmat-carousel-item {
+        overflow: hidden;
+        grid-area: 1 / 1 / 2 / 2;
+        transition: margin-left 0.5s, margin-right 0.5s;
+        z-index: 0;
+        margin-left: 0;
+        margin-right: 0;
+
+        & > .dmat-carousel-item-inner {
+          position: relative;
+        }
+
+        &.-leave-left {
+          margin-right: 100%;
+          opacity: 0.3;
+          background-color: map-get-strict($colors, "surface_dark");
+          z-index: 100;
+        }
+
+        &.-leave-right {
+          margin-left: 100%;
+          opacity: 0.5;
+          background-color: map-get-strict($colors, "surface_dark");
+          z-index: 100;
+        }
+
+        &.-hidden {
+          display: none;
+        }
+      }
+
+      & .dmat-carousel-button {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 3rem;
+        background-color: map-get-strict($colors, "surface_dark");
+        opacity: 20%;
+        transition: opacity 250ms;
+        z-index: 3;
+
+        &:hover {
+          opacity: 80%;
+        }
+      }
+
+      & .dmat-carousel-left-button {
+        left: 0;
+      }
+
+      & .dmat-carousel-right-button {
+        right: 0;
+      }
+    }
+  }
+}
+
+
+@mixin data_table($theme) {
+  $colors: map-get-strict($theme, "colors");
+  $breakpoints: map-get-strict($theme, "breakpoints");
+
+  .dmat-table {
+    min-width: 100%;
+    border: 0;
+    table-layout: fixed;
+    border-collapse: collapse;
+    box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, .12);
+
+    & thead {
+      background: map-get-strict($colors, "primary");
+      color: map-get-strict($colors, "text_on_primary");
+    }
+
+    & tr {
+      vertical-align: middle;
+      height: 35px;
+    }
+
+    & tbody {
+      background: map-get-strict($colors, "surface");
+      color: map-get-strict($colors, "text_on_secondary");
+    }
+
+    & > tbody > tr {
+      border-top: 1px solid #aaaaaa;
+
+      &:hover {
+        background: map-get-strict($colors, "secondary_light");
+      }
+    }
+
+    & td, & th {
+      border: none;
+      text-align: left;
+      padding: 8px;
+    }
+
+    & .dmat-pagination {
+      background: map-get-strict($colors, "surface");
+      color: map-get-strict($colors, "text_on_secondary");
+      font-weight: 500;
+      font-family: Robota, sans-serif;
+      border-top: 1px solid #aaaaaa;
+
+      & > * {
+        float: right;
+      }
+
+      & .dmat-pagination-button {
+        font-family: inherit;
+        appearance: unset;
+        border: none;
+        background: transparent;
+        font-size: 1.5rem;
+
+        &:hover {
+          color: map-get-strict($colors, "secondary");
+        }
+
+        min-width: 28px;
+        min-height: 28px;
+      }
+    }
+
+    & .loading-row {
+      padding: 0;
+      height: 0px;
+
+      & th {
+        padding: 0;
+
+        & > div {
+          left: 0;
+          bottom: 0;
+          top: -4px;
+        }
+      }
+    }
+
+    &.--loading {
+      & * {
+        color: map-get-strict($colors, "text_diffuse");
+      }
+    }
+  }
+}
+
+
+@mixin card($theme) {
+  $colors: map-get-strict($theme, "colors");
+
+  .dmat-card {
+    display: grid;
+    position: relative;
+    padding: 8px;
+    box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, .12);
+    background: map-get-strict($colors, "surface");
+    color: map-get-strict($colors, "text_on_secondary");
+
+    grid-template-rows: max-content 1fr max-content;
+    grid-auto-flow: row;
+
+    &:hover {
+      box-shadow: 0px 4px 2px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 2px 6px 0px rgba(0, 0, 0, 0.12);
+    }
+
+    & .card-section {
+      padding-top: 16px;
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+
+    & .dmat-card-header-container {
+      font-weight: 500;
+      font-size: 1.25rem;
+      line-height: 2rem;
+
+      & .sub-title {
+        font-size: 1rem;
+        line-height: 0.8rem;
+        margin-top: -0.1rem;
+        color: map-get-strict($colors, "text_diffuser");
+      }
+    }
+
+    & .dmat-card-body-container {
+      font-size: 1rem;
+      color: map-get-strict($colors, "text_diffuse");
+    }
+
+    & .dmat-card-footer-container {
+      line-height: 2rem;
+    }
+  }
+}
+
+
+@mixin tabs($theme) {
+  $colors: map-get-strict($theme, "colors");
+  $layout: map-get-strict($theme, "layout");
+  $breakpoints: map-get-strict($theme, "breakpoints");
+  $gutter: map-get-strict($layout, "gutter");
+
+  .dmat-tabs {
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat(4, 1fr);
+    font-size: x-small;
+
+    @include respond-to($breakpoints, "medium") {
+      font-size: unset;
+      grid-template-columns: repeat(5, 1fr);
+    }
+
+    button.tab {
+      text-decoration: none;
+      text-transform: uppercase;
+      text-align: center;
+      line-height: 2.25rem;
+      font-weight: 500;
+      font-family: Roboto, sans-serif;
+      padding: 0;
+
+      @include respond-to($breakpoints, "medium") {
+        $g: map-get-strict($gutter, "medium");
+        padding: 0 $g;
+      }
+
+      box-sizing: border-box;
+      outline: none;
+      border: none;
+      cursor: pointer;
+      background: map-get-strict($colors, "primary");
+      color: map-get-strict($colors, "text_on_primary");
+      height: 2.3rem;
+      position: relative;
+
+      &:hover {
+        background: map-get-strict($colors, "primary_light");
+      }
+
+      & .dmat-tab-indicator {
+        opacity: 0;
+        transition: opacity 250ms cubic-bezier(0.4, 0, 0.2, 1) 0s;
+        border-color: map-get-strict($colors, "secondary") !important;
+        border-bottom: 4px solid;
+        display: flex;
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        z-index: 1;
+      }
+
+      &.active .dmat-tab-indicator {
+        opacity: 1;
+      }
+    }
+  }
+}
+
+@include dmat($example-app);
