@@ -1,0 +1,47 @@
+name: Build and Deploy
+on:
+  push:
+    tags:
+      - pages.*
+
+jobs:
+  build-and-deploy:
+    concurrency: ci-${{ github.ref }} # Recommended if you intend to make multiple deployments in quick succession.
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v2
+
+      - name: wasm-bindgen-action
+        # You may pin to the exact commit or the version.
+        # uses: jetli/wasm-bindgen-action@370ddd977537b33f15fd1241476a90a1254dfdae
+        uses: jetli/wasm-bindgen-action@v0.1.0
+        with:
+          # Optional version of wasm-bindgen to install (eg. "0.2.68", "latest")
+          version: 0.2.79
+      - name: rust-toolchain
+        # You may pin to the exact commit or the version.
+        # uses: actions-rs/toolchain@b2417cde72dcf67f306c0ae8e0828a81bf0b189f
+        uses: actions-rs/toolchain@v1.0.6
+        with:
+          # Rust toolchain name.
+          toolchain: stable
+          target: wasm32-unknown-unknown
+      - name: trunk-action
+        # You may pin to the exact commit or the version.
+        # uses: jetli/trunk-action@a221e99602a4172f93fc08b44071e3f112e7df13
+        uses: jetli/trunk-action@v0.1.0
+        with:
+          # Optional version of trunk to install (eg. "v0.10.0", "latest")
+          version: 0.14.0# optional, default is latest
+      - name: Install and Build 🔧
+        run: |
+          pushd examples/component_showcase/
+          trunk build --release
+          popd
+
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4.2.3
+        with:
+          branch: gh-pages # The branch the action should deploy to.
+          folder: examples/component_showcase/dist # The folder the action should deploy.
