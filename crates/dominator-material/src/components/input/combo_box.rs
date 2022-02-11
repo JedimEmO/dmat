@@ -35,6 +35,9 @@ pub struct ComboBoxProps<
     >,
 }
 
+/// The combo box is a searchable dropdown or text field with hints, depending on your point of view.
+/// It renders as a text field in which the user can type freely, but it will have a filtered list
+/// of options in a dropdown to select from as well.
 #[inline]
 pub fn combo_box<
     TLabelSignal: Signal<Item = Option<String>> + Unpin + 'static,

@@ -36,6 +36,8 @@ pub struct SelectProps<
     >,
 }
 
+/// The select component is a dropdown from which the user can chose 1 value
+#[inline]
 pub fn select<
     TLabelSignal: Signal<Item = Option<String>> + Unpin + 'static,
     TValidSignal: Signal<Item = bool> + Unpin + 'static,

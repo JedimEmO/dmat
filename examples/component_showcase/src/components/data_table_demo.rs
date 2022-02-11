@@ -2,7 +2,6 @@ use dominator::{clone, html, Dom};
 use dominator_material::components::input::input_props::InputProps;
 use dominator_material::components::TextFieldProps;
 use dominator_material::components::{data_table, CardProps, DataTableProps};
-use futures_signals::map_ref;
 use futures_signals::signal::always;
 use futures_signals::signal::Mutable;
 use futures_signals::signal_vec::MutableVec;
@@ -11,34 +10,54 @@ use wasm_bindgen::__rt::std::rc::Rc;
 pub fn data_table_demo() -> Dom {
     let data: Rc<MutableVec<usize>> = Rc::new(MutableVec::new_with_values((0..10).collect()));
     let current_top = Mutable::new(0);
+    let shared_data = Mutable::new("".to_string());
 
     let table = data_table(
-        DataTableProps::new(data.clone(), |v| {
-            let input_test_value = Mutable::new("".to_string());
+        DataTableProps::new(
+            data.clone(),
+            clone!(shared_data => move |v| {
+                let input_test_value = Mutable::new("".to_string());
 
-            html!("tr", {
-                .children(&mut [
-                    html!("td", {
-                    .text(format!("{}", v).as_str())
-                    }),
-                    html!("td", {
-                        .child(text_field!(TextFieldProps {
-                                    claim_focus: false,
-                                    input_props: InputProps{
-                                        label: always(Some("With dynamic help text".to_string())),
-                                        value: input_test_value.clone(),
-                                        is_valid: always(true),
-                                        assistive_text_signal: map_ref!(let cur_val = input_test_value.signal_cloned() =>
-                                            Some(format!("Assistive text - {}", cur_val))),
-                                        error_text_signal: always(None),
-                                        disabled_signal: always(false)
-                                    }
-                                }).0)
-                    })
-                ])
-            })
-        })
-        .headers(vec!["Column 1".to_string(), "Column 2".to_string()])
+                html!("tr", {
+                    .children(&mut [
+                        html!("td", {
+                        .text(format!("{}", v).as_str())
+                        }),
+                        html!("td", {
+                            .child(text_field!(TextFieldProps {
+                                        claim_focus: false,
+                                        input_props: InputProps{
+                                            label: always(Some("Data per row".to_string())),
+                                            value: input_test_value.clone(),
+                                            is_valid: always(true),
+                                            assistive_text_signal: always(None),
+                                            error_text_signal: always(None),
+                                            disabled_signal: always(false)
+                                        }
+                                    }).0)
+                        }),
+                        html!("td", {
+                            .child(text_field!(TextFieldProps {
+                                        claim_focus: false,
+                                        input_props: InputProps{
+                                            label: always(Some("Shared data".to_string())),
+                                            value: shared_data.clone(),
+                                            is_valid: always(true),
+                                            assistive_text_signal: always(None),
+                                            error_text_signal: always(None),
+                                            disabled_signal: always(false)
+                                        }
+                                    }).0)
+                        })
+                    ])
+                })
+            }),
+        )
+        .headers(vec![
+            "Column 1".to_string(),
+            "Column 2".to_string(),
+            "Column 3".to_string(),
+        ])
         .page_meta(
             Mutable::new(10),
             Mutable::new(100000),
