@@ -1,7 +1,7 @@
 use dominator::DomBuilder;
 use futures::Stream;
+use futures::StreamExt;
 use futures_signals::signal::Mutable;
-use futures_util::StreamExt;
 use web_sys::Element;
 
 #[inline]

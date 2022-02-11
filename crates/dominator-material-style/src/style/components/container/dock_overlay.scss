@@ -12,6 +12,16 @@
       grid-column: 1;
     }
 
+    &.-hidden {
+      & > .dmat-scrim > .scrim-overlay {
+        display: none;
+      }
+
+      & > .dmat-overlay-view {
+        display: none;
+      }
+    }
+
     & > .dmat-overlay-view {
       &.top-left {
         margin: 0 auto auto 0;
