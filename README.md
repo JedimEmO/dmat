@@ -75,7 +75,7 @@ Requires
 * trunk (https://trunkrs.dev/) (`cargo install trunk`)
 
 ```
-cargo build && trunk serve --release
+trunk serve --release
 ``` 
 
 Go to http://localhost:8080 to see the showcase.
