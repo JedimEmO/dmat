@@ -2,7 +2,8 @@
 
 This crate aims to provide  basic reactive material components to be used for writing UI applications using dominator.
 
-The example app is hosed on github pages here: https://jedimemo.github.io/dominator-material/
+The example app is hosted on github pages here:
+<a href='https://jedimemo.github.io/dominator-material/' target=top>https://jedimemo.github.io/dominator-material/ </a>
 
 ## Components
 Each component provided is implemented as a function, and there are two types of component functions.
