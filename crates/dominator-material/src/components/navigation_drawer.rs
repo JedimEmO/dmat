@@ -1,18 +1,11 @@
 use dominator::{clone, events, html, Dom, DomBuilder};
-use futures_signals::map_ref;
-use futures_signals::signal::{Mutable, MutableSignalCloned, ReadOnlyMutable, Signal};
-use futures_signals::signal_vec::SignalVecExt;
-use futures_signals::signal_vec::{MutableSignalVec, MutableVec};
-use wasm_bindgen::__rt::std::rc::Rc;
+use futures::channel::mpsc::Receiver;
+use futures_signals::signal::always;
+use futures_signals::signal::{Mutable, MutableSignalCloned, Signal};
 use web_sys::HtmlElement;
 
-use crate::futures_signals::signal::SignalExt;
-
-#[derive(Clone)]
-pub enum NavigationDrawerEntry<T: Clone + Copy + 'static> {
-    Item(T),
-    Separator,
-}
+use crate::components::ScrimProps;
+use crate::scrim;
 
 #[derive(Copy, Clone, PartialEq)]
 pub enum DrawerWidth {
@@ -20,117 +13,25 @@ pub enum DrawerWidth {
     Narrow,
 }
 
-pub struct NavigationDrawerProps<
-    T: Clone + Copy + PartialEq + 'static,
-    FMain: Fn(&Option<T>) -> Option<Dom>,
-    FItem: Fn(T, DrawerWidth) -> Dom,
-> {
-    pub entries: MutableVec<NavigationDrawerEntry<T>>,
-    pub main_view_generator: FMain,
-    pub header_view_generator: Option<Rc<dyn Fn(Option<T>, Mutable<bool>) -> Option<Dom>>>,
-    pub item_renderer: FItem,
-    pub show_toggle_controls: bool,
-    pub is_modal: bool,
-    pub expanded: Mutable<bool>,
-    pub current_active: Mutable<Option<T>>,
-    pub width: ReadOnlyMutable<DrawerWidth>,
-}
-
-impl<
-        T: Clone + Copy + PartialEq + 'static,
-        FMain: Fn(&Option<T>) -> Option<Dom>,
-        FItem: Fn(T, DrawerWidth) -> Dom,
-    > NavigationDrawerProps<T, FMain, FItem>
-{
-    pub fn set_entries(&self, entries: Vec<NavigationDrawerEntry<T>>) {
-        self.entries.lock_mut().replace_cloned(entries);
-    }
-}
-
-fn activate_entry<T: Clone + Copy + PartialEq + 'static>(
-    id: T,
-    current_active: Mutable<Option<T>>,
-    expanded: Mutable<bool>,
-    is_modal: bool,
-) {
-    current_active.set(Some(id));
-
-    if is_modal {
-        expanded.set(false);
-    }
-}
-
-impl<
-        T: Clone + Copy + PartialEq + 'static,
-        FMain: Fn(&Option<T>) -> Option<Dom>,
-        FItem: Fn(T, DrawerWidth) -> Dom,
-    > NavigationDrawerProps<T, FMain, FItem>
-{
-    pub fn new(
-        main_view_generator: FMain,
-        item_renderer: FItem,
-    ) -> NavigationDrawerProps<T, FMain, FItem> {
-        NavigationDrawerProps {
-            entries: Default::default(),
-            current_active: Mutable::new(None),
-            main_view_generator,
-            header_view_generator: None,
-            item_renderer,
-            show_toggle_controls: false,
-            is_modal: false,
-            expanded: Mutable::new(true),
-            width: Mutable::new(DrawerWidth::Full).read_only(),
-        }
-    }
-
-    #[inline]
-    #[must_use]
-    pub fn expanded(self, expanded: bool) -> Self {
-        self.expanded.set(expanded);
-        self
-    }
-
-    #[inline]
-    #[must_use]
-    pub fn show_toggle_controls(mut self, show_toggle_controls: bool) -> Self {
-        self.show_toggle_controls = show_toggle_controls;
-        self
-    }
-
-    #[inline]
-    #[must_use]
-    pub fn modal(mut self, is_modal: bool) -> Self {
-        self.is_modal = is_modal;
-        self
-    }
-
-    #[inline]
-    #[must_use]
-    pub fn initial_selected(self, initial: T) -> Self {
-        self.current_active.set(Some(initial));
-        self
-    }
-
-    #[inline]
-    #[must_use]
-    pub fn entries(self, entries: Vec<NavigationDrawerEntry<T>>) -> Self {
-        self.entries.lock_mut().replace_cloned(entries);
-        self
-    }
-
-    #[inline]
-    #[must_use]
-    pub fn header_view_generator<F>(mut self, header_view_generator: F) -> Self
-    where
-        F: Fn(Option<T>, Mutable<bool>) -> Option<Dom> + 'static,
-    {
-        self.header_view_generator = Some(Rc::new(header_view_generator));
-        self
-    }
+pub struct NavigationDrawerProps<TVisibleSignal: Signal<Item = bool>> {
+    pub visible_signal: TVisibleSignal,
+    /// If true, a scrim will be rendered on top of the contained UI when the drawer is expanded
+    pub with_scrim: bool,
+    pub width: DrawerWidth,
+    /// Determines if the drawer will collapse and extend based on mouse hover
+    pub retracts: bool,
+    /// Determines if the drawer overlays the held UI, or if it is render side by side with it
+    pub modal: bool,
+    /// The content of the navigation drawer
+    pub drawer_content: Dom,
+    /// The main view which the drawer is attached to
+    pub main_content: Dom,
 }
 
 pub struct NavigationDrawerOut {
-    pub is_expanded: MutableSignalCloned<bool>,
+    /// If the drawer is configured to retract, this signal will contain the extended state
+    pub is_extended: Option<MutableSignalCloned<bool>>,
+    pub scrim_click_stream: Option<Receiver<()>>,
 }
 
 #[macro_export]
@@ -140,199 +41,101 @@ macro_rules! navigation_drawer {
     }};
 
     ($props: expr, $mixin: expr) => {{
-        $crate::components::navigation_drawer::navigation_drawer($props, $mixin)
+        $crate::components::navigation_drawer::nacarvigation_drawer($props, $mixin)
     }};
 }
 
-pub fn navigation_drawer<
-    T: Clone + Copy + PartialEq + 'static,
-    F,
-    FMain: Fn(&Option<T>) -> Option<Dom> + 'static,
-    FItem: Fn(T, DrawerWidth) -> Dom + 'static,
->(
-    props: NavigationDrawerProps<T, FMain, FItem>,
+/// Navigation drawer: <https://material.io/components/navigation-drawer>
+///
+/// # Examples
+///
+/// ```no_run
+/// use dominator::{Dom, html};
+/// use futures_signals::signal::always;
+/// use dominator_material::components::{NavigationDrawerProps, DrawerWidth};
+///
+/// fn retracting(modal: bool) -> Dom {
+///     let props = NavigationDrawerProps {
+///         visible_signal: always(true),
+///         with_scrim: false,
+///         width: DrawerWidth::Full,
+///         retracts: true,
+///         modal,
+///         drawer_content: html!("div", {.text("This is the content of the drawer. Put menu items etc. here!")}),
+///         main_content: html!("div", {.text("This is the main view, a modal drawer will cover it, whereas a non-modal drawer will displace it")}),
+///     };
+///
+///     dominator_material::navigation_drawer!(props).0
+/// }
+/// ```
+pub fn navigation_drawer<F, TVisibleSignal>(
+    props: NavigationDrawerProps<TVisibleSignal>,
     mixin: F,
 ) -> (Dom, NavigationDrawerOut)
 where
+    TVisibleSignal: Signal<Item = bool> + 'static,
     F: FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>,
 {
-    let out = NavigationDrawerOut {
-        is_expanded: props.expanded.signal_cloned(),
+    let expanded = props.visible_signal;
+    let width = props.width;
+    let extended = Mutable::new(false);
+    let retracts = props.retracts;
+    let main_content = props.main_content;
+    let drawer_content = props.drawer_content;
+
+    let (main_content, scrim_click_stream) = match props.with_scrim {
+        true => {
+            let (main_out, scrim_out) = scrim!(ScrimProps {
+                content: main_content,
+                hide_signal: always(false)
+            });
+
+            (main_out, Some(scrim_out.click_stream))
+        }
+        _ => (main_content, None),
     };
 
-    let is_modal = props.is_modal;
-    let current_active = props.current_active;
-    let expanded = props.expanded;
-    let header_view_generator = props.header_view_generator;
-    let configured_width = props.width;
-
-    let current_width = Mutable::new(configured_width.get());
-
-    let activate = Rc::new(
-        clone!(current_active, expanded => move |id: T| activate_entry(id, current_active.clone(), expanded.clone(), is_modal)),
-    );
+    let out = NavigationDrawerOut {
+        is_extended: match retracts {
+            true => Some(extended.signal_cloned()),
+            _ => None,
+        },
+        scrim_click_stream,
+    };
 
     (
         html!("div", {
-            .class("dmat-navigation-drawer-container")
+            .class("dmat-navigation-drawer")
             .apply(mixin)
-            .class_signal("-expanded", expanded.signal())
-            .class_signal("-narrow", current_width.signal().map(|w| match w {
-                DrawerWidth::Narrow => true,
-                _ => false
-            }))
-            .children(vec![
-                Some(html!("div", {
+            .class_signal("-expanded", expanded)
+            .class_signal("-extended", extended.signal_cloned())
+            .apply_if(props.retracts, |d| d.class("-retracting"))
+            .apply_if(props.modal, |d| d.class("-modal"))
+            .class(drawer_width_to_css_class(width))
+            .children(&mut [
+                html!("div", {
                     .class("drawer")
-                    .class_signal("-expanded", expanded.signal())
-                    .event(clone!(current_width => move |_:events::MouseEnter| {
-                            current_width.set(DrawerWidth::Full)
+                    .apply_if(retracts, clone!(extended => move |d| {
+                        d.event(clone!(extended => move |_:events::MouseEnter| {
+                            extended.set(true);
                         }))
-                    .event(clone!(current_width, configured_width=> move |_:events::MouseLeave| {
-                        if configured_width.get() == DrawerWidth::Narrow {
-                            current_width.set(DrawerWidth::Narrow)
-                        }
+                        .event(clone!(extended=> move |_:events::MouseLeave| {
+                            extended.set(false);
+                        }))
                     }))
 
-                    .child(html!("div", {
-                        .class("drawer-container")
-                        .children(&mut [
-                            controls(expanded.clone(), props.show_toggle_controls),
-                            header(header_view_generator, current_active.clone(), expanded.clone()),
-                            items(props.item_renderer, props.entries.signal_vec_cloned(), current_active.clone(), current_width.read_only(), activate)
-                        ])
-                    }))
-                })),
-                main_view(
-                    props.main_view_generator,
-                    expanded,
-                    current_active.signal_cloned(),
-                    props.is_modal,
-                    props.show_toggle_controls
-                )
-            ].into_iter().flatten())
+                    .child(drawer_content)
+                }),
+                main_content
+            ])
         }),
         out,
     )
 }
 
-#[inline]
-fn header<T: Clone + PartialEq + 'static>(
-    header_view_generator: Option<Rc<dyn Fn(Option<T>, Mutable<bool>) -> Option<Dom>>>,
-    current_active: Mutable<Option<T>>,
-    expanded: Mutable<bool>,
-) -> Dom {
-    match header_view_generator {
-        Some(generator) => html!("div", {
-            .class("title")
-            .child_signal(current_active.signal_cloned().map(clone!(generator, expanded => move |v| generator(v, expanded.clone()))))
-        }),
-        _ => html!("span"),
+fn drawer_width_to_css_class(width: DrawerWidth) -> &'static str {
+    match width {
+        DrawerWidth::Narrow => "-narrow",
+        DrawerWidth::Full => "-full",
     }
-}
-
-#[inline]
-fn controls(expanded: Mutable<bool>, show_toggle_controls: bool) -> Dom {
-    html!("div", {
-        .class("controls")
-        .child_signal(expanded.signal_cloned().map(clone!(expanded => move |is_expanded| {
-            if is_expanded && show_toggle_controls {
-                Some(html!("div", {
-                    .child(html!("span", {
-                        .class("dmat-navigation-drawer-collapse")
-                        .event(clone!(expanded => move |_:events::Click| {
-                            expanded.set(false);
-                        }))
-                    }))
-                }))
-            } else {
-                None
-            }
-        })))
-    })
-}
-
-#[inline]
-fn items<T: Clone + Copy + PartialEq + 'static, FItem: Fn(T, DrawerWidth) -> Dom + 'static>(
-    render_item: FItem,
-    entries: MutableSignalVec<NavigationDrawerEntry<T>>,
-    active: Mutable<Option<T>>,
-    width: ReadOnlyMutable<DrawerWidth>,
-    activate_entry: Rc<dyn Fn(T)>,
-) -> Dom {
-    let render_item = Rc::new(render_item);
-
-    html!("div", {
-        .children_signal_vec(entries.map(clone!(width => move |entry| {
-            match entry {
-                NavigationDrawerEntry::Item(v) => {
-                    html!("div", {
-                        .class("entry")
-                        .class_signal("-active", active.signal_cloned().map(clone!(v => move |active|{
-                            match active {
-                                Some(b) => b == v,
-                                _ => false
-                            }
-                        })))
-                        .child_signal(width.signal_cloned().map({
-                            clone!(v, render_item => move |w| {
-                                let render_item = &render_item;
-                                Some(render_item(v, w))
-                            })
-                        }))
-                        .event(clone!(activate_entry, v => move |_: events::Click| {
-                            (*activate_entry)(v)
-                        }))
-                    })
-                },
-                _ => html!("div", { .class("dmat-separator") })
-            }
-        })))
-    })
-}
-
-#[inline]
-fn main_view<T, F, TActive>(
-    renderer: F,
-    expanded: Mutable<bool>,
-    active: TActive,
-    is_modal: bool,
-    show_toggle_controls: bool,
-) -> Option<Dom>
-where
-    T: Clone + PartialEq + 'static,
-    F: Fn(&Option<T>) -> Option<Dom> + 'static,
-    TActive: Signal<Item = Option<T>> + 'static,
-{
-    Some(html!("div", {
-        .class("main")
-        .class_signal("-expanded", expanded.signal_cloned())
-        .apply_if(is_modal, |dom| dom.class("-modal"))
-        .class("dmat-surface")
-        .child_signal(map_ref!{ let active = active, let is_expanded = expanded.signal_cloned() => move {
-            Some(html!("div", {
-                .children(vec![
-                    renderer(active),
-                    match !is_expanded && show_toggle_controls {
-                        true => Some(html!("span", {
-                                .class("dmat-navigation-drawer-expand")
-                                .event(clone!(expanded => move |_:events::Click| {
-                                    expanded.set(true);
-                                }))
-                            }))                                                ,
-                        false => None
-                    },
-                    match is_modal && *is_expanded {
-                        true => Some(html!("div", {
-                            .class("dmat-modal-cover")
-                            .event(clone!(expanded => move |_: events::Click| {
-                                expanded.set(false);
-                            }))
-                        })),
-                        false => None
-                    }
-                ].into_iter().flatten())
-            }))
-        }})
-    }))
 }

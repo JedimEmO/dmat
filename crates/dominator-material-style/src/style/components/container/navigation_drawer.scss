@@ -5,38 +5,58 @@
   $components: map-get-strict($theme, "components");
   $navigation_drawer: map-get-strict($components, "navigation_drawer");
 
-  .dmat-navigation-drawer-container {
+  .dmat-navigation-drawer {
     height: 100%;
 
     display: grid;
-
-    grid-auto-columns: 0 1fr;
+    grid-template-columns: 0 1fr;
+    grid-auto-flow: row;
     position: relative;
+    transition: grid-template-columns 0.2s ease-in;
 
     &.-expanded {
-      grid-auto-columns: map-get-strict($navigation_drawer, "full_width") 1fr;
-      box-shadow: 0px 2px 5px -1px rgba(0, 0, 0, 0.2), 0px 1px 5px 0px rgba(0, 0, 0, 0.14), 0px 1px 4px 1px rgba(0, 0, 0, 0.12);
+      &:not(.-retracting), &.-retracting.-extended {
+        grid-template-columns: map-get-strict($navigation_drawer, "full_width") 1fr;
 
-      &.-narrow  {
-        & > .main {
-          left: map-get-strict($navigation_drawer, "narrow_width");
+        &.-narrow  {
+          grid-template-columns: map-get-strict($navigation_drawer, "narrow_width") 1fr;
         }
+      }
 
-        & > .drawer {
-          width: map-get-strict($navigation_drawer, "narrow_width");
-        }
+      &.-retracting:not(.-extended) {
+        grid-template-columns: map-get-strict($navigation_drawer, "retracted_width") 1fr;
+      }
+
+      &  > .drawer {
+        border-right: 1px solid rgba(0,0,0,20%);
       }
     }
 
-    & .drawer {
-      position: absolute;
+    &:not(.-expanded) > .dmat-scrim > .scrim-overlay {
+      display: None;
+    }
+
+    &.-modal {
+      & > .drawer {
+        z-index: 1;
+        grid-column: 1;
+        grid-row: 1;
+      }
+
+      & > :nth-child(2) {
+        grid-column: 1/3;
+        grid-row: 1;
+      }
+    }
+
+    & > :nth-child(2) {
+      grid-column: 2;
+    }
+
+    & > .drawer {
       background: map-get-strict($colors, "surface");
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 0;
       transition: width 0.2s ease-in;
-      z-index: 1;
+
       overflow: hidden;
 
       &.-expanded {

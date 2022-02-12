@@ -46,6 +46,7 @@ impl ToSass for AppBar {
 pub struct NavigationDrawer {
     pub full_width: String,
     pub narrow_width: String,
+    pub retracted_width: String,
 }
 
 impl Default for NavigationDrawer {
@@ -53,6 +54,7 @@ impl Default for NavigationDrawer {
         Self {
             full_width: "150px".to_string(),
             narrow_width: "50px".to_string(),
+            retracted_width: "10px".to_string(),
         }
     }
 }
@@ -62,6 +64,7 @@ impl ToSass for NavigationDrawer {
         render_sass_map(&[
             render_sass_property("full_width", &self.full_width),
             render_sass_property("narrow_width", &self.narrow_width),
+            render_sass_property("retracted_width", &self.retracted_width),
         ])
     }
 }

@@ -89,7 +89,7 @@ where
     html!("div", {
         .class("dmat-app-bar")
         .apply(mixin)
-        .apply_if(props.fixed, move |dom| dom.class("-fixed"))
+        .apply_if(props.fixed, |dom| dom.class("-fixed"))
         .children(&mut [
             html!("header", {
                 .apply_if(header_view.is_some(), move |header| {

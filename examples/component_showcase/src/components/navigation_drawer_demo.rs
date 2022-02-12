@@ -1,154 +1,143 @@
-use dominator::{html, Dom};
-use futures_signals::signal::{Mutable};
-use futures_signals::signal_vec::MutableVec;
+use dominator::{clone, html, Dom, DomBuilder};
+use futures_signals::signal::{always, Mutable};
+use lipsum::lipsum;
+use web_sys::HtmlElement;
 
 use dominator_material::components::{
-    CardProps, DrawerWidth, NavigationDrawerEntry, NavigationDrawerProps,
+    ButtonContent, ButtonProps, CardProps, DrawerWidth, NavigationDrawerProps,
 };
-
-#[derive(Clone, Copy, PartialEq)]
-enum ExampleViews {
-    Main,
-    Details,
-    Other,
-}
+use dominator_material::utils::mixin::with_stream_flipflop;
 
 #[inline]
 pub fn navigation_drawers_demo() -> Dom {
-    container!(|d| d.children(&mut [
-        card!(
-            CardProps::new()
-                .with_title("Static navigation drawer", None)
-                .body(html!("div", {
-                    .class("navigation-drawer-demo")
-                    .child(static_drawers(true, DrawerWidth::Full))
-                })),
-            |d| d.class("drawer-demo-card").style("height", "350px")
-        ),
-        card!(
-            CardProps::new()
-                .with_title("Modal navigation drawer", None)
-                .body(html!("div", {
-                    .class("navigation-drawer-demo")
-                    .child(modal_drawers())
-                })),
-            |d| d.class("drawer-demo-card").style("height", "350px")
-        ),
-        card!(
-            CardProps::new()
-                .with_title("Static navigation drawer without toggle controls", None)
-                .body(html!("div", {
-                    .class("navigation-drawer-demo")
-                    .child(static_drawers(false, DrawerWidth::Full))
-                })),
-            |d| d.class("drawer-demo-card").style("height", "350px")
-        ),
-        card!(
-            CardProps::new()
-                .with_title(
-                    "Static narrow navigation drawer without toggle controls",
-                    None
-                )
-                .body(html!("div", {
-                    .class("navigation-drawer-demo")
-                    .child(static_drawers(false, DrawerWidth::Narrow))
-                })),
-            |d| d.class("drawer-demo-card").style("height", "350px")
-        ),
-    ]))
+    static_list!(vec![
+        container!(|d| d.children(&mut [
+            card!(
+                CardProps::new()
+                    .with_title("Retracting modal drawer", None)
+                    .body(html!("div", {
+                        .class("navigation-drawer-demo")
+                        .child(retracting(true))
+                    })),
+                |d| d.class("drawer-demo-card").style("height", "350px")
+            ),
+            card!(
+                CardProps::new()
+                    .with_title("Retracting non-modal drawer", None)
+                    .body(html!("div", {
+                        .class("navigation-drawer-demo")
+                        .child(retracting(false))
+                    })),
+                |d| d.class("drawer-demo-card").style("height", "350px")
+            ),
+        ])),
+        container!(|d| d.children(&mut [
+            card!(
+                CardProps::new()
+                    .with_title("Modal toggled", None)
+                    .body(html!("div", {
+                        .class("navigation-drawer-demo")
+                        .apply(|d| {
+                            let (toggled, mixin) = toggled(true);
+                            d.child(toggled)
+                            .apply(mixin)
+                        })                    })),
+                |d| d.class("drawer-demo-card").style("height", "350px")
+            ),
+            card!(
+                CardProps::new()
+                    .with_title("Toggled non-modal", None)
+                    .body(html!("div", {
+                        .class("navigation-drawer-demo")
+                        .apply(|d| {
+                            let (toggled, mixin) = toggled(false);
+                            d.child(toggled)
+                            .apply(mixin)
+                        })
+                    })),
+                |d| d.class("drawer-demo-card").style("height", "350px")
+            )
+        ]))
+    ])
 }
 
-pub fn static_drawers(toggle: bool, width: DrawerWidth) -> Dom {
+fn toggled(
+    modal: bool,
+) -> (
+    Dom,
+    impl FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>,
+) {
+    let expanded = Mutable::new(true);
+
+    let drawer_button_props = ButtonProps {
+        content: Some(ButtonContent::Label("Close drawer".to_string())),
+        click_handler: clone!(expanded => move |_| {
+            expanded.set(!expanded.get())
+        }),
+        button_type: Default::default(),
+        style: Default::default(),
+        disabled_signal: always(false),
+    };
+    let main_button_props = ButtonProps {
+        content: Some(ButtonContent::Label("Show drawer".to_string())),
+        click_handler: clone!(expanded => move |_| {
+            expanded.set(!expanded.get())
+        }),
+        button_type: Default::default(),
+        style: Default::default(),
+        disabled_signal: always(false),
+    };
+
     let props = NavigationDrawerProps {
-        entries: MutableVec::new_with_values(demo_items()),
-        main_view_generator: |_| None,
-        header_view_generator: None,
-        item_renderer: render_example_view,
-        show_toggle_controls: false,
-        is_modal: false,
-        expanded: Mutable::new(true),
-        current_active: Default::default(),
-        width: Mutable::new(width).read_only(),
-    }
-    .show_toggle_controls(toggle);
+        visible_signal: expanded.signal_cloned(),
+        with_scrim: true,
+        width: DrawerWidth::Full,
+        retracts: false,
+        modal,
+        drawer_content: html!("div", {
+            .child(button!(drawer_button_props))
+        }),
+        main_content: html!("div", {
+             .children(&mut[
+                button!(main_button_props),
+                html!("div", {
+                    .text(lipsum(100).as_str())
+                })
+            ])
+        }),
+    };
+
+    let drawer = navigation_drawer!(props);
+    let expanded_toggle_mixin =
+        with_stream_flipflop(drawer.1.scrim_click_stream.unwrap(), expanded.clone());
+
+    (drawer.0, expanded_toggle_mixin)
+}
+
+fn retracting(modal: bool) -> Dom {
+    let props = NavigationDrawerProps {
+        visible_signal: always(true),
+        with_scrim: false,
+        width: DrawerWidth::Full,
+        retracts: true,
+        modal,
+        drawer_content: html!("div", {.text("drawer")}),
+        main_content: html!("div", {.text(lipsum(100).as_str())}),
+    };
 
     navigation_drawer!(props).0
 }
 
-fn modal_drawers() -> Dom {
+pub fn static_drawers(retracts: bool, width: DrawerWidth) -> Dom {
     let props = NavigationDrawerProps {
-        entries: MutableVec::new_with_values(demo_items()),
-        main_view_generator: |_| None,
-        header_view_generator: None,
-        item_renderer: render_example_view,
-        show_toggle_controls: true,
-        is_modal: true,
-        expanded: Mutable::new(true),
-        current_active: Default::default(),
-        width: Mutable::new(DrawerWidth::Full).read_only(),
-    }
-    .header_view_generator(|_item, _width| Some(html!("Examples")));
+        visible_signal: always(true),
+        with_scrim: false,
+        width,
+        retracts,
+        modal: false,
+        drawer_content: html!("div", {.text("drawer")}),
+        main_content: html!("div", {.text(lipsum(100).as_str())}),
+    };
 
     navigation_drawer!(props).0
 }
-
-fn render_example_view(view: ExampleViews, width: DrawerWidth) -> Dom {
-    if width == DrawerWidth::Narrow {
-        return match view {
-            ExampleViews::Main => text!("M"),
-            ExampleViews::Details => text!("D"),
-            ExampleViews::Other => text!("O"),
-        };
-    }
-
-    match view {
-        ExampleViews::Main => text!("Main"),
-        ExampleViews::Details => text!("Details"),
-        ExampleViews::Other => text!("Other"),
-    }
-}
-
-fn demo_items() -> Vec<NavigationDrawerEntry<ExampleViews>> {
-    vec![
-        NavigationDrawerEntry::Item(ExampleViews::Main),
-        NavigationDrawerEntry::Item(ExampleViews::Details),
-        NavigationDrawerEntry::Item(ExampleViews::Other),
-    ]
-}
-
-// fn make_drawer() -> NavigationDrawerProps<ExampleViews> {
-//     NavigationDrawerProps::new()
-//         .initial_selected(ExampleViews::Main)
-//         .title_view_generator(|v, _| match v {
-//             Some(ExampleViews::Main) => Some(html!("span", { .text("Main view") })),
-//             Some(ExampleViews::Details) => Some(html!("span", { .text("Details") })),
-//             Some(ExampleViews::Other) => Some(html!("span", { .text("Other view") })),
-//             _ => Some(html!("span", { .text("Some view") })),
-//         })
-//         .entries(vec![
-//             NavigationDrawerEntry::Item(NavigationEntry {
-//                 text: "Main".into(),
-//                 id: ExampleViews::Main,
-//             }),
-//             NavigationDrawerEntry::Item(NavigationEntry {
-//                 text: "Details".into(),
-//                 id: ExampleViews::Details,
-//             }),
-//             NavigationDrawerEntry::Item(NavigationEntry {
-//                 text: "Other".into(),
-//                 id: ExampleViews::Other,
-//             }),
-//         ])
-//         .main_view_generator(move |v, _handle| {
-//             Some(container!(|d| {
-//                 d.child(match v {
-//                     Some(ExampleViews::Main) => html!("span", {
-//                         .text("Main view")
-//                     }),
-//                     Some(ExampleViews::Details) => html!("span", { .text("Details") }),
-//                     Some(ExampleViews::Other) => html!("span", { .text("Other view") }),
-//                     _ => html!("span", { .text("Some view") }),
-//                 })
-//             }))
-//         })
-// }
