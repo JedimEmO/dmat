@@ -36,7 +36,7 @@ pub fn with_id<T: AsRef<str> + 'static, A: AsRef<Element>>(
 /// let test_output = Mutable::new(true);
 ///
 /// let _ = html!("div", {
-///   .apply(with_stream_flipflop(test_input.signal_cloned().to_stream(), test_output.clone()))
+///   .apply(with_stream_flipflop(test_input.signal_cloned().to_stream(), &test_output))
 ///   .text_signal(test_output.signal_ref(|v| if *v { "true" } else { "false" }))
 /// });
 /// ```

@@ -45,7 +45,7 @@ pub struct ScrimOut {
 /// // boolean value on every click to the scrim overlay
 /// let _ = html!("div", {
 ///     .child(scrim_dom)
-///     .apply(with_stream_flipflop(scrim_out.click_stream, show_scrim))
+///     .apply(with_stream_flipflop(scrim_out.click_stream, &show_scrim))
 /// });
 /// ```
 pub fn scrim<THideSig, F>(props: ScrimProps<THideSig>, mixin: F) -> (Dom, ScrimOut)
