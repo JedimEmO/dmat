@@ -1,26 +1,31 @@
-use dominator::{clone, events, html, Dom, DomBuilder};
+use dominator::{events, html, Dom, DomBuilder};
+use futures::channel::mpsc::{channel, Receiver, Sender};
 use futures_signals::signal::Signal;
 use futures_signals::signal_vec::SignalVec;
 use futures_signals::signal_vec::SignalVecExt;
-use std::cell::RefCell;
 use std::fmt::Debug;
-use wasm_bindgen::__rt::std::rc::Rc;
+use std::sync::Mutex;
 use web_sys::HtmlElement;
 
 pub struct TabsProps<
-    TabList: SignalVec<Item = TabId> + 'static,
-    TabId: Copy + std::cmp::PartialEq + Debug + 'static,
-    ActiveFn: 'static,
-    ActiveSignal: 'static,
-    TabFn: Fn(TabId) -> Dom + 'static,
+    TabList: SignalVec<Item = TabId>,
+    TabId: Copy + std::cmp::PartialEq + Debug,
+    FActiveSignalFactory,
+    ActiveSignal,
+    FTabRender: Fn(TabId) -> Dom,
 > where
-    ActiveFn: Fn(TabId) -> ActiveSignal,
+    FActiveSignalFactory: Fn(TabId) -> ActiveSignal,
     ActiveSignal: Signal<Item = bool>,
 {
-    pub tab_fn: TabFn,
-    pub active_tab_signal_factory: ActiveFn,
+    /// This method transforms a TabId -> Dom
+    pub tab_render_fn: FTabRender,
+    /// Invoked per tab, this function should create a signal which indicates if the current tab is the active one or not
+    pub is_active_tab_signal_factory: FActiveSignalFactory,
     pub tabs_list: TabList,
-    pub on_tab_change: Option<TabChangeCallbackFnMut<TabId>>,
+}
+
+pub struct TabsOut<TabId: Copy + std::cmp::PartialEq + Debug> {
+    pub tab_select_stream: Receiver<TabId>,
 }
 
 #[macro_export]
@@ -34,32 +39,37 @@ macro_rules! tabs {
     }};
 }
 
-pub type TabChangeCallbackFnMut<TabId> = Rc<RefCell<dyn FnMut(TabId)>>;
-
 #[inline]
-pub fn tabs<TabList, TabId, TActiveSignal, ActiveFn, F, TabFn>(
-    props: TabsProps<TabList, TabId, ActiveFn, TActiveSignal, TabFn>,
+pub fn tabs<TabList, TabId, TActiveSignal, FActiveSignalFactory, F, FTabRender>(
+    props: TabsProps<TabList, TabId, FActiveSignalFactory, TActiveSignal, FTabRender>,
     mixin: F,
-) -> Dom
+) -> (Dom, TabsOut<TabId>)
 where
     TabList: SignalVec<Item = TabId> + 'static,
     TabId: Copy + std::cmp::PartialEq + Debug + 'static,
     F: FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>,
-    ActiveFn: Fn(TabId) -> TActiveSignal + 'static,
+    FActiveSignalFactory: Fn(TabId) -> TActiveSignal + 'static,
     TActiveSignal: Signal<Item = bool> + 'static,
-    TabFn: Fn(TabId) -> Dom + 'static,
+    FTabRender: Fn(TabId) -> Dom + 'static,
 {
     let tab_list = props.tabs_list;
-    let tab_fn = props.tab_fn;
-    let active_tab_signal_factory = props.active_tab_signal_factory;
-    let on_tab_change = props.on_tab_change;
-    html!("div", {
-        .class("dmat-tabs")
-        .apply(mixin)
-        .children_signal_vec(tab_list.map(move |v| {
-            tab(tab_fn(v), v, active_tab_signal_factory(v), on_tab_change.clone())
-        }))
-    })
+    let tab_fn = props.tab_render_fn;
+    let active_tab_signal_factory = props.is_active_tab_signal_factory;
+
+    let (tab_tx, tab_rx) = channel(1);
+
+    (
+        html!("div", {
+            .class("dmat-tabs")
+            .apply(mixin)
+            .children_signal_vec(tab_list.map(move |v| {
+                tab(tab_fn(v), v, active_tab_signal_factory(v), tab_tx.clone())
+            }))
+        }),
+        TabsOut {
+            tab_select_stream: tab_rx,
+        },
+    )
 }
 
 fn tab<
@@ -69,8 +79,10 @@ fn tab<
     content_node: Dom,
     tab_id: TabId,
     is_active: TIsActiveSignal,
-    select_cb: Option<TabChangeCallbackFnMut<TabId>>,
+    tab_tx: Sender<TabId>,
 ) -> Dom {
+    let tab_tx = Mutex::new(tab_tx);
+
     html!("button", {
         .children(&mut [
             content_node,
@@ -80,10 +92,8 @@ fn tab<
         ])
         .class("tab")
         .class_signal("active", is_active)
-        .event(clone!(select_cb => move |_: events::Click| {
-            if let Some(cb) = &select_cb {
-                cb.borrow_mut()(tab_id)
-            }
-        }))
+        .event(move |_: events::Click| {
+            tab_tx.lock().unwrap().try_send(tab_id).or::<()>(Ok(())).unwrap();
+        })
     })
 }
