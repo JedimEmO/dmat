@@ -5,6 +5,7 @@ use crate::main_view::main_view;
 use wasm_bindgen::prelude::*;
 
 pub mod components;
+pub mod demo_views;
 pub mod main_view;
 pub mod route;
 pub mod utils;

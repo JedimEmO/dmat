@@ -4,6 +4,5 @@ Next prioritized material components to add:
 * Switches https://material.io/components/switches 
 
 Todos:
-* Refactor navigation drawer
 * Create grid layout widget
 * Create "infinite" scrolling list
