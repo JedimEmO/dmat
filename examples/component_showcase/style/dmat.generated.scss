@@ -446,7 +446,7 @@ $example-app:("colors": ("primary": #263238,
   .dmat-container {
     display: grid;
     grid-auto-columns: 1fr;
-    grid-auto-rows: 1fr;
+    grid-auto-rows: max-content;
     grid-auto-flow: row;
     background-color: map-get-strict($colors, "surface");
 

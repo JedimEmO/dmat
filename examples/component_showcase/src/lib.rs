@@ -1,3 +1,5 @@
+#![feature(core_panic)]
+
 #[macro_use]
 extern crate dominator_material;
 

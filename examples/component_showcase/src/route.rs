@@ -18,21 +18,22 @@ pub enum DemoRoute {
     Sheet,
 }
 
-impl DemoRoute {
+#[derive(Copy, Clone, PartialEq, Debug)]
+pub enum ExampleAppRoute {
+    Components(DemoRoute),
+    About,
+}
+
+impl ExampleAppRoute {
     pub fn new(url: Url) -> Self {
-        match url.hash().as_str() {
-            "#/appbar" => DemoRoute::AppBar,
-            "#/button" => DemoRoute::Button,
-            "#/list" => DemoRoute::List,
-            "#/carousel" => DemoRoute::Carousel,
-            "#/card" => DemoRoute::Card,
-            "#/dock-overlay" => DemoRoute::DockOverlay,
-            "#/tabs" => DemoRoute::Tabs,
-            "#/data-table" => DemoRoute::DataTable,
-            "#/input" => DemoRoute::Input,
-            "#/navigation-drawer" => DemoRoute::NavigationDrawer,
-            "#/sheet" => DemoRoute::Sheet,
-            _ => DemoRoute::AppBar,
+        let url_value = url.hash();
+
+        if url_value.as_str().contains("#/about") {
+            ExampleAppRoute::About
+        } else if url_value.as_str().contains("#/component/") {
+            ExampleAppRoute::Components(DemoRoute::new(url_value.as_str()))
+        } else {
+            ExampleAppRoute::About
         }
     }
 
@@ -42,23 +43,53 @@ impl DemoRoute {
             .map(Self::new)
     }
 
+    pub fn url(&self) -> String {
+        match self {
+            Self::About => "#/about".to_string(),
+            Self::Components(c) => format!("#/component/{}", c.url()),
+        }
+    }
+
+    pub fn goto(route: Self) {
+        dominator::routing::go_to_url(route.url().as_str());
+    }
+}
+
+impl DemoRoute {
+    pub fn new(url: &str) -> Self {
+        match url {
+            "#/component/appbar" => DemoRoute::AppBar,
+            "#/component/button" => DemoRoute::Button,
+            "#/component/list" => DemoRoute::List,
+            "#/component/carousel" => DemoRoute::Carousel,
+            "#/component/card" => DemoRoute::Card,
+            "#/component/dock-overlay" => DemoRoute::DockOverlay,
+            "#/component/tabs" => DemoRoute::Tabs,
+            "#/component/data-table" => DemoRoute::DataTable,
+            "#/component/input" => DemoRoute::Input,
+            "#/component/navigation-drawer" => DemoRoute::NavigationDrawer,
+            "#/component/sheet" => DemoRoute::Sheet,
+            _ => DemoRoute::AppBar,
+        }
+    }
+
     pub fn goto(route: Self) {
         dominator::routing::go_to_url(route.url());
     }
 
-    fn url(&self) -> &str {
+    pub fn url(&self) -> &str {
         match self {
-            DemoRoute::AppBar => "#/appbar",
-            DemoRoute::Button => "#/button",
-            DemoRoute::List => "#/list",
-            DemoRoute::Carousel => "#/carousel",
-            DemoRoute::Card => "#/card",
-            DemoRoute::DockOverlay => "#/dock-overlay",
-            DemoRoute::Tabs => "#/tabs",
-            DemoRoute::DataTable => "#/data-table",
-            DemoRoute::Input => "#/input",
-            DemoRoute::Sheet => "#/sheet",
-            DemoRoute::NavigationDrawer => "#/navigation-drawer",
+            DemoRoute::AppBar => "appbar",
+            DemoRoute::Button => "button",
+            DemoRoute::List => "list",
+            DemoRoute::Carousel => "carousel",
+            DemoRoute::Card => "card",
+            DemoRoute::DockOverlay => "dock-overlay",
+            DemoRoute::Tabs => "tabs",
+            DemoRoute::DataTable => "data-table",
+            DemoRoute::Input => "input",
+            DemoRoute::Sheet => "sheet",
+            DemoRoute::NavigationDrawer => "navigation-drawer",
         }
     }
 }

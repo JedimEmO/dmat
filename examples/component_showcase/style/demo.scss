@@ -3,6 +3,28 @@ html,body {
   margin: 0;
 }
 
+#dmat-example-app {
+  & > header > div {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 300px;
+
+    & > h1 {
+      padding-left: 8px;
+    }
+
+    & > .dmat-tabs {
+      grid-column: 2;
+      grid-template-columns: 1fr 1fr;
+      align-content: end;
+    }
+  }
+}
+
+#demo-view {
+  display: grid;
+}
+
 .demo-cards  .dmat-card {
   float: left;
 
@@ -15,6 +37,7 @@ html,body {
     }
   }
 }
+
 .main-view {
   position: absolute;
   padding: 0;
