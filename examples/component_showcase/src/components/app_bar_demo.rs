@@ -37,7 +37,7 @@ fn prominent_fixed_demo() -> Dom {
             .main(
                 navigation_drawer!(NavigationDrawerProps {
                     main_content: container!(|d| d.child(html!("div", {
-                        .text(lipsum(200).as_str())
+                        .text(lipsum(1024).as_str())
                     }))),
                     drawer_content: mock_view_select(),
                     width: DrawerWidth::Full,
