@@ -28,7 +28,7 @@ fn bottom_sheet() -> Dom {
     });
 
     html!("div", {
-        .apply(with_stream_flipflop(modal_sheet_out.toggle_stream, show))
+        .apply(with_stream_flipflop(modal_sheet_out.toggle_stream, &show))
         .child(sheet_dom)
     })
 }

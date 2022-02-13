@@ -10,6 +10,7 @@
 @import "components/container/data_table";
 @import "components/container/dock_overlay";
 @import "components/container/list";
+@import "components/container/interactive_list";
 @import "components/container/navigation_drawer";
 @import "components/container/sheet";
 @import "components/container/scrim";
@@ -33,6 +34,7 @@
   @include data_table($theme);
   @include dock_overlay($theme);
   @include list($theme);
+  @include interactive_list($theme);
   @include navigation_drawer($theme);
   @include sheet($theme);
   @include surface($theme);

@@ -25,6 +25,10 @@
 
       &.-retracting:not(.-extended) {
         grid-template-columns: map-get-strict($navigation_drawer, "retracted_width") 1fr;
+
+        & > .drawer {
+          background-color: #CCCCCE;
+        }
       }
 
       &  > .drawer {
@@ -55,19 +59,8 @@
 
     & > .drawer {
       background: map-get-strict($colors, "surface");
-      transition: width 0.2s ease-in;
 
       overflow: hidden;
-
-      &.-expanded {
-        width: map-get-strict($navigation_drawer, "full_width");
-
-        & .drawer-container {
-          & > .controls {
-            display: block;
-          }
-        }
-      }
 
       & .drawer-container {
         position: relative;
@@ -120,50 +113,5 @@
         }
       }
     }
-
-    & .main {
-      position: absolute;
-      transition: left 0.2s ease-in;
-
-      & .dmat-navigation-drawer-expand {
-        &:before {
-          content: '\2630';
-        }
-
-        cursor: pointer;
-
-        position: absolute;
-        font-weight: 600;
-        font-size: 1.5rem;
-        top: 1rem;
-        left: 1rem;
-        width: 2rem;
-        height: 2rem;
-      }
-
-      &.-expanded {
-        left: map-get-strict($navigation_drawer, "full_width");
-
-        &.-modal {
-          left: 0;
-        }
-      }
-
-      left: 0;
-      top: 0;
-      right: 0;
-      bottom: 0;
-    }
-  }
-
-  .dmat-modal-cover {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-
-    background-color: map-get-strict($colors, "primary_dark");
-    opacity: 0.5;
   }
 }

@@ -14,7 +14,9 @@ $example-app:("colors": ("primary": #263238,
 "text_diffuse": #474747,
 "text_diffuser": #5d5d5d,
 "error_text_color": #b00020,
-"invalid_element_backdrop": #ffb3a9),
+"invalid_element_backdrop": #ffb3a9,
+"select_backdrop": #BBBBBC,
+"select_backdrop_hover": #CCCCCE),
 "components": ("app_bar": ("height": 40px,
 "height_prominent": 80px),
 "navigation_drawer": ("full_width": 150px,
@@ -72,6 +74,7 @@ $example-app:("colors": ("primary": #263238,
   @include data_table($theme);
   @include dock_overlay($theme);
   @include list($theme);
+  @include interactive_list($theme);
   @include navigation_drawer($theme);
   @include sheet($theme);
   @include surface($theme);
@@ -564,7 +567,7 @@ $example-app:("colors": ("primary": #263238,
       grid-row: 1/3;
       z-index: 1;
       background: $surface;
-      box-shadow: -3px 2px 3px 0 rgba(0, 0, 0, 0.2), -4px 1px 1px 0 rgba(0, 0, 0, 0.2), -6px 4px 0 0 rgba(0, 0, 0, 0.2);
+      border-left: 1px solid rgba(0,0,0,20%);
     }
 
     & > .dmat-sheet-left {
@@ -572,7 +575,7 @@ $example-app:("colors": ("primary": #263238,
       grid-row: 1/3;
       z-index: 1;
       background: $surface;
-      box-shadow: 3px 2px 3px 0 rgba(0, 0, 0, 0.2), 4px 1px 1px 0 rgba(0, 0, 0, 0.2), 6px 4px 0 0 rgba(0, 0, 0, 0.2);
+      border-right: 1px solid rgba(0,0,0,20%);
     }
 
     & > .dmat-sheet-bottom {
@@ -581,7 +584,7 @@ $example-app:("colors": ("primary": #263238,
       z-index: 1;
       text-align: center;
       background: $surface;
-      box-shadow: 3px -1px 2px 0 rgba(0, 0, 0, 0.2), 2px -3px 1px 0 rgba(0, 0, 0, 0.2), 0 -3px 6px 0 rgba(0, 0, 0, 0.2);
+      border-top: 1px solid rgba(0,0,0,20%);
     }
 
     & > .dmat-sheet-main-view {
@@ -712,6 +715,10 @@ $example-app:("colors": ("primary": #263238,
 
       &.-retracting:not(.-extended) {
         grid-template-columns: map-get-strict($navigation_drawer, "retracted_width") 1fr;
+
+        & > .drawer {
+          background-color: #CCCCCE;
+        }
       }
 
       &  > .drawer {
@@ -742,19 +749,8 @@ $example-app:("colors": ("primary": #263238,
 
     & > .drawer {
       background: map-get-strict($colors, "surface");
-      transition: width 0.2s ease-in;
 
       overflow: hidden;
-
-      &.-expanded {
-        width: map-get-strict($navigation_drawer, "full_width");
-
-        & .drawer-container {
-          & > .controls {
-            display: block;
-          }
-        }
-      }
 
       & .drawer-container {
         position: relative;
@@ -807,51 +803,6 @@ $example-app:("colors": ("primary": #263238,
         }
       }
     }
-
-    & .main {
-      position: absolute;
-      transition: left 0.2s ease-in;
-
-      & .dmat-navigation-drawer-expand {
-        &:before {
-          content: '\2630';
-        }
-
-        cursor: pointer;
-
-        position: absolute;
-        font-weight: 600;
-        font-size: 1.5rem;
-        top: 1rem;
-        left: 1rem;
-        width: 2rem;
-        height: 2rem;
-      }
-
-      &.-expanded {
-        left: map-get-strict($navigation_drawer, "full_width");
-
-        &.-modal {
-          left: 0;
-        }
-      }
-
-      left: 0;
-      top: 0;
-      right: 0;
-      bottom: 0;
-    }
-  }
-
-  .dmat-modal-cover {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-
-    background-color: map-get-strict($colors, "primary_dark");
-    opacity: 0.5;
   }
 }
 
@@ -1062,6 +1013,39 @@ $example-app:("colors": ("primary": #263238,
 
     & .dmat-card-footer-container {
       line-height: 2rem;
+    }
+  }
+}
+
+
+@mixin interactive_list($theme) {
+  $colors: map-get-strict($theme, "colors");
+
+  .dmat-interactive-list {
+    display: grid;
+    grid-auto-rows: 40px;
+    grid-auto-flow: row;
+
+    & > .list-item {
+      padding: 8px;
+      font-weight: 500;
+      color: map-get-strict($colors, "text_diffuse");
+      cursor: pointer;
+      transition: background-color 0.1s;
+
+      &:hover {
+        background: map-get-strict($colors, "select_backdrop_hover");
+      }
+
+      &.-active {
+        background: map-get-strict($colors, "select_backdrop");
+      }
+
+      &.-multiple {
+        display: grid;
+        grid-template-columns: 0.2fr 1fr 0.2fr;
+        grid-auto-flow: column;
+      }
     }
   }
 }

@@ -103,7 +103,7 @@ mod test {
             with_id("test-scrim")
         );
 
-        let flipflop_mixin = with_stream_flipflop(scrim_out.click_stream, visible.clone());
+        let flipflop_mixin = with_stream_flipflop(scrim_out.click_stream, &visible);
 
         let outter = html!("div", {
             .child(scrim_dom)

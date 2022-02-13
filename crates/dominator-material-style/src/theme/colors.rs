@@ -38,6 +38,8 @@ pub struct Colors {
     pub text_diffuser: Color,
     pub error_text_color: Color,
     pub invalid_element_backdrop: Color,
+    pub select_backdrop_hover: Color,
+    pub select_backdrop: Color,
 }
 
 impl Default for Colors {
@@ -58,6 +60,8 @@ impl Default for Colors {
             text_diffuser: Color::Hex("#5d5d5d".to_string()),
             error_text_color: Color::Hex("#b00020".to_string()),
             invalid_element_backdrop: Color::Hex("#ffb3a9".to_string()),
+            select_backdrop: Color::Hex("#BBBBBC".to_string()),
+            select_backdrop_hover: Color::Hex("#CCCCCE".to_string()),
         }
     }
 }
@@ -80,6 +84,8 @@ impl ToSass for Colors {
             render_sass_property("text_diffuser", &self.text_diffuser),
             render_sass_property("error_text_color", &self.error_text_color),
             render_sass_property("invalid_element_backdrop", &self.invalid_element_backdrop),
+            render_sass_property("select_backdrop", &self.select_backdrop),
+            render_sass_property("select_backdrop_hover", &self.select_backdrop_hover),
         ];
 
         render_sass_map(&colors)

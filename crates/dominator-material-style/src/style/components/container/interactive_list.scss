@@ -1,0 +1,33 @@
+@import "../../utils/map_get_strict";
+
+@mixin interactive_list($theme) {
+  $colors: map-get-strict($theme, "colors");
+
+  .dmat-interactive-list {
+    display: grid;
+    grid-auto-rows: 40px;
+    grid-auto-flow: row;
+
+    & > .list-item {
+      padding: 8px;
+      font-weight: 500;
+      color: map-get-strict($colors, "text_diffuse");
+      cursor: pointer;
+      transition: background-color 0.1s;
+
+      &:hover {
+        background: map-get-strict($colors, "select_backdrop_hover");
+      }
+
+      &.-active {
+        background: map-get-strict($colors, "select_backdrop");
+      }
+
+      &.-multiple {
+        display: grid;
+        grid-template-columns: 0.2fr 1fr 0.2fr;
+        grid-auto-flow: column;
+      }
+    }
+  }
+}

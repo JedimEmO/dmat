@@ -1,12 +1,16 @@
 use dominator::{clone, html, Dom, DomBuilder};
 use futures_signals::signal::{always, Mutable};
+use futures_signals::signal_vec::{MutableVec, SignalVecExt};
 use lipsum::lipsum;
 use web_sys::HtmlElement;
 
 use dominator_material::components::{
-    ButtonContent, ButtonProps, CardProps, DrawerWidth, NavigationDrawerProps,
+    CardProps, DrawerWidth, InteractiveListProps, ListEntry, NavigationDrawerProps,
 };
 use dominator_material::utils::mixin::with_stream_flipflop;
+use dominator_material::utils::mixin::with_stream_value;
+
+use crate::utils::toggle_button::toggle_button;
 
 #[inline]
 pub fn navigation_drawers_demo() -> Dom {
@@ -69,25 +73,6 @@ fn toggled(
 ) {
     let expanded = Mutable::new(true);
 
-    let drawer_button_props = ButtonProps {
-        content: Some(ButtonContent::Label("Close drawer".to_string())),
-        click_handler: clone!(expanded => move |_| {
-            expanded.set(!expanded.get())
-        }),
-        button_type: Default::default(),
-        style: Default::default(),
-        disabled_signal: always(false),
-    };
-    let main_button_props = ButtonProps {
-        content: Some(ButtonContent::Label("Show drawer".to_string())),
-        click_handler: clone!(expanded => move |_| {
-            expanded.set(!expanded.get())
-        }),
-        button_type: Default::default(),
-        style: Default::default(),
-        disabled_signal: always(false),
-    };
-
     let props = NavigationDrawerProps {
         visible_signal: expanded.signal_cloned(),
         with_scrim: true,
@@ -95,21 +80,21 @@ fn toggled(
         retracts: false,
         modal,
         drawer_content: html!("div", {
-            .child(button!(drawer_button_props))
+            .children(&mut[mock_view_select(), toggle_button(&expanded, "Close")])
         }),
         main_content: html!("div", {
              .children(&mut[
-                button!(main_button_props),
                 html!("div", {
                     .text(lipsum(100).as_str())
-                })
+                }),
+                toggle_button(&expanded, "Show")
             ])
         }),
     };
 
     let drawer = navigation_drawer!(props);
     let expanded_toggle_mixin =
-        with_stream_flipflop(drawer.1.scrim_click_stream.unwrap(), expanded.clone());
+        with_stream_flipflop(drawer.1.scrim_click_stream.unwrap(), &expanded);
 
     (drawer.0, expanded_toggle_mixin)
 }
@@ -121,7 +106,7 @@ fn retracting(modal: bool) -> Dom {
         width: DrawerWidth::Full,
         retracts: true,
         modal,
-        drawer_content: html!("div", {.text("drawer")}),
+        drawer_content: mock_view_select(),
         main_content: html!("div", {.text(lipsum(100).as_str())}),
     };
 
@@ -135,9 +120,34 @@ pub fn static_drawers(retracts: bool, width: DrawerWidth) -> Dom {
         width,
         retracts,
         modal: false,
-        drawer_content: html!("div", {.text("drawer")}),
+        drawer_content: mock_view_select(),
         main_content: html!("div", {.text(lipsum(100).as_str())}),
     };
 
     navigation_drawer!(props).0
+}
+
+pub fn mock_view_select() -> Dom {
+    let entries = MutableVec::new_with_values(vec!["Inbox", "Spam"]);
+    let selected_item = Mutable::<Option<&str>>::new(None);
+
+    let items = entries
+        .signal_vec()
+        .map(clone!(selected_item => move |entry| ListEntry {
+            before: None,
+            content: html!("div", { .text(format!("{}", entry).as_str())}),
+            after: None,
+            selected_signal: Box::new(
+                selected_item.signal_ref(clone!(entry => move |v| v == &Some(entry))),
+            ),
+            item_value: entry
+        }));
+
+    let props = InteractiveListProps { items };
+    let (list_body, out) = interactive_list!(props);
+
+    html!("div", {
+        .child(list_body)
+        .apply(with_stream_value(out.item_select_stream, &selected_item))
+    })
 }

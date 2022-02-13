@@ -42,17 +42,48 @@ pub fn with_id<T: AsRef<str> + 'static, A: AsRef<Element>>(
 /// ```
 #[inline]
 pub fn with_stream_flipflop<A, TStream, TInner>(
-    mut input_stream: TStream,
-    latched_value: Mutable<bool>,
+    input_stream: TStream,
+    latched_value: &Mutable<bool>,
 ) -> impl FnOnce(DomBuilder<A>) -> DomBuilder<A>
 where
     A: AsRef<Element>,
     TStream: Stream<Item = TInner> + Unpin + 'static,
 {
+    let latched_value = latched_value.clone();
+
+    with_stream_handler(input_stream, move |_| {
+        latched_value.set(!latched_value.get())
+    })
+}
+
+#[inline]
+pub fn with_stream_value<A, T: 'static, TStream>(
+    input_stream: TStream,
+    output_mutable: &Mutable<T>,
+) -> impl FnOnce(DomBuilder<A>) -> DomBuilder<A>
+where
+    A: AsRef<Element>,
+    TStream: Stream<Item = T> + Unpin + 'static,
+{
+    let output_mutable = output_mutable.clone();
+
+    with_stream_handler(input_stream, move |item| output_mutable.set(item))
+}
+
+#[inline]
+pub fn with_stream_handler<A, TStream, F, T>(
+    mut input_stream: TStream,
+    cb: F,
+) -> impl FnOnce(DomBuilder<A>) -> DomBuilder<A>
+where
+    A: AsRef<Element>,
+    TStream: Stream<Item = T> + Unpin + 'static,
+    F: Fn(T) -> () + 'static,
+{
     move |d| {
         d.future(async move {
-            while let Some(_) = input_stream.next().await {
-                latched_value.set(!latched_value.get());
+            while let Some(item) = input_stream.next().await {
+                cb(item);
             }
         })
     }

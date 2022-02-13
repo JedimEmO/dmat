@@ -1,5 +1,5 @@
 use dominator::{html, Dom, DomBuilder};
-use futures_signals::signal_vec::{always, SignalVec, SignalVecExt};
+use futures_signals::signal_vec::{SignalVec, SignalVecExt};
 use web_sys::HtmlElement;
 
 #[macro_export]
@@ -45,9 +45,20 @@ macro_rules! static_list {
 }
 
 #[inline]
-pub fn static_list<F: FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>>(
-    children: Vec<Dom>,
-    mixin: F,
-) -> Dom {
-    list(always(children), mixin)
+pub fn static_list<TChildren, F>(children: TChildren, mixin: F) -> Dom
+where
+    TChildren: IntoIterator<Item = Dom>,
+    F: FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>,
+{
+    html!("ul", {
+        .class("dmat-list")
+        .class("-static")
+        .apply(mixin)
+        .children(children.into_iter().map(|child| {
+             html!("li", {
+                .class("dmat-list-item")
+                .child(child)
+            })
+        }))
+    })
 }

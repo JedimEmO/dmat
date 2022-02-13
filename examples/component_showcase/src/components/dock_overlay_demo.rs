@@ -22,7 +22,7 @@ pub fn dock_overlay_demo() -> Dom {
             body_view: Some(
                 text!(
                     "Middle Left Dialog!",
-                    with_stream_flipflop(scrim_click_stream, show_overlay.clone())
+                    with_stream_flipflop(scrim_click_stream, &show_overlay)
                 )
                 .into()
             ),

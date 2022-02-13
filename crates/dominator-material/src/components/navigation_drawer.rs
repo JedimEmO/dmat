@@ -119,6 +119,9 @@ where
                         d.event(clone!(extended => move |_:events::MouseEnter| {
                             extended.set(true);
                         }))
+                        .event(clone!(extended => move |_:events::MouseMove| {
+                            extended.set(true);
+                        }))
                         .event(clone!(extended=> move |_:events::MouseLeave| {
                             extended.set(false);
                         }))

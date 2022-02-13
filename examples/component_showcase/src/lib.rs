@@ -7,6 +7,7 @@ use wasm_bindgen::prelude::*;
 pub mod components;
 pub mod main_view;
 pub mod route;
+pub mod utils;
 
 #[wasm_bindgen(start)]
 pub async fn main_js() {
