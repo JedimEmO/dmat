@@ -31,7 +31,7 @@
       border-top: 1px solid #aaaaaa;
 
       &:hover {
-        background: map-get-strict($colors, "secondary_light");
+        background: map-get-strict($colors, "select_backdrop_hover");
       }
     }
 
