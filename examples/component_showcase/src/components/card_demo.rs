@@ -1,6 +1,6 @@
 use dominator::{html, Dom};
 use dominator_material::components::{ButtonProps, ButtonType, CardProps};
-use dominator_material::utils::mixin::with_id;
+use dominator_material::utils::mixin::id_attribute_mixin;
 use futures_signals::signal::always;
 
 pub fn card_demo() -> Dom {
@@ -20,12 +20,12 @@ pub fn card_demo() -> Dom {
                         ButtonProps::new(|_|{}, always(false))
                             .content(text!("A button"))
                             .button_type(ButtonType::Text),
-                        with_id("demo-button")),
+                        id_attribute_mixin("demo-button")),
                     button!(
                         ButtonProps::new(|_|{}, always(false))
                             .content(text!("Another button"))
                             .button_type(ButtonType::Text),
-                        with_id("demo-button"))
+                        id_attribute_mixin("demo-button"))
 
                 ])
             }))),

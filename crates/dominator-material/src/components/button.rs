@@ -2,7 +2,7 @@ use dominator::{events, html, Dom, DomBuilder};
 use futures_signals::signal::Signal;
 use web_sys::HtmlElement;
 
-use crate::components::mixins::with_disabled_signal;
+use crate::components::mixins::disabled_signal_mixin;
 
 pub enum ButtonType {
     Contained,
@@ -134,7 +134,7 @@ where
         .apply(move |dom| {
             dom.event(click_handler)
         })
-        .apply(with_disabled_signal(disabled_signal))
+        .apply(disabled_signal_mixin(disabled_signal))
     })
 }
 

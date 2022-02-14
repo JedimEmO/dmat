@@ -4,7 +4,7 @@ use futures_signals::signal_vec::MutableVec;
 
 use dominator_material::components::layouts::{app_bar, AppBarProps};
 use dominator_material::components::TabsProps;
-use dominator_material::utils::mixin::{with_id, with_stream_handler};
+use dominator_material::utils::mixin::{id_attribute_mixin, stream_handler_mixin};
 
 use crate::demo_views::about::about_view;
 use crate::demo_views::component_demo::component_demo_view;
@@ -43,8 +43,8 @@ pub fn main_view() -> Dom {
             .main(main_app_view(active_tab))
             .fixed(),
         |d| {
-            d.apply(with_id("dmat-example-app"))
-                .apply(with_stream_handler(
+            d.apply(id_attribute_mixin("dmat-example-app"))
+                .apply(stream_handler_mixin(
                     menu_tabs_out.tab_select_stream,
                     |new_tab| ExampleAppRoute::goto(new_tab),
                 ))

@@ -1,14 +1,17 @@
 use dominator::{clone, html, Dom};
 use futures_signals::map_ref;
+use futures_signals::signal::from_stream;
 use futures_signals::signal::{Mutable, SignalExt};
 use futures_signals::signal_vec::{MutableVec, SignalVecExt};
 use wasm_bindgen::__rt::std::rc::Rc;
 
-use crate::utils::toggle_button::toggle_button;
 use dominator_material::components::{
     ButtonContent, ButtonProps, ButtonType, CardProps, InteractiveListProps, ListEntry,
 };
-use dominator_material::utils::mixin::{with_stream_handler, with_stream_value};
+use dominator_material::utils::mixin::stream_handler_mixin;
+use dominator_material::utils::signals::mutation::store_signal_value_opt_mixin;
+
+use crate::utils::toggle_button::toggle_button;
 
 pub fn list_demo() -> Dom {
     container!(|d| { d.children(&mut [dynamic_list_demo(), interactive_list_demo(),]) })
@@ -62,8 +65,11 @@ fn interactive_list_demo() -> Dom {
             })),
         |d| {
             d.class("demo-card")
-                .apply(with_stream_value(out.item_select_stream, &selected_item))
-                .apply(with_stream_handler(settings.to_stream(), move |_| {
+                .apply(store_signal_value_opt_mixin(
+                    from_stream(out.item_select_stream),
+                    &selected_item,
+                ))
+                .apply(stream_handler_mixin(settings.to_stream(), move |_| {
                     entries.lock_mut().replace(vec![1, 2, 3])
                 }))
         }

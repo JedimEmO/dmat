@@ -88,8 +88,9 @@ mod test {
     };
 
     use crate::components::ScrimProps;
-    use crate::utils::mixin::with_id;
-    use crate::utils::mixin::with_stream_flipflop;
+    use crate::utils::mixin::id_attribute_mixin;
+    use crate::utils::signals::mutation::store_signal_value_mixin;
+    use crate::utils::signals::stream_flipflop::stream_to_flipflop_signal;
 
     #[wasm_bindgen_test]
     async fn test_scrim_click_toggle() {
@@ -100,14 +101,15 @@ mod test {
                 content: html!("div"),
                 hide_signal: visible.signal_ref(|v| !v)
             },
-            with_id("test-scrim")
+            id_attribute_mixin("test-scrim")
         );
 
-        let flipflop_mixin = with_stream_flipflop(scrim_out.click_stream, &visible);
+        let flipflop = stream_to_flipflop_signal(scrim_out.click_stream, visible.get());
+        let store_flipflop_mixin = store_signal_value_mixin(flipflop, &visible);
 
         let outter = html!("div", {
             .child(scrim_dom)
-            .apply(flipflop_mixin)
+            .apply(store_flipflop_mixin)
         });
 
         mount_test_dom(outter);

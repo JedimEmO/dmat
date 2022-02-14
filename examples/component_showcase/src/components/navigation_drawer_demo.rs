@@ -1,4 +1,5 @@
 use dominator::{clone, html, Dom, DomBuilder};
+use futures_signals::signal::from_stream;
 use futures_signals::signal::{always, Mutable};
 use futures_signals::signal_vec::{MutableVec, SignalVecExt};
 use lipsum::lipsum;
@@ -7,8 +8,10 @@ use web_sys::HtmlElement;
 use dominator_material::components::{
     CardProps, DrawerWidth, InteractiveListProps, ListEntry, NavigationDrawerProps,
 };
-use dominator_material::utils::mixin::with_stream_flipflop;
-use dominator_material::utils::mixin::with_stream_value;
+use dominator_material::utils::signals::mutation::{
+    store_signal_value_mixin, store_signal_value_opt_mixin,
+};
+use dominator_material::utils::signals::stream_flipflop::stream_to_flipflop_signal;
 
 use crate::utils::toggle_button::toggle_button;
 
@@ -93,10 +96,11 @@ fn toggled(
     };
 
     let drawer = navigation_drawer!(props);
-    let expanded_toggle_mixin =
-        with_stream_flipflop(drawer.1.scrim_click_stream.unwrap(), &expanded);
 
-    (drawer.0, expanded_toggle_mixin)
+    let flipflop = stream_to_flipflop_signal(drawer.1.scrim_click_stream.unwrap(), expanded.get());
+    let flipflop_mixin = store_signal_value_mixin(flipflop, &expanded);
+
+    (drawer.0, flipflop_mixin)
 }
 
 fn retracting(modal: bool) -> Dom {
@@ -148,6 +152,6 @@ pub fn mock_view_select() -> Dom {
 
     html!("div", {
         .child(list_body)
-        .apply(with_stream_value(out.item_select_stream, &selected_item))
+        .apply(store_signal_value_opt_mixin(from_stream(out.item_select_stream), &selected_item))
     })
 }

@@ -5,7 +5,7 @@ use futures_signals::signal_vec::{MutableVec, SignalVecExt};
 
 use dominator_material::components::ListEntry;
 use dominator_material::components::{DrawerWidth, InteractiveListProps, NavigationDrawerProps};
-use dominator_material::utils::mixin::with_stream_handler;
+use dominator_material::utils::mixin::stream_handler_mixin;
 
 use crate::components::app_bar_demo::app_bar_demo;
 use crate::components::button_demo::button_demo;
@@ -71,7 +71,7 @@ fn component_demo<TStream: Stream<Item = Option<DemoRoute>> + Unpin + 'static>(
     component_change_stream: TStream,
 ) -> Dom {
     html!("div", {
-        .apply(with_stream_handler(component_change_stream, |new_component| {
+        .apply(stream_handler_mixin(component_change_stream, |new_component| {
             if let Some(c) = new_component {
                 ExampleAppRoute::goto(ExampleAppRoute::Components(c))
             } else {

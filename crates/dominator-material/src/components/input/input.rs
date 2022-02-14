@@ -8,7 +8,7 @@ use crate::components::input::input_props::InputProps;
 use crate::components::input::label::label_element;
 use crate::components::mixins::children_builder::build_children;
 use crate::components::mixins::{
-    assistive_text, error_text, with_disabled_signal, with_invalid_signal,
+    assistive_text, disabled_signal_mixin, error_text, invalid_signal_mixin,
 };
 
 pub(crate) fn input<
@@ -71,8 +71,8 @@ where
                 }
             )
         )
-        .apply(with_disabled_signal(disabled_signal))
-        .apply(with_invalid_signal(is_valid.signal().map(|v| v)))
+        .apply(disabled_signal_mixin(disabled_signal))
+        .apply(invalid_signal_mixin(is_valid.signal().map(|v| v)))
         .class(class_name)
     })
 }

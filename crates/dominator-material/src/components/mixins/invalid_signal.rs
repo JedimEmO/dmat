@@ -7,7 +7,7 @@ use web_sys::Element;
 /// provided bool signal to the `-invalid` class signal of the builder
 /// if the is_valid_signal parameter is some
 #[inline]
-pub fn with_invalid_signal<TSig, A: AsRef<Element>>(
+pub fn invalid_signal_mixin<TSig, A: AsRef<Element>>(
     is_valid_signal: TSig,
 ) -> impl FnOnce(DomBuilder<A>) -> DomBuilder<A>
 where
