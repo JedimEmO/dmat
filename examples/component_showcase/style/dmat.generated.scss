@@ -184,8 +184,16 @@ $example-app:("colors": ("primary": #263238,
       outline: 0;
     }
 
-    &.-contained {
+    &.-contained, &.-elevated {
       color: map-get-strict($colors, "text_on_secondary");
+
+      &.-elevated {
+        box-shadow: 1px 1px 3px 0 rgba(0.2, 0.2, 0.2, 80%);
+      }
+
+      &.-elevated:hover {
+        box-shadow: 2px 2px 3px 0 rgba(0.2, 0.2, 0.2, 60%);
+      }
 
       &.-prominent {
         background: map-get-strict($colors, "secondary");

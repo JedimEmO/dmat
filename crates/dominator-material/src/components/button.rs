@@ -5,6 +5,7 @@ use web_sys::HtmlElement;
 use crate::components::mixins::disabled_signal_mixin;
 
 pub enum ButtonType {
+    Elevated,
     Contained,
     Outlined,
     Text,
@@ -118,6 +119,7 @@ where
             ButtonType::Contained => "-contained",
             ButtonType::Outlined => "-outlined",
             ButtonType::Text => "-text",
+            ButtonType::Elevated => "-elevated",
         })
         .class(match button_props.style {
             ButtonStyle::Prominent => "-prominent",

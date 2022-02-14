@@ -1,10 +1,9 @@
 use dominator::{clone, html, Dom};
-
-use dominator_material::components::{ButtonProps, ButtonStyle, ButtonType, CardProps};
-
 use futures_signals::map_ref;
 use futures_signals::signal::always;
 use futures_signals::signal::Mutable;
+
+use dominator_material::components::{ButtonProps, ButtonStyle, ButtonType, CardProps};
 
 pub fn button_demo() -> Dom {
     let counter = Mutable::new(0);
@@ -23,6 +22,25 @@ pub fn button_demo() -> Dom {
                                 .content(text!("neutral"))),
                             button!(ButtonProps::new(|_|{}, always(false))
                                 .style(ButtonStyle::Unimportant)
+                                .content(text!("unimportant")))
+                    ])
+                )),
+
+            card!(CardProps::new()
+                    .header(html!("div", { .text("ButtonType::Elevated") }))
+                    .body(
+                        static_list!(vec![
+                            button!(ButtonProps::new(|_|{}, always(false))
+                                .style(ButtonStyle::Prominent)
+                                .button_type(ButtonType::Elevated)
+                                .content(text!("prominent"))),
+                            button!(ButtonProps::new(|_|{}, always(false))
+                                .style(ButtonStyle::Neutral)
+                                .button_type(ButtonType::Elevated)
+                                .content(text!("neutral"))),
+                            button!(ButtonProps::new(|_|{}, always(false))
+                                .style(ButtonStyle::Unimportant)
+                                .button_type(ButtonType::Elevated)
                                 .content(text!("unimportant")))
                     ])
                 )),
