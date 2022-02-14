@@ -57,12 +57,12 @@ where
                 let selected_signal = item.selected_signal;
                 let before = item.before;
                 let after = item.after;
-                let multiple = before.is_some() || after.is_some();
 
                 html!("div", {
                     .class("list-item")
                     .class_signal("-active", selected_signal)
-                    .apply_if(multiple, |d| d.class("-multiple"))
+                    .apply_if(before.is_some(), |d| d.class("-with-before"))
+                    .apply_if(after.is_some(), |d| d.class("-with-after"))
                     .children(vec![
                         before.map(|v| html!("div", { .class("first").child(v)})),
                         Some(content),

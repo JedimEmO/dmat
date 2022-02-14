@@ -1041,10 +1041,51 @@ $example-app:("colors": ("primary": #263238,
         background: map-get-strict($colors, "select_backdrop");
       }
 
-      &.-multiple {
+      &.-with-before {
+        display: grid;
+        grid-template-columns: 0.2fr 1fr;
+        grid-auto-flow: column;
+
+        & > .first {
+          grid-column: 1;
+        }
+
+        & > :not(.first) {
+          grid-column: 2;
+        }
+      }
+
+      &.-with-after {
+        display: grid;
+        grid-template-columns: 1fr 0.2fr;
+        grid-auto-flow: column;
+
+        & > .last {
+          grid-column: 2;
+        }
+
+        & > :not(.first):not(.last) {
+          grid-column: 1;
+        }
+      }
+
+      &.-with-before.-with-after {
         display: grid;
         grid-template-columns: 0.2fr 1fr 0.2fr;
         grid-auto-flow: column;
+
+        & > .first {
+          grid-column: 1;
+        }
+
+
+        & > .last {
+          grid-column: 3;
+        }
+
+        & > :not(.first):not(.last) {
+          grid-column: 2;
+        }
       }
     }
   }
