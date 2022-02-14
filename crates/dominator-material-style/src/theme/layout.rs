@@ -24,7 +24,7 @@ impl Default for Layout {
                 medium: DisplayUnit::Pixels(16),
                 large: DisplayUnit::Pixels(24),
             },
-            border_radius: "1rem".to_string(),
+            border_radius: "4px".to_string(),
         }
     }
 }

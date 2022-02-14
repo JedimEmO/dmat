@@ -34,7 +34,7 @@ $example-app:("colors": ("primary": #263238,
 "gutter": ("small": 8px,
 "medium": 16px,
 "large": 24px),
-"border_radius": 1rem),
+"border_radius": 4px),
 "breakpoints": ("small": 599px,
 "medium": 900px,
 "large": 1200px));
@@ -165,7 +165,8 @@ $example-app:("colors": ("primary": #263238,
 @mixin button($theme) {
   $colors: map-get-strict($theme, "colors");
   $layout: map-get-strict($theme, "layout");
-
+  $active_adjust: 40%;
+  
   button.dmat-button {
     display: flex;
     align-self: flex-start;
@@ -179,6 +180,8 @@ $example-app:("colors": ("primary": #263238,
     padding: 0 16px;
     cursor: pointer;
     border: none;
+    transition: color 0.2s,background-color 0.2s;
+    width: 100%;
 
     &:focus {
       outline: 0;
@@ -196,44 +199,44 @@ $example-app:("colors": ("primary": #263238,
       }
 
       &.-prominent {
-        background: map-get-strict($colors, "secondary");
+        background-color: map-get-strict($colors, "secondary");
 
         &:hover {
-          background: scale-color(map-get-strict($colors, "secondary"), $lightness: 30%);
+          background-color: scale-color(map-get-strict($colors, "secondary"), $lightness: 15%);
 
           &:active {
-            background: scale-color(map-get-strict($colors, "secondary"), $lightness: -10%);
+            background-color: scale-color(map-get-strict($colors, "secondary"), $lightness: $active_adjust);
           }
         }
       }
 
       &.-neutral {
-        background: map-get-strict($colors, "secondary_light");
+        background-color: map-get-strict($colors, "secondary_light");
 
         &:hover {
-          background: scale-color(map-get-strict($colors, "secondary_light"), $lightness: 30%);
+          background-color: scale-color(map-get-strict($colors, "secondary_light"), $lightness: 15%);
 
           &:active {
-            background: scale-color(map-get-strict($colors, "secondary_light"), $lightness: -10%);
+            background-color: scale-color(map-get-strict($colors, "secondary_light"), $lightness: $active_adjust);
           }
         }
       }
 
       &.-unimportant {
-        background: map-get-strict($colors, "secondary_lightest");
+        background-color: map-get-strict($colors, "secondary_lightest");
 
         &:hover {
-          background: scale-color(map-get-strict($colors, "secondary_lightest"), $lightness: 30%);
+          background-color: scale-color(map-get-strict($colors, "secondary_lightest"), $lightness: 15%);
 
           &:active {
-            background: scale-color(map-get-strict($colors, "secondary_lightest"), $lightness: -10%);
+            background-color: scale-color(map-get-strict($colors, "secondary_lightest"), $lightness: $active_adjust);
           }
         }
       }
     }
 
     &.-outlined {
-      background: none;
+      background-color: transparent;
       border: 2px map-get-strict($colors, "secondary_light") solid;
       font-weight: bolder;
 
@@ -242,11 +245,11 @@ $example-app:("colors": ("primary": #263238,
         color: map-get-strict($colors, "secondary_dark");
 
         &:hover {
-          color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 30%);
-          background: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 70%);
+          color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 15%);
+          background-color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 70%);
 
           &:active {
-            color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: -10%);
+            color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: $active_adjust);
           }
         }
       }
@@ -257,11 +260,11 @@ $example-app:("colors": ("primary": #263238,
         color: map-get-strict($colors, "secondary_dark");
 
         &:hover {
-          color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 30%);
-          background: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 70%);
+          color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 15%);
+          background-color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 70%);
 
           &:active {
-            color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: -10%);
+            color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: $active_adjust);
           }
         }
       }
@@ -272,18 +275,18 @@ $example-app:("colors": ("primary": #263238,
         color: map-get-strict($colors, "secondary_dark");
 
         &:hover {
-          color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 30%);
-          background: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 70%);
+          color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 15%);
+          background-color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 70%);
 
           &:active {
-            color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: -10%);
+            color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: $active_adjust);
           }
         }
       }
     }
 
     &.-text {
-      background: none;
+      background-color: transparent;
       border: none;
 
       &.-prominent {
@@ -291,11 +294,11 @@ $example-app:("colors": ("primary": #263238,
         color: map-get-strict($colors, "secondary_dark");
 
         &:hover {
-          color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 30%);
-          background: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 70%);
+          color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 15%);
+          background-color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 70%);
 
           &:active {
-            color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: -10%);
+            color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: $active_adjust);
           }
         }
       }
@@ -306,11 +309,11 @@ $example-app:("colors": ("primary": #263238,
         color: map-get-strict($colors, "secondary_dark");
 
         &:hover {
-          color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 30%);
-          background: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 70%);
+          color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 15%);
+          background-color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 70%);
 
           &:active {
-            color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: -10%);
+            color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: $active_adjust);
           }
         }
       }
@@ -321,11 +324,11 @@ $example-app:("colors": ("primary": #263238,
         color: map-get-strict($colors, "secondary_dark");
 
         &:hover {
-          color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 30%);
-          background: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 70%);
+          color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 15%);
+          background-color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: 70%);
 
           &:active {
-            color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: -10%);
+            color: scale-color(map-get-strict($colors, "secondary_dark"), $lightness: $active_adjust);
           }
         }
       }
