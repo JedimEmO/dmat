@@ -1,8 +1,7 @@
 use dominator::{html, Dom};
 use dominator_material::components::layouts::{ModalSheetProps, SheetProps, SheetSide};
 use dominator_material::components::ButtonProps;
-use dominator_material::utils::signals::mutation::store_signal_value_mixin;
-use dominator_material::utils::signals::stream_flipflop::stream_to_flipflop_signal;
+use dominator_material::utils::signals::stream_flipflop::stream_to_flipflop_mixin;
 use futures_signals::signal::always;
 use futures_signals::signal::Mutable;
 
@@ -28,8 +27,7 @@ fn bottom_sheet() -> Dom {
         }
     });
 
-    let flipflop = stream_to_flipflop_signal(modal_sheet_out.toggle_stream, show.get());
-    let flipflop_mixin = store_signal_value_mixin(flipflop, &show);
+    let flipflop_mixin = stream_to_flipflop_mixin(modal_sheet_out.toggle_stream, &show);
 
     html!("div", {
         .apply(flipflop_mixin)

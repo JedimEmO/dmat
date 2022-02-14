@@ -11,7 +11,7 @@ where
     TValue: 'static,
     TSignal: Signal<Item = TValue> + 'static,
 {
-    clone!(target_mutable =>move |d| {
+    clone!(target_mutable => move |d| {
         d.future(source_signal.for_each(clone!(target_mutable => move |v| {
             target_mutable.set(v);
             async {}

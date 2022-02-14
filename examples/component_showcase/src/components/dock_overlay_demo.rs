@@ -3,8 +3,7 @@ use futures_signals::signal::{always, Mutable, ReadOnlyMutable};
 
 use dominator_material::components::layouts::{DockOverlayOut, DockOverlayProps, DockPoint};
 use dominator_material::components::{ButtonContent, ButtonProps, CardProps};
-use dominator_material::utils::signals::mutation::store_signal_value_mixin;
-use dominator_material::utils::signals::stream_flipflop::stream_to_flipflop_signal;
+use dominator_material::utils::signals::stream_flipflop::stream_to_flipflop_mixin;
 
 pub fn dock_overlay_demo() -> Dom {
     let show_overlay = Mutable::new(true);
@@ -14,8 +13,7 @@ pub fn dock_overlay_demo() -> Dom {
         .scrim_click_stream
         .expect("innermost demo dock overlay should have a scrim");
 
-    let flipflop = stream_to_flipflop_signal(scrim_click_stream, show_overlay.get());
-    let flipflop_mixin = store_signal_value_mixin(flipflop, &show_overlay);
+    let flipflop_mixin = stream_to_flipflop_mixin(scrim_click_stream, &show_overlay);
 
     let middle_left = dock_overlay!(DockOverlayProps {
         inner_view: innermost_overlay,

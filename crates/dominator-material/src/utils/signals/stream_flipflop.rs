@@ -1,19 +1,25 @@
-use futures::{Stream, StreamExt};
-use futures_signals::signal::{from_stream, Signal, SignalExt};
+use dominator::{clone, DomBuilder};
+use futures::Stream;
+use futures_signals::signal::Mutable;
+use web_sys::Element;
 
-/// Converts the source stream into a signal which outputs a boolean value that is toggled for each item in the stream.
-pub fn stream_to_flipflop_signal<TStream, TValue>(
+use crate::utils::mixin::stream_handler_mixin;
+
+/// Creates a mixin which will toggle the content of the value mutable for every item
+/// in the source stream
+#[inline]
+pub fn stream_to_flipflop_mixin<A, TStream, TValue>(
     source_stream: TStream,
-    initial_value: bool,
-) -> impl Signal<Item = bool>
+    value: &Mutable<bool>,
+) -> impl FnOnce(DomBuilder<A>) -> DomBuilder<A>
 where
-    TStream: Stream<Item = TValue>,
+    A: AsRef<Element>,
+    TStream: Stream<Item = TValue> + Unpin + 'static,
 {
-    let mut value = initial_value;
-
-    from_stream(source_stream.map(move |_| {
-        value = !value;
-        value
-    }))
-    .map(move |value| value.unwrap_or(initial_value))
+    stream_handler_mixin(
+        source_stream,
+        clone!(value => move |_| {
+            value.set(!value.get());
+        }),
+    )
 }

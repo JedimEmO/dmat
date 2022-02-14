@@ -33,7 +33,7 @@ pub struct ScrimOut {
 ///
 /// use dominator_material::scrim;
 /// use dominator_material::components::scrim::ScrimProps;
-/// use dominator_material::utils::mixin::with_stream_flipflop;
+/// use dominator_material::utils::signals::stream_flipflop::stream_to_flipflop_mixin;
 /// let show_scrim = Mutable::new(true);
 ///
 /// let (scrim_dom, scrim_out) = scrim!({ ScrimProps {
@@ -45,7 +45,7 @@ pub struct ScrimOut {
 /// // boolean value on every click to the scrim overlay
 /// let _ = html!("div", {
 ///     .child(scrim_dom)
-///     .apply(with_stream_flipflop(scrim_out.click_stream, &show_scrim))
+///     .apply(stream_to_flipflop_mixin(scrim_out.click_stream, &show_scrim))
 /// });
 /// ```
 pub fn scrim<THideSig, F>(props: ScrimProps<THideSig>, mixin: F) -> (Dom, ScrimOut)
@@ -89,8 +89,7 @@ mod test {
 
     use crate::components::ScrimProps;
     use crate::utils::mixin::id_attribute_mixin;
-    use crate::utils::signals::mutation::store_signal_value_mixin;
-    use crate::utils::signals::stream_flipflop::stream_to_flipflop_signal;
+    use crate::utils::signals::stream_flipflop::stream_to_flipflop_mixin;
 
     #[wasm_bindgen_test]
     async fn test_scrim_click_toggle() {
@@ -104,8 +103,7 @@ mod test {
             id_attribute_mixin("test-scrim")
         );
 
-        let flipflop = stream_to_flipflop_signal(scrim_out.click_stream, visible.get());
-        let store_flipflop_mixin = store_signal_value_mixin(flipflop, &visible);
+        let store_flipflop_mixin = stream_to_flipflop_mixin(scrim_out.click_stream, &visible);
 
         let outter = html!("div", {
             .child(scrim_dom)

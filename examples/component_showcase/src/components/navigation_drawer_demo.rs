@@ -8,10 +8,8 @@ use web_sys::HtmlElement;
 use dominator_material::components::{
     CardProps, DrawerWidth, InteractiveListProps, ListEntry, NavigationDrawerProps,
 };
-use dominator_material::utils::signals::mutation::{
-    store_signal_value_mixin, store_signal_value_opt_mixin,
-};
-use dominator_material::utils::signals::stream_flipflop::stream_to_flipflop_signal;
+use dominator_material::utils::signals::mutation::store_signal_value_opt_mixin;
+use dominator_material::utils::signals::stream_flipflop::stream_to_flipflop_mixin;
 
 use crate::utils::toggle_button::toggle_button;
 
@@ -97,8 +95,7 @@ fn toggled(
 
     let drawer = navigation_drawer!(props);
 
-    let flipflop = stream_to_flipflop_signal(drawer.1.scrim_click_stream.unwrap(), expanded.get());
-    let flipflop_mixin = store_signal_value_mixin(flipflop, &expanded);
+    let flipflop_mixin = stream_to_flipflop_mixin(drawer.1.scrim_click_stream.unwrap(), &expanded);
 
     (drawer.0, flipflop_mixin)
 }
