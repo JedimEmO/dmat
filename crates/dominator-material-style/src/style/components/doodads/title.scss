@@ -1,0 +1,23 @@
+@import "../../utils/map_get_strict";
+
+@mixin title($theme) {
+  $colors: map-get-strict($theme, "colors");
+
+  .dmat-title {
+    padding: 8px;
+
+    & > .title {
+      font-weight: 500;
+      font-size: 1.25rem;
+      line-height: 2rem;
+      letter-spacing: .0125em;
+    }
+
+    & > .sub-title {
+      font-size: 1rem;
+      line-height: 0.8rem;
+
+      color: map-get-strict($colors, "text_diffuser");
+    }
+  }
+}

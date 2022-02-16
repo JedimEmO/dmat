@@ -5,6 +5,8 @@ use futures_signals::signal_vec::{MutableVec, SignalVecExt};
 use lipsum::lipsum;
 use web_sys::HtmlElement;
 
+use dominator_material::components::layouts::ContentBlockProps;
+use dominator_material::components::TitleProps;
 use dominator_material::components::{
     DrawerWidth, InteractiveListProps, ListEntry, NavigationDrawerProps,
 };
@@ -18,53 +20,73 @@ pub fn navigation_drawers_demo() -> Dom {
     static_list!(vec![
         container!(|d| d.children(&mut [
             card!(
-                static_list!([
-                    text!("Retracting modal drawer"),
-                    html!("div", {
+                content_block!(ContentBlockProps {
+                    title_section: Some(title!(TitleProps {
+                        header_text_signal: always("Retracting modal drawer".to_string()),
+                        sub_header_text_signal: always(None)
+                    })),
+                    media_section: Some(static_list!([html!("div", {
                         .class("navigation-drawer-demo")
                         .child(retracting(true))
-                    })
-                ]),
+                    })])),
+                    supporting_section: None,
+                    footer_section: None
+                }),
                 |d| d.class("drawer-demo-card").style("height", "350px")
             ),
             card!(
-                static_list!([
-                    text!("Retracting non-modal drawer"),
-                    html!("div", {
+                content_block!(ContentBlockProps {
+                    title_section: Some(title!(TitleProps {
+                        header_text_signal: always("Retracting non-modal drawer".to_string()),
+                        sub_header_text_signal: always(None)
+                    })),
+                    media_section: Some(static_list!([html!("div", {
                         .class("navigation-drawer-demo")
                         .child(retracting(false))
-                    })
-                ]),
+                    })])),
+                    supporting_section: None,
+                    footer_section: None
+                }),
                 |d| d.class("drawer-demo-card").style("height", "350px")
             ),
         ])),
         container!(|d| d.children(&mut [
             card!(
-                static_list!([
-                    text!("Modal toggled"),
-                    html!("div", {
+                content_block!(ContentBlockProps {
+                    title_section: Some(title!(TitleProps {
+                        header_text_signal: always("Modal toggled".to_string()),
+                        sub_header_text_signal: always(None)
+                    })),
+                    media_section: Some(static_list!([html!("div", {
                         .class("navigation-drawer-demo")
                         .apply(|d| {
                             let (toggled, mixin) = toggled(true);
                             d.child(toggled)
                             .apply(mixin)
                         })
-                    })
-                ]),
+                    })])),
+                    supporting_section: None,
+                    footer_section: None
+                }),
                 |d| d.class("drawer-demo-card").style("height", "350px")
             ),
             card!(
-                static_list!([
-                    text!("Toggled non-modal"),
-                    html!("div", {
+                content_block!(ContentBlockProps {
+                    title_section: Some(title!(TitleProps {
+                        header_text_signal: always("Toggled non-modal".to_string()),
+                        sub_header_text_signal: always(None)
+                    })),
+                    media_section: Some(static_list!([html!("div", {
                         .class("navigation-drawer-demo")
                         .apply(|d| {
                             let (toggled, mixin) = toggled(false);
                             d.child(toggled)
                             .apply(mixin)
                         })
-                    })
-                ]),
+                    })])),
+                    supporting_section: None,
+                    footer_section: None
+                }),
                 |d| d.class("drawer-demo-card").style("height", "350px")
             )
         ]))

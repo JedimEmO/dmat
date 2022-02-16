@@ -6,7 +6,7 @@
   .dmat-card {
     display: grid;
     position: relative;
-    padding: 8px;
+    padding: 0;
     box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, .12);
     background: map-get-strict($colors, "surface");
     color: map-get-strict($colors, "text_on_secondary");
@@ -22,19 +22,6 @@
       padding-top: 16px;
       padding-left: 16px;
       padding-right: 16px;
-    }
-
-    & .dmat-card-header-container {
-      font-weight: 500;
-      font-size: 1.25rem;
-      line-height: 2rem;
-
-      & .sub-title {
-        font-size: 1rem;
-        line-height: 0.8rem;
-        margin-top: -0.1rem;
-        color: map-get-strict($colors, "text_diffuser");
-      }
     }
 
     & .dmat-card-body-container {

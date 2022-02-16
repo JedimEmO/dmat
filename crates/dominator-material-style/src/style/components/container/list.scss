@@ -3,10 +3,8 @@
     padding: 8px 0;
     list-style-type: none;
 
-    & .dmat-list-item {
-      display: flex;
+    & > .dmat-list-item {
       position: relative;
-      justify-content: flex-start;
       padding: 4px 8px;
     }
   }

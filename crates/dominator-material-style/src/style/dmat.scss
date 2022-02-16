@@ -18,6 +18,7 @@
 @import "components/container/tabs";
 
 @import "components/doodads/progress_indicator";
+@import "components/doodads/title";
 
 @mixin dmat($theme) {
   // inputs
@@ -42,5 +43,6 @@
   @include tabs($theme);
 
   // doodads
-  @include progress_indicator($theme)
+  @include progress_indicator($theme);
+  @include title($theme);
 }

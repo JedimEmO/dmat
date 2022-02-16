@@ -1,11 +1,19 @@
 use dominator::Dom;
+use dominator_material::components::layouts::ContentBlockProps;
+use dominator_material::components::TitleProps;
+use futures_signals::signal::always;
 
 pub fn card_demo() -> Dom {
     let mut cards = [
-        // card!(CardProps {
-        //     header_view: Some(html!("span", {.text("functional card 2")}).into()),
-        //     ..Default::default()
-        // }),
+        card!(content_block!(ContentBlockProps {
+            title_section: Some(title!(TitleProps {
+                header_text_signal: always("Card with content block".to_string()),
+                sub_header_text_signal: always(Some("A sub header".to_string())),
+            })),
+            media_section: None,
+            footer_section: None,
+            supporting_section: None,
+        })),
         // card!(CardProps::new()
         //     .header(html!("div", { .text("A header element") }))
         //     .body(html!("div", { .text("This is the body") }))
@@ -23,7 +31,7 @@ pub fn card_demo() -> Dom {
         //                     .content(text!("Another button"))
         //                     .button_type(ButtonType::Text),
         //                 id_attribute_mixin("demo-button"))
-        // 
+        //
         //         ])
         //     }))),
         // card!(CardProps::new().body(html!("div", {

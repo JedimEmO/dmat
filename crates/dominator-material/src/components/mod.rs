@@ -10,6 +10,7 @@ pub use progress_indicator::*;
 pub use scrim::*;
 pub use tabs::*;
 pub use text::*;
+pub use title::*;
 
 pub mod button;
 pub mod card;
@@ -25,3 +26,4 @@ pub mod progress_indicator;
 pub mod scrim;
 pub mod tabs;
 pub mod text;
+pub mod title;

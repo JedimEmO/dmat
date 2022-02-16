@@ -1,10 +1,13 @@
 use dominator::{clone, html, Dom};
 use futures_signals::map_ref;
+use futures_signals::signal::always;
 use futures_signals::signal::from_stream;
 use futures_signals::signal::{Mutable, SignalExt};
 use futures_signals::signal_vec::{MutableVec, SignalVecExt};
 use wasm_bindgen::__rt::std::rc::Rc;
 
+use dominator_material::components::layouts::ContentBlockProps;
+use dominator_material::components::TitleProps;
 use dominator_material::components::{
     ButtonContent, ButtonProps, ButtonType, InteractiveListProps, ListEntry,
 };
@@ -54,12 +57,19 @@ fn interactive_list_demo() -> Dom {
     let (list_body, out) = interactive_list!(props);
 
     card!(
-        static_list!([
-            text!("Interactive list with selectable items"),
-            list_body,
-            toggle_button(&has_before, "Toggle Before"),
-            toggle_button(&has_after, "Toggle After")
-        ]),
+        content_block!(ContentBlockProps {
+            title_section: Some(title!(TitleProps {
+                header_text_signal: always("Interactive list with selectable items".to_string()),
+                sub_header_text_signal: always(None)
+            })),
+            media_section: Some(container!(|d| d.child(static_list!([
+                list_body,
+                toggle_button(&has_before, "Toggle Before"),
+                toggle_button(&has_after, "Toggle After")
+            ])))),
+            supporting_section: None,
+            footer_section: None
+        }),
         |d| {
             d.class("demo-card")
                 .apply(store_signal_value_opt_mixin(
@@ -77,21 +87,28 @@ fn dynamic_list_demo() -> Dom {
     let entries: Rc<MutableVec<String>> = Default::default();
 
     card!(
-        static_list!(vec![
-            text!("Dynamic list holding dom elements"),
-            button!(ButtonProps {
-                content: Some(ButtonContent::Dom(text!("Add new entry"))),
-                click_handler: clone!(entries => move |_| {
-                    entries.lock_mut().push_cloned("Hello!".into());
+        content_block!(ContentBlockProps {
+            title_section: Some(title!(TitleProps {
+                header_text_signal: always("Dynamic list holding dom elements".to_string()),
+                sub_header_text_signal: always(None)
+            })),
+            media_section: Some(static_list!(vec![
+                button!(ButtonProps {
+                    content: Some(ButtonContent::Dom(text!("Add new entry"))),
+                    click_handler: clone!(entries => move |_| {
+                        entries.lock_mut().push_cloned("Hello!".into());
+                    }),
+                    button_type: ButtonType::Contained,
+                    style: Default::default(),
+                    disabled_signal: entries.signal_vec_cloned().len().map(|v| v >= 5)
                 }),
-                button_type: ButtonType::Contained,
-                style: Default::default(),
-                disabled_signal: entries.signal_vec_cloned().len().map(|v| v >= 5)
-            }),
-            list!(entries
-                .signal_vec_cloned()
-                .map(|entry| html!("span", { .text(entry.as_str())}))),
-        ]),
+                list!(entries
+                    .signal_vec_cloned()
+                    .map(|entry| html!("span", { .text(entry.as_str())}))),
+            ])),
+            supporting_section: None,
+            footer_section: None
+        }),
         |v| v.class("demo-card")
     )
 }

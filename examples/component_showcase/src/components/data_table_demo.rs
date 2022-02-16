@@ -1,11 +1,13 @@
 use dominator::{clone, html, Dom};
-use dominator_material::components::input::input_props::InputProps;
-use dominator_material::components::TextFieldProps;
-use dominator_material::components::{data_table, DataTableProps};
 use futures_signals::signal::always;
 use futures_signals::signal::Mutable;
 use futures_signals::signal_vec::MutableVec;
 use wasm_bindgen::__rt::std::rc::Rc;
+
+use dominator_material::components::input::input_props::InputProps;
+use dominator_material::components::layouts::ContentBlockProps;
+use dominator_material::components::{data_table, DataTableProps};
+use dominator_material::components::{TextFieldProps, TitleProps};
 
 pub fn data_table_demo() -> Dom {
     let data: Rc<MutableVec<usize>> = Rc::new(MutableVec::new_with_values((0..10).collect()));
@@ -70,5 +72,16 @@ pub fn data_table_demo() -> Dom {
         ),
     );
 
-    card!(table, |v| v.class("demo-card"))
+    container!(|d| d.child(content_block!(
+        ContentBlockProps {
+            title_section: Some(title!(TitleProps {
+                header_text_signal: always("Data table with pagination support".to_string()),
+                sub_header_text_signal: always(None)
+            })),
+            media_section: Some(table),
+            supporting_section: None,
+            footer_section: None
+        },
+        |v| v.class("demo-card")
+    ),))
 }
