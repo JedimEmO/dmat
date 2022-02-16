@@ -991,7 +991,7 @@ $example-app:("colors": ("primary": #263238,
     background: map-get-strict($colors, "surface");
     color: map-get-strict($colors, "text_on_secondary");
 
-    grid-template-rows: max-content 1fr max-content;
+    grid-template-rows: 1fr;
     grid-auto-flow: row;
 
     &:hover {

@@ -51,7 +51,6 @@ pub struct DockOverlayOut {
 /// # Examples
 /// ```no_run
 /// use dominator_material::components::layouts::dock_overlay::{DockOverlayProps, DockPoint};
-/// use dominator_material::components::card::{CardProps};
 /// use futures_signals::signal::always;
 /// use futures_signals::signal::Mutable;
 /// let show_overlay = Mutable::new(true);
@@ -61,13 +60,9 @@ pub struct DockOverlayOut {
 ///         dock_point: DockPoint::MiddleCenter,
 ///         show_overlay_signal: show_overlay.signal(),
 ///         show_scrim: true,
-///         overlay_view_signal: always(Some(dominator_material::card!(CardProps {
-///             body_view: Some(
-///                 dominator_material::text!("A dialog!").into()
-///             ),
-///             footer: None,
-///             header_view: None
-///         }))),
+///         overlay_view_signal: always(Some(dominator_material::card!(
+///             dominator_material::text!("A dialog!")
+///         ))),
 ///     });
 /// ```
 pub fn dock_overlay<TOverlayViewSignal, TShowOverlaySignal, F>(

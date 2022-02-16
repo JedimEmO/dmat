@@ -1,10 +1,10 @@
 use dominator::{html, Dom};
 use futures_signals::signal::{Mutable, MutableSignal};
 
-use dominator_material::components::{CardProps, CarouselProps, CarouselSource};
+use dominator_material::components::{CarouselProps, CarouselSource};
 
 pub fn carousel_demo() -> Dom {
-    card!(CardProps::new().body(
+    card!(
         carousel!(
             CarouselProps {
                 source: CarouselDemoSource::new(),
@@ -12,8 +12,8 @@ pub fn carousel_demo() -> Dom {
             },
             |d| d.class("demo-carousel")
         )
-        .0,
-    ))
+        .0
+    )
 }
 
 #[derive(Clone)]

@@ -2,14 +2,15 @@ use dominator::{html, Dom};
 use futures_signals::signal::always;
 use lipsum::lipsum;
 
-use crate::components::navigation_drawer_demo::mock_view_select;
 use dominator_material::components::layouts::{app_bar, AppBarProps, AppBarType};
-use dominator_material::components::{CardProps, DrawerWidth, NavigationDrawerProps};
+use dominator_material::components::{DrawerWidth, NavigationDrawerProps};
+
+use crate::components::navigation_drawer_demo::mock_view_select;
 
 pub fn app_bar_demo() -> Dom {
     static_list!([container!(|d| d.children(&mut [
-        card!(CardProps::new().body(normal_unfixed_demo())),
-        card!(CardProps::new().body(prominent_fixed_demo())),
+        card!(normal_unfixed_demo()),
+        card!(prominent_fixed_demo())
     ]))])
 }
 

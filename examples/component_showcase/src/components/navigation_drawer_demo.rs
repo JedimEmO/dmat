@@ -6,7 +6,7 @@ use lipsum::lipsum;
 use web_sys::HtmlElement;
 
 use dominator_material::components::{
-    CardProps, DrawerWidth, InteractiveListProps, ListEntry, NavigationDrawerProps,
+    DrawerWidth, InteractiveListProps, ListEntry, NavigationDrawerProps,
 };
 use dominator_material::utils::signals::mutation::store_signal_value_opt_mixin;
 use dominator_material::utils::signals::stream_flipflop::stream_to_flipflop_mixin;
@@ -18,48 +18,53 @@ pub fn navigation_drawers_demo() -> Dom {
     static_list!(vec![
         container!(|d| d.children(&mut [
             card!(
-                CardProps::new()
-                    .with_title("Retracting modal drawer", None)
-                    .body(html!("div", {
+                static_list!([
+                    text!("Retracting modal drawer"),
+                    html!("div", {
                         .class("navigation-drawer-demo")
                         .child(retracting(true))
-                    })),
+                    })
+                ]),
                 |d| d.class("drawer-demo-card").style("height", "350px")
             ),
             card!(
-                CardProps::new()
-                    .with_title("Retracting non-modal drawer", None)
-                    .body(html!("div", {
+                static_list!([
+                    text!("Retracting non-modal drawer"),
+                    html!("div", {
                         .class("navigation-drawer-demo")
                         .child(retracting(false))
-                    })),
+                    })
+                ]),
                 |d| d.class("drawer-demo-card").style("height", "350px")
             ),
         ])),
         container!(|d| d.children(&mut [
             card!(
-                CardProps::new()
-                    .with_title("Modal toggled", None)
-                    .body(html!("div", {
+                static_list!([
+                    text!("Modal toggled"),
+                    html!("div", {
                         .class("navigation-drawer-demo")
                         .apply(|d| {
                             let (toggled, mixin) = toggled(true);
                             d.child(toggled)
                             .apply(mixin)
-                        })                    })),
+                        })
+                    })
+                ]),
                 |d| d.class("drawer-demo-card").style("height", "350px")
             ),
             card!(
-                CardProps::new()
-                    .with_title("Toggled non-modal", None)
-                    .body(html!("div", {
+                static_list!([
+                    text!("Toggled non-modal"),
+                    html!("div", {
                         .class("navigation-drawer-demo")
                         .apply(|d| {
                             let (toggled, mixin) = toggled(false);
                             d.child(toggled)
                             .apply(mixin)
                         })
-                    })),
+                    })
+                ]),
                 |d| d.class("drawer-demo-card").style("height", "350px")
             )
         ]))

@@ -6,7 +6,7 @@ use futures_signals::signal_vec::{MutableVec, SignalVecExt};
 use wasm_bindgen::__rt::std::rc::Rc;
 
 use dominator_material::components::{
-    ButtonContent, ButtonProps, ButtonType, CardProps, InteractiveListProps, ListEntry,
+    ButtonContent, ButtonProps, ButtonType, InteractiveListProps, ListEntry,
 };
 use dominator_material::utils::mixin::stream_handler_mixin;
 use dominator_material::utils::signals::mutation::store_signal_value_opt_mixin;
@@ -54,15 +54,12 @@ fn interactive_list_demo() -> Dom {
     let (list_body, out) = interactive_list!(props);
 
     card!(
-        CardProps::new()
-            .with_title("Interactive list with selectable items", None)
-            .body(list_body)
-            .footer(html!("div", {
-                .children(&mut[
-                    toggle_button(&has_before, "Toggle Before"),
-                    toggle_button(&has_after, "Toggle After"),
-                ])
-            })),
+        static_list!([
+            text!("Interactive list with selectable items"),
+            list_body,
+            toggle_button(&has_before, "Toggle Before"),
+            toggle_button(&has_after, "Toggle After")
+        ]),
         |d| {
             d.class("demo-card")
                 .apply(store_signal_value_opt_mixin(
@@ -80,22 +77,21 @@ fn dynamic_list_demo() -> Dom {
     let entries: Rc<MutableVec<String>> = Default::default();
 
     card!(
-        CardProps::new()
-            .with_title("Dynamic list holding dom elements", None)
-            .body(static_list!(vec![
-                button!(ButtonProps {
-                    content: Some(ButtonContent::Dom(text!("Add new entry"))),
-                    click_handler: clone!(entries => move |_| {
-                        entries.lock_mut().push_cloned("Hello!".into());
-                    }),
-                    button_type: ButtonType::Contained,
-                    style: Default::default(),
-                    disabled_signal: entries.signal_vec_cloned().len().map(|v| v >= 5)
+        static_list!(vec![
+            text!("Dynamic list holding dom elements"),
+            button!(ButtonProps {
+                content: Some(ButtonContent::Dom(text!("Add new entry"))),
+                click_handler: clone!(entries => move |_| {
+                    entries.lock_mut().push_cloned("Hello!".into());
                 }),
-                list!(entries
-                    .signal_vec_cloned()
-                    .map(|entry| html!("span", { .text(entry.as_str())}))),
-            ])),
+                button_type: ButtonType::Contained,
+                style: Default::default(),
+                disabled_signal: entries.signal_vec_cloned().len().map(|v| v >= 5)
+            }),
+            list!(entries
+                .signal_vec_cloned()
+                .map(|entry| html!("span", { .text(entry.as_str())}))),
+        ]),
         |v| v.class("demo-card")
     )
 }

@@ -1,7 +1,7 @@
 use dominator::{clone, html, Dom};
 use dominator_material::components::input::input_props::InputProps;
 use dominator_material::components::TextFieldProps;
-use dominator_material::components::{data_table, CardProps, DataTableProps};
+use dominator_material::components::{data_table, DataTableProps};
 use futures_signals::signal::always;
 use futures_signals::signal::Mutable;
 use futures_signals::signal_vec::MutableVec;
@@ -70,13 +70,5 @@ pub fn data_table_demo() -> Dom {
         ),
     );
 
-    card!(
-        CardProps::new()
-            .with_title(
-                "Data table with pagination",
-                Some("Page change triggers data regeneration"),
-            )
-            .body(table),
-        |v| v.class("demo-card")
-    )
+    card!(table, |v| v.class("demo-card"))
 }

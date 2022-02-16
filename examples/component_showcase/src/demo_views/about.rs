@@ -1,11 +1,12 @@
 use dominator::{html, with_node, Dom};
-use dominator_material::components::CardProps;
 
 pub fn about_view() -> Dom {
     container!(|d| {
-        d.child(card!(CardProps::new()
-        .with_title("Dominator Material", Some("A performance first component library built on FRP principles"))
-            .body(html!("div", {
+        d.child(card!(
+            static_list!([
+                text!("Dominator Material"),
+                text!("A performance first component library built on FRP principles"),
+                html!("div", {
                 .with_node!(e => {
                     .apply(|d| {
                         e.set_inner_html(r#"
@@ -27,7 +28,8 @@ pub fn about_view() -> Dom {
                         d
                     })
                 })
-            }))
+            })
+            ])
         ))
     })
 }

@@ -2,7 +2,7 @@ use dominator::{clone, events, Dom};
 use futures_signals::signal::{always, Mutable, ReadOnlyMutable};
 
 use dominator_material::components::layouts::{DockOverlayOut, DockOverlayProps, DockPoint};
-use dominator_material::components::{ButtonContent, ButtonProps, CardProps};
+use dominator_material::components::{ButtonContent, ButtonProps};
 use dominator_material::utils::signals::stream_flipflop::stream_to_flipflop_mixin;
 
 pub fn dock_overlay_demo() -> Dom {
@@ -20,11 +20,7 @@ pub fn dock_overlay_demo() -> Dom {
         dock_point: DockPoint::MiddleLeft,
         show_overlay_signal: show_overlay.signal(),
         show_scrim: false,
-        overlay_view_signal: always(Some(card!(CardProps {
-            body_view: Some(text!("Middle Left Dialog!", flipflop_mixin).into()),
-            footer: None,
-            header_view: None
-        }))),
+        overlay_view_signal: always(Some(card!(text!("Middle Left Dialog!", flipflop_mixin)))),
     })
     .0;
 
@@ -84,11 +80,7 @@ fn generic_dialog(
         dock_point,
         show_overlay_signal: show_overlay.signal(),
         show_scrim: false,
-        overlay_view_signal: always(Some(card!(CardProps {
-            body_view: Some(text!(content).into()),
-            footer: None,
-            header_view: None
-        }))),
+        overlay_view_signal: always(Some(card!(text!(content)))),
     })
     .0
 }
@@ -115,12 +107,9 @@ fn middle_center_dialog(show_overlay: Mutable<bool>) -> (Dom, DockOverlayOut) {
         dock_point: DockPoint::MiddleCenter,
         show_overlay_signal: show_overlay.signal(),
         show_scrim: true,
-        overlay_view_signal: always(Some(card!(CardProps {
-            body_view: Some(
-                static_list!(vec![text!("A dialog!").into(), button!(hide_button_props)]).into()
-            ),
-            footer: None,
-            header_view: None
-        }))),
+        overlay_view_signal: always(Some(card!(static_list!(vec![
+            text!("A dialog!").into(),
+            button!(hide_button_props)
+        ])))),
     })
 }
