@@ -7,6 +7,7 @@
 @import "components/container/card";
 @import "components/container/container";
 @import "components/container/carousel";
+@import "components/container/content_block";
 @import "components/container/data_table";
 @import "components/container/dock_overlay";
 @import "components/container/list";
@@ -32,6 +33,7 @@
   @include card($theme);
   @include container($theme);
   @include carousel($theme);
+  @include content_block($theme);
   @include data_table($theme);
   @include dock_overlay($theme);
   @include list($theme);

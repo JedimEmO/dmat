@@ -1,48 +1,61 @@
-use dominator::Dom;
+use dominator::{html, Dom};
 use dominator_material::components::layouts::ContentBlockProps;
-use dominator_material::components::TitleProps;
+use dominator_material::components::{
+    ButtonContent, ButtonProps, ButtonStyle, ButtonType, TitleProps,
+};
 use futures_signals::signal::always;
+use lipsum::lipsum;
 
 pub fn card_demo() -> Dom {
-    let mut cards = [
-        card!(content_block!(ContentBlockProps {
-            title_section: Some(title!(TitleProps {
-                header_text_signal: always("Card with content block".to_string()),
-                sub_header_text_signal: always(Some("A sub header".to_string())),
-            })),
-            media_section: None,
-            footer_section: None,
-            supporting_section: None,
-        })),
-        // card!(CardProps::new()
-        //     .header(html!("div", { .text("A header element") }))
-        //     .body(html!("div", { .text("This is the body") }))
-        //     .footer(html!("div", {
-        //         .class("demo-buttons")
-        //         .children(&mut [
-        //             text!("Footer"),
-        //             button!(
-        //                 ButtonProps::new(|_|{}, always(false))
-        //                     .content(text!("A button"))
-        //                     .button_type(ButtonType::Text),
-        //                 id_attribute_mixin("demo-button")),
-        //             button!(
-        //                 ButtonProps::new(|_|{}, always(false))
-        //                     .content(text!("Another button"))
-        //                     .button_type(ButtonType::Text),
-        //                 id_attribute_mixin("demo-button"))
-        //
-        //         ])
-        //     }))),
-        // card!(CardProps::new().body(html!("div", {
-        //     .text("Only a body")
-        // }),)),
-        // card!(CardProps::new()
-        //     .with_title("With a title", Some("and a sub title"))
-        //     .body(html!("div", {
-        //         .text("This card has a title. It is mutually exclusive with the header element")
-        //     }))),
+    let cards = [
+        card!(
+            content_block!(ContentBlockProps {
+                title_section: Some(title!(TitleProps {
+                    header_text_signal: always("Card with content block".to_string()),
+                    sub_header_text_signal: always(Some("All sections".to_string())),
+                })),
+                media_section: Some(html!("img", {
+                    .attribute("src", "images/shapes.svg")
+                    .attribute("width", "100%")
+                    .attribute("alt", "shapes!")
+                })),
+                supporting_section: Some(text!(lipsum(30))),
+                footer_section: Some(button!(ButtonProps {
+                    content: Some(ButtonContent::Label("Some action".to_string())),
+                    button_type: ButtonType::Contained,
+                    style: ButtonStyle::Neutral,
+                    disabled_signal: always(false),
+                    click_handler: |_| {}
+                })),
+            }),
+            |d| d.style("width", "300px")
+        ),
+        card!(
+            content_block!(ContentBlockProps {
+                title_section: Some(title!(TitleProps {
+                    header_text_signal: always("Card with media block".to_string()),
+                    sub_header_text_signal: always(Some("A sub header".to_string())),
+                })),
+                media_section: None,
+                supporting_section: Some(text!(lipsum(30))),
+                footer_section: None,
+            }),
+            |d| d.style("width", "300px")
+        ),
+        card!(
+            content_block!(ContentBlockProps {
+                title_section: None,
+                media_section: Some(html!("img", {
+                    .attribute("src", "images/shapes.svg")
+                    .attribute("width", "100%")
+                    .attribute("alt", "shapes!")
+                })),
+                supporting_section: Some(text!(lipsum(30))),
+                footer_section: None,
+            }),
+            |d| d.style("width", "300px")
+        ),
     ];
 
-    container!(|d| d.children(&mut cards))
+    container!(|d| d.children(cards))
 }

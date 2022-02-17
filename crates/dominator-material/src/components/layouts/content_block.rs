@@ -26,11 +26,15 @@ where
     html!("div", {
         .class("dmat-content-block")
         .apply(mixin)
+        .apply_if(props.title_section.is_some(), |d| d.class("-with-title"))
+        .apply_if(props.media_section.is_some(), |d| d.class("-with-media"))
+        .apply_if(props.supporting_section.is_some(), |d| d.class("-with-supporting"))
+        .apply_if(props.footer_section.is_some(), |d| d.class("-with-footer"))
         .children(vec![
-            props.title_section,
-            props.media_section,
-            props.supporting_section,
-            props.footer_section
+            props.title_section.map(|d| html!("div", { .child(d).class("title")})),
+            props.media_section.map(|d| html!("div", { .child(d).class("media")})),
+            props.supporting_section.map(|d| html!("div", { .child(d).class("supporting")})),
+            props.footer_section.map(|d| html!("div", { .child(d).class("footer")})),
         ].into_iter().filter_map(|v| v))
     })
 }

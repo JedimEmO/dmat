@@ -71,6 +71,7 @@ $example-app:("colors": ("primary": #263238,
   @include card($theme);
   @include container($theme);
   @include carousel($theme);
+  @include content_block($theme);
   @include data_table($theme);
   @include dock_overlay($theme);
   @include list($theme);
@@ -639,6 +640,93 @@ $example-app:("colors": ("primary": #263238,
 
   .dmat-surface {
     background: map-get-strict($colors, "surface_dark")
+  }
+}
+
+
+@mixin content_block($theme) {
+  $colors: map-get-strict($theme, "colors");
+
+  .dmat-content-block {
+    display: grid;
+    grid-auto-flow: row;
+
+    $title-height: 60px;
+    $media-height: 1fr;
+    $supporting-height: 1fr;
+    $footer-height: 60px;
+
+    & > .supporting {
+      font-size: 1rem;
+      line-height: 0.8rem;
+      padding: 8px;
+      color: map-get-strict($colors, "text_diffuser");
+    }
+
+    & > .footer {
+      padding: 8px;
+    }
+
+    &.-with-title.-with-media.-with-supporting.-with-footer {
+      grid-template-rows: $title-height $media-height $supporting-height $footer-height;
+    }
+
+    &.-with-title.-with-media.-with-supporting {
+      grid-template-rows: $title-height $media-height $supporting-height;
+    }
+
+    &.-with-title.-with-media.-with-footer {
+      grid-template-rows: $title-height $media-height $footer-height;
+    }
+
+    &.-with-title.-with-supporting.-with-footer {
+      grid-template-rows: $title-height $supporting-height $footer-height;
+    }
+
+    &.-with-media.-with-supporting.-with-footer {
+      grid-template-rows: $title-height $media-height $supporting-height $footer-height;
+    }
+
+    &.-with-title.-with-media {
+      grid-template-rows: $title-height $media-height;
+    }
+
+    &.-with-title.-with-supporting {
+      grid-template-rows: $title-height $supporting-height;
+    }
+
+    &.-with-title.-with-footer {
+      grid-template-rows: $title-height $footer-height;
+    }
+
+    &.-with-media.-with-supporting {
+      grid-template-rows: $media-height $supporting-height;
+    }
+
+    &.-with-media.-with-footer {
+      grid-template-rows: $media-height $footer-height;
+    }
+
+    &.-with-supporting.-with-footer {
+      grid-template-rows: $supporting-height $footer-height;
+    }
+
+
+    &.-with-title {
+      grid-template-rows: $title-height;
+    }
+
+    &.-with-media {
+      grid-template-rows: $media-height;
+    }
+
+    &.-with-supporting {
+      grid-template-rows: $supporting-height;
+    }
+
+    &.-with-footer {
+      grid-template-rows: $footer-height;
+    }
   }
 }
 
