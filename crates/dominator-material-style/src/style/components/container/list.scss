@@ -4,6 +4,7 @@
     list-style-type: none;
 
     & > .dmat-list-item {
+      display: flex;
       position: relative;
       padding: 4px 8px;
     }

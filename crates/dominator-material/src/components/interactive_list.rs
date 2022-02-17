@@ -59,7 +59,7 @@ where
                 let after = item.after;
 
                 html!("div", {
-                    .class("list-item")
+                    .class("interactive-list-item")
                     .class_signal("-active", selected_signal)
                     .apply_if(before.is_some(), |d| d.class("-with-before"))
                     .apply_if(after.is_some(), |d| d.class("-with-after"))

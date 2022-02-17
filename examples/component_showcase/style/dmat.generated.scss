@@ -648,6 +648,7 @@ $example-app:("colors": ("primary": #263238,
     list-style-type: none;
 
     & > .dmat-list-item {
+      display: flex;
       position: relative;
       padding: 4px 8px;
     }
@@ -1045,13 +1046,17 @@ $example-app:("colors": ("primary": #263238,
     display: grid;
     grid-auto-rows: 40px;
     grid-auto-flow: row;
+    width: 100%;
 
-    & > .list-item {
+    & > .interactive-list-item {
       padding: 8px;
       font-weight: 500;
       color: map-get-strict($colors, "text_diffuse");
       cursor: pointer;
       transition: background-color 0.1s;
+      display: grid;
+      grid-auto-flow: column;
+      grid-template-columns: 1fr;
 
       &:hover {
         background: map-get-strict($colors, "select_backdrop_hover");
@@ -1062,9 +1067,7 @@ $example-app:("colors": ("primary": #263238,
       }
 
       &.-with-before {
-        display: grid;
         grid-template-columns: 0.2fr 1fr;
-        grid-auto-flow: column;
 
         & > .first {
           grid-column: 1;
@@ -1076,9 +1079,7 @@ $example-app:("colors": ("primary": #263238,
       }
 
       &.-with-after {
-        display: grid;
         grid-template-columns: 1fr 0.2fr;
-        grid-auto-flow: column;
 
         & > .last {
           grid-column: 2;
@@ -1090,14 +1091,11 @@ $example-app:("colors": ("primary": #263238,
       }
 
       &.-with-before.-with-after {
-        display: grid;
         grid-template-columns: 0.2fr 1fr 0.2fr;
-        grid-auto-flow: column;
 
         & > .first {
           grid-column: 1;
         }
-
 
         & > .last {
           grid-column: 3;
