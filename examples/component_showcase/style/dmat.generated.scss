@@ -125,6 +125,7 @@ $example-app:("colors": ("primary": #263238,
     padding: 8px;
 
     & > .title {
+      color: map-get-strict($colors, "text_on_secondary");
       font-weight: 500;
       font-size: 1.25rem;
       line-height: 2rem;
@@ -658,7 +659,6 @@ $example-app:("colors": ("primary": #263238,
 
     & > .supporting {
       font-size: 1rem;
-      line-height: 0.8rem;
       padding: 8px;
       color: map-get-strict($colors, "text_diffuser");
     }

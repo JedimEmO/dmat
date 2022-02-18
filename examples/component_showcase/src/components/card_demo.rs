@@ -33,7 +33,7 @@ pub fn card_demo() -> Dom {
         card!(
             content_block!(ContentBlockProps {
                 title_section: Some(title!(TitleProps {
-                    header_text_signal: always("Card with media block".to_string()),
+                    header_text_signal: always("Card without block".to_string()),
                     sub_header_text_signal: always(Some("A sub header".to_string())),
                 })),
                 media_section: None,
@@ -50,7 +50,13 @@ pub fn card_demo() -> Dom {
                     .attribute("width", "100%")
                     .attribute("alt", "shapes!")
                 })),
-                supporting_section: Some(text!(lipsum(30))),
+                supporting_section: Some(static_list!([
+                    title!(TitleProps {
+                        header_text_signal: always("Title within supporting".to_string()),
+                        sub_header_text_signal: always(None),
+                    }),
+                    text!(lipsum(30))
+                ])),
                 footer_section: None,
             }),
             |d| d.style("width", "300px")
