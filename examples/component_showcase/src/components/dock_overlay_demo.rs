@@ -1,9 +1,11 @@
-use dominator::{clone, events, Dom};
-use futures_signals::signal::{always, Mutable, ReadOnlyMutable};
-
+use dominator::{clone, events, html, Dom};
+use dominator_material::components::layouts::ContentBlockProps;
 use dominator_material::components::layouts::{DockOverlayOut, DockOverlayProps, DockPoint};
+use dominator_material::components::TitleProps;
 use dominator_material::components::{ButtonContent, ButtonProps};
 use dominator_material::utils::signals::stream_flipflop::stream_to_flipflop_mixin;
+use futures_signals::signal::{always, Mutable, ReadOnlyMutable};
+use lipsum::lipsum;
 
 pub fn dock_overlay_demo() -> Dom {
     let show_overlay = Mutable::new(true);
@@ -107,9 +109,22 @@ fn middle_center_dialog(show_overlay: Mutable<bool>) -> (Dom, DockOverlayOut) {
         dock_point: DockPoint::MiddleCenter,
         show_overlay_signal: show_overlay.signal(),
         show_scrim: true,
-        overlay_view_signal: always(Some(card!(static_list!(vec![
-            text!("A dialog!").into(),
-            button!(hide_button_props)
-        ])))),
+        overlay_view_signal: always(Some(card!(
+            content_block!(ContentBlockProps {
+                title_section: Some(title!(TitleProps {
+                    header_text_signal: always("Card with content block".to_string()),
+                    sub_header_text_signal: always(Some("All sections".to_string())),
+                })),
+                media_section: Some(html!("img", {
+                    .attribute("src", "images/shapes.svg")
+                    .attribute("width", "100%")
+                    .attribute("height", "100%")
+                    .attribute("alt", "shapes!")
+                })),
+                supporting_section: Some(text!(lipsum(30))),
+                footer_section: Some(button!(hide_button_props)),
+            }),
+            |d| d.style("width", "300px")
+        ))),
     })
 }
