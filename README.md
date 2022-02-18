@@ -1,4 +1,4 @@
-# dominator-material
+# dcomp
 
 This crate aims to provide  basic reactive material components to be used for writing UI applications using dominator.
 

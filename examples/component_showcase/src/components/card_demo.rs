@@ -17,6 +17,7 @@ pub fn card_demo() -> Dom {
                 media_section: Some(html!("img", {
                     .attribute("src", "images/shapes.svg")
                     .attribute("width", "100%")
+                    .attribute("height", "100%")
                     .attribute("alt", "shapes!")
                 })),
                 supporting_section: Some(text!(lipsum(30))),
@@ -48,6 +49,7 @@ pub fn card_demo() -> Dom {
                 media_section: Some(html!("img", {
                     .attribute("src", "images/shapes.svg")
                     .attribute("width", "100%")
+                    .attribute("height", "100%")
                     .attribute("alt", "shapes!")
                 })),
                 supporting_section: Some(static_list!([

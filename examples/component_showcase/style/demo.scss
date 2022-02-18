@@ -65,3 +65,13 @@ html,body {
     height: 100%;
   }
 }
+
+.demo-carousel-item {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+  grid-auto-flow: column;
+  align-content: center;
+  align-items: center;
+  text-align: center;
+}
