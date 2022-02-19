@@ -34,7 +34,7 @@ impl CarouselSource for CarouselDemoSource {
         container!(|d| {
             d.child(html!("img", {
                 .attribute("src", "images/shapes.svg")
-                .attribute("width", "100%")
+                .attribute("width", "60%")
                 .attribute("height", "100%")
                 .attribute("alt", "shapes!")
             }))
