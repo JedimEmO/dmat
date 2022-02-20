@@ -45,7 +45,7 @@ text!("Hi, I have an id!", with_id("some-text-element-id"));
 
 # dmat-components-style
 
-The `dominator-material-style` crate provides a themeable default style implementation, which can be generated compile time in your `build.rs` file:
+The `dmat-components-style` crate provides a themeable default style implementation, which can be generated compile time in your `build.rs` file:
 
 ```rust
 use dmat_components_style::render_dmat_scss;
