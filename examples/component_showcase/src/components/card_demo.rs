@@ -1,8 +1,8 @@
-use dominator::{html, Dom};
-use dominator_material::components::layouts::ContentBlockProps;
-use dominator_material::components::{
+use dmat_components::components::layouts::ContentBlockProps;
+use dmat_components::components::{
     ButtonContent, ButtonProps, ButtonStyle, ButtonType, TitleProps,
 };
+use dominator::{html, Dom};
 use futures_signals::signal::always;
 use lipsum::lipsum;
 

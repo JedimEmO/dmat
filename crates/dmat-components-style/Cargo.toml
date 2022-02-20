@@ -1,5 +1,5 @@
 [package]
-name = "dominator-material-style"
+name = "dmat-components-style"
 version = "0.1.0"
 edition = "2021"
 authors = ["Mathias Myrland <jedimemo@gmail.com>"]

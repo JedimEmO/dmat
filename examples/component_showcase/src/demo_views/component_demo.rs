@@ -3,9 +3,9 @@ use futures::Stream;
 use futures_signals::signal::always;
 use futures_signals::signal_vec::{MutableVec, SignalVecExt};
 
-use dominator_material::components::ListEntry;
-use dominator_material::components::{DrawerWidth, InteractiveListProps, NavigationDrawerProps};
-use dominator_material::utils::mixin::stream_handler_mixin;
+use dmat_components::components::ListEntry;
+use dmat_components::components::{DrawerWidth, InteractiveListProps, NavigationDrawerProps};
+use dmat_components::utils::mixin::stream_handler_mixin;
 
 use crate::components::app_bar_demo::app_bar_demo;
 use crate::components::button_demo::button_demo;

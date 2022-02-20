@@ -4,10 +4,10 @@ use futures_signals::signal::always;
 use futures_signals::signal::Mutable;
 use futures_signals::signal_vec::MutableVec;
 
-use dominator_material::components::input::input_props::InputProps;
-use dominator_material::components::input::ComboBoxProps;
-use dominator_material::components::input::SelectProps;
-use dominator_material::components::TextFieldProps;
+use dmat_components::components::input::input_props::InputProps;
+use dmat_components::components::input::ComboBoxProps;
+use dmat_components::components::input::SelectProps;
+use dmat_components::components::TextFieldProps;
 
 pub fn input_demo() -> Dom {
     let value = Mutable::new("".to_string());

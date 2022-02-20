@@ -128,25 +128,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "212d0f5754cb6769937f4501cc0e67f4f4483c8d2c3e1e922ee9edbe4ab4c7c0"
 
 [[package]]
-name = "dominator"
-version = "0.5.23"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "af8fdfc04dda017473407188389ce34a2225e6d095ec899ce403f75c9634d478"
-dependencies = [
- "discard",
- "futures-channel",
- "futures-signals",
- "futures-util",
- "js-sys",
- "once_cell",
- "pin-project",
- "wasm-bindgen",
- "wasm-bindgen-futures",
- "web-sys",
-]
-
-[[package]]
-name = "dominator-material"
+name = "dmat-components"
 version = "0.1.0"
 dependencies = [
  "dominator",
@@ -163,12 +145,21 @@ dependencies = [
 ]
 
 [[package]]
-name = "dominator-material-component-showcase"
+name = "dmat-components-style"
 version = "0.1.0"
 dependencies = [
+ "grass",
+ "rust-embed",
+ "walkdir",
+]
+
+[[package]]
+name = "dmat-showcase"
+version = "0.1.0"
+dependencies = [
+ "dmat-components",
+ "dmat-components-style",
  "dominator",
- "dominator-material",
- "dominator-material-style",
  "futures",
  "futures-signals",
  "js-sys",
@@ -180,12 +171,21 @@ dependencies = [
 ]
 
 [[package]]
-name = "dominator-material-style"
-version = "0.1.0"
+name = "dominator"
+version = "0.5.23"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "af8fdfc04dda017473407188389ce34a2225e6d095ec899ce403f75c9634d478"
 dependencies = [
- "grass",
- "rust-embed",
- "walkdir",
+ "discard",
+ "futures-channel",
+ "futures-signals",
+ "futures-util",
+ "js-sys",
+ "once_cell",
+ "pin-project",
+ "wasm-bindgen",
+ "wasm-bindgen-futures",
+ "web-sys",
 ]
 
 [[package]]

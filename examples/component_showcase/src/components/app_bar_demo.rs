@@ -2,8 +2,8 @@ use dominator::{html, Dom};
 use futures_signals::signal::always;
 use lipsum::lipsum;
 
-use dominator_material::components::layouts::{app_bar, AppBarProps, AppBarType};
-use dominator_material::components::{DrawerWidth, NavigationDrawerProps};
+use dmat_components::components::layouts::{app_bar, AppBarProps, AppBarType};
+use dmat_components::components::{DrawerWidth, NavigationDrawerProps};
 
 use crate::components::navigation_drawer_demo::mock_view_select;
 

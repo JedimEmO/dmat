@@ -1,9 +1,9 @@
+use dmat_components::components::layouts::ContentBlockProps;
+use dmat_components::components::layouts::{DockOverlayOut, DockOverlayProps, DockPoint};
+use dmat_components::components::TitleProps;
+use dmat_components::components::{ButtonContent, ButtonProps};
+use dmat_components::utils::signals::stream_flipflop::stream_to_flipflop_mixin;
 use dominator::{clone, events, html, Dom};
-use dominator_material::components::layouts::ContentBlockProps;
-use dominator_material::components::layouts::{DockOverlayOut, DockOverlayProps, DockPoint};
-use dominator_material::components::TitleProps;
-use dominator_material::components::{ButtonContent, ButtonProps};
-use dominator_material::utils::signals::stream_flipflop::stream_to_flipflop_mixin;
 use futures_signals::signal::{always, Mutable, ReadOnlyMutable};
 use lipsum::lipsum;
 

@@ -1,5 +1,5 @@
 #[macro_use]
-extern crate dominator_material;
+extern crate dmat_components;
 
 use crate::main_view::main_view;
 use wasm_bindgen::prelude::*;

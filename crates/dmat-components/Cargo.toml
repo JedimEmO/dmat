@@ -1,10 +1,10 @@
 [package]
-name = "dominator-material"
+name = "dmat-components"
 version = "0.1.0"
 authors = ["Mathias Myrland <jedimemo@gmail.com>"]
 edition = "2018"
 license-file = "LICENSE.md"
-repository = "https://github.com/JedimEmO/dominator-material"
+repository = "https://github.com/JedimEmO/dmat"
 description = "Collection of material components to use with the dominator rust library"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

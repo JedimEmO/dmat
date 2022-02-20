@@ -31,9 +31,9 @@ pub struct ScrimOut {
 /// use dominator::html;
 /// use futures_signals::signal::Mutable;
 ///
-/// use dominator_material::scrim;
-/// use dominator_material::components::scrim::ScrimProps;
-/// use dominator_material::utils::signals::stream_flipflop::stream_to_flipflop_mixin;
+/// use dmat_components::scrim;
+/// use dmat_components::components::scrim::ScrimProps;
+/// use dmat_components::utils::signals::stream_flipflop::stream_to_flipflop_mixin;
 /// let show_scrim = Mutable::new(true);
 ///
 /// let (scrim_dom, scrim_out) = scrim!({ ScrimProps {

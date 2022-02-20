@@ -52,7 +52,7 @@ macro_rules! navigation_drawer {
 /// ```no_run
 /// use dominator::{Dom, html};
 /// use futures_signals::signal::always;
-/// use dominator_material::components::{NavigationDrawerProps, DrawerWidth};
+/// use dmat_components::components::{NavigationDrawerProps, DrawerWidth};
 ///
 /// fn retracting(modal: bool) -> Dom {
 ///     let props = NavigationDrawerProps {
@@ -65,7 +65,7 @@ macro_rules! navigation_drawer {
 ///         main_content: html!("div", {.text("This is the main view, a modal drawer will cover it, whereas a non-modal drawer will displace it")}),
 ///     };
 ///
-///     dominator_material::navigation_drawer!(props).0
+///     dmat_components::navigation_drawer!(props).0
 /// }
 /// ```
 pub fn navigation_drawer<F, TVisibleSignal>(

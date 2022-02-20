@@ -1,5 +1,5 @@
 [package]
-name = "dominator-material-component-showcase"
+name = "dmat-showcase"
 version = "0.1.0"
 authors = ["Mathias Myrland <jedimemo@gmail.com>"]
 edition = "2018"
@@ -10,7 +10,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 dominator = "0.5.23"
-dominator-material = { path = "../../crates/dominator-material" }
+dmat-components = { path = "../../crates/dmat-components" }
 futures = "0.3.19"
 futures-signals = "0.3.15"
 js-sys = "0.3.44"
@@ -21,4 +21,4 @@ web-sys = { version = "0.3.55", features = ["DocumentFragment", "Storage", "Url"
 uuid = { version = "0.8.1", features = ["v4", "wasm-bindgen"] }
 
 [build-dependencies]
-dominator-material-style = { path = "../../crates/dominator-material-style"}
+dmat-components-style = { path = "../../crates/dmat-components-style" }

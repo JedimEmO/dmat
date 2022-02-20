@@ -3,9 +3,9 @@ use futures_signals::map_ref;
 use futures_signals::signal::always;
 use futures_signals::signal::Mutable;
 
-use dominator_material::components::layouts::ContentBlockProps;
-use dominator_material::components::TitleProps;
-use dominator_material::components::{ButtonProps, ButtonStyle, ButtonType};
+use dmat_components::components::layouts::ContentBlockProps;
+use dmat_components::components::TitleProps;
+use dmat_components::components::{ButtonProps, ButtonStyle, ButtonType};
 
 pub fn button_demo() -> Dom {
     let counter = Mutable::new(0);

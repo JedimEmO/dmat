@@ -1,5 +1,5 @@
+use dmat_components::components::{ButtonContent, ButtonProps, ButtonStyle, ButtonType};
 use dominator::{clone, Dom};
-use dominator_material::components::{ButtonContent, ButtonProps, ButtonStyle, ButtonType};
 use futures_signals::signal::{always, Mutable};
 
 /// Utility function to create buttons for toggling boolean mutables

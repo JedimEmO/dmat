@@ -1,7 +1,7 @@
+use dmat_components::components::layouts::{ModalSheetProps, SheetProps, SheetSide};
+use dmat_components::components::ButtonProps;
+use dmat_components::utils::signals::stream_flipflop::stream_to_flipflop_mixin;
 use dominator::{html, Dom};
-use dominator_material::components::layouts::{ModalSheetProps, SheetProps, SheetSide};
-use dominator_material::components::ButtonProps;
-use dominator_material::utils::signals::stream_flipflop::stream_to_flipflop_mixin;
 use futures_signals::signal::always;
 use futures_signals::signal::Mutable;
 

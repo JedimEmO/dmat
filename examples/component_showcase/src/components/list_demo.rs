@@ -6,13 +6,13 @@ use futures_signals::signal::{Mutable, SignalExt};
 use futures_signals::signal_vec::{MutableVec, SignalVecExt};
 use wasm_bindgen::__rt::std::rc::Rc;
 
-use dominator_material::components::layouts::ContentBlockProps;
-use dominator_material::components::TitleProps;
-use dominator_material::components::{
+use dmat_components::components::layouts::ContentBlockProps;
+use dmat_components::components::TitleProps;
+use dmat_components::components::{
     ButtonContent, ButtonProps, ButtonType, InteractiveListProps, ListEntry,
 };
-use dominator_material::utils::mixin::stream_handler_mixin;
-use dominator_material::utils::signals::mutation::store_signal_value_opt_mixin;
+use dmat_components::utils::mixin::stream_handler_mixin;
+use dmat_components::utils::signals::mutation::store_signal_value_opt_mixin;
 
 use crate::utils::toggle_button::toggle_button;
 

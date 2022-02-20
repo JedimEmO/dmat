@@ -1,7 +1,7 @@
-use dominator_material_style::render_dmat_scss;
-use dominator_material_style::theme::breakpoints::BreakpointValue;
-use dominator_material_style::theme::dmat_theme::DmatTheme;
-use dominator_material_style::theme::layout::{DisplayUnit, Layout};
+use dmat_components_style::render_dmat_scss;
+use dmat_components_style::theme::breakpoints::BreakpointValue;
+use dmat_components_style::theme::dmat_theme::DmatTheme;
+use dmat_components_style::theme::layout::{DisplayUnit, Layout};
 use std::fs;
 
 fn main() {

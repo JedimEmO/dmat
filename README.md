@@ -1,12 +1,12 @@
-# dcomp
+# dmat
 
-This crate aims to provide  basic reactive material components to be used for writing UI applications using dominator.
+These crates aim to provide basic functional reactive components to be used for writing single page UI applications using the dominator framework. It loosely follows the material design guidelines, but are not bound by them
 
 The example app is hosted on github pages here:
-<a href="https://jedimemo.github.io/dominator-material/#/component/appbar" target="_blank">https://jedimemo.github.io/dominator-material/ </a>
+<a href="https://jedimemo.github.io/dmat/#/component/appbar" target="_blank">https://jedimemo.github.io/dmat/ </a>
 
-## Components
-Each component provided is implemented as a function, and there are two types of component functions.
+## dmat-components
+Every component provided in this cate is implemented as a function, and there are two types of component functions.
 
 The simple type takes properties and a mixin function as arguments, and return a Dom element:
 
@@ -43,13 +43,13 @@ text!("Hi, I have an id!", with_id("some-text-element-id"));
 ```
 
 
-# dominator-material-style
+# dmat-components-style
 
 The `dominator-material-style` crate provides a themeable default style implementation, which can be generated compile time in your `build.rs` file:
 
 ```rust
-use dominator_material_style::render_dmat_scss;
-use dominator_material_style::theme::{Colors, DmatTheme};
+use dmat_components_style::render_dmat_scss;
+use dmat_components_style::theme::{Colors, DmatTheme};
 use std::fs;
 
 fn main() {

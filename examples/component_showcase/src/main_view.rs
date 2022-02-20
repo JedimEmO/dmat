@@ -2,9 +2,9 @@ use dominator::{clone, html, Dom};
 use futures_signals::signal::{Signal, SignalExt};
 use futures_signals::signal_vec::MutableVec;
 
-use dominator_material::components::layouts::{app_bar, AppBarProps};
-use dominator_material::components::TabsProps;
-use dominator_material::utils::mixin::{id_attribute_mixin, stream_handler_mixin};
+use dmat_components::components::layouts::{app_bar, AppBarProps};
+use dmat_components::components::TabsProps;
+use dmat_components::utils::mixin::{id_attribute_mixin, stream_handler_mixin};
 
 use crate::demo_views::about::about_view;
 use crate::demo_views::component_demo::component_demo_view;
@@ -35,7 +35,7 @@ pub fn main_view() -> Dom {
             .header(html!("div", {
                 .children(&mut [
                     html!("h1", {
-                       .text("Dominator Material")
+                       .text("Dmat Components")
                     }),
                     menu_tabs
                 ])

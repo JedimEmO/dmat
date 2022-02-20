@@ -5,13 +5,13 @@ use futures_signals::signal_vec::{MutableVec, SignalVecExt};
 use lipsum::lipsum;
 use web_sys::HtmlElement;
 
-use dominator_material::components::layouts::ContentBlockProps;
-use dominator_material::components::TitleProps;
-use dominator_material::components::{
+use dmat_components::components::layouts::ContentBlockProps;
+use dmat_components::components::TitleProps;
+use dmat_components::components::{
     DrawerWidth, InteractiveListProps, ListEntry, NavigationDrawerProps,
 };
-use dominator_material::utils::signals::mutation::store_signal_value_opt_mixin;
-use dominator_material::utils::signals::stream_flipflop::stream_to_flipflop_mixin;
+use dmat_components::utils::signals::mutation::store_signal_value_opt_mixin;
+use dmat_components::utils::signals::stream_flipflop::stream_to_flipflop_mixin;
 
 use crate::utils::toggle_button::toggle_button;
 

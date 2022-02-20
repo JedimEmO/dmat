@@ -1,7 +1,7 @@
 use dominator::{html, Dom};
 use futures_signals::signal::{Mutable, MutableSignal};
 
-use dominator_material::components::{CarouselProps, CarouselSource};
+use dmat_components::components::{CarouselProps, CarouselSource};
 
 pub fn carousel_demo() -> Dom {
     card!(

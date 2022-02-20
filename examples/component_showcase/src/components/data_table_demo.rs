@@ -4,10 +4,10 @@ use futures_signals::signal::Mutable;
 use futures_signals::signal_vec::MutableVec;
 use wasm_bindgen::__rt::std::rc::Rc;
 
-use dominator_material::components::input::input_props::InputProps;
-use dominator_material::components::layouts::ContentBlockProps;
-use dominator_material::components::{data_table, DataTableProps};
-use dominator_material::components::{TextFieldProps, TitleProps};
+use dmat_components::components::input::input_props::InputProps;
+use dmat_components::components::layouts::ContentBlockProps;
+use dmat_components::components::{data_table, DataTableProps};
+use dmat_components::components::{TextFieldProps, TitleProps};
 
 pub fn data_table_demo() -> Dom {
     let data: Rc<MutableVec<usize>> = Rc::new(MutableVec::new_with_values((0..10).collect()));
