@@ -5,8 +5,8 @@ use futures_signals::signal::Mutable;
 use futures_signals::signal_vec::MutableVec;
 
 use dmat_components::components::input::input_props::InputProps;
-use dmat_components::components::input::ComboBoxProps;
 use dmat_components::components::input::SelectProps;
+use dmat_components::components::input::{switch, ComboBoxProps, SwitchProps};
 use dmat_components::components::TextFieldProps;
 
 pub fn input_demo() -> Dom {
@@ -80,7 +80,14 @@ fn combo_box_demo(value: &Mutable<String>) -> Dom {
                 error_text_signal: always(None),
                 disabled_signal: always(false)
             }
-        })
+        }),
+        switch(
+            SwitchProps {
+                state_signal: always(true)
+            },
+            |d| d
+        )
+        .0
     ]))
 }
 
