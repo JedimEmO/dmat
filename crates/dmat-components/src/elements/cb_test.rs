@@ -1,11 +1,11 @@
 #[cfg(test)]
 mod test {
+    use std::rc::Rc;
 
     use dominator::events::Click;
     use dominator::{body, clone, Dom, DomBuilder};
     use futures_signals::signal::{Mutable, SignalExt};
     use futures_util::StreamExt;
-    use std::rc::Rc;
     use wasm_bindgen::JsCast;
     use wasm_bindgen_test::*;
     use web_sys::{Document, HtmlElement};
