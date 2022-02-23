@@ -17,7 +17,7 @@ where
     TStateSignal: Signal<Item = bool> + Unpin + 'static,
     F: FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>,
 {
-    let (mut toggle_tx, toggle_stream) = channel(1);
+    let (mut _toggle_tx, toggle_stream) = channel(1);
 
     (
         html!("div", {
