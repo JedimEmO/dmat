@@ -111,7 +111,7 @@ pub fn data_table<TData: Clone + 'static, TRenderFunc: Fn(&TData) -> Dom + 'stat
                     html!("tr", {
                         .class("loading-row")
                         .child(html!("th", {
-                            .attribute("colspan", "100")
+                            .attr("colspan", "100")
                             .child_signal(props.is_loading.signal_cloned().map(|loading| {
                                 match loading {
                                     true => Some(crate::progress_indicator!(Duration::from_millis(500), ProgressIndicatorIterations::Count(1))),
@@ -148,7 +148,7 @@ fn table_pagination(meta: &PageMeta, loading: Mutable<bool>) -> Dom {
                 loading.replace(true);
                 (meta.on_request_data)(0, meta.page_size.get());
             }))
-            .property_signal("disabled", meta.current_top.signal_cloned().map(|v| v == 0))
+            .prop_signal("disabled", meta.current_top.signal_cloned().map(|v| v == 0))
             .class("dmat-pagination-button")
         }),
         html!("button", {
@@ -158,7 +158,7 @@ fn table_pagination(meta: &PageMeta, loading: Mutable<bool>) -> Dom {
                 let target_top = std::cmp::max(meta.current_top.get() as i32 - meta.page_size.get() as  i32, 0) as usize;
                 (meta.on_request_data)(target_top, meta.page_size.get());
             }))
-            .property_signal("disabled", meta.current_top.signal_cloned().map(|v| v == 0))
+            .prop_signal("disabled", meta.current_top.signal_cloned().map(|v| v == 0))
             .class("dmat-pagination-button")
         }),
         html!("button", {
@@ -169,7 +169,7 @@ fn table_pagination(meta: &PageMeta, loading: Mutable<bool>) -> Dom {
                 let target_top = std::cmp::min(meta.current_top.get() + meta.page_size.get(), count);
                 (meta.on_request_data)(target_top, meta.page_size.get());
             }))
-            .property_signal("disabled", meta.current_top.signal_cloned().map(clone!(meta => move |v| v + meta.page_size.get() >= meta.total_data_count.get())))
+            .prop_signal("disabled", meta.current_top.signal_cloned().map(clone!(meta => move |v| v + meta.page_size.get() >= meta.total_data_count.get())))
             .class("dmat-pagination-button")
         }),
         html!("button", {
@@ -180,7 +180,7 @@ fn table_pagination(meta: &PageMeta, loading: Mutable<bool>) -> Dom {
                 let target_top = (count / meta.page_size.get()) * meta.page_size.get();
                 (meta.on_request_data)(target_top, meta.page_size.get());
             }))
-            .property_signal("disabled", meta.current_top.signal_cloned().map(clone!(meta => move |v| v + meta.page_size.get() >= meta.total_data_count.get())))
+            .prop_signal("disabled", meta.current_top.signal_cloned().map(clone!(meta => move |v| v + meta.page_size.get() >= meta.total_data_count.get())))
             .class("dmat-pagination-button")
         }),
     ];
@@ -206,7 +206,7 @@ fn table_pagination(meta: &PageMeta, loading: Mutable<bool>) -> Dom {
                 }))
                 .children(pages.into_iter().map(|page| html!("option", {
                     .text(format!("{}", page).as_str())
-                    .property("value", format!("{}", page).as_str())
+                    .prop("value", format!("{}", page).as_str())
                 })))
             }),
         )
@@ -216,7 +216,7 @@ fn table_pagination(meta: &PageMeta, loading: Mutable<bool>) -> Dom {
         .child(html!("tr", {
             .child(html!("td", {
                 .class("dmat-pagination")
-                .attribute("colspan", "100")
+                .attr("colspan", "100")
                 .child(html!("div", {
                     .children(pagination_controls.as_mut_slice())
                 }))

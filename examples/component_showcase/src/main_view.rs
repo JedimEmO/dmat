@@ -5,10 +5,11 @@ use futures_signals::signal_vec::MutableVec;
 use dmat_components::components::layouts::{app_bar, AppBarProps};
 use dmat_components::components::TabsProps;
 use dmat_components::utils::mixin::{id_attribute_mixin, stream_handler_mixin};
+use dmat_vis::contexts::charts::line_chart::line_chart;
 
 use crate::demo_views::about::about_view;
 use crate::demo_views::component_demo::component_demo_view;
-use crate::route::{DemoRoute, ExampleAppRoute};
+use crate::route::{DemoRoute, ExampleAppRoute, VisDemoRoute};
 
 pub fn main_view() -> Dom {
     let active_tab = ExampleAppRoute::signal();
@@ -16,16 +17,12 @@ pub fn main_view() -> Dom {
     let (menu_tabs, menu_tabs_out) = tabs!(TabsProps {
         tab_render_fn: render_top_level_tabs,
         is_active_tab_signal_factory: |id| ExampleAppRoute::signal().map(clone!(id => move |v| {
-                // This is a tad funky, since the second tab is a collection of multiple possible enum values
-                if id == ExampleAppRoute::About {
-                    return v == id
-                } else {
-                    return v != ExampleAppRoute::About
-                }
+               v.is_same_category(id)
         })),
         tabs_list: MutableVec::new_with_values(vec![
             ExampleAppRoute::About,
-            ExampleAppRoute::Components(DemoRoute::AppBar)
+            ExampleAppRoute::Components(DemoRoute::AppBar),
+            ExampleAppRoute::VisComponents(VisDemoRoute::LineChart)
         ])
         .signal_vec()
     });
@@ -35,7 +32,7 @@ pub fn main_view() -> Dom {
             .header(html!("div", {
                 .children(&mut [
                     html!("h1", {
-                       .text("Dmat Components")
+                       .text("Dmat Examples")
                     }),
                     menu_tabs
                 ])
@@ -58,6 +55,7 @@ fn main_app_view<S: Signal<Item = ExampleAppRoute> + 'static>(active_route: S) -
             match route {
                 ExampleAppRoute::About => Some(about_view()),
                 ExampleAppRoute::Components(c) => Some(component_demo_view(c)),
+                ExampleAppRoute::VisComponents(_) => Some(line_chart())
             }
         }))
     })
@@ -67,5 +65,6 @@ fn render_top_level_tabs(route: ExampleAppRoute) -> Dom {
     match route {
         ExampleAppRoute::About => text!("About"),
         ExampleAppRoute::Components(_) => text!("Components"),
+        ExampleAppRoute::VisComponents(_) => text!("Visualization Components"),
     }
 }

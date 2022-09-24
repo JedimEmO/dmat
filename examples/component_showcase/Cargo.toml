@@ -9,8 +9,9 @@ edition = "2018"
 crate-type = ["cdylib"]
 
 [dependencies]
-dominator = "0.5.23"
+dominator = { workspace = true }
 dmat-components = { path = "../../crates/dmat-components" }
+dmat-vis = { path = "../../crates/dmat-vis"}
 futures = "0.3.19"
 futures-signals = "0.3.15"
 js-sys = "0.3.44"

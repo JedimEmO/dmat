@@ -1,7 +1,12 @@
+[workspace.dependencies]
+dominator = "0.5.28"
+
 [workspace]
+
 members = [
     "crates/dmat-components",
     "crates/dmat-components-style",
+    "crates/dmat-vis",
     "crates/dominator-testing",
     "examples/component_showcase"
 ]

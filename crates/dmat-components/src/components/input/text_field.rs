@@ -149,7 +149,7 @@ fn text_field_input(value: &Mutable<String>, has_focus: &Mutable<bool>, claim_fo
                 has_focus.set(false);
             }
         }))
-        .property_signal("value", value.signal_cloned())
+        .prop_signal("value", value.signal_cloned())
         .class("dmat-input-element")
     })
 }
@@ -178,7 +178,7 @@ mod test {
                     disabled_signal: always(false),
                 },
             },
-            |d| d.attribute("id", "testfield"),
+            |d| d.attr("id", "testfield"),
         );
 
         let field_dom = field.0;

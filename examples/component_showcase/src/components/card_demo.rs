@@ -15,10 +15,10 @@ pub fn card_demo() -> Dom {
                     sub_header_text_signal: always(Some("All sections".to_string())),
                 })),
                 media_section: Some(html!("img", {
-                    .attribute("src", "images/shapes.svg")
-                    .attribute("width", "100%")
-                    .attribute("height", "100%")
-                    .attribute("alt", "shapes!")
+                    .attr("src", "images/shapes.svg")
+                    .attr("width", "100%")
+                    .attr("height", "100%")
+                    .attr("alt", "shapes!")
                 })),
                 supporting_section: Some(text!(lipsum(30))),
                 footer_section: Some(button!(ButtonProps {
@@ -47,10 +47,10 @@ pub fn card_demo() -> Dom {
             content_block!(ContentBlockProps {
                 title_section: None,
                 media_section: Some(html!("img", {
-                    .attribute("src", "images/shapes.svg")
-                    .attribute("width", "100%")
-                    .attribute("height", "100%")
-                    .attribute("alt", "shapes!")
+                    .attr("src", "images/shapes.svg")
+                    .attr("width", "100%")
+                    .attr("height", "100%")
+                    .attr("alt", "shapes!")
                 })),
                 supporting_section: Some(static_list!([
                     title!(TitleProps {

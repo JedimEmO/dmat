@@ -25,17 +25,17 @@ where
             .apply(disabled_signal_mixin(props.state_signal))
             .style("height", "1rem")
             .child(svg!("svg", {
-                .attribute("viewBox", "0 0 100 100")
+                .attr("viewBox", "0 0 100 100")
                 .children(&mut [
                     svg!("rect", {
-                        .attribute("y", "20")
-                        .attribute("width", "200")
-                        .attribute("height", "20")
+                        .attr("y", "20")
+                        .attr("width", "200")
+                        .attr("height", "20")
                     }),
                     svg!("circle", {
-                        .attribute("cx", "100")
-                        .attribute("cy", "50")
-                        .attribute("r", "50")
+                        .attr("cx", "100")
+                        .attr("cy", "50")
+                        .attr("r", "50")
                     })
                 ])
             }))

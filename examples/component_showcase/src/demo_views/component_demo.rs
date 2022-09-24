@@ -78,7 +78,7 @@ fn component_demo<TStream: Stream<Item = Option<DemoRoute>> + Unpin + 'static>(
                 ExampleAppRoute::goto(ExampleAppRoute::About)
             }
         }))
-        .attribute("id", "demo-view")
+        .attr("id", "demo-view")
         .child(match component {
                 DemoRoute::AppBar => app_bar_demo(),
                 DemoRoute::Button => button_demo(),

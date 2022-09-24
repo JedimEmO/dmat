@@ -74,10 +74,10 @@ where
 
 fn select_input_ele(value: &Mutable<String>, options: &MutableVec<String>) -> Dom {
     html!("select", {
-        .property_signal("value", value.signal_cloned())
+        .prop_signal("value", value.signal_cloned())
         .children_signal_vec(options.signal_vec_cloned().map(|v| html!("option", {
             .text(v.as_str())
-            .property("value", v)
+            .prop("value", v)
         })))
         .event(clone!(value => move |e: events::Change| {
             #[allow(deprecated)]

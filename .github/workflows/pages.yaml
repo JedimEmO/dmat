@@ -33,7 +33,7 @@ jobs:
         uses: jetli/trunk-action@v0.1.0
         with:
           # Optional version of trunk to install (eg. "v0.10.0", "latest")
-          version: v0.14.0 # optional, default is latest
+          version: v0.16.0 # optional, default is latest
       - name: Install and Build 🔧
         run: |
           pushd examples/component_showcase/

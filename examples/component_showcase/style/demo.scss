@@ -7,7 +7,7 @@ html,body {
   & > header > div {
     width: 100%;
     display: grid;
-    grid-template-columns: 1fr 300px;
+    grid-template-columns: 1fr 500px;
 
     & > h1 {
       padding-left: 8px;
@@ -15,7 +15,7 @@ html,body {
 
     & > .dmat-tabs {
       grid-column: 2;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr 1fr 1fr;
       align-content: end;
     }
   }

@@ -17,10 +17,15 @@ pub enum DemoRoute {
     NavigationDrawer,
     Sheet,
 }
+#[derive(Copy, Clone, PartialEq, Debug)]
+pub enum VisDemoRoute {
+    LineChart,
+}
 
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub enum ExampleAppRoute {
     Components(DemoRoute),
+    VisComponents(VisDemoRoute),
     About,
 }
 
@@ -32,6 +37,8 @@ impl ExampleAppRoute {
             ExampleAppRoute::About
         } else if url_value.as_str().contains("#/component/") {
             ExampleAppRoute::Components(DemoRoute::new(url_value.as_str()))
+        } else if url_value.as_str().contains("#/vis-component/") {
+            ExampleAppRoute::VisComponents(VisDemoRoute::LineChart)
         } else {
             ExampleAppRoute::About
         }
@@ -47,11 +54,29 @@ impl ExampleAppRoute {
         match self {
             Self::About => "#/about".to_string(),
             Self::Components(c) => format!("#/component/{}", c.url()),
+            Self::VisComponents(c) => format!("#/vis-components/{}", c.url()),
         }
     }
 
     pub fn goto(route: Self) {
         dominator::routing::go_to_url(route.url().as_str());
+    }
+
+    pub fn is_same_category(&self, other: Self) -> bool {
+        match self {
+            Self::About => match other {
+                Self::About => true,
+                _ => false,
+            },
+            Self::VisComponents(_) => match other {
+                Self::VisComponents(_) => true,
+                _ => false,
+            },
+            Self::Components(_) => match other {
+                Self::Components(_) => true,
+                _ => false,
+            },
+        }
     }
 }
 
@@ -90,6 +115,25 @@ impl DemoRoute {
             DemoRoute::Input => "input",
             DemoRoute::Sheet => "sheet",
             DemoRoute::NavigationDrawer => "navigation-drawer",
+        }
+    }
+}
+
+impl VisDemoRoute {
+    pub fn new(url: &str) -> Self {
+        match url {
+            "#/component/line-chart" => VisDemoRoute::LineChart,
+            _ => VisDemoRoute::LineChart,
+        }
+    }
+
+    pub fn goto(route: Self) {
+        dominator::routing::go_to_url(route.url());
+    }
+
+    pub fn url(&self) -> &str {
+        match self {
+            VisDemoRoute::LineChart => "line-chart",
         }
     }
 }

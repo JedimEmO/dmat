@@ -15,7 +15,7 @@ where
 {
     move |d| {
         d.apply(move |inner_builder| {
-            inner_builder.attribute_signal(
+            inner_builder.attr_signal(
                 "disabled",
                 map_ref!(let is_disabled = disabled_signal=> {
                     match is_disabled {

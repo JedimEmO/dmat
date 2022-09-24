@@ -82,8 +82,8 @@ fn combo_box_input(data_list_id: &str, value: &Mutable<String>) -> (Dom, Mutable
     (
         html!("input", {
             .class("dmat-input-element")
-            .attribute("list", data_list_id)
-            .property_signal("value", value.signal_cloned())
+            .attr("list", data_list_id)
+            .prop_signal("value", value.signal_cloned())
             .event(clone!(value => move |e: events::Input| {
                 #[allow(deprecated)]
                 if let Some(new_value) = e.value() {
@@ -108,9 +108,9 @@ fn combo_box_input(data_list_id: &str, value: &Mutable<String>) -> (Dom, Mutable
 #[inline]
 fn combo_box_datalist(data_list_id: &str, options: &MutableVec<String>) -> Dom {
     html!("datalist", {
-        .attribute("id", data_list_id)
+        .attr("id", data_list_id)
         .children_signal_vec(options.signal_vec_cloned().map(|v| html!("option", {
-            .property("value", v)
+            .prop("value", v)
         })))
     })
 }

@@ -33,10 +33,10 @@ impl CarouselSource for CarouselDemoSource {
     fn get_entry(&self, _: usize) -> Dom {
         container!(|d| {
             d.child(html!("img", {
-                .attribute("src", "images/shapes.svg")
-                .attribute("width", "60%")
-                .attribute("height", "100%")
-                .attribute("alt", "shapes!")
+                .attr("src", "images/shapes.svg")
+                .attr("width", "60%")
+                .attr("height", "100%")
+                .attr("alt", "shapes!")
             }))
             .class("demo-carousel-item")
         })

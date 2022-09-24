@@ -19,7 +19,7 @@ mod test {
     fn create_basic_element() {
         let ele: Dom = new_html("span")
             .text("Hello, world!")
-            .attribute("id", "test")
+            .attr("id", "test")
             .into_dom();
 
         let document: Document = web_sys::window().unwrap().document().unwrap();
@@ -44,13 +44,13 @@ mod test {
 
         {
             let cmp = new_html("div")
-                .attribute("id", "test2")
+                .attr("id", "test2")
                 .child_signal(state.signal().map(clone!(state, child_count => move |v| {
                     child_count.set(child_count.get() + 1);
 
                     Some(
                         crate::text!(format!("{}", v).as_str(), clone!(state => move |d| {
-                            d.attribute("id", "inner")
+                            d.attr("id", "inner")
                                 .event(move |_: Click| {
                                     // This is what we are checking; that each
                                     // child yielded by this signal (which will generate a new clone of state)

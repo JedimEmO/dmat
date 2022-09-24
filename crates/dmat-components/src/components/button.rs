@@ -164,7 +164,7 @@ mod test {
                 counter.signal_cloned().map(|v| v > 0)
             )
             .content(html!("span")),
-            |d| d.attribute("id", "test-button")
+            |d| d.attr("id", "test-button")
         );
 
         mount_test_dom(btn);

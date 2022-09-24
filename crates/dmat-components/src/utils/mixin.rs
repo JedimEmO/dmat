@@ -17,7 +17,7 @@ pub fn mixin_id<A: AsRef<Element>>() -> impl FnOnce(DomBuilder<A>) -> DomBuilder
 pub fn id_attribute_mixin<T: AsRef<str> + 'static, A: AsRef<Element>>(
     id: T,
 ) -> impl FnOnce(DomBuilder<A>) -> DomBuilder<A> {
-    move |d: DomBuilder<A>| d.attribute("id", id.as_ref())
+    move |d: DomBuilder<A>| d.attr("id", id.as_ref())
 }
 
 #[inline]

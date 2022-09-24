@@ -159,6 +159,7 @@ version = "0.1.0"
 dependencies = [
  "dmat-components",
  "dmat-components-style",
+ "dmat-vis",
  "dominator",
  "futures",
  "futures-signals",
@@ -171,15 +172,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "dmat-vis"
+version = "0.1.0"
+dependencies = [
+ "dominator",
+]
+
+[[package]]
 name = "dominator"
-version = "0.5.23"
+version = "0.5.30"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "af8fdfc04dda017473407188389ce34a2225e6d095ec899ce403f75c9634d478"
+checksum = "c83775ca12b43e9c6165e092e90c246624ec060317bc84ed90381e7c7277c8a0"
 dependencies = [
  "discard",
  "futures-channel",
  "futures-signals",
  "futures-util",
+ "gloo-events",
  "js-sys",
  "once_cell",
  "pin-project",
@@ -326,6 +335,16 @@ dependencies = [
  "libc",
  "wasi",
  "wasm-bindgen",
+]
+
+[[package]]
+name = "gloo-events"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "68b107f8abed8105e4182de63845afcc7b69c098b7852a813ea7462a320992fc"
+dependencies = [
+ "wasm-bindgen",
+ "web-sys",
 ]
 
 [[package]]
