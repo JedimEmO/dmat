@@ -54,7 +54,7 @@ impl ExampleAppRoute {
         match self {
             Self::About => "#/about".to_string(),
             Self::Components(c) => format!("#/component/{}", c.url()),
-            Self::VisComponents(c) => format!("#/vis-components/{}", c.url()),
+            Self::VisComponents(c) => format!("#/vis-component/{}", c.url()),
         }
     }
 

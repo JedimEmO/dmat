@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 
 dominator = { workspace = true }
+futures-signals = { workspace = true }

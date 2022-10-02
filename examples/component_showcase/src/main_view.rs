@@ -5,11 +5,11 @@ use futures_signals::signal_vec::MutableVec;
 use dmat_components::components::layouts::{app_bar, AppBarProps};
 use dmat_components::components::TabsProps;
 use dmat_components::utils::mixin::{id_attribute_mixin, stream_handler_mixin};
-use dmat_vis::contexts::charts::line_chart::line_chart;
 
 use crate::demo_views::about::about_view;
 use crate::demo_views::component_demo::component_demo_view;
 use crate::route::{DemoRoute, ExampleAppRoute, VisDemoRoute};
+use crate::vis_components::line_chart_demo::line_chart_demo;
 
 pub fn main_view() -> Dom {
     let active_tab = ExampleAppRoute::signal();
@@ -55,7 +55,7 @@ fn main_app_view<S: Signal<Item = ExampleAppRoute> + 'static>(active_route: S) -
             match route {
                 ExampleAppRoute::About => Some(about_view()),
                 ExampleAppRoute::Components(c) => Some(component_demo_view(c)),
-                ExampleAppRoute::VisComponents(_) => Some(line_chart())
+                ExampleAppRoute::VisComponents(_) => Some(line_chart_demo())
             }
         }))
     })
