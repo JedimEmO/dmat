@@ -36,7 +36,7 @@ pub enum ButtonContent {
 
 #[derive(Default)]
 pub struct ButtonProps<
-    FClickCallback: Fn(events::Click) -> (),
+    FClickCallback: Fn(events::Click),
     TDisabledSignal: Signal<Item = bool> + Unpin,
 > {
     pub content: Option<ButtonContent>,
@@ -46,7 +46,7 @@ pub struct ButtonProps<
     pub disabled_signal: TDisabledSignal,
 }
 
-impl<FClickCallback: Fn(events::Click) -> (), TDisabledSignal: Signal<Item = bool> + Unpin>
+impl<FClickCallback: Fn(events::Click), TDisabledSignal: Signal<Item = bool> + Unpin>
     ButtonProps<FClickCallback, TDisabledSignal>
 {
     pub fn new(
@@ -104,7 +104,7 @@ pub fn button<FClickCallback, TDisabledSignal, F>(
     mixin: F,
 ) -> Dom
 where
-    FClickCallback: Fn(events::Click) -> () + 'static,
+    FClickCallback: Fn(events::Click) + 'static,
     TDisabledSignal: Signal<Item = bool> + Unpin + 'static,
     F: FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>,
 {

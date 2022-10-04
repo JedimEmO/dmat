@@ -16,7 +16,7 @@ pub fn label_element<TLabelSignal: Signal<Item = Option<String>> + Unpin + 'stat
             clone!(value => map_ref!(
                 let focus = has_focus.signal_cloned(),
                 let current_value = value.signal_cloned() => move {
-                    let has_value = current_value.len() > 0;
+                    let has_value = !current_value.is_empty();
 
                     *focus || has_value
                 })))
@@ -27,11 +27,7 @@ pub fn label_element<TLabelSignal: Signal<Item = Option<String>> + Unpin + 'stat
                 .class("dmat-notch-middle")
                 .apply(|dom_builder| {
                     dom_builder.child_signal(label.map(|label_content| {
-                        if let Some(label_text) = label_content {
-                            Some(crate::text!(label_text, |dom_builder| dom_builder.class("dmat-input-label-text")))
-                        } else {
-                            None
-                        }
+                        label_content.map(|label_text| crate::text!(label_text, |dom_builder| dom_builder.class("dmat-input-label-text")))
                     }))
                 })
             }),

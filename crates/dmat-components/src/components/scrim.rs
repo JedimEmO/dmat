@@ -68,7 +68,7 @@ where
                     .class("scrim-overlay")
                     .class_signal("-hidden", hide_signal)
                     .event(move |_: events::Click |{
-                        tx.try_send(()).or::<()>(Ok(())).unwrap();
+                        tx.try_send(()).unwrap_or(());
                     })
                 })
             ])

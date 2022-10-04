@@ -7,7 +7,7 @@ use web_sys::HtmlElement;
 use crate::components::ScrimProps;
 use crate::scrim;
 
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Copy, Clone, PartialEq, Eq)]
 pub enum DrawerWidth {
     Full,
     Narrow,

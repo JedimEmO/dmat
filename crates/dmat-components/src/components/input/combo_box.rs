@@ -3,7 +3,7 @@ use futures_signals::signal::{Mutable, Signal};
 use futures_signals::signal_vec::{MutableVec, SignalVecExt};
 use web_sys::HtmlElement;
 
-use crate::components::input::input::input;
+use crate::components::input::input_field::input;
 use crate::components::input::input_props::InputProps;
 
 #[macro_export]

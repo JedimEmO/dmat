@@ -14,7 +14,7 @@ impl Default for AxisPosition {
     }
 }
 
-#[derive(PartialEq, Copy, Clone)]
+#[derive(PartialEq, Eq, Copy, Clone)]
 pub enum AxisOrientation {
     Horizontal,
     Vertical,
@@ -46,13 +46,13 @@ pub fn layout_axis(axis: Vec<Axis>, view_box: &ViewBox) -> Dom {
 
     let horizontal = horizontal
         .into_iter()
-        .filter_map(|v| v)
+        .flatten()
         .map(|axis| draw_axis(axis, view_box))
         .collect::<Vec<Dom>>();
 
     let vertical = vertical
         .into_iter()
-        .filter_map(|v| v)
+        .flatten()
         .map(|axis| draw_axis(axis, view_box))
         .collect::<Vec<Dom>>();
 

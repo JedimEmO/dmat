@@ -4,7 +4,7 @@ use futures_signals::signal_vec::{MutableVec, SignalVecExt};
 use wasm_bindgen::JsCast;
 use web_sys::{HtmlElement, HtmlSelectElement};
 
-use crate::components::input::input::input;
+use crate::components::input::input_field::input;
 use crate::components::input::input_props::InputProps;
 
 #[macro_export]

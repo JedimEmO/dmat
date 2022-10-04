@@ -43,7 +43,7 @@ where
                     .class("sub-title")
                     .text(v)
                 }))
-            ].into_iter().filter_map(|v| v).collect()
+            ].into_iter().flatten().collect()
         }
     }
     .to_signal_vec();

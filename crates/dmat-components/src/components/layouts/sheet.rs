@@ -91,12 +91,12 @@ where
         true,
     );
 
-    return (
+    (
         dom,
         ModalSheetOut {
             toggle_stream: strm,
         },
-    );
+    )
 }
 
 /// Returns the tuple (0: view, 1: Scrim click stream of ())

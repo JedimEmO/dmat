@@ -67,7 +67,7 @@ where
                         before.map(|v| html!("div", { .class("first").child(v)})),
                         Some(content),
                         after.map(|v| html!("div", { .class("last").child(v)})),
-                    ].into_iter().filter_map(|v| v))
+                    ].into_iter().flatten())
                     .apply(|d| {
                         d.event(clone!(item_select_tx => move |_: events::Click| {
                             let mut item_select_tx = item_select_tx.lock().unwrap_throw();

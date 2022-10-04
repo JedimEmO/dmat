@@ -93,7 +93,7 @@ fn tab<
         .class("tab")
         .class_signal("active", is_active)
         .event(move |_: events::Click| {
-            tab_tx.lock().unwrap().try_send(tab_id).or::<()>(Ok(())).unwrap();
+            tab_tx.lock().unwrap().try_send(tab_id).unwrap_or(());
         })
     })
 }

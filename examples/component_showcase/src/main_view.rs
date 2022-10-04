@@ -43,7 +43,7 @@ pub fn main_view() -> Dom {
             d.apply(id_attribute_mixin("dmat-example-app"))
                 .apply(stream_handler_mixin(
                     menu_tabs_out.tab_select_stream,
-                    |new_tab| ExampleAppRoute::goto(new_tab),
+                    ExampleAppRoute::goto,
                 ))
         },
     )

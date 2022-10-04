@@ -28,7 +28,7 @@ pub fn stream_handler_mixin<A, TStream, F, T>(
 where
     A: AsRef<Element>,
     TStream: Stream<Item = T> + Unpin + 'static,
-    F: Fn(T) -> () + 'static,
+    F: Fn(T) + 'static,
 {
     move |d| {
         d.future(input_stream.for_each(move |item| {

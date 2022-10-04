@@ -163,7 +163,7 @@ pub fn mock_view_select() -> Dom {
         .signal_vec()
         .map(clone!(selected_item => move |entry| ListEntry {
             before: None,
-            content: html!("div", { .text(format!("{}", entry).as_str())}),
+            content: html!("div", { .text(entry.to_string().as_str())}),
             after: None,
             selected_signal: Box::new(
                 selected_item.signal_ref(clone!(entry => move |v| v == &Some(entry))),

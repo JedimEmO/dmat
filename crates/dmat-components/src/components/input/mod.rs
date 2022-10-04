@@ -4,7 +4,7 @@ pub use switch::*;
 pub use text_field::*;
 
 pub mod combo_box;
-pub mod input;
+pub mod input_field;
 pub mod input_props;
 pub mod label;
 pub mod select;

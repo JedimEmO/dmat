@@ -35,6 +35,6 @@ where
             props.media_section.map(|d| html!("div", { .child(d).class("media")})),
             props.supporting_section.map(|d| html!("div", { .child(d).class("supporting")})),
             props.footer_section.map(|d| html!("div", { .child(d).class("footer")})),
-        ].into_iter().filter_map(|v| v))
+        ].into_iter().flatten())
     })
 }

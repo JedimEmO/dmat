@@ -35,7 +35,7 @@ pub(crate) fn input<
 where
     F: FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>,
 {
-    let label_element = label_element(input_element, &props.value, &has_focus, props.label);
+    let label_element = label_element(input_element, &props.value, has_focus, props.label);
 
     let has_assistive = Mutable::new(false);
     let has_error = Mutable::new(false);

@@ -30,7 +30,7 @@ pub fn data_table_demo() -> Dom {
                                         claim_focus: false,
                                         input_props: InputProps{
                                             label: always(Some("Data per row".to_string())),
-                                            value: input_test_value.clone(),
+                                            value: input_test_value,
                                             is_valid: always(true),
                                             assistive_text_signal: always(None),
                                             error_text_signal: always(None),

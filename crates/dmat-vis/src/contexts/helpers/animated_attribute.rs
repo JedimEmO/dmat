@@ -50,7 +50,7 @@ pub fn animated_attribute<T: 'static>(
 
                     Some(svg!("animate" => web_sys::SvgAnimationElement, {
                         .after_inserted(|e| {
-                            e.begin_element();
+                            e.begin_element().unwrap();
                         })
                         .attr("attributeName", attr_name.as_str())
                         .attr("dur", "0.2s")
@@ -59,7 +59,7 @@ pub fn animated_attribute<T: 'static>(
                         .attr("to", current_attr.as_str())
                         .attr("from", old_attr.get_cloned().as_str())
                         .future(clone!(concrete_attr, current_attr => async move {
-                            wasm_timer::Delay::new(Duration::from_millis(200)).await;
+                            wasm_timer::Delay::new(Duration::from_millis(200)).await.unwrap();
                             concrete_attr.set(Some(current_attr))
                         }))
                     }))

@@ -2,7 +2,6 @@ use dmat_vis::contexts::charts::line_chart::{
     AxisDescription, GraphColor, LineChartProps, LineDataset, Point,
 };
 use dominator::Dom;
-use futures_signals::signal::always;
 use futures_signals::signal_vec::{MutableVec, SignalVecExt};
 use std::future::Future;
 use std::rc::Rc;
@@ -87,5 +86,5 @@ fn make_changing_source(
         }
     };
 
-    return (out, changer_fut);
+    (out, changer_fut)
 }

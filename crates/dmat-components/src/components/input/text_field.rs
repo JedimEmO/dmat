@@ -2,7 +2,7 @@ use dominator::{clone, events, html, Dom, DomBuilder};
 use futures_signals::signal::{Mutable, MutableSignalCloned, Signal};
 use web_sys::HtmlElement;
 
-use crate::components::input::input::input;
+use crate::components::input::input_field::input;
 use crate::components::input::input_props::InputProps;
 
 pub struct TextFieldProps<

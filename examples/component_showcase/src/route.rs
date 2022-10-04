@@ -3,7 +3,7 @@ use futures_signals::signal::{Signal, SignalExt};
 use wasm_bindgen::UnwrapThrowExt;
 use web_sys::Url;
 
-#[derive(Copy, Clone, PartialEq, Debug)]
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub enum DemoRoute {
     AppBar,
     Button,
@@ -17,12 +17,12 @@ pub enum DemoRoute {
     NavigationDrawer,
     Sheet,
 }
-#[derive(Copy, Clone, PartialEq, Debug)]
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub enum VisDemoRoute {
     LineChart,
 }
 
-#[derive(Copy, Clone, PartialEq, Debug)]
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub enum ExampleAppRoute {
     Components(DemoRoute),
     VisComponents(VisDemoRoute),
@@ -64,18 +64,9 @@ impl ExampleAppRoute {
 
     pub fn is_same_category(&self, other: Self) -> bool {
         match self {
-            Self::About => match other {
-                Self::About => true,
-                _ => false,
-            },
-            Self::VisComponents(_) => match other {
-                Self::VisComponents(_) => true,
-                _ => false,
-            },
-            Self::Components(_) => match other {
-                Self::Components(_) => true,
-                _ => false,
-            },
+            Self::About => matches!(other, Self::About),
+            Self::VisComponents(_) => matches!(other, Self::VisComponents(_)),
+            Self::Components(_) => matches!(other, Self::Components(_)),
         }
     }
 }

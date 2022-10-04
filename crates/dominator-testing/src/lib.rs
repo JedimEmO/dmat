@@ -3,7 +3,7 @@ use wasm_bindgen::{JsCast, JsValue};
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{Element, HtmlElement};
 
-pub fn mount_test_dom(dom: Dom) -> () {
+pub fn mount_test_dom(dom: Dom) {
     dominator::append_dom(
         &web_sys::window()
             .unwrap()
@@ -18,7 +18,7 @@ pub fn mount_test_dom(dom: Dom) -> () {
 ///
 pub fn test_dyn_element_by_id<T, F>(id: &str, tester: F)
 where
-    F: FnOnce(&T) -> (),
+    F: FnOnce(&T),
     T: JsCast,
 {
     let cmp = web_sys::window()
@@ -26,16 +26,11 @@ where
         .document()
         .unwrap()
         .get_element_by_id(id)
-        .expect(format!("Element #{} not found", id).as_str());
+        .unwrap_or_else(|| panic!("Element #{} not found", id));
 
     tester(
-        cmp.dyn_ref::<T>().expect(
-            format!(
-                "Element #{} is not castable to the requested element type",
-                id
-            )
-            .as_str(),
-        ),
+        cmp.dyn_ref::<T>().unwrap_or_else(|| panic!("Element #{} is not castable to the requested element type",
+                id)),
     );
 }
 

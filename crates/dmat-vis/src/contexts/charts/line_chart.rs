@@ -1,5 +1,4 @@
 use dominator::__internal::SvgElement;
-use dominator::traits::AsStr;
 use dominator::{clone, Dom, DomBuilder};
 use futures_signals::signal::Signal;
 use futures_signals::signal_vec::SignalVecExt;
