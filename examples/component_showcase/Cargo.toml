@@ -11,15 +11,21 @@ crate-type = ["cdylib"]
 [dependencies]
 dominator = { workspace = true }
 dmat-components = { path = "../../crates/dmat-components" }
-dmat-vis = { path = "../../crates/dmat-vis"}
+dmat-vis = { path = "../../crates/dmat-vis" }
 futures = "0.3.19"
 futures-signals = "0.3.15"
 js-sys = "0.3.44"
 lipsum = "0.8.0"
-wasm-bindgen = { version = "0.2.74", features = ["serde-serialize"] }
+rand = "0.8.5"
+wasm-bindgen = { workspace = true }
+wasm-timer = "0.2.5"
 wasm-bindgen-futures = "0.4.28"
-web-sys = { version = "0.3.55", features = ["DocumentFragment", "Storage", "Url", "console", "Window", "Request", "Response", "RequestInit"] }
+web-sys = { workspace = true }
 uuid = { version = "0.8.1", features = ["v4", "wasm-bindgen"] }
 
 [build-dependencies]
 dmat-components-style = { path = "../../crates/dmat-components-style" }
+
+# https://github.com/Amanieu/parking_lot/issues/269
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+parking_lot_core = "=0.8.0"

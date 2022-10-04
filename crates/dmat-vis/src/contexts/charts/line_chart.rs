@@ -1,7 +1,11 @@
 use dominator::__internal::SvgElement;
+use dominator::traits::AsStr;
 use dominator::{clone, Dom, DomBuilder};
+use futures_signals::signal::Signal;
 use futures_signals::signal_vec::SignalVecExt;
+use std::rc::Rc;
 
+use super::super::helpers::animated_attribute::animated_attribute;
 use super::axis::{layout_axis, Axis, AxisOrientation};
 
 #[macro_export]
@@ -30,7 +34,7 @@ impl GraphColor {
 /// One set of data to be rendered within a chart
 #[derive(Clone)]
 pub struct LineDataset {
-    pub values: Vec<Point>,
+    pub values: Rc<dyn Fn() -> Box<dyn Signal<Item = Vec<Point>> + Unpin>>,
     pub label: String,
     pub shaded: bool,
     pub color: GraphColor,
@@ -45,18 +49,22 @@ pub struct AxisDescription {
 pub struct LineChartProps {
     pub x_axis: AxisDescription,
     pub y_axis: AxisDescription,
+    pub width_px: usize,
+    pub height_px: usize,
 }
 
 #[derive(Clone)]
 pub struct ViewBox {
     pub data_min: Point,
     pub data_max: Point,
+    pub view_width: f32,
+    pub view_height: f32,
 }
 
 impl ViewBox {
     pub(crate) fn data_point_to_view_box_point(&self, data_point: &Point) -> Point {
-        let scale_x = 100.0 / (self.data_max.x - self.data_min.x);
-        let scale_y = 100.0 / (self.data_max.y - self.data_min.y);
+        let scale_x = self.view_width / (self.data_max.x - self.data_min.x);
+        let scale_y = self.view_height / (self.data_max.y - self.data_min.y);
 
         Point {
             x: (data_point.x - self.data_min.x) * scale_x,
@@ -79,13 +87,15 @@ pub fn line_chart(
             x: props.x_axis.max,
             y: props.y_axis.max,
         },
+        view_width: props.width_px as f32,
+        view_height: props.height_px as f32,
     };
 
     svg!("svg", {
         .apply(mixin)
-        .attr("width", "800px")
-        .attr("height", "800px")
-        .attr("viewBox", "-10 -10 120 120")
+        .attr("width", format!("{}px", props.width_px).as_str())
+        .attr("height", format!("{}px", props.height_px).as_str())
+        .attr("viewBox", format!("-15 -15 {} {}", props.width_px + 30, props.height_px + 30).as_str())
         .child(svg!("g", {
             .children_signal_vec(datasets.map(clone!(view_box => move |dataset| draw_data_set(dataset, view_box.clone()))))
         }))
@@ -103,44 +113,42 @@ pub fn line_chart(
                 orientation: AxisOrientation::Vertical,
                 ..Default::default()
             },
-        ]))
+        ], &view_box))
     })
 }
 
 // move to shared code
 
-fn line_points(points: &Vec<Point>, view_box: &ViewBox) -> String {
+fn line_points(points: &Vec<Point>, view_box: ViewBox) -> String {
     points
         .iter()
         .map(|v| {
             let view_point = view_box.data_point_to_view_box_point(v);
-            format!("{},{}", view_point.x, 100.0 - view_point.y)
+            format!("{},{}", view_point.x, view_box.view_height - view_point.y)
         })
         .collect::<Vec<String>>()
         .join(" ")
 }
 
 pub fn draw_data_set(dataset: LineDataset, view_box: ViewBox) -> Dom {
-    let mut points = dataset.values;
-    points.sort_by(|lhs, rhs| lhs.x.total_cmp(&rhs.x));
-
-    if points.len() == 0 {
-        return svg!("g");
-    }
-
-    let points_attr = line_points(&points, &view_box);
+    let points_signal = (*dataset.values)();
 
     svg!("g", {
         .apply(|builder| {
-
             if dataset.shaded {
-                let left_x = view_box.data_point_to_view_box_point(&points[0]).x;
-                let right_x = view_box.data_point_to_view_box_point(&points[points.len() - 1]).x;
-                let points_attr = line_points(&points, &view_box);
-                let points_attr = format!("{} {},100 {},100", points_attr, right_x, left_x);
-
                 return builder.child(svg!("polygon", {
-                    .attr("points", points_attr.as_str())
+                    .apply(clone!(view_box => move |builder| {
+                        animated_attribute(
+                            builder,
+                            (*dataset.values)(),
+                            Rc::new(clone!(view_box => move |data: Vec<Point>|  {
+                                let left_x = view_box.data_point_to_view_box_point(&data[0]).x;
+                                let right_x = view_box.data_point_to_view_box_point(&data[data.len() - 1]).x;
+                                let points_attr = line_points(&data, view_box.clone());
+                                format!("{} {},{} {},{}", points_attr, right_x, view_box.view_height, left_x, view_box.view_height)
+                            })),
+                            "points".to_string())
+                    }))
                     .attr("fill", dataset.color.to_css_stroke().as_str())
                     .attr("opacity", "30%")
                 }))
@@ -150,14 +158,17 @@ pub fn draw_data_set(dataset: LineDataset, view_box: ViewBox) -> Dom {
         })
 
         .child(svg!("polyline", {
-            .attr("points", points_attr.as_str())
+            .apply(clone!(view_box => move |builder| {
+                animated_attribute(builder, points_signal, Rc::new(clone!(view_box => move |data: Vec<Point>|  { line_points(&data, view_box.clone())})), "points".to_string())
+            }))
             .attr("fill", "none")
             .attr("stroke", dataset.color.to_css_stroke().as_str() )
+            .attr("stroke-width", "1")
         }))
     })
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Copy)]
 pub struct Point {
     pub x: f32,
     pub y: f32,
