@@ -39,10 +39,16 @@ pub struct LineDataset {
     pub color: GraphColor,
 }
 
+pub struct TickInfo {
+    pub count: usize,
+    pub format: fn(f32) -> String,
+}
+
+#[derive(Default)]
 pub struct AxisDescription {
     pub min: f32,
     pub max: f32,
-    pub unit: String,
+    pub ticks: Option<TickInfo>,
 }
 
 pub struct LineChartProps {
@@ -94,25 +100,11 @@ pub fn line_chart(
         .apply(mixin)
         .attr("width", format!("{}px", props.width_px).as_str())
         .attr("height", format!("{}px", props.height_px).as_str())
-        .attr("viewBox", format!("-15 -15 {} {}", props.width_px + 30, props.height_px + 30).as_str())
+        .attr("viewBox", format!("-20 -20 {} {}", props.width_px + 40, props.height_px + 40).as_str())
         .child(svg!("g", {
             .children_signal_vec(datasets.map(clone!(view_box => move |dataset| draw_data_set(dataset, view_box.clone()))))
         }))
-        .child(layout_axis(vec![
-            Axis {
-                start_value: props.x_axis.min,
-                end_value: props.x_axis.max,
-                unit: props.x_axis.unit,
-                ..Default::default()
-            },
-            Axis {
-                start_value: props.y_axis.min,
-                end_value: props.y_axis.max,
-                unit: props.y_axis.unit,
-                orientation: AxisOrientation::Vertical,
-                ..Default::default()
-            },
-        ], &view_box))
+        .child(layout_axis(&props.x_axis, &props.y_axis, &view_box))
     })
 }
 

@@ -9,6 +9,7 @@ edition = "2021"
 
 dominator = { workspace = true }
 futures-signals = { workspace = true }
+itertools-num = "0.1.3"
 wasm-bindgen = { workspace = true }
 web-sys = { workspace = true }
 wasm-timer = "0.2.5"

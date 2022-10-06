@@ -1,5 +1,5 @@
 use dmat_vis::contexts::charts::line_chart::{
-    AxisDescription, GraphColor, LineChartProps, LineDataset, Point,
+    AxisDescription, GraphColor, LineChartProps, LineDataset, Point, TickInfo,
 };
 use dominator::Dom;
 use futures_signals::signal_vec::{MutableVec, SignalVecExt};
@@ -35,15 +35,21 @@ pub fn line_chart_demo() -> Dom {
         x_axis: AxisDescription {
             min: 0.0,
             max: 10000.0,
-            unit: "".to_string(),
+            ticks: Some(TickInfo {
+                count: 5,
+                format: |v| format!("{:.0}", v),
+            }),
         },
         y_axis: AxisDescription {
             min: 0.0,
             max: 20000.0,
-            unit: "".to_string(),
+            ticks: Some(TickInfo {
+                count: 20,
+                format: |v| format!("{:.0}k", (v / 1000.0)),
+            }),
         },
-        width_px: 800,
-        height_px: 400,
+        width_px: 200,
+        height_px: 200,
     };
 
     container!(|b| {
