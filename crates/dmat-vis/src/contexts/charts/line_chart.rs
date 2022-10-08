@@ -1,11 +1,11 @@
 use dominator::__internal::SvgElement;
 use dominator::{clone, Dom, DomBuilder};
-use futures_signals::signal::Signal;
+use futures_signals::signal::{always, Signal};
 use futures_signals::signal_vec::SignalVecExt;
 use std::rc::Rc;
 
 use super::super::helpers::animated_attribute::animated_attribute;
-use super::axis::{layout_axis, Axis, AxisOrientation};
+use super::axis::layout_axis;
 
 #[macro_export]
 macro_rules! line_chart {
@@ -30,10 +30,25 @@ impl GraphColor {
     }
 }
 
+#[derive(Clone)]
+pub enum DatasetValues {
+    Static(Vec<Point>),
+    Signal(Rc<dyn Fn() -> Box<dyn Signal<Item = Vec<Point>> + Unpin>>),
+}
+
+impl DatasetValues {
+    pub fn to_signal(&self) -> Box<dyn Signal<Item = Vec<Point>> + Unpin> {
+        match self {
+            Self::Signal(signal_fn) => signal_fn(),
+            Self::Static(static_data) => Box::new(always(static_data.clone())),
+        }
+    }
+}
+
 /// One set of data to be rendered within a chart
 #[derive(Clone)]
 pub struct LineDataset {
-    pub values: Rc<dyn Fn() -> Box<dyn Signal<Item = Vec<Point>> + Unpin>>,
+    pub values: DatasetValues,
     pub label: String,
     pub shaded: bool,
     pub color: GraphColor,
@@ -73,7 +88,7 @@ impl ViewBox {
 
         Point {
             x: (data_point.x - self.data_min.x) * scale_x,
-            y: (data_point.y - self.data_min.y) * scale_y,
+            y: self.view_height - (data_point.y - self.data_min.y) * scale_y,
         }
     }
 }
@@ -81,7 +96,7 @@ impl ViewBox {
 pub fn line_chart(
     props: LineChartProps,
     datasets: impl SignalVecExt<Item = LineDataset> + 'static,
-    mixin: impl FnMut(DomBuilder<SvgElement>) -> DomBuilder<SvgElement>,
+    mixin: impl FnOnce(DomBuilder<SvgElement>) -> DomBuilder<SvgElement>,
 ) -> Dom {
     let view_box = ViewBox {
         data_min: Point {
@@ -115,14 +130,14 @@ fn line_points(points: &Vec<Point>, view_box: ViewBox) -> String {
         .iter()
         .map(|v| {
             let view_point = view_box.data_point_to_view_box_point(v);
-            format!("{},{}", view_point.x, view_box.view_height - view_point.y)
+            format!("{},{}", view_point.x, view_point.y)
         })
         .collect::<Vec<String>>()
         .join(" ")
 }
 
 pub fn draw_data_set(dataset: LineDataset, view_box: ViewBox) -> Dom {
-    let points_signal = (*dataset.values)();
+    let points_signal = dataset.values.to_signal();
 
     svg!("g", {
         .apply(|builder| {
@@ -131,7 +146,7 @@ pub fn draw_data_set(dataset: LineDataset, view_box: ViewBox) -> Dom {
                     .apply(clone!(view_box => move |builder| {
                         animated_attribute(
                             builder,
-                            (*dataset.values)(),
+                            dataset.values.to_signal(),
                             Rc::new(clone!(view_box => move |data: Vec<Point>|  {
                                 let left_x = view_box.data_point_to_view_box_point(&data[0]).x;
                                 let right_x = view_box.data_point_to_view_box_point(&data[data.len() - 1]).x;

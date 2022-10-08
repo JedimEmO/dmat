@@ -1,33 +1,111 @@
+use dmat_components::components::layouts::ContentBlockProps;
+use dmat_components::components::TitleProps;
 use dmat_vis::contexts::charts::line_chart::{
-    AxisDescription, GraphColor, LineChartProps, LineDataset, Point, TickInfo,
+    line_chart, AxisDescription, DatasetValues, GraphColor, LineChartProps, LineDataset, Point,
+    TickInfo,
 };
-use dominator::Dom;
+use dominator::{Dom, DomBuilder};
+use futures_signals::signal::always;
 use futures_signals::signal_vec::{MutableVec, SignalVecExt};
 use std::future::Future;
 use std::rc::Rc;
 use std::time::Duration;
 use wasm_timer::Delay;
+use web_sys::SvgElement;
 
 pub fn line_chart_demo() -> Dom {
+    container!(|b| { b.children([dynamic_chart(), static_centered_axis_chart()]) })
+}
+
+fn static_centered_axis_chart() -> Dom {
+    let datasets = MutableVec::new_with_values(vec![
+        LineDataset {
+            values: DatasetValues::Static(vec![
+                Point { x: -10.0, y: -10.0 },
+                Point { x: -5.0, y: 2.0 },
+                Point { x: 5.0, y: 13.0 },
+                Point { x: 10.0, y: 5.0 },
+            ]),
+            label: "Test Set 1".to_string(),
+            shaded: false,
+            color: GraphColor::RGB {
+                r: 0,
+                g: 118,
+                b: 208,
+            },
+        },
+        LineDataset {
+            values: DatasetValues::Static(vec![
+                Point { x: -20.0, y: 10.0 },
+                Point { x: -15.0, y: 2.0 },
+                Point { x: 5.0, y: -5.0 },
+                Point { x: 10.0, y: -10.0 },
+            ]),
+            label: "Test Set 1".to_string(),
+            shaded: true,
+            color: GraphColor::RGB {
+                r: 255,
+                g: 146,
+                b: 0,
+            },
+        },
+    ]);
+
+    let props = LineChartProps {
+        x_axis: AxisDescription {
+            min: -20.0,
+            max: 10.0,
+            ticks: Some(TickInfo {
+                count: 5,
+                format: |v| format!("{:.0}", v),
+            }),
+        },
+        y_axis: AxisDescription {
+            min: -10.0,
+            max: 20.0,
+            ticks: Some(TickInfo {
+                count: 10,
+                format: |v| format!("{:.0}", v),
+            }),
+        },
+        width_px: 200,
+        height_px: 200,
+    };
+
+    card!(content_block!(ContentBlockProps {
+        title_section: Some(title!(TitleProps {
+            header_text_signal: always("Static data line chart".to_string()),
+            sub_header_text_signal: always(Some("Axis center within view box".to_string()))
+        })),
+        media_section: Some(line_chart!(props, datasets.signal_vec_cloned())),
+        ..Default::default()
+    }))
+}
+
+fn dynamic_chart() -> Dom {
     let (data, changer_fut) = make_changing_source(10000.0, 20000.0, 50);
     let (data2, changer_fut2) = make_changing_source(10000.0, 20000.0, 10);
 
     let datasets = MutableVec::new_with_values(vec![
         LineDataset {
-            values: Rc::new(move || Box::new(data.signal_vec().to_signal_cloned())),
+            values: DatasetValues::Signal(Rc::new(move || {
+                Box::new(data.signal_vec().to_signal_cloned())
+            })),
             label: "Test Set 1".to_string(),
             shaded: false,
             color: GraphColor::RGB {
-                r: 128,
-                g: 128,
-                b: 0,
+                r: 0,
+                g: 118,
+                b: 208,
             },
         },
         LineDataset {
-            values: Rc::new(move || Box::new(data2.signal_vec().to_signal_cloned())),
+            values: DatasetValues::Signal(Rc::new(move || {
+                Box::new(data2.signal_vec().to_signal_cloned())
+            })),
             label: "Test Set 2".to_string(),
             shaded: true,
-            color: GraphColor::RGB { r: 0, g: 0, b: 255 },
+            color: GraphColor::RGB { r: 254, g: 0, b: 6 },
         },
     ]);
 
@@ -52,11 +130,18 @@ pub fn line_chart_demo() -> Dom {
         height_px: 200,
     };
 
-    container!(|b| {
-        b.child(line_chart!(props, datasets.signal_vec_cloned()))
-            .future(changer_fut)
-            .future(changer_fut2)
-    })
+    card!(content_block!(ContentBlockProps {
+        title_section: Some(title!(TitleProps {
+            header_text_signal: always("Dynamic data line chart".to_string()),
+            sub_header_text_signal: always(None)
+        })),
+        media_section: Some(line_chart(
+            props,
+            datasets.signal_vec_cloned(),
+            |b: DomBuilder<SvgElement>| b.future(changer_fut).future(changer_fut2),
+        )),
+        ..Default::default()
+    }))
 }
 
 fn make_changing_source(
@@ -77,7 +162,7 @@ fn make_changing_source(
 
     let changer_fut = async move {
         loop {
-            Delay::new(Duration::from_millis(250)).await.unwrap();
+            Delay::new(Duration::from_millis(500)).await.unwrap();
 
             {
                 let mut cpy = out_clone.lock_ref().to_vec();

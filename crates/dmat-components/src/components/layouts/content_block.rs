@@ -12,6 +12,7 @@ macro_rules! content_block {
     }};
 }
 
+#[derive(Default)]
 pub struct ContentBlockProps {
     pub title_section: Option<Dom>,
     pub media_section: Option<Dom>,
