@@ -1,10 +1,11 @@
+use dmat_utils::svg::animated_attribute::animated_attribute;
 use dominator::__internal::SvgElement;
 use dominator::{clone, Dom, DomBuilder};
 use futures_signals::signal::{always, Signal};
 use futures_signals::signal_vec::SignalVecExt;
 use std::rc::Rc;
+use std::time::Duration;
 
-use super::super::helpers::animated_attribute::animated_attribute;
 use super::axis::layout_axis;
 
 #[macro_export]
@@ -153,7 +154,8 @@ pub fn draw_data_set(dataset: LineDataset, view_box: ViewBox) -> Dom {
                                 let points_attr = line_points(&data, view_box.clone());
                                 format!("{} {},{} {},{}", points_attr, right_x, view_box.view_height, left_x, view_box.view_height)
                             })),
-                            "points".to_string())
+                            "points".to_string(),
+                            Duration::from_millis(200))
                     }))
                     .attr("fill", dataset.color.to_css_stroke().as_str())
                     .attr("opacity", "30%")
@@ -165,7 +167,7 @@ pub fn draw_data_set(dataset: LineDataset, view_box: ViewBox) -> Dom {
 
         .child(svg!("polyline", {
             .apply(clone!(view_box => move |builder| {
-                animated_attribute(builder, points_signal, Rc::new(clone!(view_box => move |data: Vec<Point>|  { line_points(&data, view_box.clone())})), "points".to_string())
+                animated_attribute(builder, points_signal, Rc::new(clone!(view_box => move |data: Vec<Point>|  { line_points(&data, view_box.clone())})), "points".to_string(), Duration::from_millis(200))
             }))
             .attr("fill", "none")
             .attr("stroke", dataset.color.to_css_stroke().as_str() )

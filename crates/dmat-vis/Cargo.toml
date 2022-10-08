@@ -7,6 +7,7 @@ edition = "2021"
 
 [dependencies]
 
+dmat-utils = { path = "../dmat-utils"}
 dominator = { workspace = true }
 futures-signals = { workspace = true }
 itertools-num = "0.1.3"

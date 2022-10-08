@@ -1,4 +1,4 @@
-use dominator::{html, Dom};
+use dominator::{clone, html, Dom};
 use futures_signals::map_ref;
 use futures_signals::signal::always;
 use futures_signals::signal::Mutable;
@@ -6,12 +6,31 @@ use futures_signals::signal_vec::MutableVec;
 
 use dmat_components::components::input::input_props::InputProps;
 use dmat_components::components::input::SelectProps;
-use dmat_components::components::input::{switch, ComboBoxProps, SwitchProps};
+use dmat_components::components::input::{ComboBoxProps, SwitchProps};
 use dmat_components::components::TextFieldProps;
+use dmat_components::utils::signals::stream_flipflop::stream_to_flipflop_mixin;
 
 pub fn input_demo() -> Dom {
     let value = Mutable::new("".to_string());
-    container!(|d| { d.children(&mut [text_input_demo(&value), combo_box_demo(&value)]) })
+    container!(|d| {
+        d.children(&mut [
+            text_input_demo(&value),
+            combo_box_demo(&value),
+            switch_demo(),
+        ])
+    })
+}
+
+fn switch_demo() -> Dom {
+    let state = Mutable::new(true);
+    let (sw, sw_clicks) = switch!(SwitchProps {
+        state_signal: clone!(state => move || Box::new(state.signal_cloned()))
+    });
+
+    card!(
+        static_list!(vec![sw]),
+        stream_to_flipflop_mixin(sw_clicks.toggle_stream, &state)
+    )
 }
 
 fn combo_box_demo(value: &Mutable<String>) -> Dom {
@@ -81,13 +100,6 @@ fn combo_box_demo(value: &Mutable<String>) -> Dom {
                 disabled_signal: always(false)
             }
         }),
-        switch(
-            SwitchProps {
-                state_signal: always(true)
-            },
-            |d| d
-        )
-        .0
     ]))
 }
 

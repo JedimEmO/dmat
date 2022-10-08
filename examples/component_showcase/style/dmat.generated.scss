@@ -64,6 +64,7 @@ $example-app:("colors": ("primary": #263238,
   @include button($theme);
   @include combo_box($theme);
   @include select($theme);
+  @include switch($theme);
   @include text_field($theme);
 
   // containers
@@ -468,6 +469,33 @@ $example-app:("colors": ("primary": #263238,
       border-bottom: $border;
       border-top: $border;
       pointer-events: none;
+    }
+  }
+}
+
+
+@mixin switch($theme) {
+  $colors: map-get-strict($theme, "colors");
+
+  .dmat-switch {
+    cursor: pointer;
+
+    &.on {
+      & .slit {
+        fill: map-get-strict($colors, "secondary_light")
+      }
+
+      & .knob {
+        fill: map-get-strict($colors, "secondary_dark")
+      }
+    }
+
+    & .slit {
+      fill: map-get-strict($colors, "text_diffuser");
+    }
+
+    & .knob {
+      fill: map-get-strict($colors, "select_backdrop");
     }
   }
 }

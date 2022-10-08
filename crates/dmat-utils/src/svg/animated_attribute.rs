@@ -10,6 +10,7 @@ pub fn animated_attribute<T: 'static>(
     value_sig: Box<dyn Signal<Item = T> + Unpin>,
     attr_function: Rc<dyn Fn(T) -> String>,
     attr_name: String,
+    duration: Duration,
 ) -> DomBuilder<SvgElement> {
     let concrete_attr: Mutable<Option<String>> = Mutable::new(None);
     let current_attr = Mutable::new("".to_string());
@@ -41,7 +42,7 @@ pub fn animated_attribute<T: 'static>(
                     }
                 }
             }))
-        .child_signal(clone!(old_attr, current_attr, concrete_attr, attr_name => {
+        .child_signal(clone!(old_attr, current_attr, concrete_attr, attr_name, duration => {
             map_ref! {
                 let current_attr = current_attr.signal_cloned(), let cp = concrete_attr.signal_cloned() => move {
                     if cp.is_some() {
@@ -53,13 +54,13 @@ pub fn animated_attribute<T: 'static>(
                             e.begin_element().unwrap();
                         })
                         .attr("attributeName", attr_name.as_str())
-                        .attr("dur", "0.2s")
+                        .attr("dur", format!("{:.2}s", duration.as_secs_f32()).as_str())
                         .attr("repeatCount", "1")
                         .attr("fill", "freeze")
                         .attr("to", current_attr.as_str())
                         .attr("from", old_attr.get_cloned().as_str())
-                        .future(clone!(concrete_attr, current_attr => async move {
-                            wasm_timer::Delay::new(Duration::from_millis(200)).await.unwrap();
+                        .future(clone!(concrete_attr, current_attr,duration => async move {
+                            wasm_timer::Delay::new(duration).await.unwrap();
                             concrete_attr.set(Some(current_attr))
                         }))
                     }))

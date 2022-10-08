@@ -10,6 +10,7 @@ members = [
     "crates/dmat-components",
     "crates/dmat-components-style",
     "crates/dmat-vis",
+    "crates/dmat-utils",
     "crates/dominator-testing",
     "examples/component_showcase"
 ]

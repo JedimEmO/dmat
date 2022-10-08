@@ -12,6 +12,7 @@ macro_rules! card {
         $crate::components::card::card($props, $mixin)
     }};
 }
+
 #[macro_export]
 macro_rules! dynamic_card {
     ($props: expr) => {{

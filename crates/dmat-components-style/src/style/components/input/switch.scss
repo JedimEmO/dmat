@@ -1,0 +1,27 @@
+@import "../../utils/map_get_strict";
+
+@mixin switch($theme) {
+  $colors: map-get-strict($theme, "colors");
+
+  .dmat-switch {
+    cursor: pointer;
+
+    &.on {
+      & .slit {
+        fill: map-get-strict($colors, "secondary_light")
+      }
+
+      & .knob {
+        fill: map-get-strict($colors, "secondary_dark")
+      }
+    }
+
+    & .slit {
+      fill: map-get-strict($colors, "text_diffuser");
+    }
+
+    & .knob {
+      fill: map-get-strict($colors, "select_backdrop");
+    }
+  }
+}
