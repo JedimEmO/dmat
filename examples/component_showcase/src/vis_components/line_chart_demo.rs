@@ -83,7 +83,7 @@ fn static_centered_axis_chart() -> Dom {
 }
 
 fn dynamic_chart() -> Dom {
-    let (data, changer_fut) = make_changing_source(10000.0, 20000.0, 50);
+    let (data, changer_fut) = make_changing_source(10000.0, 5000.0, 50);
     let (data2, changer_fut2) = make_changing_source(10000.0, 20000.0, 10);
 
     let datasets = MutableVec::new_with_values(vec![
