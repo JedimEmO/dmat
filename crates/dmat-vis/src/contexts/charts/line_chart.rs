@@ -119,13 +119,13 @@ pub fn draw_data_set(dataset: LineDataset, view_box: &ViewBox) -> Dom {
                         animated_attribute(
                             builder,
                             dataset.values.to_signal(),
-                            Rc::new(clone!(view_box => move |data: Vec<Point>|  {
+                            Box::new(clone!(view_box => move |data: Vec<Point>|  {
                                 let left_x = view_box.data_point_to_view_box_point(&data[0]).x;
                                 let right_x = view_box.data_point_to_view_box_point(&data[data.len() - 1]).x;
                                 let points_attr = line_points(&data, &view_box);
                                 format!("{} {},{} {},{}", points_attr, right_x, view_box.view_height, left_x, view_box.view_height)
                             })),
-                            "points".to_string(),
+                            "points",
                             Duration::from_millis(200))
                     }))
                     .attr("fill", dataset.color.to_css_stroke().as_str())
@@ -141,10 +141,10 @@ pub fn draw_data_set(dataset: LineDataset, view_box: &ViewBox) -> Dom {
                 animated_attribute(
                     builder,
                     points_signal,
-                    Rc::new(clone!(view_box => move |data: Vec<Point>|  {
+                    Box::new(clone!(view_box => move |data: Vec<Point>|  {
                         line_points(&data, &view_box)
                     })),
-                    "points".to_string(),
+                    "points",
                     Duration::from_millis(200))
             }))
             .attr("fill", "none")

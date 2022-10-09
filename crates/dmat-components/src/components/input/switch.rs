@@ -4,7 +4,6 @@ use dmat_utils::svg::animated_attribute::animated_attribute;
 use dominator::{clone, events, html, svg, Dom, DomBuilder};
 use futures::channel::mpsc::{channel, Receiver};
 use futures_signals::signal::{Mutable, Signal};
-use std::rc::Rc;
 use std::time::Duration;
 use wasm_bindgen::UnwrapThrowExt;
 use web_sys::HtmlElement;
@@ -78,7 +77,7 @@ where
                         .attr("cy", "25")
                         .attr("r", "25")
                         .apply(|b| {
-                            animated_attribute(b, state_signal_fn(), Rc::new(|v| {
+                            animated_attribute(b, state_signal_fn(), Box::new(|v| {
                                 match v {
                                     true => "75".to_string(),
                                     _ => "25".to_string()

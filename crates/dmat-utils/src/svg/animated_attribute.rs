@@ -2,22 +2,23 @@ use dominator::__internal::SvgElement;
 use dominator::{clone, DomBuilder};
 use futures_signals::map_ref;
 use futures_signals::signal::{Mutable, Signal, SignalExt};
-use std::rc::Rc;
 use std::time::Duration;
 
-pub fn animated_attribute<T: 'static>(
+pub fn animated_attribute<T: 'static, TAttrName: ToString>(
     builder: DomBuilder<SvgElement>,
     value_sig: impl Signal<Item = T> + Unpin + 'static,
-    attr_function: Rc<dyn Fn(T) -> String>,
-    attr_name: String,
+    attr_function: Box<dyn Fn(T) -> String>,
+    attr_name: TAttrName,
     duration: Duration,
 ) -> DomBuilder<SvgElement> {
     let concrete_attr: Mutable<Option<String>> = Mutable::new(None);
     let current_attr = Mutable::new("".to_string());
     let old_attr = Mutable::new("".to_string());
 
+    let attr_name = attr_name.to_string();
+
     builder
-        .future(clone!(old_attr, current_attr, concrete_attr, attr_function => async move {
+        .future(clone!(old_attr, current_attr, concrete_attr => async move {
             value_sig.for_each(|data| {
                 if current_attr.get_cloned() == "" {
                     let points = attr_function(data);
