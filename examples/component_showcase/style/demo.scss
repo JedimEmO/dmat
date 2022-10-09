@@ -84,3 +84,8 @@ html,body {
 .dmat-axis-unit {
   font-size: 12px;
 }
+
+.switch-demo-list > ul > li > div {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+}

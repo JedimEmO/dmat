@@ -23,13 +23,36 @@ pub fn input_demo() -> Dom {
 
 fn switch_demo() -> Dom {
     let state = Mutable::new(true);
+    let state2 = Mutable::new(true);
+    let state3 = Mutable::new(false);
+
     let (sw, sw_clicks) = switch!(SwitchProps {
-        state_signal: clone!(state => move || Box::new(state.signal_cloned()))
+        state_signal: clone!(state => move || Box::new(state.signal_cloned())),
+        disabled_signal: always(false)
+    });
+
+    let (sw_disabled_on, sw_clicks2) = switch!(SwitchProps {
+        state_signal: clone!(state2 => move || Box::new(state2.signal_cloned())),
+        disabled_signal: always(true)
+    });
+
+    let (sw_disabled_off, sw_clicks3) = switch!(SwitchProps {
+        state_signal: clone!(state3 => move || Box::new(state3.signal_cloned())),
+        disabled_signal: always(true)
     });
 
     card!(
-        static_list!(vec![sw]),
-        stream_to_flipflop_mixin(sw_clicks.toggle_stream, &state)
+        static_list!(vec![
+            html!("div", { .children(&mut [text!("Switch: "), sw])}),
+            html!("div", { .children(&mut [text!("Switch disabled, on: "), sw_disabled_on])}),
+            html!("div", { .children(&mut [text!("Switch disabled, off: "), sw_disabled_off])}),
+        ]),
+        |b| {
+            let b = b.class("switch-demo-list");
+            let b = stream_to_flipflop_mixin(sw_clicks.toggle_stream, &state)(b);
+            let b = stream_to_flipflop_mixin(sw_clicks2.toggle_stream, &state2)(b);
+            stream_to_flipflop_mixin(sw_clicks3.toggle_stream, &state3)(b)
+        }
     )
 }
 

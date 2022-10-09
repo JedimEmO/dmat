@@ -480,21 +480,25 @@ $example-app:("colors": ("primary": #263238,
   .dmat-switch {
     cursor: pointer;
 
+    &[disabled] {
+      opacity: 30%;
+    }
+
     &.on {
-      & .slit {
-        fill: map-get-strict($colors, "secondary_light")
+      & .track {
+        fill: map-get-strict($colors, "secondary_lightest")
       }
 
-      & .knob {
+      & .thumb {
         fill: map-get-strict($colors, "secondary_dark")
       }
     }
 
-    & .slit {
+    & .track {
       fill: map-get-strict($colors, "text_diffuser");
     }
 
-    & .knob {
+    & .thumb {
       fill: map-get-strict($colors, "select_backdrop");
     }
   }
