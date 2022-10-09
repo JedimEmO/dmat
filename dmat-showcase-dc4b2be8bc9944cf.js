@@ -311,7 +311,7 @@ async function load(module, imports) {
 
 async function init(input) {
     if (typeof input === 'undefined') {
-        input = new URL('dmat-showcase-a190640aba7957ae_bg.wasm', import.meta.url);
+        input = new URL('dmat-showcase-dc4b2be8bc9944cf_bg.wasm', import.meta.url);
     }
     const imports = {};
     imports.wbg = {};
