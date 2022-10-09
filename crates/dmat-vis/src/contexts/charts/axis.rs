@@ -1,19 +1,7 @@
-use crate::contexts::charts::line_chart::{AxisDescription, Point, ViewBox};
+use crate::contexts::charts::point::Point;
+use crate::contexts::charts::view_box::ViewBox;
 use dominator::Dom;
 use itertools_num::linspace;
-
-pub enum AxisPosition {
-    /// Primary position, meaning left or bottom depending on the axis orientation
-    Primary,
-    /// Secondary position, meaning right or top depending on the orientation
-    Secondary,
-}
-
-impl Default for AxisPosition {
-    fn default() -> Self {
-        Self::Primary
-    }
-}
 
 #[derive(PartialEq, Eq, Copy, Clone)]
 pub enum AxisOrientation {
@@ -21,23 +9,21 @@ pub enum AxisOrientation {
     Vertical,
 }
 
-impl Default for AxisOrientation {
-    fn default() -> Self {
-        Self::Horizontal
-    }
+pub struct TickInfo {
+    pub count: usize,
+    pub format: fn(f32) -> String,
 }
 
 #[derive(Default)]
-pub struct Axis {
-    pub unit: String,
-    pub start_value: f32,
-    pub end_value: f32,
-    pub position: AxisPosition,
-    pub orientation: AxisOrientation,
+pub struct AxisDescription {
+    pub min: f32,
+    pub max: f32,
+    pub ticks: Option<TickInfo>,
 }
 
 pub fn layout_axis(x_axis: &AxisDescription, y_axis: &AxisDescription, view_box: &ViewBox) -> Dom {
     svg!("g",{
+        .class("dmat-axis-group")
         .child(draw_axis(x_axis, AxisOrientation::Horizontal, view_box))
         .child(draw_axis(y_axis, AxisOrientation::Vertical, view_box))
     })

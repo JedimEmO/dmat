@@ -7,7 +7,7 @@ use std::time::Duration;
 
 pub fn animated_attribute<T: 'static>(
     builder: DomBuilder<SvgElement>,
-    value_sig: Box<dyn Signal<Item = T> + Unpin>,
+    value_sig: impl Signal<Item = T> + Unpin + 'static,
     attr_function: Rc<dyn Fn(T) -> String>,
     attr_name: String,
     duration: Duration,

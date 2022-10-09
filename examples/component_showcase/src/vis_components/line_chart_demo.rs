@@ -1,9 +1,10 @@
 use dmat_components::components::layouts::ContentBlockProps;
 use dmat_components::components::TitleProps;
+use dmat_vis::contexts::charts::axis::{AxisDescription, TickInfo};
 use dmat_vis::contexts::charts::line_chart::{
-    line_chart, AxisDescription, DatasetValues, GraphColor, LineChartProps, LineDataset, Point,
-    TickInfo,
+    line_chart, DatasetValues, GraphColor, LineChartProps, LineDataset,
 };
+use dmat_vis::contexts::charts::point::Point;
 use dominator::{Dom, DomBuilder};
 use futures_signals::signal::always;
 use futures_signals::signal_vec::{MutableVec, SignalVecExt};

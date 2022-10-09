@@ -1,3 +1,6 @@
+use crate::contexts::charts::axis::AxisDescription;
+use crate::contexts::charts::point::Point;
+use crate::contexts::charts::view_box::ViewBox;
 use dmat_utils::svg::animated_attribute::animated_attribute;
 use dominator::__internal::SvgElement;
 use dominator::{clone, Dom, DomBuilder};
@@ -55,43 +58,11 @@ pub struct LineDataset {
     pub color: GraphColor,
 }
 
-pub struct TickInfo {
-    pub count: usize,
-    pub format: fn(f32) -> String,
-}
-
-#[derive(Default)]
-pub struct AxisDescription {
-    pub min: f32,
-    pub max: f32,
-    pub ticks: Option<TickInfo>,
-}
-
 pub struct LineChartProps {
     pub x_axis: AxisDescription,
     pub y_axis: AxisDescription,
     pub width_px: usize,
     pub height_px: usize,
-}
-
-#[derive(Clone)]
-pub struct ViewBox {
-    pub data_min: Point,
-    pub data_max: Point,
-    pub view_width: f32,
-    pub view_height: f32,
-}
-
-impl ViewBox {
-    pub(crate) fn data_point_to_view_box_point(&self, data_point: &Point) -> Point {
-        let scale_x = self.view_width / (self.data_max.x - self.data_min.x);
-        let scale_y = self.view_height / (self.data_max.y - self.data_min.y);
-
-        Point {
-            x: (data_point.x - self.data_min.x) * scale_x,
-            y: self.view_height - (data_point.y - self.data_min.y) * scale_y,
-        }
-    }
 }
 
 pub fn line_chart(
@@ -118,7 +89,7 @@ pub fn line_chart(
         .attr("height", format!("{}px", props.height_px).as_str())
         .attr("viewBox", format!("-20 -20 {} {}", props.width_px + 40, props.height_px + 40).as_str())
         .child(svg!("g", {
-            .children_signal_vec(datasets.map(clone!(view_box => move |dataset| draw_data_set(dataset, view_box.clone()))))
+            .children_signal_vec(datasets.map(clone!(view_box => move |dataset| draw_data_set(dataset, &view_box))))
         }))
         .child(layout_axis(&props.x_axis, &props.y_axis, &view_box))
     })
@@ -126,7 +97,7 @@ pub fn line_chart(
 
 // move to shared code
 
-fn line_points(points: &Vec<Point>, view_box: ViewBox) -> String {
+fn line_points(points: &Vec<Point>, view_box: &ViewBox) -> String {
     points
         .iter()
         .map(|v| {
@@ -137,7 +108,7 @@ fn line_points(points: &Vec<Point>, view_box: ViewBox) -> String {
         .join(" ")
 }
 
-pub fn draw_data_set(dataset: LineDataset, view_box: ViewBox) -> Dom {
+pub fn draw_data_set(dataset: LineDataset, view_box: &ViewBox) -> Dom {
     let points_signal = dataset.values.to_signal();
 
     svg!("g", {
@@ -151,7 +122,7 @@ pub fn draw_data_set(dataset: LineDataset, view_box: ViewBox) -> Dom {
                             Rc::new(clone!(view_box => move |data: Vec<Point>|  {
                                 let left_x = view_box.data_point_to_view_box_point(&data[0]).x;
                                 let right_x = view_box.data_point_to_view_box_point(&data[data.len() - 1]).x;
-                                let points_attr = line_points(&data, view_box.clone());
+                                let points_attr = line_points(&data, &view_box);
                                 format!("{} {},{} {},{}", points_attr, right_x, view_box.view_height, left_x, view_box.view_height)
                             })),
                             "points".to_string(),
@@ -171,7 +142,7 @@ pub fn draw_data_set(dataset: LineDataset, view_box: ViewBox) -> Dom {
                     builder,
                     points_signal,
                     Rc::new(clone!(view_box => move |data: Vec<Point>|  {
-                        line_points(&data, view_box.clone())
+                        line_points(&data, &view_box)
                     })),
                     "points".to_string(),
                     Duration::from_millis(200))
@@ -181,10 +152,4 @@ pub fn draw_data_set(dataset: LineDataset, view_box: ViewBox) -> Dom {
             .attr("stroke-width", "1")
         }))
     })
-}
-
-#[derive(Clone, Debug, Copy)]
-pub struct Point {
-    pub x: f32,
-    pub y: f32,
 }
