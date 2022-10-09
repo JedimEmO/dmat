@@ -167,7 +167,14 @@ pub fn draw_data_set(dataset: LineDataset, view_box: ViewBox) -> Dom {
 
         .child(svg!("polyline", {
             .apply(clone!(view_box => move |builder| {
-                animated_attribute(builder, points_signal, Rc::new(clone!(view_box => move |data: Vec<Point>|  { line_points(&data, view_box.clone())})), "points".to_string(), Duration::from_millis(200))
+                animated_attribute(
+                    builder,
+                    points_signal,
+                    Rc::new(clone!(view_box => move |data: Vec<Point>|  {
+                        line_points(&data, view_box.clone())
+                    })),
+                    "points".to_string(),
+                    Duration::from_millis(200))
             }))
             .attr("fill", "none")
             .attr("stroke", dataset.color.to_css_stroke().as_str() )

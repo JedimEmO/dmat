@@ -32,16 +32,7 @@ pub fn animated_attribute<T: 'static>(
                 async {}
             }).await;
         }))
-        .attr_signal(attr_name.clone(), clone!(concrete_attr => {
-                map_ref! {
-                    let cp = concrete_attr.signal_cloned() => {
-                        match cp {
-                            Some(v) => v.clone(),
-                            None => "".to_string()
-                        }
-                    }
-                }
-            }))
+        .attr_signal(attr_name.clone(), concrete_attr.signal_cloned())
         .child_signal(clone!(old_attr, current_attr, concrete_attr, attr_name, duration => {
             map_ref! {
                 let current_attr = current_attr.signal_cloned(), let cp = concrete_attr.signal_cloned() => move {
