@@ -4,8 +4,10 @@ use web_sys::HtmlElement;
 
 use crate::components::mixins::disabled_signal_mixin;
 
+#[derive(Default)]
 pub enum ButtonType {
     Elevated,
+    #[default]
     Contained,
     Outlined,
     Text,
@@ -15,12 +17,6 @@ pub enum ButtonStyle {
     Prominent,
     Neutral,
     Unimportant,
-}
-
-impl Default for ButtonType {
-    fn default() -> Self {
-        ButtonType::Contained
-    }
 }
 
 impl Default for ButtonStyle {

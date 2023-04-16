@@ -30,7 +30,7 @@ fn interactive_list_demo() -> Dom {
     let settings = map_ref! {
         let _before = has_before.signal_cloned(),
         let _after = has_after.signal_cloned() => move {
-            
+
         }
     };
 

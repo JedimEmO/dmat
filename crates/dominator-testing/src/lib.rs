@@ -28,10 +28,12 @@ where
         .get_element_by_id(id)
         .unwrap_or_else(|| panic!("Element #{} not found", id));
 
-    tester(
-        cmp.dyn_ref::<T>().unwrap_or_else(|| panic!("Element #{} is not castable to the requested element type",
-                id)),
-    );
+    tester(cmp.dyn_ref::<T>().unwrap_or_else(|| {
+        panic!(
+            "Element #{} is not castable to the requested element type",
+            id
+        )
+    }));
 }
 
 pub fn get_elements_by_class_name(class_name: &str) -> Vec<Element> {

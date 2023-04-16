@@ -38,10 +38,9 @@ pub fn animated_attribute<T: 'static, TAttrName: ToString>(
             map_ref! {
                 let current_attr = current_attr.signal_cloned(), let cp = concrete_attr.signal_cloned() => move {
                     if cp.is_some() {
-                        return None;
-                    }
-
-                    Some(svg!("animate" => web_sys::SvgAnimationElement, {
+                        None
+                    } else {
+                        Some(svg!("animate" => web_sys::SvgAnimationElement, {
                         .after_inserted(|e| {
                             e.begin_element().unwrap();
                         })
@@ -56,6 +55,7 @@ pub fn animated_attribute<T: 'static, TAttrName: ToString>(
                             concrete_attr.set(Some(current_attr))
                         }))
                     }))
+                    }
                 }
             }
         }))

@@ -19,13 +19,14 @@ where
             if let Some(str) = error_text {
                 if !*valid {
                     has_error.set(true);
-                    return Some(crate::text!(str, |d| d.class("dmat-assistive-text").class("dmat-error-text")));
+                    Some(crate::text!(str, |d| d.class("dmat-assistive-text").class("dmat-error-text")))
+                } else {
+                    None
                 }
+            } else {
+                has_error.set(false);
+                None
             }
-
-            has_error.set(false);
-
-            None
         }
     );
 

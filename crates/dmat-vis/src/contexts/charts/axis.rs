@@ -51,7 +51,7 @@ pub fn draw_axis(axis: &AxisDescription, orientation: AxisOrientation, view_box:
                             .class("dmat-axis-ticks")
                             .children(linspace(axis.min, axis.max, t.count)
                                 .map(|tick_point| {
-                                    let txt = format!("{}", (t.format)(tick_point));
+                                    let txt = (t.format)(tick_point);
                                     let point = Point { x: 0.0, y: tick_point};
                                     let point = view_box.data_point_to_view_box_point(&point);
                                     let y = format!("{}", point.y);
@@ -88,7 +88,7 @@ pub fn draw_axis(axis: &AxisDescription, orientation: AxisOrientation, view_box:
                             .class("dmat-axis-ticks")
                             .children(linspace(axis.min, axis.max, t.count)
                                 .map(|tick_point| {
-                                    let txt = format!("{}", (t.format)(tick_point));
+                                    let txt = (t.format)(tick_point);
                                     let point = Point { x: tick_point, y: 0.0};
                                     let point = view_box.data_point_to_view_box_point(&point);
                                     let x = format!("{}", point.x);

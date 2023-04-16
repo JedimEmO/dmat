@@ -47,18 +47,16 @@ impl<T: CarouselSource> Carousel<T> {
             let outgoing = self.outgoing_item.signal_cloned(),
             let active_child_element = self.current_active_child_element.signal() => move {
                 if *active_child_element == child_index {
-                    return false;
-                }
-
-                if let Some(outgoing)= outgoing {
+                    false
+                } else if let Some(outgoing)= outgoing {
                     if outgoing.direction != direction {
-                        return false;
+                        false
+                    } else {
+                        false
                     }
-
-                    return true
+                } else {
+                    false
                 }
-
-                false
             }
         )
     }
@@ -79,9 +77,10 @@ impl<T: CarouselSource> Carousel<T> {
             let current = self.current_item_index.signal(),
             let active = self.current_active_child_element.signal() => move {
                 if *active == index {
-                    return Some(source.get_entry(*current));
+                    Some(source.get_entry(*current))
+                } else {
+                    None
                 }
-                None
             }
         )
         .filter_map(clone!(transition => move |v| {

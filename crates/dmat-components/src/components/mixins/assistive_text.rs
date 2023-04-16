@@ -17,11 +17,11 @@ where
 
             if let Some(str) = assistive_text {
                 ass.set(true);
-                return Some(crate::text!(str, |d| d.class("dmat-assistive-text")))
+                Some(crate::text!(str, |d| d.class("dmat-assistive-text")))
+            } else {
+                ass.set(false);
+                None
             }
-
-            ass.set(false);
-            None
         }
     );
 
