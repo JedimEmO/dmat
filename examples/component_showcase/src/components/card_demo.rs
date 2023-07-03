@@ -1,7 +1,5 @@
 use dmat_components::components::layouts::ContentBlockProps;
-use dmat_components::components::{
-    ButtonContent, ButtonProps, ButtonStyle, ButtonType, TitleProps,
-};
+use dmat_components::components::{ButtonStyle, ButtonType, TitleProps};
 use dominator::{html, Dom};
 use futures_signals::signal::always;
 use lipsum::lipsum;
@@ -21,12 +19,10 @@ pub fn card_demo() -> Dom {
                     .attr("alt", "shapes!")
                 })),
                 supporting_section: Some(text!(lipsum(30))),
-                footer_section: Some(button!(ButtonProps {
-                    content: Some(ButtonContent::Label("Some action".to_string())),
-                    button_type: ButtonType::Contained,
-                    style: ButtonStyle::Neutral,
-                    disabled_signal: always(false),
-                    click_handler: |_| {}
+                footer_section: Some(button!({
+                    .label("Some action")
+                    .button_type(ButtonType::Contained)
+                    .style(ButtonStyle::Neutral)
                 })),
             }),
             |d| d.style("width", "300px")

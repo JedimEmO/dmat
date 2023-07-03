@@ -1,7 +1,6 @@
 use dmat_components::components::layouts::ContentBlockProps;
 use dmat_components::components::layouts::{DockOverlayOut, DockOverlayProps, DockPoint};
 use dmat_components::components::TitleProps;
-use dmat_components::components::{ButtonContent, ButtonProps};
 use dmat_components::utils::signals::stream_flipflop::stream_to_flipflop_mixin;
 use dominator::{clone, events, html, Dom};
 use futures_signals::signal::{always, Mutable, ReadOnlyMutable};
@@ -88,24 +87,11 @@ fn generic_dialog(
 }
 
 fn middle_center_dialog(show_overlay: Mutable<bool>) -> (Dom, DockOverlayOut) {
-    let show_button_props = ButtonProps {
-        content: Some(ButtonContent::Label("Show overlay".to_string())),
-        click_handler: clone!(show_overlay => move |_: events::Click| show_overlay.set(true)),
-        button_type: Default::default(),
-        style: Default::default(),
-        disabled_signal: always(false),
-    };
-
-    let hide_button_props = ButtonProps {
-        content: Some(ButtonContent::Label("Hide overlay".to_string())),
-        click_handler: clone!(show_overlay => move |_: events::Click| show_overlay.set(false)),
-        button_type: Default::default(),
-        style: Default::default(),
-        disabled_signal: always(false),
-    };
-
     dock_overlay!(DockOverlayProps {
-        inner_view: container!(|d| d.child(button!(show_button_props))),
+        inner_view: container!(|d| d.child(button!({
+            .label("Show overlay")
+            .click_handler(clone!(show_overlay => move |_: events::Click| show_overlay.set(true)))
+        }))),
         dock_point: DockPoint::MiddleCenter,
         show_overlay_signal: show_overlay.signal(),
         show_scrim: true,
@@ -122,7 +108,10 @@ fn middle_center_dialog(show_overlay: Mutable<bool>) -> (Dom, DockOverlayOut) {
                     .attr("alt", "shapes!")
                 })),
                 supporting_section: Some(text!(lipsum(30))),
-                footer_section: Some(button!(hide_button_props)),
+                footer_section: Some(button!({
+                    .label("Hide overlay")
+                    .click_handler(clone!(show_overlay => move |_: events::Click| show_overlay.set(false)))
+                })),
             }),
             |d| d.style("width", "300px")
         ))),

@@ -1,8 +1,6 @@
 use dmat_components::components::layouts::{ModalSheetProps, SheetProps, SheetSide};
-use dmat_components::components::ButtonProps;
 use dmat_components::utils::signals::stream_flipflop::stream_to_flipflop_mixin;
 use dominator::{html, Dom};
-use futures_signals::signal::always;
 use futures_signals::signal::Mutable;
 
 pub fn sheet_demo() -> Dom {
@@ -59,18 +57,18 @@ fn right_sheet(show_bottom: Mutable<bool>, show_left: Mutable<bool>) -> Dom {
     sheet!(SheetProps {
         sheet_content: container!(|d| d.text("Right hand side sheet")),
         wrapped_view: container!(|d| d.children(&mut [
-            button!(
-                ButtonProps::new(move |_| show_left.set(!show_left.get()), always(false))
-                    .content(text!("Toggle left sheet"))
-            ),
-            button!(
-                ButtonProps::new(move |_| show_bottom.set(!show_bottom.get()), always(false))
+            button!({
+                .click_handler(move |_| show_left.set(!show_left.get()))
+                .label("Toggle left sheet")
+            }),
+            button!({
+                .click_handler(move |_| show_bottom.set(!show_bottom.get()))
                     .content(text!("Toggle bottom sheet"))
-            ),
-            button!(
-                ButtonProps::new(move |_| show_right.set(!show_right.get()), always(false))
-                    .content(text!("Toggle right sheet"))
-            )
+            }),
+            button!({
+                .click_handler(move |_| show_right.set(!show_right.get()))
+                .content(text!("Toggle right sheet"))
+            })
         ])),
         side: SheetSide::Right,
         expanded_signal

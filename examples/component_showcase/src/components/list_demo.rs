@@ -8,9 +8,7 @@ use wasm_bindgen::__rt::std::rc::Rc;
 
 use dmat_components::components::layouts::ContentBlockProps;
 use dmat_components::components::TitleProps;
-use dmat_components::components::{
-    ButtonContent, ButtonProps, ButtonType, InteractiveListProps, ListEntry,
-};
+use dmat_components::components::{InteractiveListProps, ListEntry};
 use dmat_components::utils::mixin::stream_handler_mixin;
 use dmat_components::utils::signals::mutation::store_signal_value_opt_mixin;
 
@@ -93,14 +91,12 @@ fn dynamic_list_demo() -> Dom {
                 sub_header_text_signal: always(None)
             })),
             media_section: Some(static_list!(vec![
-                button!(ButtonProps {
-                    content: Some(ButtonContent::Dom(text!("Add new entry"))),
-                    click_handler: clone!(entries => move |_| {
+                button!({
+                    .label("Add new entry")
+                    .click_handler(clone!(entries => move |_| {
                         entries.lock_mut().push_cloned("Hello!".into());
-                    }),
-                    button_type: ButtonType::Contained,
-                    style: Default::default(),
-                    disabled_signal: entries.signal_vec_cloned().len().map(|v| v >= 5)
+                    }))
+                    .disabled_signal(entries.signal_vec_cloned().len().map(|v| v >= 5))
                 }),
                 list!(entries
                     .signal_vec_cloned()
