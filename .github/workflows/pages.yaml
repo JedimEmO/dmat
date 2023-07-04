@@ -32,13 +32,11 @@ jobs:
         # uses: jetli/trunk-action@a221e99602a4172f93fc08b44071e3f112e7df13
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 18
           cache: 'npm'
       - name: Install and Build 🔧
-        run: |
-          pushd examples/component_showcase/
-          npm ci && npm run build /
-          popd
+        working-directory: examples/component_showcase
+        run: npm ci && npm run build
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4.2.3
