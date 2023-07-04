@@ -15,8 +15,8 @@ futures = "0.3.19"
 futures-signals = "0.3.15"
 futures-util = "0.3.19"
 pin-project = "1.0.10"
-wasm-bindgen = "0.2.78"
-wasm-bindgen-futures = "0.4.28"
+wasm-bindgen.workspace = true
+wasm-bindgen-futures.workspace = true
 web-sys = { version = "0.3.55", features = ["console", "Document", "DomRect", "HtmlDocument", "HtmlCollection", "HtmlButtonElement", "EventTarget", "HtmlSelectElement", "Element", "Window"] }
 
 [dev-dependencies]
