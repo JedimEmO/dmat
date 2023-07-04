@@ -72,10 +72,11 @@ To run the showcase application locally, go to the `examples/component_showcase`
 Requires 
 * rust 1.47.0+ 
 * `wasm32-unknown-unknown` toolchain (`rustup target add wasm32-unknown-unknown`)
-* trunk (https://trunkrs.dev/) (`cargo install trunk`)
+* `node` and `npm` installed
 
 ```
-trunk serve --release
+npm install
+npm run watch
 ``` 
 
 Go to http://localhost:8080 to see the showcase.

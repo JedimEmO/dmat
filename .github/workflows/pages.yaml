@@ -27,17 +27,17 @@ jobs:
           # Rust toolchain name.
           toolchain: stable
           target: wasm32-unknown-unknown
-      - name: trunk-action
+      - name: npm-action
         # You may pin to the exact commit or the version.
         # uses: jetli/trunk-action@a221e99602a4172f93fc08b44071e3f112e7df13
-        uses: jetli/trunk-action@v0.1.0
+        uses: actions/setup-node@v3
         with:
-          # Optional version of trunk to install (eg. "v0.10.0", "latest")
-          version: v0.16.0 # optional, default is latest
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
       - name: Install and Build 🔧
         run: |
           pushd examples/component_showcase/
-          trunk build --release --public-url dmat/
+          npm ci && npm run build /
           popd
 
       - name: Deploy 🚀

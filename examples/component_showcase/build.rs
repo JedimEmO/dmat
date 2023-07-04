@@ -1,3 +1,4 @@
+use std::fs;
 use dmat_components_style::render_dmat_scss;
 use dmat_components_style::theme::breakpoints::BreakpointValue;
 use dmat_components_style::theme::dmat_theme::DmatTheme;
@@ -16,7 +17,7 @@ fn main() {
         ..Default::default()
     };
 
-    let _scss_file_content = render_dmat_scss("example-app", theme);
+    let scss_file_content = render_dmat_scss("example-app", theme);
 
-    // fs::write("style/dmat.generated.scss", scss_file_content.as_str()).unwrap();
+    fs::write("style/dmat.generated.scss", scss_file_content.as_str()).unwrap();
 }
