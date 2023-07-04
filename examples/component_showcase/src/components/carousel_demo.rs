@@ -4,16 +4,14 @@ use futures_signals::signal::{Mutable, MutableSignal};
 use dmat_components::components::{CarouselProps, CarouselSource};
 
 pub fn carousel_demo() -> Dom {
-    card!(
-        carousel!(
+    card!({.child(carousel!(
             CarouselProps {
                 source: CarouselDemoSource::new(),
                 initial_view_index: Default::default(),
             },
             |d| d.class("demo-carousel")
         )
-        .0
-    )
+        .0)})
 }
 
 #[derive(Clone)]

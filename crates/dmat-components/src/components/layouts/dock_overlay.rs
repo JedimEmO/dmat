@@ -60,9 +60,9 @@ pub struct DockOverlayOut {
 ///         dock_point: DockPoint::MiddleCenter,
 ///         show_overlay_signal: show_overlay.signal(),
 ///         show_scrim: true,
-///         overlay_view_signal: always(Some(dmat_components::card!(
-///             dmat_components::text!("A dialog!")
-///         ))),
+///         overlay_view_signal: always(Some(dmat_components::card!({
+///             .child(dmat_components::text!("A dialog!"))
+///         }))),
 ///     });
 /// ```
 pub fn dock_overlay<TOverlayViewSignal, TShowOverlaySignal, F>(

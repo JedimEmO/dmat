@@ -12,113 +12,119 @@ pub fn button_demo() -> Dom {
 
     container!(|d| {
         d.children(&mut[
-                card!(
-                content_block!(
+                card!({
+                .child(content_block!(
                     ContentBlockProps {
                         title_section: Some(title!(TitleProps {
                             header_text_signal: always("ButtonType::Contained".to_string()),
                             sub_header_text_signal: always(None)
                         })),
-                        media_section: Some(static_list!(vec![
+                        media_section: Some(list!({
+                            .rows([
                                 button!({
-                                .style(ButtonStyle::Prominent)
-                                .content(text!("prominent"))
-                            }),
-                                button!({
-                                .style(ButtonStyle::Neutral)
-                                .content(text!("neutral"))
-                            }),
-                                button!({
-                                .style(ButtonStyle::Unimportant)
-                                .content(text!("unimportant"))
-                            })
-                            ])),
+                                    .style(ButtonStyle::Prominent)
+                                    .content(text!("prominent"))
+                                }),
+                                    button!({
+                                    .style(ButtonStyle::Neutral)
+                                    .content(text!("neutral"))
+                                }),
+                                    button!({
+                                    .style(ButtonStyle::Unimportant)
+                                    .content(text!("unimportant"))
+                                })
+                            ])
+                        })),
                         supporting_section: None,
                         footer_section: None
-                    })
-                ),
+                    }))
+            }),
 
-            card!(content_block!(
+            card!({.child(content_block!(
                     ContentBlockProps {
                         title_section: Some(title!(TitleProps {
                             header_text_signal: always("ButtonType::Elevated".to_string()),
                             sub_header_text_signal: always(None)
                         })),
-                        media_section: Some(static_list!(vec![
-                            button!({
-                            .style(ButtonStyle::Prominent)
-                                .button_type(ButtonType::Elevated)
-                                .content(text!("prominent"))
-                        }),
-                            button!({
-                            .style(ButtonStyle::Neutral)
-                                .button_type(ButtonType::Elevated)
-                                .content(text!("neutral"))
-                        }),
-                            button!({
-                            .style(ButtonStyle::Unimportant)
-                                .button_type(ButtonType::Elevated)
-                                .content(text!("unimportant"))
-                        })
-                        ])),
+                        media_section: Some(list!({
+                                .rows([
+                                    button!({
+                                        .style(ButtonStyle::Prominent)
+                                        .button_type(ButtonType::Elevated)
+                                        .content(text!("prominent"))
+                                    }),
+                                    button!({
+                                        .style(ButtonStyle::Neutral)
+                                        .button_type(ButtonType::Elevated)
+                                        .content(text!("neutral"))
+                                    }),
+                                    button!({
+                                        .style(ButtonStyle::Unimportant)
+                                        .button_type(ButtonType::Elevated)
+                                        .content(text!("unimportant"))
+                                })
+                            ])
+                        })),
                         supporting_section: None,
                         footer_section: None
-                    })),
-                card!(content_block!(
+                    }))}),
+                card!({.child(content_block!(
                     ContentBlockProps {
                         title_section: Some(title!(TitleProps {
                             header_text_signal: always("ButtonType::Text".to_string()),
                             sub_header_text_signal: always(None)
                         })),
-                        media_section: Some(static_list!(vec![
+                        media_section: Some(list!({
+                            .rows([
                                 button!({
-                            .style(ButtonStyle::Prominent)
+                                    .style(ButtonStyle::Prominent)
                                     .button_type(ButtonType::Text)
                                     .content(text!("prominent"))
-                        }),
+                               }),
                                 button!({
-                            .style(ButtonStyle::Neutral)
+                                    .style(ButtonStyle::Neutral)
                                     .button_type(ButtonType::Text)
                                     .content(text!("neutral"))
-                        }),
+                                }),
                                 button!({
-                            .style(ButtonStyle::Unimportant)
+                                    .style(ButtonStyle::Unimportant)
                                     .button_type(ButtonType::Text)
                                     .content(text!("unimportant"))
-                        })
-                            ]
-                        )),
+                                })
+                            ])
+                        })),
                         supporting_section: None,
                         footer_section: None
-                    })),
-                card!(content_block!(
+                    }))}),
+                card!({.child(content_block!(
                     ContentBlockProps {
                         title_section: Some(title!(TitleProps {
                             header_text_signal: always("ButtonType::Outlined".to_string()),
                             sub_header_text_signal: always(None)
                         })),
-                        media_section: Some(static_list!(vec![
+                        media_section: Some(list!({
+                            .rows([
                                 button!({
-                            .style(ButtonStyle::Prominent)
+                                    .style(ButtonStyle::Prominent)
                                     .button_type(ButtonType::Outlined)
                                     .content(text!("prominent"))
-                        }),
+                                }),
                                 button!({
-                            .style(ButtonStyle::Neutral)
+                                    .style(ButtonStyle::Neutral)
                                     .button_type(ButtonType::Outlined)
                                     .content(text!("neutral"))
-                        }),
+                                }),
                                 button!({
-                            .style(ButtonStyle::Unimportant)
+                                    .style(ButtonStyle::Unimportant)
                                     .button_type(ButtonType::Outlined)
                                     .content(text!("unimportant"))
-                        })
-                            ]
-                        )),
+                                })
+                            ])
+                        })),
                         supporting_section: None,
                         footer_section: None
-                    })),
-                card!(content_block!(
+                    }))}),
+                card!({.child(content_block!(
                     ContentBlockProps {
                         title_section: Some(title!(TitleProps {
                             header_text_signal: always("Button with dynamic content".to_string()),
@@ -126,21 +132,22 @@ pub fn button_demo() -> Dom {
                                 let value = counter.signal() => Some(format!("Button with dynamic content -  value is {}", value))
                             }
                         })),
-                        media_section: Some(static_list!([
+                        media_section: Some(list!({
+                             .rows([
                                 button!({
-                            .click_handler(clone!(counter => move |_| {
+                                    .click_handler(clone!(counter => move |_| {
                                         let v = *counter.lock_ref();
                                         *counter.lock_mut() = v + 1;
                                     }))
                                     .content(dynamic_text!(map_ref! {
                                         let value = counter.signal() => format!("Clicked {} times", value)
                                     }))
-                        })
+                                })
                             ])
-                        ),
+                        })),
                         supporting_section: None,
                         footer_section: None
-                    }))
+                    }))})
             ])
     })
 }

@@ -54,21 +54,23 @@ fn interactive_list_demo() -> Dom {
 
     let (list_body, out) = interactive_list!(props);
 
-    card!(
-        content_block!(ContentBlockProps {
+    card!({
+        .child(content_block!(ContentBlockProps {
             title_section: Some(title!(TitleProps {
                 header_text_signal: always("Interactive list with selectable items".to_string()),
                 sub_header_text_signal: always(None)
             })),
-            media_section: Some(container!(|d| d.child(static_list!([
-                list_body,
-                toggle_button(&has_before, "Toggle Before"),
-                toggle_button(&has_after, "Toggle After")
-            ])))),
+            media_section: Some(container!(|d| d.child(list!({
+                .rows([
+                    list_body,
+                    toggle_button(&has_before, "Toggle Before"),
+                    toggle_button(&has_after, "Toggle After")
+                ])
+            })))),
             supporting_section: None,
             footer_section: None
-        }),
-        |d| {
+        }))
+        .apply(move |d| {
             d.class("demo-card")
                 .apply(store_signal_value_opt_mixin(
                     from_stream(out.item_select_stream),
@@ -77,34 +79,38 @@ fn interactive_list_demo() -> Dom {
                 .apply(stream_handler_mixin(settings.to_stream(), move |_| {
                     entries.lock_mut().replace(vec![1, 2, 3])
                 }))
-        }
-    )
+        })
+    })
 }
 
 fn dynamic_list_demo() -> Dom {
     let entries: Rc<MutableVec<String>> = Default::default();
 
-    card!(
-        content_block!(ContentBlockProps {
+    card!({
+        .child(content_block!(ContentBlockProps {
             title_section: Some(title!(TitleProps {
                 header_text_signal: always("Dynamic list holding dom elements".to_string()),
                 sub_header_text_signal: always(None)
             })),
-            media_section: Some(static_list!(vec![
-                button!({
-                    .label("Add new entry")
-                    .click_handler(clone!(entries => move |_| {
-                        entries.lock_mut().push_cloned("Hello!".into());
-                    }))
-                    .disabled_signal(entries.signal_vec_cloned().len().map(|v| v >= 5))
-                }),
-                list!(entries
-                    .signal_vec_cloned()
-                    .map(|entry| html!("span", { .text(entry.as_str())}))),
-            ])),
+            media_section: Some(list!({
+                .rows([
+                    button!({
+                        .label("Add new entry")
+                        .click_handler(clone!(entries => move |_| {
+                            entries.lock_mut().push_cloned("Hello!".into());
+                        }))
+                        .disabled_signal(entries.signal_vec_cloned().len().map(|v| v >= 5))
+                    }),
+                    list!({
+                        .rows_signal_vec(entries
+                        .signal_vec_cloned()
+                        .map(|entry| html!("span", { .text(entry.as_str())})))
+                    }),
+                ])
+            })),
             supporting_section: None,
             footer_section: None
-        }),
-        |v| v.class("demo-card")
-    )
+        }))
+        .apply(|v| v.class("demo-card"))
+    })
 }

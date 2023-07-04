@@ -97,7 +97,7 @@ pub fn line_chart(
 
 // move to shared code
 
-fn line_points(points: &Vec<Point>, view_box: &ViewBox) -> String {
+fn line_points(points: &[Point], view_box: &ViewBox) -> String {
     points
         .iter()
         .map(|v| {

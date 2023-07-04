@@ -21,7 +21,9 @@ pub fn dock_overlay_demo() -> Dom {
         dock_point: DockPoint::MiddleLeft,
         show_overlay_signal: show_overlay.signal(),
         show_scrim: false,
-        overlay_view_signal: always(Some(card!(text!("Middle Left Dialog!", flipflop_mixin)))),
+        overlay_view_signal: always(Some(
+            card!({.child(text!("Middle Left Dialog!", flipflop_mixin))})
+        )),
     })
     .0;
 
@@ -81,7 +83,7 @@ fn generic_dialog(
         dock_point,
         show_overlay_signal: show_overlay.signal(),
         show_scrim: false,
-        overlay_view_signal: always(Some(card!(text!(content)))),
+        overlay_view_signal: always(Some(card!({.child(text!(content))}))),
     })
     .0
 }
@@ -95,8 +97,8 @@ fn middle_center_dialog(show_overlay: Mutable<bool>) -> (Dom, DockOverlayOut) {
         dock_point: DockPoint::MiddleCenter,
         show_overlay_signal: show_overlay.signal(),
         show_scrim: true,
-        overlay_view_signal: always(Some(card!(
-            content_block!(ContentBlockProps {
+        overlay_view_signal: always(Some(card!({
+            .child(         content_block!(ContentBlockProps {
                 title_section: Some(title!(TitleProps {
                     header_text_signal: always("Card with content block".to_string()),
                     sub_header_text_signal: always(Some("All sections".to_string())),
@@ -112,8 +114,8 @@ fn middle_center_dialog(show_overlay: Mutable<bool>) -> (Dom, DockOverlayOut) {
                     .label("Hide overlay")
                     .click_handler(clone!(show_overlay => move |_: events::Click| show_overlay.set(false)))
                 })),
-            }),
-            |d| d.style("width", "300px")
-        ))),
+            }))
+            .apply(|d| d.style("width", "300px"))
+        }))),
     })
 }

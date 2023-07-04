@@ -73,7 +73,8 @@ fn static_centered_axis_chart() -> Dom {
         height_px: 200,
     };
 
-    card!(content_block!(ContentBlockProps {
+    card!({
+        .child(content_block!(ContentBlockProps {
         title_section: Some(title!(TitleProps {
             header_text_signal: always("Static data line chart".to_string()),
             sub_header_text_signal: always(Some("Axis center within view box".to_string()))
@@ -81,6 +82,7 @@ fn static_centered_axis_chart() -> Dom {
         media_section: Some(line_chart!(props, datasets.signal_vec_cloned())),
         ..Default::default()
     }))
+    })
 }
 
 fn dynamic_chart() -> Dom {
@@ -131,7 +133,8 @@ fn dynamic_chart() -> Dom {
         height_px: 200,
     };
 
-    card!(content_block!(ContentBlockProps {
+    card!({
+        .child(content_block!(ContentBlockProps {
         title_section: Some(title!(TitleProps {
             header_text_signal: always("Dynamic data line chart".to_string()),
             sub_header_text_signal: always(None)
@@ -143,6 +146,7 @@ fn dynamic_chart() -> Dom {
         )),
         ..Default::default()
     }))
+    })
 }
 
 fn make_changing_source(

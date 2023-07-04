@@ -1,7 +1,9 @@
 use dominator::DomBuilder;
 use futures::Stream;
 use futures::StreamExt;
-use web_sys::Element;
+use web_sys::{Element, HtmlElement};
+
+pub type ApplyMixin = Option<Box<dyn FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>>>;
 
 #[inline]
 pub fn no_mixin<A: AsRef<Element>>(_dom_builder: DomBuilder<A>) -> DomBuilder<A> {

@@ -3,7 +3,6 @@ use dmat_components_style::theme::breakpoints::BreakpointValue;
 use dmat_components_style::theme::dmat_theme::DmatTheme;
 use dmat_components_style::theme::layout::{DisplayUnit, Layout};
 
-
 fn main() {
     let theme = DmatTheme {
         layout: Layout {

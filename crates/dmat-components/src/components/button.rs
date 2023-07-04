@@ -3,6 +3,7 @@ use futures_signals::signal::{Always, Signal};
 use web_sys::HtmlElement;
 
 use crate::components::mixins::disabled_signal_mixin;
+use crate::utils::mixin::ApplyMixin;
 
 #[derive(Default)]
 pub enum ButtonType {
@@ -40,7 +41,7 @@ pub struct ButtonProps<
     pub button_type: ButtonType,
     pub style: ButtonStyle,
     pub disabled_signal: Option<TDisabledSignal>,
-    pub apply: Option<Box<dyn FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>>>,
+    pub apply: ApplyMixin,
 }
 
 impl ButtonProps {

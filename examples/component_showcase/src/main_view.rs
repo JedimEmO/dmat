@@ -2,7 +2,6 @@ use dominator::{clone, html, Dom};
 use futures_signals::signal::{Signal, SignalExt};
 use futures_signals::signal_vec::MutableVec;
 
-use dmat_components::components::layouts::{app_bar, AppBarProps};
 use dmat_components::components::TabsProps;
 use dmat_components::utils::mixin::{id_attribute_mixin, stream_handler_mixin};
 
@@ -27,8 +26,7 @@ pub fn main_view() -> Dom {
         .signal_vec()
     });
 
-    app_bar(
-        AppBarProps::new()
+    app_bar!({
             .header(html!("div", {
                 .children(&mut [
                     html!("h1", {
@@ -38,15 +36,15 @@ pub fn main_view() -> Dom {
                 ])
             }))
             .main(main_app_view(active_tab))
-            .fixed(),
-        |d| {
+            .fixed()
+        .apply(|d| {
             d.apply(id_attribute_mixin("dmat-example-app"))
                 .apply(stream_handler_mixin(
                     menu_tabs_out.tab_select_stream,
                     ExampleAppRoute::goto,
                 ))
-        },
-    )
+        })
+    })
 }
 
 fn main_app_view<S: Signal<Item = ExampleAppRoute> + 'static>(active_route: S) -> Dom {

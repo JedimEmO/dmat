@@ -17,80 +17,95 @@ use crate::utils::toggle_button::toggle_button;
 
 #[inline]
 pub fn navigation_drawers_demo() -> Dom {
-    static_list!(vec![
+    list!({
+        .rows([
         container!(|d| d.children(&mut [
-            card!(
-                content_block!(ContentBlockProps {
+            card!({
+                .child(content_block!(ContentBlockProps {
                     title_section: Some(title!(TitleProps {
                         header_text_signal: always("Retracting modal drawer".to_string()),
                         sub_header_text_signal: always(None)
                     })),
-                    media_section: Some(static_list!([html!("div", {
-                        .class("navigation-drawer-demo")
-                        .child(retracting(true))
-                    })])),
+                    media_section: Some(list!({
+                            .rows([html!("div", {
+                            .class("navigation-drawer-demo")
+                            .child(retracting(true))
+                        })])
+                    })),
                     supporting_section: None,
                     footer_section: None
-                }),
-                |d| d.class("drawer-demo-card").style("height", "350px")
-            ),
-            card!(
-                content_block!(ContentBlockProps {
+                }))
+                .apply(|d| d.class("drawer-demo-card").style("height", "350px"))
+            }),
+            card!({
+                .child( content_block!(ContentBlockProps {
                     title_section: Some(title!(TitleProps {
                         header_text_signal: always("Retracting non-modal drawer".to_string()),
                         sub_header_text_signal: always(None)
                     })),
-                    media_section: Some(static_list!([html!("div", {
-                        .class("navigation-drawer-demo")
-                        .child(retracting(false))
-                    })])),
+                    media_section: Some(list!({
+                        .rows([
+                                html!("div", {
+                                .class("navigation-drawer-demo")
+                                .child(retracting(false))
+                            })
+                        ])
+                    })),
                     supporting_section: None,
                     footer_section: None
-                }),
-                |d| d.class("drawer-demo-card").style("height", "350px")
-            ),
+                }))
+                .apply(|d| d.class("drawer-demo-card").style("height", "350px"))
+            }),
         ])),
         container!(|d| d.children(&mut [
-            card!(
-                content_block!(ContentBlockProps {
+            card!({
+                .child(content_block!(ContentBlockProps {
                     title_section: Some(title!(TitleProps {
                         header_text_signal: always("Modal toggled".to_string()),
                         sub_header_text_signal: always(None)
                     })),
-                    media_section: Some(static_list!([html!("div", {
-                        .class("navigation-drawer-demo")
-                        .apply(|d| {
-                            let (toggled, mixin) = toggled(true);
-                            d.child(toggled)
-                            .apply(mixin)
-                        })
-                    })])),
+                    media_section: Some(list!({
+                            .rows([
+                                html!("div", {
+                                    .class("navigation-drawer-demo")
+                                    .apply(|d| {
+                                        let (toggled, mixin) = toggled(true);
+                                        d.child(toggled)
+                                        .apply(mixin)
+                                })
+                        })])
+                    })),
                     supporting_section: None,
                     footer_section: None
-                }),
-                |d| d.class("drawer-demo-card").style("height", "350px")
-            ),
-            card!(
-                content_block!(ContentBlockProps {
+                }))
+                .apply(|d| d.class("drawer-demo-card").style("height", "350px"))
+            }),
+            card!({
+                .child(content_block!(ContentBlockProps {
                     title_section: Some(title!(TitleProps {
                         header_text_signal: always("Toggled non-modal".to_string()),
                         sub_header_text_signal: always(None)
                     })),
-                    media_section: Some(static_list!([html!("div", {
-                        .class("navigation-drawer-demo")
-                        .apply(|d| {
-                            let (toggled, mixin) = toggled(false);
-                            d.child(toggled)
-                            .apply(mixin)
-                        })
-                    })])),
+                    media_section: Some(list!({
+                            .rows([
+                                html!("div", {
+                                    .class("navigation-drawer-demo")
+                                    .apply(|d| {
+                                        let (toggled, mixin) = toggled(false);
+                                        d.child(toggled)
+                                        .apply(mixin)
+                                    })
+                                })
+                            ])
+                        })),
                     supporting_section: None,
                     footer_section: None
-                }),
-                |d| d.class("drawer-demo-card").style("height", "350px")
-            )
+                }))
+                .apply(|d| d.class("drawer-demo-card").style("height", "350px"))
+            })
         ]))
     ])
+    })
 }
 
 fn toggled(

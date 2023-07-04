@@ -49,11 +49,7 @@ impl<T: CarouselSource> Carousel<T> {
                 if *active_child_element == child_index {
                     false
                 } else if let Some(outgoing)= outgoing {
-                    if outgoing.direction != direction {
-                        false
-                    } else {
-                        false
-                    }
+                    outgoing.direction != direction
                 } else {
                     false
                 }
