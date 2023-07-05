@@ -79,7 +79,7 @@ fn main() {
 
 Observe that we changed the `text` method to `text_signal`. 
 This lets us declare that the text content will not be a static value, but rather the latest value that the signal yields.
-It's useful to think of signals as a stream of values, where we can get the latest value at any time.
+It's useful to think of signals as a stream of values, but lossy so that we're only guaranteed to get the latest value.
 
 Now, this is not very different from our previous example, let's make it a bit more interesting.
 
@@ -135,4 +135,10 @@ In this case, we are registering a handler for the `Click` event, which will set
 Also notice that there is no explicit updating of the dom happening in our code here.
 The only thing we do is mutate the base state, and the text_signal will take care of updating the dom for us.
 
-Previous: [Introduction](./introduction.md)
+## More in depth on signals
+
+Now is a great time to jump over to Pauan's [great tutorial on futures signals](https://docs.rs/futures-signals/latest/futures_signals/tutorial/index.html)
+I recommend going through it, as we will be using signals a lot in the following chapters.
+
+----
+Previous: [Introduction](./introduction.md) 

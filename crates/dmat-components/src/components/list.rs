@@ -1,7 +1,7 @@
+use crate::utils::mixin::ApplyMixin;
 use dominator::{html, Dom, DomBuilder};
 use futures_signals::signal_vec::{always, Always, SignalVec, SignalVecExt};
 use web_sys::HtmlElement;
-use crate::utils::mixin::ApplyMixin;
 
 /// Renders a list of items.
 ///
@@ -51,9 +51,7 @@ fn child_row(dom: Dom) -> Dom {
     })
 }
 
-pub struct ListProps<
-    TRowsSignalVec: SignalVec<Item = Dom> = Always<Dom>,
-> {
+pub struct ListProps<TRowsSignalVec: SignalVec<Item = Dom> = Always<Dom>> {
     rows_signal_vec: Option<TRowsSignalVec>,
     apply: ApplyMixin,
 }

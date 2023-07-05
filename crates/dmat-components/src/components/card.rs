@@ -1,8 +1,8 @@
 use crate::utils::component_signal::{ComponentSignal, NoSignal};
+use crate::utils::mixin::ApplyMixin;
 use dominator::{html, Dom, DomBuilder};
 use futures_signals::signal::{always, Always};
 use web_sys::HtmlElement;
-use crate::utils::mixin::ApplyMixin;
 
 #[inline]
 pub fn card<TChildSignal: ComponentSignal>(props: CardProps<TChildSignal>) -> Dom {
@@ -27,7 +27,7 @@ macro_rules! card {
 
 pub struct CardProps<TChildSignal: ComponentSignal = NoSignal> {
     pub child: Option<TChildSignal>,
-    pub apply: ApplyMixin
+    pub apply: ApplyMixin,
 }
 
 impl CardProps {

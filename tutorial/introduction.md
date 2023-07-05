@@ -1,4 +1,4 @@
-## Why WASM and Rust for frontend development?
+# Why WASM and Rust for frontend development?
 
 Performance and soundness.
 Your application code will run faster than the corresponding javascript code will do in V8.

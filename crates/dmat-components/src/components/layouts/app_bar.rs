@@ -64,7 +64,7 @@ pub struct AppBarProps<
     pub header_view: Option<THeaderSignal>,
     pub app_bar_type: AppBarType,
     pub fixed: bool,
-    pub apply: ApplyMixin
+    pub apply: ApplyMixin,
 }
 
 impl Default for AppBarProps {
