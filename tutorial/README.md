@@ -6,3 +6,4 @@ We then cover a bit of state management and functional reactive theory.
 
 - [Introduction](introduction.md)
 - [Hello World](hello_world.md)
+- [Lightweight Dmat](lightweight_dmat.md)
