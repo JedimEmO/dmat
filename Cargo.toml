@@ -13,5 +13,6 @@ members = [
     "crates/dmat-vis",
     "crates/dmat-utils",
     "crates/dominator-testing",
-    "examples/component_showcase"
+    "examples/component_showcase",
+    "tutorial/examples/hello_world"
 ]

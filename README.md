@@ -70,7 +70,7 @@ fn main() {
 To run the showcase application locally, go to the `examples/component_showcase` directory, and do the following:
 
 Requires 
-* rust 1.47.0+ 
+* rust 1.70.0+ 
 * `wasm32-unknown-unknown` toolchain (`rustup target add wasm32-unknown-unknown`)
 * `node` and `npm` installed
 
