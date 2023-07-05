@@ -134,3 +134,5 @@ In this case, we are registering a handler for the `Click` event, which will set
 
 Also notice that there is no explicit updating of the dom happening in our code here.
 The only thing we do is mutate the base state, and the text_signal will take care of updating the dom for us.
+
+Previous: [Introduction](./introduction.md)

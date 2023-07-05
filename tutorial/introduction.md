@@ -36,3 +36,5 @@ rustup target add wasm32-unknown-unknown
 
 Now install node and npm using nvm, use the latest LTS version.
 Instructions on how to do this can be found [in the nvm repository](https://github.com/nvm-sh/nvm).
+
+Next: [Hello, World!](hello_world.md)
