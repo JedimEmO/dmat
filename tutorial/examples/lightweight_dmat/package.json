@@ -1,11 +1,11 @@
 {
   "private": true,
-  "name": "dmat-example-app",
+  "name": "dmat-tutorial-example-lightweight-dmat",
   "version": "0.1.0",
   "scripts": {
     "build": "rimraf dist/js && npm run css && rollup --bundleConfigAsCjs --config",
     "start": "rimraf dist/js && npm run css && rollup --bundleConfigAsCjs --config --watch",
-    "css": "sass style:dist/style && cp -r images dist"
+    "css": "sass style:dist/style"
   },
   "devDependencies": {
     "@wasm-tool/rollup-plugin-rust": "^2.0.0",

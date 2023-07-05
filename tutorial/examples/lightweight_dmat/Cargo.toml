@@ -1,0 +1,18 @@
+[package]
+name = "lightweight_dmat"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+dmat-components = { path = "../../../crates/dmat-components" }
+dominator = { workspace = true }
+futures-signals = { workspace = true }
+wasm-bindgen = { workspace = true }
+
+[build-dependencies]
+dmat-components-style = { path = "../../../crates/dmat-components-style" }
+

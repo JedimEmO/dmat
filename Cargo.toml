@@ -1,3 +1,6 @@
+[profile.release]
+debug = true
+
 [workspace.dependencies]
 dominator = "0.5.28"
 futures-signals = "0.3.31"
@@ -14,5 +17,6 @@ members = [
     "crates/dmat-utils",
     "crates/dominator-testing",
     "examples/component_showcase",
-    "tutorial/examples/hello_world"
+    "tutorial/examples/hello_world",
+    "tutorial/examples/lightweight_dmat",
 ]

@@ -76,10 +76,8 @@ Requires
 
 ```
 npm install
-npm run watch
+npm start
 ``` 
-
-Go to http://localhost:8080 to see the showcase.
 
 ## Tests
 

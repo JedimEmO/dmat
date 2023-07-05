@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use crate::futures_signals::signal::SignalExt;
 use dominator::{clone, html, Dom};
 use futures_signals::map_ref;
@@ -6,7 +7,7 @@ use futures_signals::signal::{Mutable, Signal};
 #[inline]
 pub fn label_element<TLabelSignal: Signal<Item = Option<String>> + Unpin + 'static>(
     input: Dom,
-    value: &Mutable<String>,
+    value: Mutable<String>,
     has_focus: &Mutable<bool>,
     label: TLabelSignal,
 ) -> Dom {

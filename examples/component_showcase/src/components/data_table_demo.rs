@@ -26,30 +26,16 @@ pub fn data_table_demo() -> Dom {
                         .text(format!("{}", v).as_str())
                         }),
                         html!("td", {
-                            .child(text_field!(TextFieldProps {
-                                        claim_focus: false,
-                                        input_props: InputProps{
-                                            label: always(Some("Data per row".to_string())),
-                                            value: input_test_value,
-                                            is_valid: always(true),
-                                            assistive_text_signal: always(None),
-                                            error_text_signal: always(None),
-                                            disabled_signal: always(false)
-                                        }
-                                    }).0)
+                            .child(text_field!( {
+                                .label("Data per row")
+                                .value(input_test_value)
+                            }).0)
                         }),
                         html!("td", {
-                            .child(text_field!(TextFieldProps {
-                                        claim_focus: false,
-                                        input_props: InputProps{
-                                            label: always(Some("Shared data".to_string())),
-                                            value: shared_data.clone(),
-                                            is_valid: always(true),
-                                            assistive_text_signal: always(None),
-                                            error_text_signal: always(None),
-                                            disabled_signal: always(false)
-                                        }
-                                    }).0)
+                            .child(text_field!({
+                                .label("Shared data")
+                                .value(shared_data.clone())
+                            }).0)
                         })
                     ])
                 })

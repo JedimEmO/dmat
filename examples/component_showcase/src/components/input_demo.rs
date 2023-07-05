@@ -71,12 +71,12 @@ fn combo_box_demo(value: &Mutable<String>) -> Dom {
                     ]),
                     data_list_id: "demo-list-a".into(),
                     input_props: InputProps {
-                        label: always(Some("Oranges are the best".to_string())),
+                        label: Some(always(Some("Oranges are the best".to_string()))),
                         value: value.clone(),
-                        is_valid: value.signal_ref(|v| v == "Orange"),
-                        assistive_text_signal: always(None),
-                        error_text_signal: always(None),
-                        disabled_signal: always(false)
+                        is_valid: Some(value.signal_ref(|v| v == "Orange")),
+                        assistive_text_signal: Some(always(None)),
+                        error_text_signal: Some(always(None)),
+                        disabled_signal: Some(always(false))
                     }
                 }),
                 combo_box!(ComboBoxProps {
@@ -87,12 +87,12 @@ fn combo_box_demo(value: &Mutable<String>) -> Dom {
                     ]),
                     data_list_id: "demo-list-a".into(),
                     input_props: InputProps {
-                        label: always(Some("Oranges are the best".to_string())),
+                        label: Some(always(Some("Oranges are the best".to_string()))),
                         value: value.clone(),
-                        is_valid: value.signal_ref(|v| v == "Orange"),
-                        assistive_text_signal: always(None),
-                        error_text_signal: always(Some("With assistive/error text signal".to_string())),
-                        disabled_signal: always(false)
+                        is_valid: Some(value.signal_ref(|v| v == "Orange")),
+                        assistive_text_signal: Some(always(None)),
+                        error_text_signal: Some(always(Some("With assistive/error text signal".to_string()))),
+                        disabled_signal: Some(always(false))
                     }
                 }),
                 select!(SelectProps {
@@ -103,12 +103,12 @@ fn combo_box_demo(value: &Mutable<String>) -> Dom {
                         "Apple".to_string()
                     ]),
                     input_props: InputProps {
-                        label: always(Some("Pick one".to_string())),
+                        label: Some(always(Some("Pick one".to_string()))),
                         value: value.clone(),
-                        is_valid: always(true),
-                        assistive_text_signal: always(None),
-                        error_text_signal: always(None),
-                        disabled_signal: always(false)
+                        is_valid: Some(always(true)),
+                        assistive_text_signal: Some(always(None)),
+                        error_text_signal: Some(always(None)),
+                        disabled_signal: Some(always(false))
                     }
                 }),
                 select!(SelectProps {
@@ -119,12 +119,12 @@ fn combo_box_demo(value: &Mutable<String>) -> Dom {
                         "Apple".to_string()
                     ]),
                     input_props: InputProps {
-                        label: always(Some("select with assistive text".to_string())),
+                        label: Some(always(Some("select with assistive text".to_string()))),
                         value: value.clone(),
-                        is_valid: value.signal_ref(|v| v == "Banana"),
-                        assistive_text_signal: always(Some("This one likes Bananas".to_string())),
-                        error_text_signal: always(None),
-                        disabled_signal: always(false)
+                        is_valid: Some(value.signal_ref(|v| v == "Banana")),
+                        assistive_text_signal: Some(always(Some("This one likes Bananas".to_string()))),
+                        error_text_signal: Some(always(None)),
+                        disabled_signal: Some(always(false))
                     }
                 }),
             ])
@@ -139,40 +139,33 @@ fn text_input_demo(value: &Mutable<String>) -> Dom {
                 text!("Text field"),
                 html!("div", {
                     .children(&mut [
-                        text_field!(TextFieldProps {
-                            claim_focus: true,
-                            input_props: InputProps{
-                                label: always(Some("With dynamic help text".to_string())),
-                                value: value.clone(),
-                                is_valid: always(true),
-                                assistive_text_signal: map_ref!(let cur_val = value.signal_cloned() =>
-                                    Some(format!("Assistive text - {}", cur_val))),
-                                error_text_signal: always(None),
-                                disabled_signal: always(false)
-                            }
+                        text_field!({
+                            .claim_focus()
+                            .label("With dynamic help text".to_string())
+                            .value(value.clone())
+                            .assistive_text_signal(map_ref!(let cur_val = value.signal_cloned() =>
+                                Some(format!("Assistive text - {}", cur_val))))
                         }).0
                     ])
                 }),
                 html!("div", {
                     .children(&mut [
-                        text_field!(TextFieldProps {
-                                claim_focus: true,
-                                input_props: InputProps{
-                                    label: always(Some("With error text".to_string())),
-                                    value: value.clone(),
-                                    is_valid: value.signal_ref(|v| v.contains("foobar")),
-                                    assistive_text_signal: map_ref!(let cur_val = value.signal_cloned() =>
-                                        Some(format!("Assistive text - {}", cur_val))),
-                                    error_text_signal: always(Some("Accepts string containing `foobar`".to_string())),
-                                    disabled_signal: always(false)
-                                }
-                            }).0
+                        text_field!({
+                            .label("With error text".to_string())
+                            .value(value.clone())
+                            .is_valid_signal(value.signal_ref(|v| v.contains("foobar")))
+                            .assistive_text_signal(map_ref!(let cur_val = value.signal_cloned() =>
+                                Some(format!("Assistive text - {}", cur_val))))
+                            .error_text_signal(always(Some("Accepts string containing `foobar`".to_string())))
+                        }).0
                     ])
                 }),
                 html!("div", {
                     .children(&mut [
-                        text_field!(TextFieldProps::new(value.clone(), always(Some("Always invalid".to_string())), always(false), always(None), always(None), always(false))
-                            ).0
+                        text_field!({
+                            .label("Always invalid".to_string())
+                            .value(value.clone())
+                        }).0
                     ])
                 }),
             ])
