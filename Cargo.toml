@@ -16,6 +16,8 @@ members = [
     "crates/dmat-vis",
     "crates/dmat-utils",
     "crates/dominator-testing",
+    "crates/dominator-component-macros",
+    "crates/dominator-component-macros-tests",
     "examples/component_showcase",
     "tutorial/examples/hello_world",
     "tutorial/examples/lightweight_dmat",

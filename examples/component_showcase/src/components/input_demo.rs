@@ -7,7 +7,6 @@ use futures_signals::signal_vec::MutableVec;
 use dmat_components::components::input::input_props::InputProps;
 use dmat_components::components::input::SelectProps;
 use dmat_components::components::input::{ComboBoxProps, SwitchProps};
-use dmat_components::components::TextFieldProps;
 use dmat_components::utils::signals::stream_flipflop::stream_to_flipflop_mixin;
 
 pub fn input_demo() -> Dom {
