@@ -9,6 +9,7 @@ edition = "2021"
 dominator-component-macros = { path = "../dominator-component-macros" }
 
 [dev-dependencies]
+
 futures-signals = { workspace = true }
 dominator = { workspace = true }
 web-sys = { workspace = true }

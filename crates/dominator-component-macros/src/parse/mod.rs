@@ -1,4 +1,3 @@
-use quote::quote;
 use syn::parse::{Parse, ParseStream};
 use syn::{braced, bracketed, Token, Type, TypeParam};
 use proc_macro2::Ident;

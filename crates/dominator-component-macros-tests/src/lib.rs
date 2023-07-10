@@ -40,6 +40,10 @@ mod test {
         pub foo: T
     }
 
+    fn some_button(mut props: impl SomeButtonPropsTrait) -> () {
+        let _foo = props.foo();
+    }
+
     #[test]
     fn attr_cmp_test() {
         let t = SomeButtonProps::new();
@@ -50,5 +54,5 @@ mod test {
             .label_signal(always("test".to_string()))
             .apply(|dom_builder| dom_builder.attr("id", "yay"));
     }
-}
 
+}

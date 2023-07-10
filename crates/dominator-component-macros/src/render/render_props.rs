@@ -19,11 +19,11 @@ pub fn render_props(cmp: &Component) -> TokenStream {
 }
 
 fn render_prop_builder_struct(props_struct_name: Ident, cmp: &Component) -> TokenStream {
-    let generics = compute_component_generics(cmp, true);
+    let generics = compute_component_generics(cmp, true, false);
 
     let props = cmp.props.iter().map(|prop| {
         let name = &prop.name;
-        let type_ = compute_prop_type_ident(&prop);
+        let type_ = compute_prop_type_ident(&prop, false);
 
         let type_: Type = syn::parse_str(format!("Option<{}>", quote! {#type_}.to_string()).as_str()).expect("failed to parse prop type");
 
@@ -40,10 +40,67 @@ fn render_prop_builder_struct(props_struct_name: Ident, cmp: &Component) -> Toke
         }
     });
 
+    let generics_params_no_self = compute_component_generics(cmp, false, false);
+    let generics_params = compute_component_generics(cmp, false, true);
+    let generic_idents = generics_params.iter()
+        .map(|g| g.ident.clone())
+        .map(|i| syn::parse_str::<Ident>(quote! {#i}.to_string().as_str()).expect("failed to parse generic ident"))
+        .collect::<Vec<_>>();
+
+    let trait_name = Ident::new(&format!("{}PropsTrait", cmp.name), cmp.name.span());
+
+    let trait_types = generics_params.iter().map(|g| {
+        let ident = &g.ident;
+        let bounds = &g.bounds;
+
+        quote! {
+            type #ident: #bounds;
+        }
+    });
+
+    let trait_type_impls = generics_params.iter().map(|g| {
+        let ident = &g.ident;
+
+        quote! {
+            type #ident = #ident;
+        }
+    });
+
+    let trait_field_getters = cmp.props.iter().map(|prop| {
+        let name = &prop.name;
+        let type_ = compute_prop_type_ident(&prop, false);
+
+        quote! {
+            fn #name(&mut self) -> Option<#type_> {
+                self.#name.take()
+            }
+        }
+    });
+
+    let trait_field_getter_decls = cmp.props.iter().map(|prop| {
+        let name = &prop.name;
+        let type_ = compute_prop_type_ident(&prop, true);
+
+        quote! {
+            fn #name(&mut self) -> Option<#type_>;
+        }
+    });
+
     quote! {
+        pub trait #trait_name {
+            #(#trait_types)*
+            #(#trait_field_getter_decls)*
+        }
+
         #[derive(Default)]
         pub struct #props_struct_name<#(#generics,)* > {
             #(#props)*
+        }
+
+        impl<#(#generics_params_no_self),*> #trait_name for #props_struct_name<#(#generic_idents,)* > {
+            #(#trait_type_impls)*
+
+            #(#trait_field_getters)*
         }
 
         impl #props_struct_name {
@@ -57,7 +114,7 @@ fn render_prop_builder_struct(props_struct_name: Ident, cmp: &Component) -> Toke
 }
 
 fn render_prop_impl(props_struct_name: &Ident, prop: &Prop, cmp: &Component) -> TokenStream {
-    let generics = compute_component_generics(cmp, false);
+    let generics = compute_component_generics(cmp, false, false);
     let generic_idents = generics.iter()
         .map(|g| g.ident.clone())
         .map(|i| syn::parse_str(quote! {#i}.to_string().as_str()).expect("failed to parse generic ident"))
@@ -67,8 +124,9 @@ fn render_prop_impl(props_struct_name: &Ident, prop: &Prop, cmp: &Component) -> 
     let mut changed_generics: Vec<TypeParam> = vec![];
     let mut out_rewrites = vec![];
     let mut ty_ = prop.type_.clone();
+    let is_generic_type = prop.generics.is_some();
 
-    if prop.generics.is_some() {
+    if is_generic_type {
         let generic = prop.generics.clone().unwrap();
 
         let bounds = generic.param.bounds;
@@ -171,7 +229,7 @@ fn new_prop_signal_name(prop_name: &Ident) -> String {
     format!("T{}SignalNew", prop_name.to_string())
 }
 
-fn compute_component_generics(cmp: &Component, include_defaults: bool) -> Vec<TypeParam> {
+fn compute_component_generics(cmp: &Component, include_defaults: bool, include_self_prefix: bool) -> Vec<TypeParam> {
     let mut generics = Vec::<TypeParam>::default();
 
     for prop in cmp.props.iter() {
@@ -187,7 +245,7 @@ fn compute_component_generics(cmp: &Component, include_defaults: bool) -> Vec<Ty
 
         if prop.is_signal {
             let ty_ = &prop.type_;
-            let prop_type = quote! {#ty_}.to_string();
+            let prop_type = if prop.generics.is_some() && include_self_prefix { quote! {Self::#ty_}.to_string() } else { quote! {#ty_}.to_string() };
 
             let param = match include_defaults {
                 true => syn::parse_str(format!("T{}Signal: futures_signals::signal::Signal<Item={}> = futures_signals::signal::Always<{}>", prop.name.to_string(), prop_type, prop_type).as_str()).expect("failed to parse signal generic"),
@@ -202,10 +260,15 @@ fn compute_component_generics(cmp: &Component, include_defaults: bool) -> Vec<Ty
     generics
 }
 
-fn compute_prop_type_ident(prop: &Prop) -> Type {
+fn compute_prop_type_ident(prop: &Prop, include_self_prefix: bool) -> Type {
     if prop.is_signal {
-        syn::parse_str(format!("T{}Signal", prop.name).as_str()).expect("failed to parse signal generic")
+        let prefix = if include_self_prefix { "Self::" } else { "" };
+        syn::parse_str(format!("{}T{}Signal", prefix, prop.name).as_str()).expect("failed to parse signal generic")
     } else {
-        prop.type_.clone()
+        let prefix = if prop.generics.is_some() && include_self_prefix { "Self::" } else { "" };
+
+        let ty_ = prop.type_.clone();
+        let ty_ = quote! {#ty_}.to_string();
+        syn::parse_str(format!("{}{}", prefix, ty_).as_str()).expect("failed to parse prop type")
     }
 }

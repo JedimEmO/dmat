@@ -2,8 +2,7 @@ mod render;
 mod parse;
 
 use proc_macro::TokenStream;
-use quote::quote;
-use syn::{Field, GenericArgument, Ident, PathArguments, Type, TypeParam};
+use syn::{GenericArgument, Ident, PathArguments, Type, TypeParam};
 use parse::{Component, Prop, PropGenerics};
 use render::render_props;
 use crate::parse::AttributeArgument;
@@ -54,7 +53,7 @@ pub fn component_attr(args: TokenStream, input: TokenStream) -> TokenStream {
         _ => panic!("struct must have named fields"),
     };
 
-    let mut struct_generics = struct_.generics.clone().params.iter().map(|param| {
+    let struct_generics = struct_.generics.clone().params.iter().map(|param| {
         match param {
             syn::GenericParam::Type(type_param) => {
                 PropGenerics {
