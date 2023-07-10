@@ -1,12 +1,65 @@
+use quote::quote;
 use syn::parse::{Parse, ParseStream};
 use syn::{braced, bracketed, Token, Type, TypeParam};
 use proc_macro2::Ident;
 use syn::punctuated::Punctuated;
 use syn::token::{Bracket, Lt};
 
+pub struct AttributeArgument {
+    pub param: Ident,
+    pub eq: Token![=],
+    pub fn_name: Ident,
+}
+
 #[derive(Clone)]
 pub struct PropGenerics {
     pub param: TypeParam,
+}
+
+impl PartialEq for PropGenerics {
+    fn eq(&self, other: &Self) -> bool {
+        other.param.ident.to_string() == self.param.ident.to_string()
+    }
+}
+
+pub struct Attribute {
+    pub pound: Token![#],
+    pub bracket: Bracket,
+    pub content: Ident,
+}
+
+#[derive(Clone)]
+pub struct Prop {
+    pub is_signal: bool,
+    pub name: Ident,
+    pub generics: Option<PropGenerics>,
+    pub type_: Type,
+}
+
+pub struct Component {
+    pub name: Ident,
+    pub render_fn: Ident,
+    pub props: Punctuated<Prop, Token![,]>,
+}
+
+pub enum ComponentProp {
+    Name(Ident),
+    RenderFn(Ident),
+    Props(Punctuated<Prop, Token![,]>),
+}
+
+impl Parse for AttributeArgument {
+    fn parse(input: ParseStream) -> syn::Result<Self> {
+        let param = input.parse::<Ident>()?;
+        let eq = input.parse::<Token![=]>()?;
+        let fn_name = input.parse::<Ident>()?;
+
+        Ok(AttributeArgument {
+            param,
+            eq,
+            fn_name,
+        })
+    }
 }
 
 impl Parse for PropGenerics {
@@ -23,12 +76,6 @@ impl Parse for PropGenerics {
     }
 }
 
-pub struct Attribute {
-    pub pound: Token![#],
-    pub bracket: Bracket,
-    pub content: Ident,
-}
-
 impl Parse for Attribute {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         let pound = input.parse()?;
@@ -41,14 +88,6 @@ impl Parse for Attribute {
             content,
         })
     }
-}
-
-#[derive(Clone)]
-pub struct Prop {
-    pub is_signal: bool,
-    pub name: Ident,
-    pub generics: Option<PropGenerics>,
-    pub type_: Type,
 }
 
 impl Parse for Prop {
@@ -80,17 +119,6 @@ impl Parse for Prop {
     }
 }
 
-pub struct Component {
-    pub name: Ident,
-    pub render_fn: Ident,
-    pub props: Punctuated<Prop, Token![,]>,
-}
-
-pub enum ComponentProp {
-    Name(Ident),
-    RenderFn(Ident),
-    Props(Punctuated<Prop, Token![,]>),
-}
 
 impl Parse for ComponentProp {
     fn parse(input: ParseStream) -> syn::Result<Self> {
