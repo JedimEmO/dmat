@@ -1,7 +1,4 @@
-use std::str::FromStr;
-use std::sync::{Arc, RwLock};
-use futures_signals::signal::{Always, always, Map, Mutable, MutableSignal, MutableSignalCloned, Signal};
-use crate::futures_signals::signal::SignalExt;
+use futures_signals::signal::{Always, always, Mutable, Signal};
 
 pub struct InputProps<
     TLabelSignal: Signal<Item = Option<String>>,

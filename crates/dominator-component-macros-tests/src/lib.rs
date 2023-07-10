@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod test {
     use dominator_component_macros::component;
-    use futures_signals::signal::{Always, always, Signal, SignalExt};
+    use futures_signals::signal::{ always, SignalExt};
 
     component! {
         name: TestCmp,
@@ -23,12 +23,12 @@ mod test {
 
         let t = t.label_signal(always("test".to_string()))
             .click_handler(||{ println!("clicked{}!", f) })
-            .disabled("hi".to_string())
             .disabled_signal(always(32))
+            .disabled("hi".to_string())
             .label("yolo!".to_string())
             .apply(|dom_builder| dom_builder.attr("id", "yay"));
 
-        let mapped_disabled = t.disabled.unwrap().map(|v| v + 1);
+        let _mapped_disabled = t.disabled.unwrap().map(|v| format!("{} + 1", v));
     }
 }
 

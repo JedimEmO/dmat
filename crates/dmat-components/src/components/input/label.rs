@@ -1,4 +1,3 @@
-use std::sync::Arc;
 use crate::futures_signals::signal::SignalExt;
 use dominator::{clone, html, Dom};
 use futures_signals::map_ref;
