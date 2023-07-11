@@ -5,8 +5,8 @@ use futures_signals::signal_vec::MutableVec;
 use wasm_bindgen::__rt::std::rc::Rc;
 
 use dmat_components::components::layouts::ContentBlockProps;
+use dmat_components::components::TitleProps;
 use dmat_components::components::{data_table, DataTableProps};
-use dmat_components::components::{TitleProps};
 
 pub fn data_table_demo() -> Dom {
     let data: Rc<MutableVec<usize>> = Rc::new(MutableVec::new_with_values((0..10).collect()));

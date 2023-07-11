@@ -140,7 +140,7 @@ fn text_input_demo(value: &Mutable<String>) -> Dom {
                     .children(&mut [
                         text_field!({
                             .claim_focus()
-                            .label("With dynamic help text".to_string())
+                            .label("With dynamic help text")
                             .value(value.clone())
                             .assistive_text_signal(map_ref!(let cur_val = value.signal_cloned() =>
                                 Some(format!("Assistive text - {}", cur_val))))
@@ -150,7 +150,7 @@ fn text_input_demo(value: &Mutable<String>) -> Dom {
                 html!("div", {
                     .children(&mut [
                         text_field!({
-                            .label("With error text".to_string())
+                            .label("With error text")
                             .value(value.clone())
                             .is_valid_signal(value.signal_ref(|v| v.contains("foobar")))
                             .assistive_text_signal(map_ref!(let cur_val = value.signal_cloned() =>
@@ -162,7 +162,7 @@ fn text_input_demo(value: &Mutable<String>) -> Dom {
                 html!("div", {
                     .children(&mut [
                         text_field!({
-                            .label("Always invalid".to_string())
+                            .label("Always invalid")
                             .value(value.clone())
                         }).0
                     ])

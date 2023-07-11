@@ -1,11 +1,11 @@
-use futures_signals::signal::{Always, always, Mutable, Signal};
+use futures_signals::signal::{always, Always, Mutable, Signal};
 
 pub struct InputProps<
     TLabelSignal: Signal<Item = Option<String>>,
     TValidSignal: Signal<Item = bool>,
     TAssistiveTextSignal: Signal<Item = Option<String>>,
     TErrorTextSignal: Signal<Item = Option<String>>,
-    TDisabledSignal: Signal<Item = bool>
+    TDisabledSignal: Signal<Item = bool>,
 > {
     pub label: Option<TLabelSignal>,
     pub value: Mutable<String>,
@@ -16,15 +16,26 @@ pub struct InputProps<
 }
 
 impl<
-    TLabelSignal: Signal<Item = Option<String>>,
-    TValidSignal: Signal<Item = bool>,
-    TAssistiveTextSignal: Signal<Item = Option<String>>,
-    TErrorTextSignal: Signal<Item = Option<String>>,
-    TDisabledSignal: Signal<Item = bool>
-> InputProps<TLabelSignal, TValidSignal, TAssistiveTextSignal, TErrorTextSignal, TDisabledSignal> {
+        TLabelSignal: Signal<Item = Option<String>>,
+        TValidSignal: Signal<Item = bool>,
+        TAssistiveTextSignal: Signal<Item = Option<String>>,
+        TErrorTextSignal: Signal<Item = Option<String>>,
+        TDisabledSignal: Signal<Item = bool>,
+    >
+    InputProps<TLabelSignal, TValidSignal, TAssistiveTextSignal, TErrorTextSignal, TDisabledSignal>
+{
     #[inline]
     #[must_use]
-    pub fn label<T: AsRef<str>>(self, label: T) -> InputProps<Always<Option<String>>, TValidSignal, TAssistiveTextSignal, TErrorTextSignal, TDisabledSignal>  {
+    pub fn label<T: AsRef<str>>(
+        self,
+        label: T,
+    ) -> InputProps<
+        Always<Option<String>>,
+        TValidSignal,
+        TAssistiveTextSignal,
+        TErrorTextSignal,
+        TDisabledSignal,
+    > {
         InputProps {
             label: Some(always(Some(label.as_ref().to_string()))),
             value: self.value,
@@ -37,7 +48,16 @@ impl<
 
     #[inline]
     #[must_use]
-    pub fn label_signal<TNewLabelSignal: Signal<Item=Option<String>>+Unpin + 'static>(self, label: TNewLabelSignal) -> InputProps<TNewLabelSignal, TValidSignal, TAssistiveTextSignal, TErrorTextSignal, TDisabledSignal> {
+    pub fn label_signal<TNewLabelSignal: Signal<Item = Option<String>> + Unpin + 'static>(
+        self,
+        label: TNewLabelSignal,
+    ) -> InputProps<
+        TNewLabelSignal,
+        TValidSignal,
+        TAssistiveTextSignal,
+        TErrorTextSignal,
+        TDisabledSignal,
+    > {
         InputProps {
             label: Some(label),
             value: self.value,
@@ -50,7 +70,16 @@ impl<
 
     #[inline]
     #[must_use]
-    pub fn assistive_text<T: AsRef<str>>(self, assistive_text: Option<T>) -> InputProps<TLabelSignal, TValidSignal, Always<Option<String>>, TErrorTextSignal, TDisabledSignal> {
+    pub fn assistive_text<T: AsRef<str>>(
+        self,
+        assistive_text: Option<T>,
+    ) -> InputProps<
+        TLabelSignal,
+        TValidSignal,
+        Always<Option<String>>,
+        TErrorTextSignal,
+        TDisabledSignal,
+    > {
         InputProps {
             label: self.label,
             value: self.value,
@@ -63,7 +92,18 @@ impl<
 
     #[inline]
     #[must_use]
-    pub fn assistive_text_signal<TNewAssistiveTextSignal: Signal<Item=Option<String>>+Unpin + 'static>(self, assistive_text_signal: TNewAssistiveTextSignal) -> InputProps<TLabelSignal, TValidSignal, TNewAssistiveTextSignal, TErrorTextSignal, TDisabledSignal> {
+    pub fn assistive_text_signal<
+        TNewAssistiveTextSignal: Signal<Item = Option<String>> + Unpin + 'static,
+    >(
+        self,
+        assistive_text_signal: TNewAssistiveTextSignal,
+    ) -> InputProps<
+        TLabelSignal,
+        TValidSignal,
+        TNewAssistiveTextSignal,
+        TErrorTextSignal,
+        TDisabledSignal,
+    > {
         InputProps {
             label: self.label,
             value: self.value,
@@ -76,7 +116,16 @@ impl<
 
     #[inline]
     #[must_use]
-    pub fn error_text<T: AsRef<str>>(self, error_text: Option<T>) -> InputProps<TLabelSignal, TValidSignal, TAssistiveTextSignal, Always<Option<String>>, TDisabledSignal> {
+    pub fn error_text<T: AsRef<str>>(
+        self,
+        error_text: Option<T>,
+    ) -> InputProps<
+        TLabelSignal,
+        TValidSignal,
+        TAssistiveTextSignal,
+        Always<Option<String>>,
+        TDisabledSignal,
+    > {
         InputProps {
             label: self.label,
             value: self.value,
@@ -89,7 +138,18 @@ impl<
 
     #[inline]
     #[must_use]
-    pub fn error_text_signal<TNewErrorTextSignal: Signal<Item=Option<String>>+Unpin + 'static>(self, error_text_signal: TNewErrorTextSignal) -> InputProps<TLabelSignal, TValidSignal, TAssistiveTextSignal, TNewErrorTextSignal, TDisabledSignal> {
+    pub fn error_text_signal<
+        TNewErrorTextSignal: Signal<Item = Option<String>> + Unpin + 'static,
+    >(
+        self,
+        error_text_signal: TNewErrorTextSignal,
+    ) -> InputProps<
+        TLabelSignal,
+        TValidSignal,
+        TAssistiveTextSignal,
+        TNewErrorTextSignal,
+        TDisabledSignal,
+    > {
         InputProps {
             label: self.label,
             value: self.value,
@@ -102,7 +162,11 @@ impl<
 
     #[inline]
     #[must_use]
-    pub fn disabled(self, disabled: bool) -> InputProps<TLabelSignal, TValidSignal, TAssistiveTextSignal, TErrorTextSignal, Always<bool>> {
+    pub fn disabled(
+        self,
+        disabled: bool,
+    ) -> InputProps<TLabelSignal, TValidSignal, TAssistiveTextSignal, TErrorTextSignal, Always<bool>>
+    {
         InputProps {
             label: self.label,
             value: self.value,
@@ -115,7 +179,16 @@ impl<
 
     #[inline]
     #[must_use]
-    pub fn disabled_signal<TNewDisabledSignal: Signal<Item=bool>+Unpin + 'static>(self, disabled_signal: TNewDisabledSignal) -> InputProps<TLabelSignal, TValidSignal, TAssistiveTextSignal, TErrorTextSignal, TNewDisabledSignal> {
+    pub fn disabled_signal<TNewDisabledSignal: Signal<Item = bool> + Unpin + 'static>(
+        self,
+        disabled_signal: TNewDisabledSignal,
+    ) -> InputProps<
+        TLabelSignal,
+        TValidSignal,
+        TAssistiveTextSignal,
+        TErrorTextSignal,
+        TNewDisabledSignal,
+    > {
         InputProps {
             label: self.label,
             value: self.value,
@@ -128,7 +201,16 @@ impl<
 
     #[inline]
     #[must_use]
-    pub fn is_valid(self, is_valid: bool) -> InputProps<TLabelSignal, Always<bool>, TAssistiveTextSignal, TErrorTextSignal, TDisabledSignal> {
+    pub fn is_valid(
+        self,
+        is_valid: bool,
+    ) -> InputProps<
+        TLabelSignal,
+        Always<bool>,
+        TAssistiveTextSignal,
+        TErrorTextSignal,
+        TDisabledSignal,
+    > {
         InputProps {
             label: self.label,
             value: self.value,
@@ -141,7 +223,16 @@ impl<
 
     #[inline]
     #[must_use]
-    pub fn is_valid_signal<TNewIsValidSignal: Signal<Item=bool>+Unpin + 'static>(self, is_valid_signal: TNewIsValidSignal) -> InputProps<TLabelSignal, TNewIsValidSignal, TAssistiveTextSignal, TErrorTextSignal, TDisabledSignal> {
+    pub fn is_valid_signal<TNewIsValidSignal: Signal<Item = bool> + Unpin + 'static>(
+        self,
+        is_valid_signal: TNewIsValidSignal,
+    ) -> InputProps<
+        TLabelSignal,
+        TNewIsValidSignal,
+        TAssistiveTextSignal,
+        TErrorTextSignal,
+        TDisabledSignal,
+    > {
         InputProps {
             label: self.label,
             value: self.value,

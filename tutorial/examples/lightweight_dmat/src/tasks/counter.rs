@@ -1,6 +1,6 @@
-use dominator::{clone, Dom, html};
-use futures_signals::signal::Mutable;
 use dmat_components::components::ButtonStyle;
+use dominator::{clone, html, Dom};
+use futures_signals::signal::Mutable;
 
 pub fn counter() -> Dom {
     let counter_state = Mutable::new("0".to_string());
@@ -15,7 +15,7 @@ pub fn counter() -> Dom {
             .label("Increment")
             .style(ButtonStyle::Prominent)
             .click_handler(clone!(counter_state => move |_| {
-                counter_state.set((i32::from_str_radix(counter_state.get_cloned().as_str(), 10).unwrap() + 1).to_string());
+                counter_state.set((counter_state.get_cloned().as_str().parse::<i32>().unwrap() + 1).to_string());
             }))
             .apply(|dom_builder| dom_builder.attr("id", "increment-button"))
         }))

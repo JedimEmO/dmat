@@ -1,58 +1,48 @@
 #[cfg(test)]
 mod test {
-    use dominator_component_macros::component;
-    use dominator_component_macros::component_attr;
-    use futures_signals::signal::{ always, SignalExt};
+    use futures_signals::signal::always;
 
-    component! {
-        name: TestCmp,
-        render_fn: test_cmp,
-        props: {
+    #[macro_use]
+    pub mod foo {
+        use dominator_component_macros::component;
+
+        #[component(render_fn = some_button)]
+        pub struct SomeButton<T: Default = i32, U: Default = String> {
             #[signal]
-            label: String,
-            click_handler<TClickHandler: FnMut() -> () = fn () ->()>: TClickHandler,
+            pub label: String,
             #[signal]
-            disabled<T: Default = i32>: T,
+            pub foo: T,
+            pub bar: U,
+        }
+
+        pub fn some_button(mut props: impl SomeButtonPropsTrait) -> i32 {
+            let _foo = props.foo().unwrap();
+
+            42
         }
     }
 
+    use crate::test::foo::*;
+
     #[test]
-    fn generated_component_test() {
-        let t = TestCmpProps::new();
+    fn cmp_macro_test() {
+        let rendered = some_button!({
+            .foo_signal(always("test".to_string()))
+        });
 
-        let f  = 32;
-
-        let t = t.label_signal(always("test".to_string()))
-            .click_handler(||{ println!("clicked{}!", f) })
-            .disabled_signal(always(32))
-            .disabled("hi".to_string())
-            .label("yolo!".to_string())
-            .apply(|dom_builder| dom_builder.attr("id", "yay"));
-
-        let _mapped_disabled = t.disabled.unwrap().map(|v| format!("{} + 1", v));
-    }
-
-    #[component_attr(render_fn = test_cmp)]
-    struct SomeButton<T: Default = i32> {
-        #[signal]
-        pub label: String,
-        #[signal]
-        pub foo: T
-    }
-
-    fn some_button(mut props: impl SomeButtonPropsTrait) -> () {
-        let _foo = props.foo();
+        assert_eq!(rendered, 42);
     }
 
     #[test]
     fn attr_cmp_test() {
         let t = SomeButtonProps::new();
 
-        let _t = t.foo_signal(always("test".to_string()))
+        let _t = t
+            .foo_signal(always("test".to_string()))
             .foo(32)
+            .bar("hellothere")
             .label("hi".to_string())
             .label_signal(always("test".to_string()))
             .apply(|dom_builder| dom_builder.attr("id", "yay"));
     }
-
 }

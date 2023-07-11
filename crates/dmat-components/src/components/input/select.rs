@@ -23,7 +23,7 @@ pub struct SelectProps<
     TValidSignal: Signal<Item = bool> + Unpin + 'static,
     TAssistiveTextSignal: Signal<Item = Option<String>> + Unpin + 'static,
     TErrorTextSignal: Signal<Item = Option<String>> + Unpin + 'static,
-    TDisabledSignal: Signal<Item = bool> + Unpin + 'static
+    TDisabledSignal: Signal<Item = bool> + Unpin + 'static,
 > {
     pub options: MutableVec<String>,
     pub data_list_id: String,
@@ -32,7 +32,7 @@ pub struct SelectProps<
         TValidSignal,
         TAssistiveTextSignal,
         TErrorTextSignal,
-        TDisabledSignal
+        TDisabledSignal,
     >,
 }
 
@@ -51,7 +51,7 @@ pub fn select<
         TValidSignal,
         TAssistiveTextSignal,
         TErrorTextSignal,
-        TDisabledSignal
+        TDisabledSignal,
     >,
     mixin: F,
 ) -> Dom

@@ -7,7 +7,7 @@ use wasm_bindgen::prelude::*;
 mod tasks;
 
 #[wasm_bindgen(start)]
-fn main() {
+fn main_js() {
     append_dom(
         &body(),
         card!({

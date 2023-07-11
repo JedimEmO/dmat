@@ -2,15 +2,15 @@ use dominator::{clone, events, html, Dom};
 use futures_signals::signal::{Always, Mutable, MutableSignalCloned, Signal};
 
 use crate::components::input::input_field::input;
-use crate::components::input::input_props::{InputProps};
+use crate::components::input::input_props::InputProps;
 use crate::utils::mixin::ApplyMixin;
 
 pub struct TextFieldProps<
-    TLabelSignal: Signal<Item=Option<String>> + Unpin + 'static = Always<Option<String>>,
-    TValidSignal: Signal<Item=bool> + Unpin + 'static = Always<bool>,
-    TAssistiveTextSignal: Signal<Item=Option<String>> + Unpin + 'static = Always<Option<String>>,
-    TErrorTextSignal: Signal<Item=Option<String>> + Unpin + 'static = Always<Option<String>>,
-    TDisabledSignal: Signal<Item=bool> + Unpin + 'static = Always<bool>,
+    TLabelSignal: Signal<Item = Option<String>> + Unpin + 'static = Always<Option<String>>,
+    TValidSignal: Signal<Item = bool> + Unpin + 'static = Always<bool>,
+    TAssistiveTextSignal: Signal<Item = Option<String>> + Unpin + 'static = Always<Option<String>>,
+    TErrorTextSignal: Signal<Item = Option<String>> + Unpin + 'static = Always<Option<String>>,
+    TDisabledSignal: Signal<Item = bool> + Unpin + 'static = Always<bool>,
 > {
     pub claim_focus: bool,
     pub input_props: InputProps<
@@ -24,19 +24,19 @@ pub struct TextFieldProps<
 }
 
 impl<
-    TLabelSignal: Signal<Item=Option<String>> + Unpin + 'static,
-    TValidSignal: Signal<Item=bool> + Unpin + 'static,
-    TAssistiveTextSignal: Signal<Item=Option<String>> + Unpin + 'static,
-    TErrorTextSignal: Signal<Item=Option<String>> + Unpin + 'static,
-    TDisabledSignal: Signal<Item=bool> + Unpin + 'static
->
-TextFieldProps<
-    TLabelSignal,
-    TValidSignal,
-    TAssistiveTextSignal,
-    TErrorTextSignal,
-    TDisabledSignal,
->
+        TLabelSignal: Signal<Item = Option<String>> + Unpin + 'static,
+        TValidSignal: Signal<Item = bool> + Unpin + 'static,
+        TAssistiveTextSignal: Signal<Item = Option<String>> + Unpin + 'static,
+        TErrorTextSignal: Signal<Item = Option<String>> + Unpin + 'static,
+        TDisabledSignal: Signal<Item = bool> + Unpin + 'static,
+    >
+    TextFieldProps<
+        TLabelSignal,
+        TValidSignal,
+        TAssistiveTextSignal,
+        TErrorTextSignal,
+        TDisabledSignal,
+    >
 {
     #[inline]
     #[must_use]
@@ -57,11 +57,13 @@ TextFieldProps<
     pub fn is_valid(
         self,
         is_valid: bool,
-    ) -> TextFieldProps<TLabelSignal,
+    ) -> TextFieldProps<
+        TLabelSignal,
         Always<bool>,
         TAssistiveTextSignal,
         TErrorTextSignal,
-        TDisabledSignal, > {
+        TDisabledSignal,
+    > {
         TextFieldProps {
             claim_focus: self.claim_focus,
             input_props: self.input_props.is_valid(is_valid),
@@ -71,14 +73,16 @@ TextFieldProps<
 
     #[inline]
     #[must_use]
-    pub fn is_valid_signal<TNewValidSignal: Signal<Item=bool> + Unpin + 'static>(
+    pub fn is_valid_signal<TNewValidSignal: Signal<Item = bool> + Unpin + 'static>(
         self,
         is_valid: TNewValidSignal,
-    ) -> TextFieldProps<TLabelSignal,
+    ) -> TextFieldProps<
+        TLabelSignal,
         TNewValidSignal,
         TAssistiveTextSignal,
         TErrorTextSignal,
-        TDisabledSignal, > {
+        TDisabledSignal,
+    > {
         TextFieldProps {
             claim_focus: self.claim_focus,
             input_props: self.input_props.is_valid_signal(is_valid),
@@ -91,11 +95,13 @@ TextFieldProps<
     pub fn label<T: AsRef<str>>(
         self,
         label: T,
-    ) -> TextFieldProps<Always<Option<String>>,
+    ) -> TextFieldProps<
+        Always<Option<String>>,
         TValidSignal,
         TAssistiveTextSignal,
         TErrorTextSignal,
-        TDisabledSignal, > {
+        TDisabledSignal,
+    > {
         TextFieldProps {
             claim_focus: self.claim_focus,
             input_props: self.input_props.label(label),
@@ -108,11 +114,13 @@ TextFieldProps<
     pub fn label_signal(
         self,
         label: TLabelSignal,
-    ) -> TextFieldProps<TLabelSignal,
+    ) -> TextFieldProps<
+        TLabelSignal,
         TValidSignal,
         TAssistiveTextSignal,
         TErrorTextSignal,
-        TDisabledSignal, > {
+        TDisabledSignal,
+    > {
         TextFieldProps {
             claim_focus: self.claim_focus,
             input_props: self.input_props.label_signal(label),
@@ -122,10 +130,7 @@ TextFieldProps<
 
     #[inline]
     #[must_use]
-    pub fn value(
-        mut self,
-        value: Mutable<String>,
-    ) -> Self {
+    pub fn value(mut self, value: Mutable<String>) -> Self {
         self.input_props.value = value;
 
         self
@@ -136,11 +141,13 @@ TextFieldProps<
     pub fn assistive_text(
         self,
         assistive_text: Option<String>,
-    ) -> TextFieldProps<TLabelSignal,
+    ) -> TextFieldProps<
+        TLabelSignal,
         TValidSignal,
         Always<Option<String>>,
         TErrorTextSignal,
-        TDisabledSignal, > {
+        TDisabledSignal,
+    > {
         TextFieldProps {
             claim_focus: self.claim_focus,
             input_props: self.input_props.assistive_text(assistive_text),
@@ -150,14 +157,18 @@ TextFieldProps<
 
     #[inline]
     #[must_use]
-    pub fn assistive_text_signal<TNewAssistiveTextSignal: Signal<Item=Option<String>> + Unpin + 'static>(
+    pub fn assistive_text_signal<
+        TNewAssistiveTextSignal: Signal<Item = Option<String>> + Unpin + 'static,
+    >(
         self,
         assistive_text: TNewAssistiveTextSignal,
-    ) -> TextFieldProps<TLabelSignal,
+    ) -> TextFieldProps<
+        TLabelSignal,
         TValidSignal,
         TNewAssistiveTextSignal,
         TErrorTextSignal,
-        TDisabledSignal, > {
+        TDisabledSignal,
+    > {
         TextFieldProps {
             claim_focus: self.claim_focus,
             input_props: self.input_props.assistive_text_signal(assistive_text),
@@ -170,11 +181,13 @@ TextFieldProps<
     pub fn error_text(
         self,
         error_text: Option<String>,
-    ) -> TextFieldProps<TLabelSignal,
+    ) -> TextFieldProps<
+        TLabelSignal,
         TValidSignal,
         TAssistiveTextSignal,
         Always<Option<String>>,
-        TDisabledSignal, > {
+        TDisabledSignal,
+    > {
         TextFieldProps {
             claim_focus: self.claim_focus,
             input_props: self.input_props.error_text(error_text),
@@ -184,14 +197,18 @@ TextFieldProps<
 
     #[inline]
     #[must_use]
-    pub fn error_text_signal<TNewErrorTextSignal: Signal<Item=Option<String>> + Unpin + 'static>(
+    pub fn error_text_signal<
+        TNewErrorTextSignal: Signal<Item = Option<String>> + Unpin + 'static,
+    >(
         self,
         error_text: TNewErrorTextSignal,
-    ) -> TextFieldProps<TLabelSignal,
+    ) -> TextFieldProps<
+        TLabelSignal,
         TValidSignal,
         TAssistiveTextSignal,
         TNewErrorTextSignal,
-        TDisabledSignal, > {
+        TDisabledSignal,
+    > {
         TextFieldProps {
             claim_focus: self.claim_focus,
             input_props: self.input_props.error_text_signal(error_text),
@@ -202,12 +219,14 @@ TextFieldProps<
     #[inline]
     #[must_use]
     pub fn disabled(
-        self
-    ) -> TextFieldProps<TLabelSignal,
+        self,
+    ) -> TextFieldProps<
+        TLabelSignal,
         TValidSignal,
         TAssistiveTextSignal,
         TErrorTextSignal,
-        Always<bool>, > {
+        Always<bool>,
+    > {
         TextFieldProps {
             claim_focus: self.claim_focus,
             input_props: self.input_props.disabled(true),
@@ -217,14 +236,16 @@ TextFieldProps<
 
     #[inline]
     #[must_use]
-    pub fn disabled_signal<TNewDisabledSignal: Signal<Item=bool> + Unpin + 'static>(
+    pub fn disabled_signal<TNewDisabledSignal: Signal<Item = bool> + Unpin + 'static>(
         self,
         disabled: TNewDisabledSignal,
-    ) -> TextFieldProps<TLabelSignal,
+    ) -> TextFieldProps<
+        TLabelSignal,
         TValidSignal,
         TAssistiveTextSignal,
         TErrorTextSignal,
-        TNewDisabledSignal, > {
+        TNewDisabledSignal,
+    > {
         TextFieldProps {
             claim_focus: self.claim_focus,
             input_props: self.input_props.disabled_signal(disabled),
@@ -275,11 +296,11 @@ macro_rules! text_field {
 /// 0: input Dom entry
 /// 1: output of the component, containing a boolean signal for the  validity of the input according to the validator
 pub fn text_field<
-    TLabelSignal: Signal<Item=Option<String>> + Unpin + 'static,
-    TValidSignal: Signal<Item=bool> + Unpin + 'static,
-    TAssistiveTextSignal: Signal<Item=Option<String>> + Unpin + 'static,
-    TErrorTextSignal: Signal<Item=Option<String>> + Unpin + 'static,
-    TDisabledSignal: Signal<Item=bool> + Unpin + 'static
+    TLabelSignal: Signal<Item = Option<String>> + Unpin + 'static,
+    TValidSignal: Signal<Item = bool> + Unpin + 'static,
+    TAssistiveTextSignal: Signal<Item = Option<String>> + Unpin + 'static,
+    TErrorTextSignal: Signal<Item = Option<String>> + Unpin + 'static,
+    TDisabledSignal: Signal<Item = bool> + Unpin + 'static,
 >(
     props: TextFieldProps<
         TLabelSignal,
@@ -287,9 +308,8 @@ pub fn text_field<
         TAssistiveTextSignal,
         TErrorTextSignal,
         TDisabledSignal,
-    >
-) -> (Dom, TextFieldOutput)
-{
+    >,
+) -> (Dom, TextFieldOutput) {
     let has_focus = Mutable::new(false);
 
     let input_element = text_field_input(&props.input_props.value, &has_focus, props.claim_focus);
@@ -301,8 +321,8 @@ pub fn text_field<
             &has_focus,
             props.input_props,
             |d| {
-                if mixin.is_some() {
-                    (mixin.unwrap())(d)
+                if let Some(mixin) = mixin {
+                    mixin(d)
                 } else {
                     d
                 }
@@ -357,20 +377,18 @@ mod test {
     async fn text_field_validation() {
         let val = Mutable::new("".to_string());
 
-        let field = text_field(
-            TextFieldProps {
-                claim_focus: false,
-                input_props: InputProps {
-                    value: val.clone(),
-                    is_valid: Some(val.signal_ref(|v| v == "hello")),
-                    label: Some(always(None)),
-                    assistive_text_signal: Some(always(None)),
-                    error_text_signal: Some(always(None)),
-                    disabled_signal: Some(always(false)),
-                },
-                apply: Some(Box::new(|d| d.attr("id", "testfield"))),
-            }
-        );
+        let field = text_field(TextFieldProps {
+            claim_focus: false,
+            input_props: InputProps {
+                value: val.clone(),
+                is_valid: Some(val.signal_ref(|v| v == "hello")),
+                label: Some(always(None)),
+                assistive_text_signal: Some(always(None)),
+                error_text_signal: Some(always(None)),
+                disabled_signal: Some(always(false)),
+            },
+            apply: Some(Box::new(|d| d.attr("id", "testfield"))),
+        });
 
         let field_dom = field.0;
         let _field_out = field.1;
