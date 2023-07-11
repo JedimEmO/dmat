@@ -34,6 +34,12 @@ mod test {
     }
 
     #[test]
+    fn cmp_non_macro_test(){
+        let rendered = some_button(SomeButtonProps::new().foo("hi there"));
+        assert_eq!(rendered, 42);
+    }
+
+    #[test]
     fn attr_cmp_test() {
         let t = SomeButtonProps::new();
 
