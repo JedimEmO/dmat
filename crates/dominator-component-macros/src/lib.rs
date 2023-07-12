@@ -2,7 +2,7 @@ mod parse;
 mod render;
 
 use crate::parse::AttributeArgument;
-use crate::render::render_props::render_props;
+use crate::render::render_props;
 use parse::{Component, Prop, PropGenerics};
 use proc_macro::TokenStream;
 use syn::{GenericArgument, Ident, PathArguments, Type, TypeParam};
