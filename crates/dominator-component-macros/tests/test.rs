@@ -54,7 +54,7 @@ mod test {
             .bar(vec!["hellothere".to_string()])
             .label("hi".to_string())
             .label_signal(always("test".to_string()))
-            .some_generic_signal_vec_signal(futures_signals::signal_vec::always(vec![42, 666]))
+            .some_generic_signal_vec_signal_vec(futures_signals::signal_vec::always(vec![42, 666]))
             .apply(|dom_builder| dom_builder.attr("id", "yay"));
     }
 }

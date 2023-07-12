@@ -72,9 +72,13 @@ pub fn render_prop_impl(props_struct_name: &Ident, prop: &Prop, cmp: &Component)
             }
         });
 
-        let props_signal_fn_name =
-            syn::parse_str::<Ident>(format!("{}_signal", prop.name).as_str())
-                .expect("failed to parse props signal fn name");
+        let props_signal_fn_name = match prop.is_signal.as_ref().unwrap() {
+            SignalType::Item => syn::parse_str::<Ident>(format!("{}_signal", prop.name).as_str())
+                .expect("failed to parse props signal fn name"),
+            SignalType::Vec => syn::parse_str::<Ident>(format!("{}_signal_vec", prop.name).as_str())
+                .expect("failed to parse props signal fn name"),
+        };
+
 
         let signal_mod_ident = match prop.is_signal.as_ref().unwrap() {
             SignalType::Item => Ident::new("signal", prop.type_.span()),
