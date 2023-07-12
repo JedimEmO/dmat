@@ -186,6 +186,7 @@ version = "0.1.0"
 dependencies = [
  "dmat-utils",
  "dominator",
+ "dominator-component-macros",
  "dominator-testing",
  "futures",
  "futures-signals",

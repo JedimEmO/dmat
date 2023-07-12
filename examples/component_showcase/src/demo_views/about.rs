@@ -1,4 +1,5 @@
 use dominator::{html, with_node, Dom};
+use dmat_components::components::list::*;
 
 pub fn about_view() -> Dom {
     container!(|d| {

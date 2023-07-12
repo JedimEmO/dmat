@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate dominator_component_macros;
+
 extern crate futures_signals;
 
 pub mod components;

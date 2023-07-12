@@ -9,8 +9,9 @@ description = "Collection of material components to use with the dominator rust 
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
-dmat-utils = { path = "../dmat-utils"}
+dmat-utils = { path = "../dmat-utils" }
 dominator = "0.5.23"
+dominator-component-macros = { path = "../dominator-component-macros" }
 futures = "0.3.19"
 futures-signals = "0.3.15"
 futures-util = "0.3.19"

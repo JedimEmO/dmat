@@ -87,13 +87,13 @@ pub fn render_prop_impl(props_struct_name: &Ident, prop: &Prop, cmp: &Component)
 
         let always_value_type = match prop.is_signal.as_ref().unwrap() {
             SignalType::Item => quote! {#ty_},
-            SignalType::Vec => quote! {Vec<#ty_>},
+            SignalType::Vec => quote! {impl Into<Vec<#ty_>>},
         };
 
         quote! {
             impl<#(#generics),*> #props_struct_name<#(#generic_idents),*> {
                 pub fn #prop_name<#(#changed_generics_nosig),*>(mut self, v: #always_value_type) -> #props_struct_name<#(#generic_idents_out_always),*> {
-                    self.#props_signal_fn_name(futures_signals::#signal_mod_ident::always(v))
+                    self.#props_signal_fn_name(futures_signals::#signal_mod_ident::always(v.into()))
                 }
 
                 pub fn #props_signal_fn_name<#(#changed_generics),*>(self, v: #new_signal_name) -> #props_struct_name<#(#generic_idents_out),*> {
