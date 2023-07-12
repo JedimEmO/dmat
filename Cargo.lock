@@ -277,18 +277,11 @@ name = "dominator-component-macros"
 version = "0.1.0"
 dependencies = [
  "convert_case",
+ "dominator",
+ "futures-signals",
  "proc-macro2 1.0.63",
  "quote 1.0.29",
  "syn 2.0.23",
-]
-
-[[package]]
-name = "dominator-component-macros-tests"
-version = "0.1.1"
-dependencies = [
- "dominator",
- "dominator-component-macros",
- "futures-signals",
  "web-sys",
 ]
 

@@ -1,8 +1,9 @@
-use crate::parse::{Component, Prop};
+use crate::parse::{Component, Prop, SignalType};
 use proc_macro2::{Ident, TokenStream};
 use quote::quote;
 use syn::{Type, TypeParam};
-use crate::render::render_utils::{compute_component_generics, new_prop_signal_name};
+use syn::spanned::Spanned;
+use crate::render::render_utils::{compute_component_generics, get_prop_signal_always_type, get_prop_signal_type_param, new_prop_signal_name, prop_signal_name};
 
 pub fn render_prop_impl(props_struct_name: &Ident, prop: &Prop, cmp: &Component) -> TokenStream {
     let generics = compute_component_generics(cmp, false, false);
@@ -36,18 +37,9 @@ pub fn render_prop_impl(props_struct_name: &Ident, prop: &Prop, cmp: &Component)
         out_rewrites.push((old_type, new_type));
     }
 
-    if prop.is_signal {
-        let prop_type = quote! {#ty_}.to_string();
-
-        let param = syn::parse_str(
-            format!(
-                "{}: futures_signals::signal::Signal<Item={}>",
-                new_prop_signal_name(&prop.name),
-                prop_type
-            )
-                .as_str(),
-        )
-            .expect("failed to parse signal generic");
+    if prop.is_signal.is_some() {
+        let param = get_prop_signal_type_param(prop, prop.is_signal.as_ref().unwrap(), &ty_, true);
+        let prop_signal_always_type = get_prop_signal_always_type(prop.is_signal.as_ref().unwrap(), &ty_);
 
         let changed_generics_nosig = changed_generics.clone();
         changed_generics.push(param);
@@ -55,12 +47,8 @@ pub fn render_prop_impl(props_struct_name: &Ident, prop: &Prop, cmp: &Component)
         let new_signal_name: Type = syn::parse_str(new_prop_signal_name(&prop.name).as_str())
             .expect("failed to parse new signal name");
 
-        let old_name = format!("T{}Signal", prop.name);
+        let old_name = prop_signal_name(&prop.name);
 
-        let prop_signal_always_type = syn::parse_str::<Type>(
-            format!("futures_signals::signal::Always<{}>", quote! {#ty_}).as_str(),
-        )
-            .expect("failed to parse prop signal always type");
         let mut generic_idents_out =
             replace_generic(generic_idents.clone(), &old_name, new_signal_name.clone());
         let mut generic_idents_out_always =
@@ -88,10 +76,20 @@ pub fn render_prop_impl(props_struct_name: &Ident, prop: &Prop, cmp: &Component)
             syn::parse_str::<Ident>(format!("{}_signal", prop.name).as_str())
                 .expect("failed to parse props signal fn name");
 
+        let signal_mod_ident = match prop.is_signal.as_ref().unwrap() {
+            SignalType::Item => Ident::new("signal", prop.type_.span()),
+            SignalType::Vec => Ident::new("signal_vec", prop.type_.span()),
+        };
+
+        let always_value_type = match prop.is_signal.as_ref().unwrap() {
+            SignalType::Item => quote! {#ty_},
+            SignalType::Vec => quote! {Vec<#ty_>},
+        };
+
         quote! {
             impl<#(#generics),*> #props_struct_name<#(#generic_idents),*> {
-                pub fn #prop_name<#(#changed_generics_nosig),*>(mut self, v: #ty_) -> #props_struct_name<#(#generic_idents_out_always),*> {
-                    self.#props_signal_fn_name(futures_signals::signal::always(v))
+                pub fn #prop_name<#(#changed_generics_nosig),*>(mut self, v: #always_value_type) -> #props_struct_name<#(#generic_idents_out_always),*> {
+                    self.#props_signal_fn_name(futures_signals::#signal_mod_ident::always(v))
                 }
 
                 pub fn #props_signal_fn_name<#(#changed_generics),*>(self, v: #new_signal_name) -> #props_struct_name<#(#generic_idents_out),*> {

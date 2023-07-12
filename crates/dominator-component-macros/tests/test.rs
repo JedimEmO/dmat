@@ -12,7 +12,12 @@ mod test {
             pub label: String,
             #[signal]
             pub foo: T,
-            pub bar: U,
+
+            #[signal_vec]
+            pub bar: String,
+
+            #[signal_vec]
+            pub some_generic_signal_vec: U,
         }
 
         pub fn some_button(props: impl SomeButtonPropsTrait) -> i32 {
@@ -46,9 +51,10 @@ mod test {
         let _t = t
             .foo_signal(always("test".to_string()))
             .foo(32)
-            .bar("hellothere")
+            .bar(vec!["hellothere".to_string()])
             .label("hi".to_string())
             .label_signal(always("test".to_string()))
+            .some_generic_signal_vec_signal(futures_signals::signal_vec::always(vec![42, 666]))
             .apply(|dom_builder| dom_builder.attr("id", "yay"));
     }
 }

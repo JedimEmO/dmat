@@ -1,3 +1,5 @@
+pub mod parse_field;
+
 use proc_macro2::Ident;
 use syn::parse::{Parse, ParseStream};
 use syn::punctuated::Punctuated;
@@ -21,8 +23,14 @@ impl PartialEq for PropGenerics {
 }
 
 #[derive(Clone)]
+pub enum SignalType {
+    Item,
+    Vec
+}
+
+#[derive(Clone)]
 pub struct Prop {
-    pub is_signal: bool,
+    pub is_signal: Option<SignalType>,
     pub name: Ident,
     pub generics: Option<PropGenerics>,
     pub type_: Type,

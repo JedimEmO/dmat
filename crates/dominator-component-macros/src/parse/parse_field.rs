@@ -1,0 +1,40 @@
+use syn::Field;
+use crate::parse::{Prop, PropGenerics, SignalType};
+use crate::get_type_generic_param_use;
+
+pub fn parse_field(field: &Field, struct_generics: &Vec<PropGenerics>) -> Prop {
+    let is_signal = field.attrs.iter().any(|a| a.path().is_ident("signal"));
+    let is_signal_vec = field.attrs.iter().any(|a| a.path().is_ident("signal_vec"));
+
+    if is_signal && is_signal_vec {
+        panic!("field cannot be both signal and signal_vec");
+    }
+
+    // Extract generics from field, if any, and make sure they are matched exactly once to the structs generics
+    let field_generics = get_type_generic_param_use(&field.ty, struct_generics);
+
+    if field_generics.len() > 1 {
+        panic!("field must have at most one generic param");
+    }
+
+    let generics = field_generics.first().map(|generic| {
+        if struct_generics.iter().filter(|g| g == &generic).count() != 1 {
+            panic!("field generic param must match exactly one struct generic param");
+        }
+
+        generic.clone()
+    });
+
+    Prop {
+        is_signal: if is_signal {
+            Some(SignalType::Item)
+        } else if is_signal_vec {
+            Some(SignalType::Vec)
+        } else {
+            None
+        },
+        name: field.ident.clone().expect("field must have name"),
+        generics,
+        type_: field.ty.clone(),
+    }
+}

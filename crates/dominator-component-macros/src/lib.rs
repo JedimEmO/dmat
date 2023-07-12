@@ -1,11 +1,12 @@
 mod parse;
 mod render;
 
-use crate::parse::AttributeArgument;
+use crate::parse::{AttributeArgument};
 use crate::render::render_props;
-use parse::{Component, Prop, PropGenerics};
+use crate::parse::{Component, Prop, PropGenerics};
 use proc_macro::TokenStream;
 use syn::{GenericArgument, Ident, PathArguments, Type, TypeParam};
+use crate::parse::parse_field::parse_field;
 
 #[proc_macro_attribute]
 pub fn component(args: TokenStream, input: TokenStream) -> TokenStream {
@@ -25,44 +26,20 @@ pub fn component(args: TokenStream, input: TokenStream) -> TokenStream {
             syn::GenericParam::Type(type_param) => PropGenerics {
                 param: type_param.clone(),
             },
-            _ => panic!("struct must have only type params"),
+            _ => panic!("prop struct must have only type params"),
         })
         .collect::<Vec<_>>();
 
-    let props = fields.iter().map(|field| {
-        let is_signal = field.attrs.iter().any(|a| a.path().is_ident("signal"));
-
-        // Extract generics from field, if any, and make sure they are matched exactly once to the structs generics
-        let field_generics = get_type_generic_param_use(&field.ty, &struct_generics);
-
-        if field_generics.len() > 1 {
-            panic!("field must have at most one generic param");
-        }
-
-        let generics = field_generics.first().map(|generic| {
-            if struct_generics.iter().filter(|g| g == &generic).count() != 1 {
-                panic!("field generic param must match exactly one struct generic param");
-            }
-
-            generic.clone()
-        });
-
-        Prop {
-            is_signal,
-            name: field.ident.clone().expect("field must have name"),
-            generics,
-            type_: field.ty.clone(),
-        }
-    });
+    let fields = fields.iter().map(|field| parse_field(field, &struct_generics));
 
     let mut cmp: Component = Component {
         name: struct_.ident,
         render_fn: arg.fn_name,
-        props: props.collect(),
+        props: fields.collect(),
     };
 
     let apply_prop = Prop {
-        is_signal: false,
+        is_signal: None,
         name: Ident::new("apply", cmp.name.span()),
         generics: Some(PropGenerics { param: syn::parse_str::<TypeParam>("TApplyFn: FnOnce(dominator::DomBuilder<web_sys::HtmlElement>) -> dominator::DomBuilder<web_sys::HtmlElement> = fn(dominator::DomBuilder<web_sys::HtmlElement>)->dominator::DomBuilder<web_sys::HtmlElement>").expect("failed to parse type param") }),
         type_: syn::parse_str::<Type>("TApplyFn").expect("failed to parse type"),

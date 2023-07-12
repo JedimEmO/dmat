@@ -7,8 +7,17 @@ edition = "2021"
 [lib]
 proc-macro = true
 
+[[test]]
+name = "dominator-component-macros-test"
+path = "tests/test.rs"
+
 [dependencies]
 convert_case = "0.6.0"
 proc-macro2 = "^1.0.63"
 syn = { version = "^2.0.22", features = ["full"] }
 quote = "^1.0.29"
+
+[dev-dependencies]
+dominator = { workspace = true }
+futures-signals = { workspace = true }
+web-sys = { workspace = true }
