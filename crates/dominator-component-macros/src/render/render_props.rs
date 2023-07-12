@@ -77,30 +77,24 @@ fn render_prop_builder_struct(props_struct_name: Ident, cmp: &Component) -> Toke
         }
     });
 
-    let trait_field_getters = cmp.props.iter().map(|prop| {
-        let name = &prop.name;
-        let type_ = compute_prop_type_ident(prop, false);
+    let unpack_trait_params_selfed = generics_params
+        .iter()
+        .map(|g| {
+            syn::parse_str::<Type>(format!("Self::{}", g.ident).as_str())
+                .expect("failed to parse generic ident")
+        })
+        .collect::<Vec<_>>();
 
-        quote! {
-            fn #name(&mut self) -> Option<#type_> {
-                self.#name.take()
-            }
-        }
-    });
-
-    let trait_field_getter_decls = cmp.props.iter().map(|prop| {
-        let name = &prop.name;
-        let type_ = compute_prop_type_ident(prop, true);
-
-        quote! {
-            fn #name(&mut self) -> Option<#type_>;
-        }
-    });
+    let unpack_trait_params = generics_params
+        .iter()
+        .map(|g| g.ident.clone())
+        .collect::<Vec<_>>();
 
     quote! {
         pub trait #trait_name {
             #(#trait_types)*
-            #(#trait_field_getter_decls)*
+
+            fn take(self) -> #props_struct_name<#(#unpack_trait_params_selfed,)* >;
         }
 
         #[derive(Default)]
@@ -111,7 +105,9 @@ fn render_prop_builder_struct(props_struct_name: Ident, cmp: &Component) -> Toke
         impl<#(#generics_params_no_self),*> #trait_name for #props_struct_name<#(#generic_idents,)* > {
             #(#trait_type_impls)*
 
-            #(#trait_field_getters)*
+            fn take(self) -> #props_struct_name<#(#unpack_trait_params,)* > {
+                self
+            }
         }
 
         impl #props_struct_name {

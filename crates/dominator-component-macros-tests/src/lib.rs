@@ -15,8 +15,8 @@ mod test {
             pub bar: U,
         }
 
-        pub fn some_button(mut props: impl SomeButtonPropsTrait) -> i32 {
-            let _foo = props.foo().unwrap();
+        pub fn some_button(props: impl SomeButtonPropsTrait) -> i32 {
+            let _props = props.take();
 
             42
         }
@@ -34,7 +34,7 @@ mod test {
     }
 
     #[test]
-    fn cmp_non_macro_test(){
+    fn cmp_non_macro_test() {
         let rendered = some_button(SomeButtonProps::new().foo("hi there"));
         assert_eq!(rendered, 42);
     }
