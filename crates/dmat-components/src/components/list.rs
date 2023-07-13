@@ -16,6 +16,7 @@ pub struct List {
 /// use futures_signals::signal_vec::{MutableVec, SignalVecExt};
 /// use dmat_components::components::list;
 /// use dmat_components::list;
+/// use dmat_components::components::list::*;
 ///
 /// // Static list, items never change
 /// let my_static_list = list!({.rows([
