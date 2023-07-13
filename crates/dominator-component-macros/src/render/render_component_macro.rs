@@ -1,7 +1,7 @@
-use proc_macro2::{Punct, Spacing};
+use crate::parse::Component;
 use convert_case::{Case, Casing};
-use crate::parse::{Component};
 use proc_macro2::{Ident, TokenStream};
+use proc_macro2::{Punct, Spacing};
 use quote::quote;
 
 pub fn render_component_macro(cmp: &Component) -> TokenStream {

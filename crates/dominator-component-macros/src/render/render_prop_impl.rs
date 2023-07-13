@@ -1,9 +1,12 @@
 use crate::parse::{Component, Prop, SignalType};
+use crate::render::render_utils::{
+    compute_component_generics, get_prop_signal_always_type, get_prop_signal_type_param,
+    new_prop_signal_name, prop_signal_name,
+};
 use proc_macro2::{Ident, TokenStream};
 use quote::quote;
-use syn::{Type, TypeParam};
 use syn::spanned::Spanned;
-use crate::render::render_utils::{compute_component_generics, get_prop_signal_always_type, get_prop_signal_type_param, new_prop_signal_name, prop_signal_name};
+use syn::{Type, TypeParam};
 
 pub fn render_prop_impl(props_struct_name: &Ident, prop: &Prop, cmp: &Component) -> TokenStream {
     let generics = compute_component_generics(cmp, false, false);
@@ -20,6 +23,12 @@ pub fn render_prop_impl(props_struct_name: &Ident, prop: &Prop, cmp: &Component)
     let mut out_rewrites = vec![];
     let mut ty_ = prop.type_.clone();
     let is_generic_type = prop.generics.is_some();
+
+    let value_assign_expr = if let Some(_default) = &prop.default {
+        quote! {v}
+    } else {
+        quote! {Some(v)}
+    };
 
     if is_generic_type {
         let generic = prop.generics.clone().unwrap();
@@ -39,7 +48,8 @@ pub fn render_prop_impl(props_struct_name: &Ident, prop: &Prop, cmp: &Component)
 
     if prop.is_signal.is_some() {
         let param = get_prop_signal_type_param(prop, prop.is_signal.as_ref().unwrap(), &ty_, true);
-        let prop_signal_always_type = get_prop_signal_always_type(prop.is_signal.as_ref().unwrap(), &ty_);
+        let prop_signal_always_type =
+            get_prop_signal_always_type(prop.is_signal.as_ref().unwrap(), &ty_);
 
         let changed_generics_nosig = changed_generics.clone();
         changed_generics.push(param);
@@ -75,10 +85,11 @@ pub fn render_prop_impl(props_struct_name: &Ident, prop: &Prop, cmp: &Component)
         let props_signal_fn_name = match prop.is_signal.as_ref().unwrap() {
             SignalType::Item => syn::parse_str::<Ident>(format!("{}_signal", prop.name).as_str())
                 .expect("failed to parse props signal fn name"),
-            SignalType::Vec => syn::parse_str::<Ident>(format!("{}_signal_vec", prop.name).as_str())
-                .expect("failed to parse props signal fn name"),
+            SignalType::Vec => {
+                syn::parse_str::<Ident>(format!("{}_signal_vec", prop.name).as_str())
+                    .expect("failed to parse props signal fn name")
+            }
         };
-
 
         let signal_mod_ident = match prop.is_signal.as_ref().unwrap() {
             SignalType::Item => Ident::new("signal", prop.type_.span()),
@@ -98,7 +109,7 @@ pub fn render_prop_impl(props_struct_name: &Ident, prop: &Prop, cmp: &Component)
 
                 pub fn #props_signal_fn_name<#(#changed_generics),*>(self, v: #new_signal_name) -> #props_struct_name<#(#generic_idents_out),*> {
                     #props_struct_name {
-                        #prop_name: Some(v),
+                        #prop_name: #value_assign_expr,
                         #(#rest_of_props)*
                     }
                 }
@@ -124,7 +135,7 @@ pub fn render_prop_impl(props_struct_name: &Ident, prop: &Prop, cmp: &Component)
             impl<#(#generics),*> #props_struct_name<#(#generic_idents),*> {
                 pub fn #prop_name<#(#changed_generics),*>(mut self, v: #ty_) -> #props_struct_name<#(#generic_idents_out),*> {
                      #props_struct_name {
-                        #prop_name: Some(v),
+                        #prop_name: #value_assign_expr,
                         #(#rest_of_props)*
                     }
                 }

@@ -1,8 +1,8 @@
-use crate::parse::{Component};
+use crate::parse::{Component, SignalType};
+use crate::render::render_utils::{compute_component_generics, compute_prop_type_ident};
 use proc_macro2::{Ident, TokenStream};
 use quote::quote;
-use syn::{Type};
-use crate::render::render_utils::{compute_component_generics, compute_prop_type_ident};
+use syn::Type;
 
 pub fn render_prop_builder_struct(props_struct_name: Ident, cmp: &Component) -> TokenStream {
     let generics = compute_component_generics(cmp, true, false);
@@ -11,8 +11,12 @@ pub fn render_prop_builder_struct(props_struct_name: Ident, cmp: &Component) -> 
         let name = &prop.name;
         let type_ = compute_prop_type_ident(prop, false);
 
-        let type_: Type = syn::parse_str(format!("Option<{}>", quote! {#type_}).as_str())
-            .expect("failed to parse prop type");
+        let type_: Type = if let Some(_default) = &prop.default {
+            type_
+        } else {
+            syn::parse_str::<Type>(format!("Option<{}>", quote! {#type_}).as_str())
+                .expect("failed to parse prop type")
+        };
 
         quote! {
             pub #name: #type_,
@@ -22,8 +26,23 @@ pub fn render_prop_builder_struct(props_struct_name: Ident, cmp: &Component) -> 
     let props_ctor = cmp.props.iter().map(|prop| {
         let name = &prop.name;
 
+        let init_val = if prop.default.is_some() {
+            let default = prop.default.as_ref().unwrap();
+
+            if let Some(sig) = &prop.is_signal {
+                match sig {
+                    SignalType::Item => quote! {futures_signals::signal::always(#default)},
+                    SignalType::Vec => quote! {futures_signals::signal_vec::always(#default)},
+                }
+            } else {
+                quote! {#default}
+            }
+        } else {
+            quote! {None}
+        };
+
         quote! {
-            #name: None,
+            #name: #init_val,
         }
     });
 
@@ -77,7 +96,6 @@ pub fn render_prop_builder_struct(props_struct_name: Ident, cmp: &Component) -> 
             fn take(self) -> #props_struct_name<#(#unpack_trait_params_selfed,)* >;
         }
 
-        #[derive(Default)]
         pub struct #props_struct_name<#(#generics,)* > {
             #(#props)*
         }

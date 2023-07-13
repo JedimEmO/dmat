@@ -25,7 +25,7 @@ impl PartialEq for PropGenerics {
 #[derive(Clone)]
 pub enum SignalType {
     Item,
-    Vec
+    Vec,
 }
 
 #[derive(Clone)]
@@ -34,6 +34,7 @@ pub struct Prop {
     pub name: Ident,
     pub generics: Option<PropGenerics>,
     pub type_: Type,
+    pub default: Option<syn::Expr>,
 }
 
 pub struct Component {

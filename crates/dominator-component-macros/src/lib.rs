@@ -1,12 +1,12 @@
 mod parse;
 mod render;
 
-use crate::parse::{AttributeArgument};
-use crate::render::render_props;
+use crate::parse::parse_field::parse_field;
+use crate::parse::AttributeArgument;
 use crate::parse::{Component, Prop, PropGenerics};
+use crate::render::render_props;
 use proc_macro::TokenStream;
 use syn::{GenericArgument, Ident, PathArguments, Type, TypeParam};
-use crate::parse::parse_field::parse_field;
 
 #[proc_macro_attribute]
 pub fn component(args: TokenStream, input: TokenStream) -> TokenStream {
@@ -30,7 +30,9 @@ pub fn component(args: TokenStream, input: TokenStream) -> TokenStream {
         })
         .collect::<Vec<_>>();
 
-    let fields = fields.iter().map(|field| parse_field(field, &struct_generics));
+    let fields = fields
+        .iter()
+        .map(|field| parse_field(field, &struct_generics));
 
     let mut cmp: Component = Component {
         name: struct_.ident,
@@ -43,6 +45,7 @@ pub fn component(args: TokenStream, input: TokenStream) -> TokenStream {
         name: Ident::new("apply", cmp.name.span()),
         generics: Some(PropGenerics { param: syn::parse_str::<TypeParam>("TApplyFn: FnOnce(dominator::DomBuilder<web_sys::HtmlElement>) -> dominator::DomBuilder<web_sys::HtmlElement> = fn(dominator::DomBuilder<web_sys::HtmlElement>)->dominator::DomBuilder<web_sys::HtmlElement>").expect("failed to parse type param") }),
         type_: syn::parse_str::<Type>("TApplyFn").expect("failed to parse type"),
+        default: None,
     };
 
     cmp.props.push(apply_prop);

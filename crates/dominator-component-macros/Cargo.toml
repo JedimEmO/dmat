@@ -20,4 +20,5 @@ quote = "^1.0.29"
 [dev-dependencies]
 dominator = { workspace = true }
 futures-signals = { workspace = true }
+tokio = { workspace = true }
 web-sys = { workspace = true }

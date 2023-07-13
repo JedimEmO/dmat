@@ -1,9 +1,9 @@
-pub mod render_props_builder_struct;
-pub mod render_prop_impl;
 pub mod render_component_macro;
+pub mod render_prop_impl;
+pub mod render_props_builder_struct;
 pub mod render_utils;
 
-use crate::parse::{Component};
+use crate::parse::Component;
 use proc_macro2::{Ident, TokenStream};
 use quote::quote;
 

@@ -1,5 +1,5 @@
 use dominator::{html, Dom};
-use futures_signals::signal_vec::{SignalVecExt};
+use futures_signals::signal_vec::SignalVecExt;
 
 #[component(render_fn = list)]
 pub struct List {
@@ -32,13 +32,8 @@ pub struct List {
 /// });
 /// ```
 #[inline]
-pub fn list(
-    props: impl ListPropsTrait + 'static
-) -> Dom {
-    let ListProps {
-        rows,
-        apply,
-    } = props.take();
+pub fn list(props: impl ListPropsTrait + 'static) -> Dom {
+    let ListProps { rows, apply } = props.take();
 
     html!("ul", {
         .class("dmat-list")

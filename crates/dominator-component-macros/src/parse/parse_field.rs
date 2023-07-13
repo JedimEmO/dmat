@@ -1,10 +1,19 @@
-use syn::Field;
-use crate::parse::{Prop, PropGenerics, SignalType};
 use crate::get_type_generic_param_use;
+use crate::parse::{Prop, PropGenerics, SignalType};
+use syn::Field;
 
 pub fn parse_field(field: &Field, struct_generics: &Vec<PropGenerics>) -> Prop {
     let is_signal = field.attrs.iter().any(|a| a.path().is_ident("signal"));
     let is_signal_vec = field.attrs.iter().any(|a| a.path().is_ident("signal_vec"));
+
+    let default = field
+        .attrs
+        .iter()
+        .find(|a| a.path().is_ident("default"))
+        .map(|a| {
+            a.parse_args::<syn::Expr>()
+                .expect("failed to parse default value")
+        });
 
     if is_signal && is_signal_vec {
         panic!("field cannot be both signal and signal_vec");
@@ -36,5 +45,6 @@ pub fn parse_field(field: &Field, struct_generics: &Vec<PropGenerics>) -> Prop {
         name: field.ident.clone().expect("field must have name"),
         generics,
         type_: field.ty.clone(),
+        default,
     }
 }
