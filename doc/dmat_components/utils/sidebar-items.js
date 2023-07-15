@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["component_signal","mixin","signals"]};
+window.SIDEBAR_ITEMS = {"mod":["component_signal","mixin","signals","timeout"]};

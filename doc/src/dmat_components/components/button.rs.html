@@ -168,77 +168,10 @@
 <a href="#168" id="168">168</a>
 <a href="#169" id="169">169</a>
 <a href="#170" id="170">170</a>
-<a href="#171" id="171">171</a>
-<a href="#172" id="172">172</a>
-<a href="#173" id="173">173</a>
-<a href="#174" id="174">174</a>
-<a href="#175" id="175">175</a>
-<a href="#176" id="176">176</a>
-<a href="#177" id="177">177</a>
-<a href="#178" id="178">178</a>
-<a href="#179" id="179">179</a>
-<a href="#180" id="180">180</a>
-<a href="#181" id="181">181</a>
-<a href="#182" id="182">182</a>
-<a href="#183" id="183">183</a>
-<a href="#184" id="184">184</a>
-<a href="#185" id="185">185</a>
-<a href="#186" id="186">186</a>
-<a href="#187" id="187">187</a>
-<a href="#188" id="188">188</a>
-<a href="#189" id="189">189</a>
-<a href="#190" id="190">190</a>
-<a href="#191" id="191">191</a>
-<a href="#192" id="192">192</a>
-<a href="#193" id="193">193</a>
-<a href="#194" id="194">194</a>
-<a href="#195" id="195">195</a>
-<a href="#196" id="196">196</a>
-<a href="#197" id="197">197</a>
-<a href="#198" id="198">198</a>
-<a href="#199" id="199">199</a>
-<a href="#200" id="200">200</a>
-<a href="#201" id="201">201</a>
-<a href="#202" id="202">202</a>
-<a href="#203" id="203">203</a>
-<a href="#204" id="204">204</a>
-<a href="#205" id="205">205</a>
-<a href="#206" id="206">206</a>
-<a href="#207" id="207">207</a>
-<a href="#208" id="208">208</a>
-<a href="#209" id="209">209</a>
-<a href="#210" id="210">210</a>
-<a href="#211" id="211">211</a>
-<a href="#212" id="212">212</a>
-<a href="#213" id="213">213</a>
-<a href="#214" id="214">214</a>
-<a href="#215" id="215">215</a>
-<a href="#216" id="216">216</a>
-<a href="#217" id="217">217</a>
-<a href="#218" id="218">218</a>
-<a href="#219" id="219">219</a>
-<a href="#220" id="220">220</a>
-<a href="#221" id="221">221</a>
-<a href="#222" id="222">222</a>
-<a href="#223" id="223">223</a>
-<a href="#224" id="224">224</a>
-<a href="#225" id="225">225</a>
-<a href="#226" id="226">226</a>
-<a href="#227" id="227">227</a>
-<a href="#228" id="228">228</a>
-<a href="#229" id="229">229</a>
-<a href="#230" id="230">230</a>
-<a href="#231" id="231">231</a>
-<a href="#232" id="232">232</a>
-<a href="#233" id="233">233</a>
-<a href="#234" id="234">234</a>
-<a href="#235" id="235">235</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{events, html, Dom, DomBuilder};
-<span class="kw">use </span>futures_signals::signal::{Always, Signal};
-<span class="kw">use </span>web_sys::HtmlElement;
+</pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{events, html, Dom};
+<span class="kw">use </span>futures_signals::signal::{always, SignalExt};
 
 <span class="kw">use </span><span class="kw">crate</span>::components::mixins::disabled_signal_mixin;
-<span class="kw">use </span><span class="kw">crate</span>::utils::mixin::ApplyMixin;
 
 <span class="attr">#[derive(Default)]
 </span><span class="kw">pub enum </span>ButtonType {
@@ -266,168 +199,79 @@
     Dom(Dom),
 }
 
-<span class="attr">#[derive(Default)]
-</span><span class="kw">pub struct </span>ButtonProps&lt;
-    FClickCallback: Fn(events::Click) = <span class="kw">fn</span>(events::Click) -&gt; (),
-    TDisabledSignal: Signal&lt;Item = bool&gt; + Unpin = Always&lt;bool&gt;,
-&gt; {
-    <span class="kw">pub </span>content: <span class="prelude-ty">Option</span>&lt;ButtonContent&gt;,
-    <span class="kw">pub </span>click_handler: <span class="prelude-ty">Option</span>&lt;FClickCallback&gt;,
-    <span class="kw">pub </span>button_type: ButtonType,
-    <span class="kw">pub </span>style: ButtonStyle,
-    <span class="kw">pub </span>disabled_signal: <span class="prelude-ty">Option</span>&lt;TDisabledSignal&gt;,
-    <span class="kw">pub </span>apply: ApplyMixin,
-}
-
-<span class="kw">impl </span>ButtonProps {
-    <span class="kw">pub fn </span>new() -&gt; ButtonProps {
-        <span class="self">Self </span>{
-            content: <span class="prelude-val">None</span>,
-            click_handler: <span class="prelude-val">None</span>,
-            button_type: ButtonType::Contained,
-            style: ButtonStyle::Prominent,
-            disabled_signal: <span class="prelude-val">None</span>,
-            apply: <span class="prelude-val">None</span>,
-        }
-    }
-}
-
-<span class="kw">impl</span>&lt;FClickCallback: Fn(events::Click), TDisabledSignal: Signal&lt;Item = bool&gt; + Unpin&gt;
-    ButtonProps&lt;FClickCallback, TDisabledSignal&gt;
-{
-    <span class="attr">#[inline]
-    #[must_use]
-    </span><span class="kw">pub fn </span>content&lt;U&gt;(<span class="kw-2">mut </span><span class="self">self</span>, content: U) -&gt; <span class="self">Self
-    </span><span class="kw">where
-        </span>U: Into&lt;Dom&gt;,
-    {
-        <span class="self">self</span>.content = <span class="prelude-val">Some</span>(ButtonContent::Dom(content.into()));
-        <span class="self">self
-    </span>}
-
-    <span class="attr">#[inline]
-    #[must_use]
-    </span><span class="kw">pub fn </span>label&lt;U&gt;(<span class="kw-2">mut </span><span class="self">self</span>, label: U) -&gt; <span class="self">Self
-    </span><span class="kw">where
-        </span>U: ToString,
-    {
-        <span class="self">self</span>.content = <span class="prelude-val">Some</span>(ButtonContent::Label(label.to_string()));
-        <span class="self">self
-    </span>}
-
-    <span class="attr">#[inline]
-    #[must_use]
-    </span><span class="kw">pub fn </span>button_type(<span class="kw-2">mut </span><span class="self">self</span>, button_type: ButtonType) -&gt; <span class="self">Self </span>{
-        <span class="self">self</span>.button_type = button_type;
-        <span class="self">self
-    </span>}
-
-    <span class="attr">#[inline]
-    #[must_use]
-    </span><span class="kw">pub fn </span>style(<span class="kw-2">mut </span><span class="self">self</span>, style: ButtonStyle) -&gt; <span class="self">Self </span>{
-        <span class="self">self</span>.style = style;
-        <span class="self">self
-    </span>}
-
-    <span class="attr">#[inline]
-    #[must_use]
-    </span><span class="kw">pub fn </span>disabled_signal&lt;TDisabledSignalNew: Signal&lt;Item = bool&gt; + Unpin&gt;(
-        <span class="self">self</span>,
-        disabled_signal: TDisabledSignalNew,
-    ) -&gt; ButtonProps&lt;FClickCallback, TDisabledSignalNew&gt; {
-        ButtonProps {
-            content: <span class="self">self</span>.content,
-            click_handler: <span class="self">self</span>.click_handler,
-            button_type: <span class="self">self</span>.button_type,
-            style: <span class="self">self</span>.style,
-            disabled_signal: <span class="prelude-val">Some</span>(disabled_signal),
-            apply: <span class="self">self</span>.apply,
-        }
-    }
-
-    <span class="attr">#[inline]
-    #[must_use]
-    </span><span class="kw">pub fn </span>click_handler&lt;FClickCallbackNew: Fn(events::Click) + <span class="lifetime">&#39;static</span>&gt;(
-        <span class="self">self</span>,
-        click_handler: FClickCallbackNew,
-    ) -&gt; ButtonProps&lt;FClickCallbackNew, TDisabledSignal&gt; {
-        ButtonProps {
-            content: <span class="self">self</span>.content,
-            click_handler: <span class="prelude-val">Some</span>(click_handler),
-            button_type: <span class="self">self</span>.button_type,
-            style: <span class="self">self</span>.style,
-            disabled_signal: <span class="self">self</span>.disabled_signal,
-            apply: <span class="self">self</span>.apply,
-        }
-    }
-
-    <span class="attr">#[inline]
-    #[must_use]
-    </span><span class="kw">pub fn </span>apply&lt;F: FnOnce(DomBuilder&lt;HtmlElement&gt;) -&gt; DomBuilder&lt;HtmlElement&gt; + <span class="lifetime">&#39;static</span>&gt;(
-        <span class="kw-2">mut </span><span class="self">self</span>,
-        apply: F,
-    ) -&gt; <span class="self">Self </span>{
-        <span class="self">self</span>.apply = <span class="prelude-val">Some</span>(Box::new(apply));
-        <span class="self">self
-    </span>}
-}
-
-<span class="attr">#[macro_export]
-</span><span class="macro">macro_rules! </span>button {
-    ($(<span class="macro-nonterminal">$methods</span>:tt)<span class="kw-2">*</span>) =&gt; {{
-        <span class="kw">let </span>default_props = <span class="macro-nonterminal">$crate::components::button::ButtonProps::new</span>();
-        <span class="kw">let </span>applied_props = <span class="macro">dominator::apply_methods!</span>(default_props, $(<span class="macro-nonterminal">$methods</span>)<span class="kw-2">*</span>);
-        <span class="macro-nonterminal">$crate::components::button::button</span>(applied_props)
-    }};
+<span class="doccomment">/// A button. You click it, things happen.
+///
+///
+/// # Example
+/// ```rust,no_run
+/// use dmat_components::components::button::*;
+/// use dominator::{clone, html, Dom};
+/// use futures_signals::signal::Mutable;
+///
+/// fn counter() {
+///     let counter_state = Mutable::new(0);
+///     button!({
+///         .on_click(clone!(counter_state =&gt; move |_| {
+///             counter_state.set(counter_state.get() + 1);
+///         }
+///     })
+/// }
+/// ```
+</span><span class="attr">#[component(render_fn = button)]
+</span><span class="kw">pub struct </span>Button&lt;FClickCallback: Fn(events::Click) = <span class="kw">fn</span>(events::Click) -&gt; ()&gt; {
+    <span class="attr">#[signal]
+    </span><span class="kw">pub </span>content: Dom,
+    <span class="attr">#[default(| <span class="kw">_ </span>| {})]
+    </span><span class="kw">pub </span>click_handler: FClickCallback,
+    <span class="attr">#[default(ButtonType::default())]
+    </span><span class="kw">pub </span>button_type: ButtonType,
+    <span class="attr">#[default(ButtonStyle::default())]
+    </span><span class="kw">pub </span>style: ButtonStyle,
+    <span class="attr">#[signal]
+    #[default(<span class="bool-val">false</span>)]
+    </span><span class="kw">pub </span>disabled: bool,
 }
 
 <span class="attr">#[inline]
-</span><span class="kw">pub fn </span>button&lt;FClickCallback, TDisabledSignal&gt;(
-    button_props: ButtonProps&lt;FClickCallback, TDisabledSignal&gt;,
-) -&gt; Dom
-<span class="kw">where
-    </span>FClickCallback: Fn(events::Click) + <span class="lifetime">&#39;static</span>,
-    TDisabledSignal: Signal&lt;Item = bool&gt; + Unpin + <span class="lifetime">&#39;static</span>,
-{
-    <span class="kw">let </span>content = button_props.content;
-    <span class="kw">let </span>click_handler = button_props.click_handler;
-    <span class="kw">let </span>disabled_signal = button_props.disabled_signal;
-    <span class="kw">let </span>mixin = button_props.apply;
+</span><span class="kw">pub fn </span>button(button_props: <span class="kw">impl </span>ButtonPropsTrait + <span class="lifetime">&#39;static</span>) -&gt; Dom {
+    <span class="kw">let </span>ButtonProps {
+        content,
+        button_type,
+        style,
+        disabled,
+        apply,
+        click_handler,
+    } = button_props.take();
 
     <span class="macro">html!</span>(<span class="string">&quot;button&quot;</span>, {
         .class(<span class="string">&quot;dmat-button&quot;</span>)
-        .apply_if(mixin.is_some(), |b| b.apply(mixin.unwrap()))
-        .class( <span class="kw">match </span>button_props.button_type {
+        .apply_if(apply.is_some(), |b| b.apply(apply.unwrap()))
+        .class( <span class="kw">match </span>button_type {
             ButtonType::Contained =&gt; <span class="string">&quot;-contained&quot;</span>,
             ButtonType::Outlined =&gt; <span class="string">&quot;-outlined&quot;</span>,
             ButtonType::Text =&gt; <span class="string">&quot;-text&quot;</span>,
             ButtonType::Elevated =&gt; <span class="string">&quot;-elevated&quot;</span>,
         })
-        .class(<span class="kw">match </span>button_props.style {
+        .class(<span class="kw">match </span>style {
             ButtonStyle::Prominent =&gt; <span class="string">&quot;-prominent&quot;</span>,
             ButtonStyle::Neutral =&gt; <span class="string">&quot;-neutral&quot;</span>,
             ButtonStyle::Unimportant =&gt; <span class="string">&quot;-unimportant&quot;</span>,
         })
-        .apply(<span class="kw">move </span>|bdom| {
-            <span class="kw">match </span>content {
-                <span class="prelude-val">Some</span>(ButtonContent::Label(label)) =&gt; bdom.text(label.as_str()),
-                <span class="prelude-val">Some</span>(ButtonContent::Dom(dom)) =&gt; bdom.child(dom),
-                <span class="kw">_ </span>=&gt; bdom
-            }
-        })
-        .apply_if(click_handler.is_some(), |b| b.event(click_handler.unwrap()))
-        .apply_if(disabled_signal.is_some(), |b| b.apply(disabled_signal_mixin(disabled_signal.unwrap())))
+        .apply_if(content.is_some(), |d| d.child_signal(content.unwrap().map(<span class="prelude-val">Some</span>)))
+        .event(click_handler)
+        .apply(disabled_signal_mixin(disabled))
     })
 }
 
 <span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>test {
-    <span class="kw">use </span>dominator::events::Click;
-    <span class="kw">use </span>dominator::{clone, html};
-    <span class="kw">use </span>futures_signals::signal::{Mutable, SignalExt};
+    <span class="kw">use </span>dominator::{clone, events, html};
+    <span class="kw">use </span>futures_signals::signal::Mutable;
+    <span class="kw">use </span>futures_signals::signal::SignalExt;
     <span class="kw">use </span>wasm_bindgen_test::<span class="kw-2">*</span>;
     <span class="kw">use </span>web_sys::{HtmlButtonElement, HtmlElement};
 
+    <span class="kw">use </span><span class="kw">crate</span>::components::button::<span class="kw-2">*</span>;
     <span class="kw">use </span>dominator_testing::{async_yield, mount_test_dom, test_dyn_element_by_id};
 
     <span class="attr">#[wasm_bindgen_test]
@@ -435,7 +279,7 @@
         <span class="kw">let </span>counter = Mutable::new(<span class="number">0</span>);
 
         <span class="kw">let </span>btn = <span class="macro">button!</span>({
-            .click_handler( <span class="macro">clone!</span>(counter =&gt; <span class="kw">move </span>|<span class="kw">_</span>: Click| {
+            .click_handler(<span class="macro">clone!</span>(counter =&gt; <span class="kw">move </span>|<span class="kw">_</span>: events::Click| {
                     counter.set(counter.get() + <span class="number">1</span>)
                 }))
             .content(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>))
@@ -466,6 +310,32 @@
         test_dyn_element_by_id(<span class="string">&quot;test-button&quot;</span>, |ele: <span class="kw-2">&amp;</span>HtmlButtonElement| {
             <span class="macro">assert!</span>(ele.disabled());
         });
+    }
+}
+
+<span class="doccomment">/// Shorthand for creating a button with a label text
+</span><span class="kw">impl</span>&lt;
+        TcontentSignal: futures_signals::signal::Signal&lt;Item = Dom&gt;,
+        FClickCallback: Fn(events::Click),
+        TdisabledSignal: futures_signals::signal::Signal&lt;Item = bool&gt;,
+        TApplyFn: FnOnce(
+            dominator::DomBuilder&lt;web_sys::HtmlElement&gt;,
+        ) -&gt; dominator::DomBuilder&lt;web_sys::HtmlElement&gt;,
+    &gt; ButtonProps&lt;TcontentSignal, FClickCallback, TdisabledSignal, TApplyFn&gt;
+{
+    <span class="kw">pub fn </span>label(
+        <span class="self">self</span>,
+        v: <span class="kw">impl </span>AsRef&lt;str&gt;,
+    ) -&gt; ButtonProps&lt;futures_signals::signal::Always&lt;Dom&gt;, FClickCallback, TdisabledSignal, TApplyFn&gt;
+    {
+        ButtonProps {
+            click_handler: <span class="self">self</span>.click_handler,
+            content: <span class="prelude-val">Some</span>(always(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(v.as_ref()) }))),
+            button_type: <span class="self">self</span>.button_type,
+            style: <span class="self">self</span>.style,
+            disabled: <span class="self">self</span>.disabled,
+            apply: <span class="self">self</span>.apply,
+        }
     }
 }
 </code></pre></div></section></main></body></html>

@@ -113,8 +113,6 @@
 <a href="#113" id="113">113</a>
 <a href="#114" id="114">114</a>
 <a href="#115" id="115">115</a>
-<a href="#116" id="116">116</a>
-<a href="#117" id="117">117</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{clone, html, Dom};
 <span class="kw">use </span>futures_signals::map_ref;
 <span class="kw">use </span>futures_signals::signal::always;
@@ -124,13 +122,11 @@
 <span class="kw">use </span>wasm_bindgen::__rt::std::rc::Rc;
 
 <span class="kw">use </span>dmat_components::components::layouts::ContentBlockProps;
-<span class="kw">use </span>dmat_components::components::TitleProps;
-<span class="kw">use </span>dmat_components::components::{InteractiveListProps, ListEntry};
+<span class="kw">use </span>dmat_components::components::<span class="kw-2">*</span>;
 <span class="kw">use </span>dmat_components::utils::mixin::stream_handler_mixin;
 <span class="kw">use </span>dmat_components::utils::signals::mutation::store_signal_value_opt_mixin;
 
 <span class="kw">use </span><span class="kw">crate</span>::utils::toggle_button::toggle_button;
-<span class="kw">use </span>dmat_components::components::list::<span class="kw-2">*</span>;
 
 <span class="kw">pub fn </span>list_demo() -&gt; Dom {
     <span class="macro">container!</span>(|d| { d.children(<span class="kw-2">&amp;mut </span>[dynamic_list_demo(), interactive_list_demo(),]) })

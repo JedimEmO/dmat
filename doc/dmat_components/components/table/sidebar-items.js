@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["table"],"struct":["TableProps"],"trait":["TablePropsTrait"]};

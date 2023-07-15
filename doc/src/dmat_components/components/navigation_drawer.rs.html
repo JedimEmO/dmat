@@ -137,19 +137,12 @@
 <a href="#137" id="137">137</a>
 <a href="#138" id="138">138</a>
 <a href="#139" id="139">139</a>
-<a href="#140" id="140">140</a>
-<a href="#141" id="141">141</a>
-<a href="#142" id="142">142</a>
-<a href="#143" id="143">143</a>
-<a href="#144" id="144">144</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{clone, events, html, Dom, DomBuilder};
 <span class="kw">use </span>futures::channel::mpsc::Receiver;
-<span class="kw">use </span>futures_signals::signal::always;
 <span class="kw">use </span>futures_signals::signal::{Mutable, MutableSignalCloned, Signal};
 <span class="kw">use </span>web_sys::HtmlElement;
 
-<span class="kw">use </span><span class="kw">crate</span>::components::ScrimProps;
-<span class="kw">use </span><span class="kw">crate</span>::scrim;
+<span class="kw">use </span><span class="kw">crate</span>::components::scrim::<span class="kw-2">*</span>;
 
 <span class="attr">#[derive(Copy, Clone, PartialEq, Eq)]
 </span><span class="kw">pub enum </span>DrawerWidth {
@@ -229,10 +222,7 @@
 
     <span class="kw">let </span>(main_content, scrim_click_stream) = <span class="kw">match </span>props.with_scrim {
         <span class="bool-val">true </span>=&gt; {
-            <span class="kw">let </span>(main_out, scrim_out) = <span class="macro">scrim!</span>(ScrimProps {
-                content: main_content,
-                hide_signal: always(<span class="bool-val">false</span>)
-            });
+            <span class="kw">let </span>(main_out, scrim_out) = scrim(ScrimProps::new().content(main_content));
 
             (main_out, <span class="prelude-val">Some</span>(scrim_out.click_stream))
         }

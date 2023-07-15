@@ -40,7 +40,7 @@
     disabled_signal: TSig,
 ) -&gt; <span class="kw">impl </span>FnOnce(DomBuilder&lt;A&gt;) -&gt; DomBuilder&lt;A&gt;
 <span class="kw">where
-    </span>TSig: Signal&lt;Item = bool&gt; + Unpin + <span class="lifetime">&#39;static</span>,
+    </span>TSig: Signal&lt;Item = bool&gt; + <span class="lifetime">&#39;static</span>,
 {
     <span class="kw">move </span>|d| {
         d.apply(<span class="kw">move </span>|inner_builder| {

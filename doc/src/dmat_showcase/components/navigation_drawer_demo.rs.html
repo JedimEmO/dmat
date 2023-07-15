@@ -191,10 +191,6 @@
 <a href="#191" id="191">191</a>
 <a href="#192" id="192">192</a>
 <a href="#193" id="193">193</a>
-<a href="#194" id="194">194</a>
-<a href="#195" id="195">195</a>
-<a href="#196" id="196">196</a>
-<a href="#197" id="197">197</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{clone, html, Dom, DomBuilder};
 <span class="kw">use </span>futures_signals::signal::from_stream;
 <span class="kw">use </span>futures_signals::signal::{always, Mutable};
@@ -203,15 +199,11 @@
 <span class="kw">use </span>web_sys::HtmlElement;
 
 <span class="kw">use </span>dmat_components::components::layouts::ContentBlockProps;
-<span class="kw">use </span>dmat_components::components::TitleProps;
-<span class="kw">use </span>dmat_components::components::{
-    DrawerWidth, InteractiveListProps, ListEntry, NavigationDrawerProps,
-};
+<span class="kw">use </span>dmat_components::components::<span class="kw-2">*</span>;
 <span class="kw">use </span>dmat_components::utils::signals::mutation::store_signal_value_opt_mixin;
 <span class="kw">use </span>dmat_components::utils::signals::stream_flipflop::stream_to_flipflop_mixin;
 
 <span class="kw">use </span><span class="kw">crate</span>::utils::toggle_button::toggle_button;
-<span class="kw">use </span>dmat_components::components::list::<span class="kw-2">*</span>;
 
 <span class="attr">#[inline]
 </span><span class="kw">pub fn </span>navigation_drawers_demo() -&gt; Dom {

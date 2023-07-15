@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["scrim"],"struct":["ScrimOut","ScrimProps"]};
+window.SIDEBAR_ITEMS = {"fn":["scrim"],"struct":["ScrimOut","ScrimProps"],"trait":["ScrimPropsTrait"]};

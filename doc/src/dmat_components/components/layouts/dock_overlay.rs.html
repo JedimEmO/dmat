@@ -121,17 +121,12 @@
 <a href="#121" id="121">121</a>
 <a href="#122" id="122">122</a>
 <a href="#123" id="123">123</a>
-<a href="#124" id="124">124</a>
-<a href="#125" id="125">125</a>
-<a href="#126" id="126">126</a>
-<a href="#127" id="127">127</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{html, Dom, DomBuilder};
 <span class="kw">use </span>futures::channel::mpsc::Receiver;
-<span class="kw">use </span>futures_signals::signal::{always, Signal, SignalExt};
+<span class="kw">use </span>futures_signals::signal::{Signal, SignalExt};
 <span class="kw">use </span>web_sys::HtmlElement;
 
-<span class="kw">use </span><span class="kw">crate</span>::components::ScrimProps;
-<span class="kw">use </span><span class="kw">crate</span>::scrim;
+<span class="kw">use </span><span class="kw">crate</span>::components::scrim::<span class="kw-2">*</span>;
 
 <span class="attr">#[macro_export]
 </span><span class="macro">macro_rules! </span>dock_overlay {
@@ -210,10 +205,7 @@
     };
 
     <span class="kw">let </span>inner_dom = <span class="kw">if </span>props.show_scrim {
-        <span class="kw">let </span>(inner_dom, _inner_scrim_out) = <span class="macro">scrim!</span>(ScrimProps {
-            hide_signal: always(<span class="bool-val">false</span>),
-            content: props.inner_view
-        });
+        <span class="kw">let </span>(inner_dom, _inner_scrim_out) = scrim(ScrimProps::new().content(props.inner_view));
 
         out.scrim_click_stream = <span class="prelude-val">Some</span>(_inner_scrim_out.click_stream);
         inner_dom

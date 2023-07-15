@@ -123,12 +123,12 @@
 <span class="kw">use </span><span class="kw">crate</span>::components::button_demo::button_demo;
 <span class="kw">use </span><span class="kw">crate</span>::components::card_demo::card_demo;
 <span class="kw">use </span><span class="kw">crate</span>::components::carousel_demo::carousel_demo;
-<span class="kw">use </span><span class="kw">crate</span>::components::data_table_demo::data_table_demo;
 <span class="kw">use </span><span class="kw">crate</span>::components::dock_overlay_demo::dock_overlay_demo;
 <span class="kw">use </span><span class="kw">crate</span>::components::input_demo::input_demo;
 <span class="kw">use </span><span class="kw">crate</span>::components::list_demo::list_demo;
 <span class="kw">use </span><span class="kw">crate</span>::components::navigation_drawer_demo::navigation_drawers_demo;
 <span class="kw">use </span><span class="kw">crate</span>::components::sheet_demo::sheet_demo;
+<span class="kw">use </span><span class="kw">crate</span>::components::table_demo::table_demo;
 
 <span class="kw">use </span><span class="kw">crate</span>::route::{DemoRoute, ExampleAppRoute};
 
@@ -154,7 +154,7 @@
         DemoRoute::Button,
         DemoRoute::Card,
         DemoRoute::Carousel,
-        DemoRoute::DataTable,
+        DemoRoute::Table,
         DemoRoute::DockOverlay,
         DemoRoute::Input,
         DemoRoute::List,
@@ -197,7 +197,7 @@
                 DemoRoute::List =&gt; list_demo(),
                 DemoRoute::Carousel =&gt; carousel_demo(),
                 DemoRoute::Card =&gt; card_demo(),
-                DemoRoute::DataTable =&gt; data_table_demo(),
+                DemoRoute::Table =&gt; table_demo(),
                 DemoRoute::Input =&gt; input_demo(),
                 DemoRoute::NavigationDrawer =&gt; navigation_drawers_demo(),
                 DemoRoute::Sheet =&gt; sheet_demo(),
@@ -210,7 +210,7 @@
 <span class="kw">fn </span>render_demo_label(tab_id: DemoRoute) -&gt; Dom {
     <span class="kw">match </span>tab_id {
         DemoRoute::Tabs =&gt; <span class="macro">text!</span>(<span class="string">&quot;Tabs&quot;</span>),
-        DemoRoute::DataTable =&gt; <span class="macro">text!</span>(<span class="string">&quot;Data Table&quot;</span>),
+        DemoRoute::Table =&gt; <span class="macro">text!</span>(<span class="string">&quot;Table&quot;</span>),
         DemoRoute::AppBar =&gt; <span class="macro">text!</span>(<span class="string">&quot;App Bar&quot;</span>),
         DemoRoute::Card =&gt; <span class="macro">text!</span>(<span class="string">&quot;Card&quot;</span>),
         DemoRoute::DockOverlay =&gt; <span class="macro">text!</span>(<span class="string">&quot;Dock Overlay&quot;</span>),

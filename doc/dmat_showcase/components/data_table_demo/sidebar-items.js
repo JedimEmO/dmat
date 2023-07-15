@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":["data_table_demo"]};

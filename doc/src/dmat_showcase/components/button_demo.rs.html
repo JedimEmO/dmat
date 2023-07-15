@@ -150,17 +150,13 @@
 <a href="#150" id="150">150</a>
 <a href="#151" id="151">151</a>
 <a href="#152" id="152">152</a>
-<a href="#153" id="153">153</a>
-<a href="#154" id="154">154</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{clone, Dom};
 <span class="kw">use </span>futures_signals::map_ref;
 <span class="kw">use </span>futures_signals::signal::always;
 <span class="kw">use </span>futures_signals::signal::Mutable;
 
 <span class="kw">use </span>dmat_components::components::layouts::ContentBlockProps;
-<span class="kw">use </span>dmat_components::components::list::<span class="kw-2">*</span>;
-<span class="kw">use </span>dmat_components::components::TitleProps;
-<span class="kw">use </span>dmat_components::components::{ButtonStyle, ButtonType};
+<span class="kw">use </span>dmat_components::components::<span class="kw-2">*</span>;
 
 <span class="kw">pub fn </span>button_demo() -&gt; Dom {
     <span class="kw">let </span>counter = Mutable::new(<span class="number">0</span>);

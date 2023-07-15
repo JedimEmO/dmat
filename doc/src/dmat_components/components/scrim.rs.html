@@ -114,55 +114,20 @@
 <a href="#114" id="114">114</a>
 <a href="#115" id="115">115</a>
 <a href="#116" id="116">116</a>
-<a href="#117" id="117">117</a>
-<a href="#118" id="118">118</a>
-<a href="#119" id="119">119</a>
-<a href="#120" id="120">120</a>
-<a href="#121" id="121">121</a>
-<a href="#122" id="122">122</a>
-<a href="#123" id="123">123</a>
-<a href="#124" id="124">124</a>
-<a href="#125" id="125">125</a>
-<a href="#126" id="126">126</a>
-<a href="#127" id="127">127</a>
-<a href="#128" id="128">128</a>
-<a href="#129" id="129">129</a>
-<a href="#130" id="130">130</a>
-<a href="#131" id="131">131</a>
-<a href="#132" id="132">132</a>
-<a href="#133" id="133">133</a>
-<a href="#134" id="134">134</a>
-<a href="#135" id="135">135</a>
-<a href="#136" id="136">136</a>
-<a href="#137" id="137">137</a>
-<a href="#138" id="138">138</a>
-<a href="#139" id="139">139</a>
-<a href="#140" id="140">140</a>
-<a href="#141" id="141">141</a>
-<a href="#142" id="142">142</a>
-<a href="#143" id="143">143</a>
-<a href="#144" id="144">144</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{events, html, Dom, DomBuilder};
+</pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{events, html, Dom};
 <span class="kw">use </span>futures::channel::mpsc::{channel, Receiver};
-<span class="kw">use </span>futures_signals::signal::Signal;
-<span class="kw">use </span>web_sys::HtmlElement;
+<span class="kw">use </span>futures_signals::signal::SignalExt;
 
-<span class="attr">#[macro_export]
-</span><span class="macro">macro_rules! </span>scrim {
-    (<span class="macro-nonterminal">$a</span>: expr) =&gt; {{
-        <span class="macro-nonterminal">$crate::components::scrim</span>(<span class="macro-nonterminal">$a</span>, |d| d)
-    }};
-
-    (<span class="macro-nonterminal">$a</span>: expr, <span class="macro-nonterminal">$mixin</span>: expr) =&gt; {{
-        <span class="macro-nonterminal">$crate::components::scrim</span>(<span class="macro-nonterminal">$a</span>, <span class="macro-nonterminal">$mixin</span>)
-    }};
-}
-
-<span class="doccomment">/// `content` - The Dom that will be overlaid by the scrim when it is visible
-/// `hide_signal` - bool signal which toggles the visibility of the shaded overlay
-</span><span class="kw">pub struct </span>ScrimProps&lt;THideSig: Signal&lt;Item = bool&gt; + <span class="lifetime">&#39;static</span>&gt; {
-    <span class="kw">pub </span>content: Dom,
-    <span class="kw">pub </span>hide_signal: THideSig,
+<span class="doccomment">/// Overlays a semi-opaque toggleable scrim over a component
+</span><span class="attr">#[component(render_fn = scrim)]
+</span><span class="kw">struct </span>Scrim {
+    <span class="doccomment">/// The Dom that will be overlaid by the scrim when it is visible
+    </span><span class="attr">#[signal]
+    </span>content: Dom,
+    <span class="doccomment">/// bool signal which toggles the visibility of the shaded overlay
+    </span><span class="attr">#[signal]
+    #[default(<span class="bool-val">false</span>)]
+    </span>hide: bool,
 }
 
 <span class="kw">pub struct </span>ScrimOut {
@@ -170,52 +135,31 @@
 }
 
 <span class="doccomment">/// Overlays a semi-opaque toggleable scrim over a component
-/// # Examples
-/// ```no_run
-/// use dominator::html;
-/// use futures_signals::signal::Mutable;
-///
-/// use dmat_components::scrim;
-/// use dmat_components::components::scrim::ScrimProps;
-/// use dmat_components::utils::signals::stream_flipflop::stream_to_flipflop_mixin;
-/// let show_scrim = Mutable::new(true);
-///
-/// let (scrim_dom, scrim_out) = scrim!({ ScrimProps {
-///     hide_signal: show_scrim.signal_cloned(),
-///     content: html!(&quot;div&quot;, { .text(&quot;I am under the scrim!&quot;) })
-/// }});
-///
-/// // the with_stream_flipflop method will make sure we toggle the show_scrim
-/// // boolean value on every click to the scrim overlay
-/// let _ = html!(&quot;div&quot;, {
-///     .child(scrim_dom)
-///     .apply(stream_to_flipflop_mixin(scrim_out.click_stream, &amp;show_scrim))
-/// });
-/// ```
-</span><span class="kw">pub fn </span>scrim&lt;THideSig, F&gt;(props: ScrimProps&lt;THideSig&gt;, mixin: F) -&gt; (Dom, ScrimOut)
-<span class="kw">where
-    </span>THideSig: Signal&lt;Item = bool&gt; + <span class="lifetime">&#39;static</span>,
-    F: FnOnce(DomBuilder&lt;HtmlElement&gt;) -&gt; DomBuilder&lt;HtmlElement&gt;,
-{
-    <span class="kw">let </span>content = props.content;
-    <span class="kw">let </span>hide_signal = props.hide_signal;
+</span><span class="kw">pub fn </span>scrim(props: <span class="kw">impl </span>ScrimPropsTrait + <span class="lifetime">&#39;static</span>) -&gt; (Dom, ScrimOut) {
+    <span class="kw">let </span>ScrimProps {
+        content,
+        hide,
+        apply,
+    } = props.take();
 
     <span class="kw">let </span>(<span class="kw-2">mut </span>tx, rx) = channel(<span class="number">1</span>);
 
     (
         <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
             .class(<span class="string">&quot;dmat-scrim&quot;</span>)
-            .apply(mixin)
-            .children(<span class="kw-2">&amp;mut </span>[
-                content,
-                <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
-                    .class(<span class="string">&quot;scrim-overlay&quot;</span>)
-                    .class_signal(<span class="string">&quot;-hidden&quot;</span>, hide_signal)
-                    .event(<span class="kw">move </span>|<span class="kw">_</span>: events::Click |{
-                        tx.try_send(()).unwrap_or(());
-                    })
+            .apply_if(apply.is_some(), |dom| {
+                apply.unwrap()(dom)
+            })
+            .apply_if(content.is_some(), |dom| {
+                dom.child_signal(content.unwrap().map(<span class="prelude-val">Some</span>))
+            })
+            .child(<span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
+                .class(<span class="string">&quot;scrim-overlay&quot;</span>)
+                .class_signal(<span class="string">&quot;-hidden&quot;</span>, hide)
+                .event(<span class="kw">move </span>|<span class="kw">_</span>: events::Click |{
+                    tx.try_send(()).unwrap_or(());
                 })
-            ])
+            }))
         }),
         ScrimOut { click_stream: rx },
     )
@@ -231,7 +175,7 @@
         as_html_element, async_yield, get_elements_by_class_name, has_class_name, mount_test_dom,
     };
 
-    <span class="kw">use </span><span class="kw">crate</span>::components::ScrimProps;
+    <span class="kw">use </span><span class="kw">crate</span>::components::scrim::<span class="kw-2">*</span>;
     <span class="kw">use </span><span class="kw">crate</span>::utils::mixin::id_attribute_mixin;
     <span class="kw">use </span><span class="kw">crate</span>::utils::signals::stream_flipflop::stream_to_flipflop_mixin;
 
@@ -239,13 +183,11 @@
     </span><span class="kw">async fn </span>test_scrim_click_toggle() {
         <span class="kw">let </span>visible = Mutable::new(<span class="bool-val">true</span>);
 
-        <span class="kw">let </span>(scrim_dom, scrim_out) = <span class="macro">scrim!</span>(
-            ScrimProps {
-                content: <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>),
-                hide_signal: visible.signal_ref(|v| !v)
-            },
-            id_attribute_mixin(<span class="string">&quot;test-scrim&quot;</span>)
-        );
+        <span class="kw">let </span>(scrim_dom, scrim_out) = <span class="macro">scrim!</span>({
+            .content(<span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>))
+            .hide_signal(visible.signal_ref(|v| !v))
+            .apply(id_attribute_mixin(<span class="string">&quot;test-scrim&quot;</span>))
+        });
 
         <span class="kw">let </span>store_flipflop_mixin = stream_to_flipflop_mixin(scrim_out.click_stream, <span class="kw-2">&amp;</span>visible);
 
@@ -266,6 +208,8 @@
         <span class="macro">assert!</span>(!visible.get());
 
         <span class="kw">let </span>overlays = get_elements_by_class_name(<span class="string">&quot;scrim-overlay&quot;</span>);
+
+        <span class="macro">assert_eq!</span>(overlays.len(), <span class="number">1</span>);
 
         <span class="comment">// Ensure that the overlay is now -hidden
         </span>overlays

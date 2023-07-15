@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["ButtonContent","ButtonStyle","ButtonType"],"fn":["button"],"struct":["ButtonProps"]};
+window.SIDEBAR_ITEMS = {"enum":["ButtonContent","ButtonStyle","ButtonType"],"fn":["button"],"struct":["ButtonProps"],"trait":["ButtonPropsTrait"]};

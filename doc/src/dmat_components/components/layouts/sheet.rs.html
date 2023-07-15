@@ -155,8 +155,7 @@
 <a href="#155" id="155">155</a>
 <a href="#156" id="156">156</a>
 <a href="#157" id="157">157</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::components::ScrimProps;
-<span class="kw">use </span><span class="kw">crate</span>::scrim;
+</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::components::scrim::<span class="kw-2">*</span>;
 <span class="kw">use </span>dominator::{clone, html, Dom, DomBuilder};
 <span class="kw">use </span>futures::channel::mpsc::Receiver;
 <span class="kw">use </span>futures::StreamExt;
@@ -272,10 +271,11 @@
     <span class="kw">let </span>sheet_content_class = sheet_side_to_content_class(side);
     <span class="kw">let </span>show_scrim = Mutable::new(<span class="bool-val">false</span>);
 
-    <span class="kw">let </span>(wrapped, scrim_out) = <span class="macro">scrim!</span>(ScrimProps {
-        hide_signal: show_scrim.signal_ref(<span class="kw">move </span>|v| !do_show_scrim || !v),
-        content: wrapped
-    });
+    <span class="kw">let </span>(wrapped, scrim_out) = scrim(
+        ScrimProps::new()
+            .hide_signal(show_scrim.signal_ref(<span class="kw">move </span>|v| !do_show_scrim || !v))
+            .content(wrapped),
+    );
 
     (
         <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
