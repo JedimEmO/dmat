@@ -37,3 +37,5 @@ jobs:
         run: cargo clippy
       - name: Run unit tests
         run: cargo test
+      - name: Code quality
+        run: ./verify_code_quality.sh

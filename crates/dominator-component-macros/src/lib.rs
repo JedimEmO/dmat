@@ -6,12 +6,28 @@ use crate::parse::AttributeArgument;
 use crate::parse::{Component, Prop, PropGenerics};
 use crate::render::render_props;
 use proc_macro::TokenStream;
-use syn::{GenericArgument, Ident, PathArguments, Type, TypeParam};
+use syn::{GenericArgument, Ident, Meta, PathArguments, Type, TypeParam};
 
 #[proc_macro_attribute]
 pub fn component(args: TokenStream, input: TokenStream) -> TokenStream {
     let struct_ = syn::parse::<syn::ItemStruct>(input).expect("failed to parse struct");
     let arg = syn::parse::<AttributeArgument>(args).expect("failed to parse attribute args");
+
+    let docs = struct_
+        .attrs
+        .into_iter()
+        .filter_map(|attr| {
+            if *attr.path().get_ident().unwrap() == "doc" {
+                if let Meta::NameValue(docstring) = attr.meta {
+                    Some(docstring.value)
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
+        })
+        .collect();
 
     let fields = match struct_.fields {
         syn::Fields::Named(fields) => fields.named,
@@ -38,6 +54,7 @@ pub fn component(args: TokenStream, input: TokenStream) -> TokenStream {
         name: struct_.ident,
         render_fn: arg.fn_name,
         props: fields.collect(),
+        docs,
     };
 
     let apply_prop = Prop {
@@ -46,6 +63,7 @@ pub fn component(args: TokenStream, input: TokenStream) -> TokenStream {
         generics: Some(PropGenerics { param: syn::parse_str::<TypeParam>("TApplyFn: FnOnce(dominator::DomBuilder<web_sys::HtmlElement>) -> dominator::DomBuilder<web_sys::HtmlElement> = fn(dominator::DomBuilder<web_sys::HtmlElement>)->dominator::DomBuilder<web_sys::HtmlElement>").expect("failed to parse type param") }),
         type_: syn::parse_str::<Type>("TApplyFn").expect("failed to parse type"),
         default: None,
+        docs: vec![],
     };
 
     cmp.props.push(apply_prop);

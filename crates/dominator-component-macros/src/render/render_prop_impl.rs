@@ -1,4 +1,5 @@
 use crate::parse::{Component, Prop, SignalType};
+use crate::render::render_doc_exprs;
 use crate::render::render_utils::{
     compute_component_generics, get_prop_signal_always_type, get_prop_signal_type_param,
     new_prop_signal_name, prop_signal_name,
@@ -23,6 +24,8 @@ pub fn render_prop_impl(props_struct_name: &Ident, prop: &Prop, cmp: &Component)
     let mut out_rewrites = vec![];
     let mut ty_ = prop.type_.clone();
     let is_generic_type = prop.generics.is_some();
+
+    let docs = render_doc_exprs(&prop.docs);
 
     let value_assign_expr = if let Some(_default) = &prop.default {
         quote! {v}
@@ -103,10 +106,12 @@ pub fn render_prop_impl(props_struct_name: &Ident, prop: &Prop, cmp: &Component)
 
         quote! {
             impl<#(#generics),*> #props_struct_name<#(#generic_idents),*> {
+                #docs
                 pub fn #prop_name<#(#changed_generics_nosig),*>(mut self, v: #always_value_type) -> #props_struct_name<#(#generic_idents_out_always),*> {
                     self.#props_signal_fn_name(futures_signals::#signal_mod_ident::always(v.into()))
                 }
 
+                #docs
                 pub fn #props_signal_fn_name<#(#changed_generics),*>(self, v: #new_signal_name) -> #props_struct_name<#(#generic_idents_out),*> {
                     #props_struct_name {
                         #prop_name: #value_assign_expr,
@@ -133,6 +138,7 @@ pub fn render_prop_impl(props_struct_name: &Ident, prop: &Prop, cmp: &Component)
 
         quote! {
             impl<#(#generics),*> #props_struct_name<#(#generic_idents),*> {
+                #docs
                 pub fn #prop_name<#(#changed_generics),*>(mut self, v: #ty_) -> #props_struct_name<#(#generic_idents_out),*> {
                      #props_struct_name {
                         #prop_name: #value_assign_expr,

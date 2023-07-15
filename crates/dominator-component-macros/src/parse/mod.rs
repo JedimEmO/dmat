@@ -3,7 +3,7 @@ pub mod parse_field;
 use proc_macro2::Ident;
 use syn::parse::{Parse, ParseStream};
 use syn::punctuated::Punctuated;
-use syn::{Token, Type, TypeParam};
+use syn::{Attribute, Expr, Meta, Token, Type, TypeParam};
 
 pub struct AttributeArgument {
     pub param: Ident,
@@ -35,12 +35,14 @@ pub struct Prop {
     pub generics: Option<PropGenerics>,
     pub type_: Type,
     pub default: Option<syn::Expr>,
+    pub docs: Vec<Expr>,
 }
 
 pub struct Component {
     pub name: Ident,
     pub render_fn: Ident,
     pub props: Punctuated<Prop, Token![,]>,
+    pub docs: Vec<Expr>,
 }
 
 impl Parse for AttributeArgument {
@@ -51,4 +53,20 @@ impl Parse for AttributeArgument {
 
         Ok(AttributeArgument { param, eq, fn_name })
     }
+}
+pub fn docs_from_attrs<'a>(attrs: impl Iterator<Item = &'a Attribute>) -> Vec<syn::Expr> {
+    attrs
+        .into_iter()
+        .filter_map(|attr| {
+            if *attr.path().get_ident().unwrap() == "doc" {
+                if let Meta::NameValue(docstring) = &attr.meta {
+                    Some(docstring.value.clone())
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
+        })
+        .collect()
 }

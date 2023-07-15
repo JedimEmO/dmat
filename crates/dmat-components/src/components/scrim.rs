@@ -119,7 +119,7 @@ mod test {
 
         async_yield().await;
 
-        assert_eq!(visible.get(), false);
+        assert!(!visible.get());
 
         let overlays = get_elements_by_class_name("scrim-overlay");
 

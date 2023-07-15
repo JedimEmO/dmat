@@ -89,6 +89,12 @@ pub fn render_prop_builder_struct(props_struct_name: Ident, cmp: &Component) -> 
         .map(|g| g.ident.clone())
         .collect::<Vec<_>>();
 
+    let docs = cmp.docs.iter().map(|doc| {
+        quote! {
+            #[doc = #doc]
+        }
+    });
+
     quote! {
         pub trait #trait_name {
             #(#trait_types)*
@@ -96,6 +102,7 @@ pub fn render_prop_builder_struct(props_struct_name: Ident, cmp: &Component) -> 
             fn take(self) -> #props_struct_name<#(#unpack_trait_params_selfed,)* >;
         }
 
+        #(#docs)*
         pub struct #props_struct_name<#(#generics,)* > {
             #(#props)*
         }

@@ -1,5 +1,5 @@
 use crate::get_type_generic_param_use;
-use crate::parse::{Prop, PropGenerics, SignalType};
+use crate::parse::{docs_from_attrs, Prop, PropGenerics, SignalType};
 use syn::Field;
 
 pub fn parse_field(field: &Field, struct_generics: &Vec<PropGenerics>) -> Prop {
@@ -34,6 +34,8 @@ pub fn parse_field(field: &Field, struct_generics: &Vec<PropGenerics>) -> Prop {
         generic.clone()
     });
 
+    let field_docs = docs_from_attrs(field.attrs.iter());
+
     Prop {
         is_signal: if is_signal {
             Some(SignalType::Item)
@@ -46,5 +48,6 @@ pub fn parse_field(field: &Field, struct_generics: &Vec<PropGenerics>) -> Prop {
         generics,
         type_: field.ty.clone(),
         default,
+        docs: field_docs,
     }
 }

@@ -1,12 +1,6 @@
 use dominator::{html, Dom};
 use futures_signals::signal_vec::SignalVecExt;
 
-#[component(render_fn = list)]
-pub struct List {
-    #[signal_vec]
-    rows: Dom,
-}
-
 /// Renders a list of items.
 ///
 /// # Examples
@@ -31,6 +25,14 @@ pub struct List {
 ///         .map(|item| html!("span", { .text(item) })))
 /// });
 /// ```
+#[component(render_fn = list)]
+pub struct List {
+    /// The list of items to render.
+    /// Each item is wrapped in a `<li>` element by the list component.
+    #[signal_vec]
+    rows: Dom,
+}
+
 #[inline]
 pub fn list(props: impl ListPropsTrait + 'static) -> Dom {
     let ListProps { rows, apply } = props.take();

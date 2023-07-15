@@ -7,6 +7,9 @@ license-file = "LICENSE.md"
 repository = "https://github.com/JedimEmO/dmat"
 description = "Collection of material components to use with the dominator rust library"
 
+[lib]
+doctest = false
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
 dmat-utils = { path = "../dmat-utils" }

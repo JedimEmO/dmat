@@ -24,8 +24,14 @@ mod test {
         use crate::test::ToI32;
         use dominator_component_macros::component;
 
+        /// This is a trait that is used to define the props for the component
+        /// # Example
+        /// ```
+        /// fn foo() -> () {}
+        /// ```
         #[component(render_fn = some_button)]
         pub struct SomeButton<T: ToString + Default = i32, U: ToI32 + ToString + Default = i32> {
+            /// The button label. This can be a signal, which allows us to update the label dynamically based on state changes
             #[signal]
             pub label: String,
             #[signal]

@@ -6,6 +6,7 @@ pub mod render_utils;
 use crate::parse::Component;
 use proc_macro2::{Ident, TokenStream};
 use quote::quote;
+use syn::Expr;
 
 use crate::render::render_component_macro::render_component_macro;
 
@@ -29,5 +30,17 @@ pub fn render_props(cmp: &Component) -> TokenStream {
     };
 
     s.extend(macro_);
+    s
+}
+
+fn render_doc_exprs(doc_exprs: &Vec<Expr>) -> TokenStream {
+    let mut s = TokenStream::new();
+
+    for doc_expr in doc_exprs {
+        s.extend(quote! {
+            #[doc = #doc_expr]
+        });
+    }
+
     s
 }
