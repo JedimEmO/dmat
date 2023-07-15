@@ -1,6 +1,6 @@
 use dmat_components::components::layouts::ContentBlockProps;
 use dmat_components::components::layouts::{DockOverlayOut, DockOverlayProps, DockPoint};
-use dmat_components::components::TitleProps;
+use dmat_components::components::*;
 use dmat_components::utils::signals::stream_flipflop::stream_to_flipflop_mixin;
 use dominator::{clone, events, html, Dom};
 use futures_signals::signal::{always, Mutable, ReadOnlyMutable};

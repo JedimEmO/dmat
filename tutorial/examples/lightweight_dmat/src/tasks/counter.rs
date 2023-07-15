@@ -1,4 +1,4 @@
-use dmat_components::components::ButtonStyle;
+use dmat_components::components::button::*;
 use dominator::{clone, html, Dom};
 use futures_signals::signal::Mutable;
 
@@ -12,7 +12,7 @@ pub fn counter() -> Dom {
             .disabled()
         }).0)
         .child(button!({
-            .label("Increment")
+            .content(html!("span", { .text("Increment")}))
             .style(ButtonStyle::Prominent)
             .click_handler(clone!(counter_state => move |_| {
                 counter_state.set((counter_state.get_cloned().as_str().parse::<i32>().unwrap() + 1).to_string());

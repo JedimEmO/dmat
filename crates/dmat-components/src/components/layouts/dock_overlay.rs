@@ -1,10 +1,9 @@
 use dominator::{html, Dom, DomBuilder};
 use futures::channel::mpsc::Receiver;
-use futures_signals::signal::{always, Signal, SignalExt};
+use futures_signals::signal::{Signal, SignalExt};
 use web_sys::HtmlElement;
 
-use crate::components::ScrimProps;
-use crate::scrim;
+use crate::components::scrim::*;
 
 #[macro_export]
 macro_rules! dock_overlay {
@@ -83,10 +82,7 @@ where
     };
 
     let inner_dom = if props.show_scrim {
-        let (inner_dom, _inner_scrim_out) = scrim!(ScrimProps {
-            hide_signal: always(false),
-            content: props.inner_view
-        });
+        let (inner_dom, _inner_scrim_out) = scrim(ScrimProps::new().content(props.inner_view));
 
         out.scrim_click_stream = Some(_inner_scrim_out.click_stream);
         inner_dom

@@ -1,4 +1,4 @@
-use dmat_components::components::{ButtonStyle, ButtonType};
+use dmat_components::components::button::*;
 use dominator::{clone, Dom};
 use futures_signals::signal::Mutable;
 

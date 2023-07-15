@@ -1,11 +1,9 @@
 use dominator::{clone, events, html, Dom, DomBuilder};
 use futures::channel::mpsc::Receiver;
-use futures_signals::signal::always;
 use futures_signals::signal::{Mutable, MutableSignalCloned, Signal};
 use web_sys::HtmlElement;
 
-use crate::components::ScrimProps;
-use crate::scrim;
+use crate::components::scrim::*;
 
 #[derive(Copy, Clone, PartialEq, Eq)]
 pub enum DrawerWidth {
@@ -85,10 +83,7 @@ where
 
     let (main_content, scrim_click_stream) = match props.with_scrim {
         true => {
-            let (main_out, scrim_out) = scrim!(ScrimProps {
-                content: main_content,
-                hide_signal: always(false)
-            });
+            let (main_out, scrim_out) = scrim(ScrimProps::new().content(main_content));
 
             (main_out, Some(scrim_out.click_stream))
         }

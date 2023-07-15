@@ -7,13 +7,11 @@ use futures_signals::signal_vec::{MutableVec, SignalVecExt};
 use wasm_bindgen::__rt::std::rc::Rc;
 
 use dmat_components::components::layouts::ContentBlockProps;
-use dmat_components::components::TitleProps;
-use dmat_components::components::{InteractiveListProps, ListEntry};
+use dmat_components::components::*;
 use dmat_components::utils::mixin::stream_handler_mixin;
 use dmat_components::utils::signals::mutation::store_signal_value_opt_mixin;
 
 use crate::utils::toggle_button::toggle_button;
-use dmat_components::components::list::*;
 
 pub fn list_demo() -> Dom {
     container!(|d| { d.children(&mut [dynamic_list_demo(), interactive_list_demo(),]) })

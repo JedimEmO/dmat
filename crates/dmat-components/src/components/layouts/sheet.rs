@@ -1,5 +1,4 @@
-use crate::components::ScrimProps;
-use crate::scrim;
+use crate::components::scrim::*;
 use dominator::{clone, html, Dom, DomBuilder};
 use futures::channel::mpsc::Receiver;
 use futures::StreamExt;
@@ -115,10 +114,11 @@ where
     let sheet_content_class = sheet_side_to_content_class(side);
     let show_scrim = Mutable::new(false);
 
-    let (wrapped, scrim_out) = scrim!(ScrimProps {
-        hide_signal: show_scrim.signal_ref(move |v| !do_show_scrim || !v),
-        content: wrapped
-    });
+    let (wrapped, scrim_out) = scrim(
+        ScrimProps::new()
+            .hide_signal(show_scrim.signal_ref(move |v| !do_show_scrim || !v))
+            .content(wrapped),
+    );
 
     (
         html!("div", {

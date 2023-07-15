@@ -1,6 +1,7 @@
 #[macro_use]
 extern crate dmat_components;
 
+use dmat_components::components::*;
 use dominator::{append_dom, body, html};
 use wasm_bindgen::prelude::*;
 

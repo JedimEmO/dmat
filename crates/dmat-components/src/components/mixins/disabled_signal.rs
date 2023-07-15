@@ -11,7 +11,7 @@ pub fn disabled_signal_mixin<TSig, A: AsRef<Element>>(
     disabled_signal: TSig,
 ) -> impl FnOnce(DomBuilder<A>) -> DomBuilder<A>
 where
-    TSig: Signal<Item = bool> + Unpin + 'static,
+    TSig: Signal<Item = bool> + 'static,
 {
     move |d| {
         d.apply(move |inner_builder| {

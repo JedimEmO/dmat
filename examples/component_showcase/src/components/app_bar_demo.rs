@@ -3,8 +3,7 @@ use futures_signals::signal::always;
 use lipsum::lipsum;
 
 use dmat_components::components::layouts::AppBarType;
-use dmat_components::components::list::*;
-use dmat_components::components::{DrawerWidth, NavigationDrawerProps};
+use dmat_components::components::*;
 
 use crate::components::navigation_drawer_demo::mock_view_select;
 

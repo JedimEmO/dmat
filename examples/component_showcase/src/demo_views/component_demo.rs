@@ -11,12 +11,12 @@ use crate::components::app_bar_demo::app_bar_demo;
 use crate::components::button_demo::button_demo;
 use crate::components::card_demo::card_demo;
 use crate::components::carousel_demo::carousel_demo;
-use crate::components::data_table_demo::data_table_demo;
 use crate::components::dock_overlay_demo::dock_overlay_demo;
 use crate::components::input_demo::input_demo;
 use crate::components::list_demo::list_demo;
 use crate::components::navigation_drawer_demo::navigation_drawers_demo;
 use crate::components::sheet_demo::sheet_demo;
+use crate::components::table_demo::table_demo;
 
 use crate::route::{DemoRoute, ExampleAppRoute};
 
@@ -42,7 +42,7 @@ fn component_demo_list(current_value: DemoRoute) -> (Dom, impl Stream<Item = Opt
         DemoRoute::Button,
         DemoRoute::Card,
         DemoRoute::Carousel,
-        DemoRoute::DataTable,
+        DemoRoute::Table,
         DemoRoute::DockOverlay,
         DemoRoute::Input,
         DemoRoute::List,
@@ -85,7 +85,7 @@ fn component_demo<TStream: Stream<Item = Option<DemoRoute>> + Unpin + 'static>(
                 DemoRoute::List => list_demo(),
                 DemoRoute::Carousel => carousel_demo(),
                 DemoRoute::Card => card_demo(),
-                DemoRoute::DataTable => data_table_demo(),
+                DemoRoute::Table => table_demo(),
                 DemoRoute::Input => input_demo(),
                 DemoRoute::NavigationDrawer => navigation_drawers_demo(),
                 DemoRoute::Sheet => sheet_demo(),
@@ -98,7 +98,7 @@ fn component_demo<TStream: Stream<Item = Option<DemoRoute>> + Unpin + 'static>(
 fn render_demo_label(tab_id: DemoRoute) -> Dom {
     match tab_id {
         DemoRoute::Tabs => text!("Tabs"),
-        DemoRoute::DataTable => text!("Data Table"),
+        DemoRoute::Table => text!("Table"),
         DemoRoute::AppBar => text!("App Bar"),
         DemoRoute::Card => text!("Card"),
         DemoRoute::DockOverlay => text!("Dock Overlay"),

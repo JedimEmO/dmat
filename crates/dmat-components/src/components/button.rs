@@ -1,9 +1,7 @@
-use dominator::{events, html, Dom, DomBuilder};
-use futures_signals::signal::{Always, Signal};
-use web_sys::HtmlElement;
+use dominator::{events, html, Dom};
+use futures_signals::signal::{always, SignalExt};
 
 use crate::components::mixins::disabled_signal_mixin;
-use crate::utils::mixin::ApplyMixin;
 
 #[derive(Default)]
 pub enum ButtonType {
@@ -31,168 +29,79 @@ pub enum ButtonContent {
     Dom(Dom),
 }
 
-#[derive(Default)]
-pub struct ButtonProps<
-    FClickCallback: Fn(events::Click) = fn(events::Click) -> (),
-    TDisabledSignal: Signal<Item = bool> + Unpin = Always<bool>,
-> {
-    pub content: Option<ButtonContent>,
-    pub click_handler: Option<FClickCallback>,
+/// A button. You click it, things happen.
+///
+///
+/// # Example
+/// ```rust,no_run
+/// use dmat_components::components::button::*;
+/// use dominator::{clone, html, Dom};
+/// use futures_signals::signal::Mutable;
+///
+/// fn counter() {
+///     let counter_state = Mutable::new(0);
+///     button!({
+///         .on_click(clone!(counter_state => move |_| {
+///             counter_state.set(counter_state.get() + 1);
+///         }
+///     })
+/// }
+/// ```
+#[component(render_fn = button)]
+pub struct Button<FClickCallback: Fn(events::Click) = fn(events::Click) -> ()> {
+    #[signal]
+    pub content: Dom,
+    #[default(| _ | {})]
+    pub click_handler: FClickCallback,
+    #[default(ButtonType::default())]
     pub button_type: ButtonType,
+    #[default(ButtonStyle::default())]
     pub style: ButtonStyle,
-    pub disabled_signal: Option<TDisabledSignal>,
-    pub apply: ApplyMixin,
-}
-
-impl ButtonProps {
-    pub fn new() -> ButtonProps {
-        Self {
-            content: None,
-            click_handler: None,
-            button_type: ButtonType::Contained,
-            style: ButtonStyle::Prominent,
-            disabled_signal: None,
-            apply: None,
-        }
-    }
-}
-
-impl<FClickCallback: Fn(events::Click), TDisabledSignal: Signal<Item = bool> + Unpin>
-    ButtonProps<FClickCallback, TDisabledSignal>
-{
-    #[inline]
-    #[must_use]
-    pub fn content<U>(mut self, content: U) -> Self
-    where
-        U: Into<Dom>,
-    {
-        self.content = Some(ButtonContent::Dom(content.into()));
-        self
-    }
-
-    #[inline]
-    #[must_use]
-    pub fn label<U>(mut self, label: U) -> Self
-    where
-        U: ToString,
-    {
-        self.content = Some(ButtonContent::Label(label.to_string()));
-        self
-    }
-
-    #[inline]
-    #[must_use]
-    pub fn button_type(mut self, button_type: ButtonType) -> Self {
-        self.button_type = button_type;
-        self
-    }
-
-    #[inline]
-    #[must_use]
-    pub fn style(mut self, style: ButtonStyle) -> Self {
-        self.style = style;
-        self
-    }
-
-    #[inline]
-    #[must_use]
-    pub fn disabled_signal<TDisabledSignalNew: Signal<Item = bool> + Unpin>(
-        self,
-        disabled_signal: TDisabledSignalNew,
-    ) -> ButtonProps<FClickCallback, TDisabledSignalNew> {
-        ButtonProps {
-            content: self.content,
-            click_handler: self.click_handler,
-            button_type: self.button_type,
-            style: self.style,
-            disabled_signal: Some(disabled_signal),
-            apply: self.apply,
-        }
-    }
-
-    #[inline]
-    #[must_use]
-    pub fn click_handler<FClickCallbackNew: Fn(events::Click) + 'static>(
-        self,
-        click_handler: FClickCallbackNew,
-    ) -> ButtonProps<FClickCallbackNew, TDisabledSignal> {
-        ButtonProps {
-            content: self.content,
-            click_handler: Some(click_handler),
-            button_type: self.button_type,
-            style: self.style,
-            disabled_signal: self.disabled_signal,
-            apply: self.apply,
-        }
-    }
-
-    #[inline]
-    #[must_use]
-    pub fn apply<F: FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement> + 'static>(
-        mut self,
-        apply: F,
-    ) -> Self {
-        self.apply = Some(Box::new(apply));
-        self
-    }
-}
-
-#[macro_export]
-macro_rules! button {
-    ($($methods:tt)*) => {{
-        let default_props = $crate::components::button::ButtonProps::new();
-        let applied_props = dominator::apply_methods!(default_props, $($methods)*);
-        $crate::components::button::button(applied_props)
-    }};
+    #[signal]
+    #[default(false)]
+    pub disabled: bool,
 }
 
 #[inline]
-pub fn button<FClickCallback, TDisabledSignal>(
-    button_props: ButtonProps<FClickCallback, TDisabledSignal>,
-) -> Dom
-where
-    FClickCallback: Fn(events::Click) + 'static,
-    TDisabledSignal: Signal<Item = bool> + Unpin + 'static,
-{
-    let content = button_props.content;
-    let click_handler = button_props.click_handler;
-    let disabled_signal = button_props.disabled_signal;
-    let mixin = button_props.apply;
+pub fn button(button_props: impl ButtonPropsTrait + 'static) -> Dom {
+    let ButtonProps {
+        content,
+        button_type,
+        style,
+        disabled,
+        apply,
+        click_handler,
+    } = button_props.take();
 
     html!("button", {
         .class("dmat-button")
-        .apply_if(mixin.is_some(), |b| b.apply(mixin.unwrap()))
-        .class( match button_props.button_type {
+        .apply_if(apply.is_some(), |b| b.apply(apply.unwrap()))
+        .class( match button_type {
             ButtonType::Contained => "-contained",
             ButtonType::Outlined => "-outlined",
             ButtonType::Text => "-text",
             ButtonType::Elevated => "-elevated",
         })
-        .class(match button_props.style {
+        .class(match style {
             ButtonStyle::Prominent => "-prominent",
             ButtonStyle::Neutral => "-neutral",
             ButtonStyle::Unimportant => "-unimportant",
         })
-        .apply(move |bdom| {
-            match content {
-                Some(ButtonContent::Label(label)) => bdom.text(label.as_str()),
-                Some(ButtonContent::Dom(dom)) => bdom.child(dom),
-                _ => bdom
-            }
-        })
-        .apply_if(click_handler.is_some(), |b| b.event(click_handler.unwrap()))
-        .apply_if(disabled_signal.is_some(), |b| b.apply(disabled_signal_mixin(disabled_signal.unwrap())))
+        .apply_if(content.is_some(), |d| d.child_signal(content.unwrap().map(Some)))
+        .event(click_handler)
+        .apply(disabled_signal_mixin(disabled))
     })
 }
 
 #[cfg(test)]
 mod test {
-    use dominator::events::Click;
-    use dominator::{clone, html};
-    use futures_signals::signal::{Mutable, SignalExt};
+    use dominator::{clone, events, html};
+    use futures_signals::signal::Mutable;
+    use futures_signals::signal::SignalExt;
     use wasm_bindgen_test::*;
     use web_sys::{HtmlButtonElement, HtmlElement};
 
+    use crate::components::button::*;
     use dominator_testing::{async_yield, mount_test_dom, test_dyn_element_by_id};
 
     #[wasm_bindgen_test]
@@ -200,7 +109,7 @@ mod test {
         let counter = Mutable::new(0);
 
         let btn = button!({
-            .click_handler( clone!(counter => move |_: Click| {
+            .click_handler(clone!(counter => move |_: events::Click| {
                     counter.set(counter.get() + 1)
                 }))
             .content(html!("span"))
@@ -231,5 +140,31 @@ mod test {
         test_dyn_element_by_id("test-button", |ele: &HtmlButtonElement| {
             assert!(ele.disabled());
         });
+    }
+}
+
+/// Shorthand for creating a button with a label text
+impl<
+        TcontentSignal: futures_signals::signal::Signal<Item = Dom>,
+        FClickCallback: Fn(events::Click),
+        TdisabledSignal: futures_signals::signal::Signal<Item = bool>,
+        TApplyFn: FnOnce(
+            dominator::DomBuilder<web_sys::HtmlElement>,
+        ) -> dominator::DomBuilder<web_sys::HtmlElement>,
+    > ButtonProps<TcontentSignal, FClickCallback, TdisabledSignal, TApplyFn>
+{
+    pub fn label(
+        self,
+        v: impl AsRef<str>,
+    ) -> ButtonProps<futures_signals::signal::Always<Dom>, FClickCallback, TdisabledSignal, TApplyFn>
+    {
+        ButtonProps {
+            click_handler: self.click_handler,
+            content: Some(always(html!("span", { .text(v.as_ref()) }))),
+            button_type: self.button_type,
+            style: self.style,
+            disabled: self.disabled,
+            apply: self.apply,
+        }
     }
 }
