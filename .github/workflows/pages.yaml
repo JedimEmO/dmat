@@ -36,9 +36,12 @@ jobs:
       - name: Install and Build 🔧
         working-directory: examples/component_showcase
         run: npm ci && npm run build
-
+      - name: Docs
+        run: cargo doc --no-deps
+      - name: Populate docs
+        run: mkdir pages && cp -r target/doc pages && cp -r examples/component_showcase/dist pages/examples
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4.2.3
         with:
           branch: gh-pages # The branch the action should deploy to.
-          folder: examples/component_showcase/dist # The folder the action should deploy.
+          folder: pages # The folder the action should deploy.

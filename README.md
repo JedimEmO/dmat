@@ -3,34 +3,12 @@
 These crates aim to provide basic functional reactive components to be used for writing single page UI applications using the dominator framework. It loosely follows the material design guidelines, but are not bound by them
 
 The example app is hosted on github pages here:
-<a href="https://jedimemo.github.io/dmat/#/component/appbar" target="_blank">https://jedimemo.github.io/dmat/ </a>
+<a href="https://jedimemo.github.io/dmat/#/component/appbar" target="_blank">https://jedimemo.github.io/dmat/examples </a>
 
+Docs are hosted here:
+<a href="https://jedimemo.github.io/dmat/#/component/appbar" target="_blank">https://jedimemo.github.io/dmat/doc/dmat_components/index.html </a>
 ## dmat-components
-Every component provided in this cate is implemented as a function, and there are two types of component functions.
 
-The simple type takes properties and a mixin function as arguments, and return a Dom element:
-
-```rust
-fn my_cmp<F>(props: MyCmpProps, mixin: F) -> Dom
-    where F: FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement> { 
-    /* ... */
-}
-```
-
-A more complex type will return a ```(Dom, MyCmpOut)``` tuple, where `MyCmpOut` has outputs that will be used to trigger actions in your application.
-
-For instance, here is the definition of the scrim components output, which returns a stream of unit values representing clicks on the scrim overlay:
-
-```rust
-pub struct ScrimOut {
-    pub click_stream: Receiver<()>,
-}
-pub fn scrim<THideSig, F>(props: ScrimProps<THideSig>, mixin: F) -> (Dom, ScrimOut)
-    where
-        THideSig: Signal<Item = bool> + 'static,
-        F: FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>,
-{ /* ... */ }
-```
 
 All components have a corresponding macro rule, which will insert the identity mixin for us by default to avoid pointless ```|d| d``` parameters everywhere:
 
