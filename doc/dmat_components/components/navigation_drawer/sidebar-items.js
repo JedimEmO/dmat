@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["DrawerWidth"],"fn":["navigation_drawer"],"struct":["NavigationDrawerOut","NavigationDrawerProps"]};

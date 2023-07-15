@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["OutgoingItemDirection"],"fn":["carousel"],"struct":["CarouselControls","CarouselProps","OutgoingItem"],"trait":["CarouselSource"]};

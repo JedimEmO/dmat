@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["component_demo_view"]};

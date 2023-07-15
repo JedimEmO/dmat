@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["axis","line_chart","point","view_box"]};

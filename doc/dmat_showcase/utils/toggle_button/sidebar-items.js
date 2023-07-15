@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["toggle_button"]};

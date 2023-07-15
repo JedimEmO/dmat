@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["breakpoints","colors","components","dmat_theme","inputs","layout","to_sass"]};

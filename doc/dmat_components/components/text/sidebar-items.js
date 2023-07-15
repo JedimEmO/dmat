@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["dynamic_text","text"]};

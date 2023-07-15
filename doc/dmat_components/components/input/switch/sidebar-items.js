@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["switch"],"struct":["SwitchOut","SwitchProps"]};

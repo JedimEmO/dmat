@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["AppBarType"],"fn":["app_bar"],"struct":["AppBarProps"]};

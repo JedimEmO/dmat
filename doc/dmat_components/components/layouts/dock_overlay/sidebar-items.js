@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["DockPoint"],"fn":["dock_overlay"],"struct":["DockOverlayOut","DockOverlayProps"]};

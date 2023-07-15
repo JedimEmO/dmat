@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["about","component_demo"]};

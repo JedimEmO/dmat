@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["mock_view_select","navigation_drawers_demo","static_drawers"]};

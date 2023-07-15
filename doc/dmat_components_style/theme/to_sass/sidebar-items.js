@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["render_sass_map","render_sass_property"],"trait":["ToSass"]};
