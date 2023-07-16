@@ -1,25 +1,23 @@
 use crate::futures_signals::signal::SignalExt;
-use dominator::{clone, html, Dom};
+use dominator::{html, Dom};
 use futures_signals::map_ref;
-use futures_signals::signal::{Mutable, Signal};
+use futures_signals::signal::Signal;
 
 #[inline]
-pub fn label_element<TLabelSignal: Signal<Item = Option<String>> + Unpin + 'static>(
+pub fn label_element(
     input: Dom,
-    value: Mutable<String>,
-    has_focus: &Mutable<bool>,
-    label: TLabelSignal,
+    has_value_signal: impl Signal<Item = bool> + 'static,
+    has_focus_signal: impl Signal<Item = bool> + 'static,
+    label: impl Signal<Item = Option<Dom>> + 'static,
 ) -> Dom {
     html!("label", {
         .class_signal(
             "above",
-            clone!(value => map_ref!(
-                let focus = has_focus.signal_cloned(),
-                let current_value = value.signal_cloned() => move {
-                    let has_value = !current_value.is_empty();
-
-                    *focus || has_value
-                })))
+            map_ref!(
+                let has_focus = has_focus_signal,
+                let has_value = has_value_signal => move {
+                    *has_focus || *has_value
+                }))
         .children(&mut [
             input,
             html!("div", {.class("dmat-notch-left")}),
@@ -27,13 +25,17 @@ pub fn label_element<TLabelSignal: Signal<Item = Option<String>> + Unpin + 'stat
                 .class("dmat-notch-middle")
                 .apply(|dom_builder| {
                     dom_builder.child_signal(label.map(|label_content| {
-                        label_content.map(|label_text| crate::text!(label_text, |dom_builder| dom_builder.class("dmat-input-label-text")))
+                        label_content.map(|label_content| {
+                            html!("span", {
+                                .child(label_content)
+                                .class("dmat-input-label-text")
+                            })
+                        })
                     }))
                 })
             }),
             html!("div", {.class("dmat-notch-right")}),
         ])
         .class("dmat-floating-label")
-
     })
 }

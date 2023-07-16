@@ -1,293 +1,42 @@
+use crate::components::input::input_field::{input_wrapper, InputWrapperProps};
 use dominator::{clone, events, html, Dom};
-use futures_signals::signal::{Always, Mutable, MutableSignalCloned, Signal};
+use futures_signals::signal::{Mutable, MutableSignalCloned, Signal, SignalExt};
 
-use crate::components::input::input_field::input;
-use crate::components::input::input_props::InputProps;
-use crate::utils::mixin::ApplyMixin;
+#[component(render_fn = text_field)]
+pub struct TextField<TOnValuePickCb: Fn(String) = fn(String) -> ()> {
+    #[default(| _ | {})]
+    on_value_change: TOnValuePickCb,
 
-pub struct TextFieldProps<
-    TLabelSignal: Signal<Item = Option<String>> + Unpin + 'static = Always<Option<String>>,
-    TValidSignal: Signal<Item = bool> + Unpin + 'static = Always<bool>,
-    TAssistiveTextSignal: Signal<Item = Option<String>> + Unpin + 'static = Always<Option<String>>,
-    TErrorTextSignal: Signal<Item = Option<String>> + Unpin + 'static = Always<Option<String>>,
-    TDisabledSignal: Signal<Item = bool> + Unpin + 'static = Always<bool>,
-> {
-    pub claim_focus: bool,
-    pub input_props: InputProps<
-        TLabelSignal,
-        TValidSignal,
-        TAssistiveTextSignal,
-        TErrorTextSignal,
-        TDisabledSignal,
-    >,
-    pub apply: ApplyMixin,
-}
+    #[signal]
+    #[default(None)]
+    label: Option<Dom>,
 
-impl<
-        TLabelSignal: Signal<Item = Option<String>> + Unpin + 'static,
-        TValidSignal: Signal<Item = bool> + Unpin + 'static,
-        TAssistiveTextSignal: Signal<Item = Option<String>> + Unpin + 'static,
-        TErrorTextSignal: Signal<Item = Option<String>> + Unpin + 'static,
-        TDisabledSignal: Signal<Item = bool> + Unpin + 'static,
-    >
-    TextFieldProps<
-        TLabelSignal,
-        TValidSignal,
-        TAssistiveTextSignal,
-        TErrorTextSignal,
-        TDisabledSignal,
-    >
-{
-    #[inline]
-    #[must_use]
-    pub fn claim_focus(mut self) -> Self {
-        self.claim_focus = true;
-        self
-    }
+    #[signal]
+    #[default("".to_string())]
+    value: String,
 
-    #[inline]
-    #[must_use]
-    pub fn apply(mut self, apply: ApplyMixin) -> Self {
-        self.apply = apply;
-        self
-    }
+    #[signal]
+    #[default(true)]
+    is_valid: bool,
 
-    #[inline]
-    #[must_use]
-    pub fn is_valid(
-        self,
-        is_valid: bool,
-    ) -> TextFieldProps<
-        TLabelSignal,
-        Always<bool>,
-        TAssistiveTextSignal,
-        TErrorTextSignal,
-        TDisabledSignal,
-    > {
-        TextFieldProps {
-            claim_focus: self.claim_focus,
-            input_props: self.input_props.is_valid(is_valid),
-            apply: self.apply,
-        }
-    }
+    #[signal]
+    #[default(false)]
+    disabled: bool,
 
-    #[inline]
-    #[must_use]
-    pub fn is_valid_signal<TNewValidSignal: Signal<Item = bool> + Unpin + 'static>(
-        self,
-        is_valid: TNewValidSignal,
-    ) -> TextFieldProps<
-        TLabelSignal,
-        TNewValidSignal,
-        TAssistiveTextSignal,
-        TErrorTextSignal,
-        TDisabledSignal,
-    > {
-        TextFieldProps {
-            claim_focus: self.claim_focus,
-            input_props: self.input_props.is_valid_signal(is_valid),
-            apply: self.apply,
-        }
-    }
+    #[signal]
+    #[default(None)]
+    assistive_text: Option<Dom>,
 
-    #[inline]
-    #[must_use]
-    pub fn label<T: AsRef<str>>(
-        self,
-        label: T,
-    ) -> TextFieldProps<
-        Always<Option<String>>,
-        TValidSignal,
-        TAssistiveTextSignal,
-        TErrorTextSignal,
-        TDisabledSignal,
-    > {
-        TextFieldProps {
-            claim_focus: self.claim_focus,
-            input_props: self.input_props.label(label),
-            apply: self.apply,
-        }
-    }
+    #[signal]
+    #[default(None)]
+    error_text: Option<Dom>,
 
-    #[inline]
-    #[must_use]
-    pub fn label_signal(
-        self,
-        label: TLabelSignal,
-    ) -> TextFieldProps<
-        TLabelSignal,
-        TValidSignal,
-        TAssistiveTextSignal,
-        TErrorTextSignal,
-        TDisabledSignal,
-    > {
-        TextFieldProps {
-            claim_focus: self.claim_focus,
-            input_props: self.input_props.label_signal(label),
-            apply: self.apply,
-        }
-    }
-
-    #[inline]
-    #[must_use]
-    pub fn value(mut self, value: Mutable<String>) -> Self {
-        self.input_props.value = value;
-
-        self
-    }
-
-    #[inline]
-    #[must_use]
-    pub fn assistive_text(
-        self,
-        assistive_text: Option<String>,
-    ) -> TextFieldProps<
-        TLabelSignal,
-        TValidSignal,
-        Always<Option<String>>,
-        TErrorTextSignal,
-        TDisabledSignal,
-    > {
-        TextFieldProps {
-            claim_focus: self.claim_focus,
-            input_props: self.input_props.assistive_text(assistive_text),
-            apply: self.apply,
-        }
-    }
-
-    #[inline]
-    #[must_use]
-    pub fn assistive_text_signal<
-        TNewAssistiveTextSignal: Signal<Item = Option<String>> + Unpin + 'static,
-    >(
-        self,
-        assistive_text: TNewAssistiveTextSignal,
-    ) -> TextFieldProps<
-        TLabelSignal,
-        TValidSignal,
-        TNewAssistiveTextSignal,
-        TErrorTextSignal,
-        TDisabledSignal,
-    > {
-        TextFieldProps {
-            claim_focus: self.claim_focus,
-            input_props: self.input_props.assistive_text_signal(assistive_text),
-            apply: self.apply,
-        }
-    }
-
-    #[inline]
-    #[must_use]
-    pub fn error_text(
-        self,
-        error_text: Option<String>,
-    ) -> TextFieldProps<
-        TLabelSignal,
-        TValidSignal,
-        TAssistiveTextSignal,
-        Always<Option<String>>,
-        TDisabledSignal,
-    > {
-        TextFieldProps {
-            claim_focus: self.claim_focus,
-            input_props: self.input_props.error_text(error_text),
-            apply: self.apply,
-        }
-    }
-
-    #[inline]
-    #[must_use]
-    pub fn error_text_signal<
-        TNewErrorTextSignal: Signal<Item = Option<String>> + Unpin + 'static,
-    >(
-        self,
-        error_text: TNewErrorTextSignal,
-    ) -> TextFieldProps<
-        TLabelSignal,
-        TValidSignal,
-        TAssistiveTextSignal,
-        TNewErrorTextSignal,
-        TDisabledSignal,
-    > {
-        TextFieldProps {
-            claim_focus: self.claim_focus,
-            input_props: self.input_props.error_text_signal(error_text),
-            apply: self.apply,
-        }
-    }
-
-    #[inline]
-    #[must_use]
-    pub fn disabled(
-        self,
-    ) -> TextFieldProps<
-        TLabelSignal,
-        TValidSignal,
-        TAssistiveTextSignal,
-        TErrorTextSignal,
-        Always<bool>,
-    > {
-        TextFieldProps {
-            claim_focus: self.claim_focus,
-            input_props: self.input_props.disabled(true),
-            apply: self.apply,
-        }
-    }
-
-    #[inline]
-    #[must_use]
-    pub fn disabled_signal<TNewDisabledSignal: Signal<Item = bool> + Unpin + 'static>(
-        self,
-        disabled: TNewDisabledSignal,
-    ) -> TextFieldProps<
-        TLabelSignal,
-        TValidSignal,
-        TAssistiveTextSignal,
-        TErrorTextSignal,
-        TNewDisabledSignal,
-    > {
-        TextFieldProps {
-            claim_focus: self.claim_focus,
-            input_props: self.input_props.disabled_signal(disabled),
-            apply: self.apply,
-        }
-    }
-}
-
-impl TextFieldProps {
-    pub fn new() -> TextFieldProps {
-        TextFieldProps {
-            claim_focus: false,
-            input_props: InputProps {
-                label: None,
-                value: Default::default(),
-                is_valid: None,
-                assistive_text_signal: None,
-                error_text_signal: None,
-                disabled_signal: None,
-            },
-            apply: Some(Box::new(|dom| dom)),
-        }
-    }
-}
-
-impl Default for TextFieldProps {
-    fn default() -> Self {
-        TextFieldProps::new()
-    }
+    #[default(false)]
+    claim_focus: bool,
 }
 
 pub struct TextFieldOutput {
     pub has_focus: MutableSignalCloned<bool>,
-}
-
-#[macro_export]
-macro_rules! text_field {
-    ($($methods:tt)*) => {{
-        let default_props = $crate::components::input::text_field::TextFieldProps::new();
-        let applied_props = dominator::apply_methods!(default_props, $($methods)*);
-        $crate::components::input::text_field::text_field(applied_props)
-    }};
 }
 
 /// Creates a text input element for accepting user data
@@ -295,40 +44,42 @@ macro_rules! text_field {
 /// The return tuple contains:
 /// 0: input Dom entry
 /// 1: output of the component, containing a boolean signal for the  validity of the input according to the validator
-pub fn text_field<
-    TLabelSignal: Signal<Item = Option<String>> + Unpin + 'static,
-    TValidSignal: Signal<Item = bool> + Unpin + 'static,
-    TAssistiveTextSignal: Signal<Item = Option<String>> + Unpin + 'static,
-    TErrorTextSignal: Signal<Item = Option<String>> + Unpin + 'static,
-    TDisabledSignal: Signal<Item = bool> + Unpin + 'static,
->(
-    props: TextFieldProps<
-        TLabelSignal,
-        TValidSignal,
-        TAssistiveTextSignal,
-        TErrorTextSignal,
-        TDisabledSignal,
-    >,
-) -> (Dom, TextFieldOutput) {
+pub fn text_field(props: impl TextFieldPropsTrait + 'static) -> (Dom, TextFieldOutput) {
+    let TextFieldProps {
+        on_value_change,
+        label,
+        value,
+        is_valid,
+        disabled,
+        assistive_text,
+        error_text,
+        claim_focus,
+        apply,
+    } = props.take();
+
+    let value_bc = value.broadcast();
     let has_focus = Mutable::new(false);
+    let input_element = text_field_input(
+        value_bc.signal_ref(|v| v.clone()),
+        on_value_change,
+        &has_focus,
+        claim_focus,
+    );
 
-    let input_element = text_field_input(&props.input_props.value, &has_focus, props.claim_focus);
-
-    let mixin = props.apply;
     (
-        input(
-            input_element,
-            &has_focus,
-            props.input_props,
-            |d| {
-                if let Some(mixin) = mixin {
-                    mixin(d)
-                } else {
-                    d
-                }
-            },
-            "dmat-input-text-field",
-            None,
+        input_wrapper(
+            InputWrapperProps::new()
+                .value_signal(value_bc.signal_ref(|v| v.clone()))
+                .input(input_element)
+                .has_focus_signal(has_focus.signal())
+                .apply(|d| if let Some(a) = apply { a(d) } else { d })
+                .has_focus_signal(has_focus.signal())
+                .class_name("dmat-input-text-field".to_string())
+                .error_text_signal(error_text)
+                .assistive_text_signal(assistive_text)
+                .disabled_signal(disabled)
+                .is_valid_signal(is_valid)
+                .label_signal(label),
         ),
         TextFieldOutput {
             has_focus: has_focus.signal_cloned(),
@@ -337,19 +88,24 @@ pub fn text_field<
 }
 
 #[inline]
-fn text_field_input(value: &Mutable<String>, has_focus: &Mutable<bool>, claim_focus: bool) -> Dom {
+fn text_field_input(
+    value_signal: impl Signal<Item = String> + 'static,
+    on_value_change: impl Fn(String) + 'static,
+    has_focus: &Mutable<bool>,
+    claim_focus: bool,
+) -> Dom {
     html!("input", {
         .apply_if(claim_focus, clone!(has_focus => move|builder| {
             has_focus.set(true);
             builder.focused(true)
         }))
-        .event(clone!(value => move |e: events::Input| {
+        .event(move |e: events::Input| {
             #[allow(deprecated)]
             if let Some(val) = e.value() {
-                value.replace(val);
+                on_value_change(val)
             };
 
-        }))
+        })
         .event(clone!(has_focus => {
             move |_e: events::Focus| {
                 has_focus.set(true);
@@ -360,34 +116,26 @@ fn text_field_input(value: &Mutable<String>, has_focus: &Mutable<bool>, claim_fo
                 has_focus.set(false);
             }
         }))
-        .prop_signal("value", value.signal_cloned())
+        .prop_signal("value", value_signal)
         .class("dmat-input-element")
     })
 }
 
 #[cfg(test)]
 mod test {
-    use futures_signals::signal::{always, Mutable};
+    use futures_signals::signal::Mutable;
     use wasm_bindgen_test::*;
 
-    use crate::components::input::input_props::InputProps;
     use crate::components::{text_field, TextFieldProps};
 
     #[wasm_bindgen_test]
     async fn text_field_validation() {
         let val = Mutable::new("".to_string());
 
-        let field = text_field(TextFieldProps {
-            claim_focus: false,
-            input_props: InputProps {
-                value: val.clone(),
-                is_valid: Some(val.signal_ref(|v| v == "hello")),
-                label: Some(always(None)),
-                assistive_text_signal: Some(always(None)),
-                error_text_signal: Some(always(None)),
-                disabled_signal: Some(always(false)),
-            },
-            apply: Some(Box::new(|d| d.attr("id", "testfield"))),
+        let field = text_field!({
+            .value_signal(val.signal_cloned())
+            .is_valid_signal(val.signal_ref(|v| v == "hello"))
+            .apply(|d| d.attr("id", "testfield"))
         });
 
         let field_dom = field.0;

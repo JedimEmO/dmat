@@ -1,6 +1,7 @@
 use dominator::{html, Dom};
-use futures_signals::map_ref;
 use futures_signals::signal::{Mutable, Signal};
+
+use futures_signals::map_mut;
 
 pub fn error_text<TValidSig, TErrorTextSignal>(
     error_text_signal: TErrorTextSignal,
@@ -8,18 +9,22 @@ pub fn error_text<TValidSig, TErrorTextSignal>(
     has_error: &Mutable<bool>,
 ) -> Dom
 where
-    TValidSig: Signal<Item = bool> + Unpin + 'static,
-    TErrorTextSignal: Signal<Item = Option<String>> + Unpin + 'static,
+    TValidSig: Signal<Item = bool> + 'static,
+    TErrorTextSignal: Signal<Item = Option<Dom>> + 'static,
 {
     let has_error = has_error.clone();
 
-    let error_text_signal = map_ref!(
+    let error_text_signal = map_mut!(
         let valid = is_valid,
-        let error_text = error_text_signal => move {
-            if let Some(str) = error_text {
+        let error = error_text_signal => move {
+            if let Some(error_child) = error {
                 if !*valid {
                     has_error.set(true);
-                    Some(crate::text!(str, |d| d.class("dmat-assistive-text").class("dmat-error-text")))
+                    Some(html!("div", {
+                            .class("dmat-assistive-text")
+                            .class("dmat-error-text")
+                            .child(error_child)
+                        }))
                 } else {
                     None
                 }

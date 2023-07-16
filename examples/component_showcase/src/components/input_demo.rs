@@ -2,11 +2,11 @@ use dominator::{clone, html, Dom};
 use futures_signals::map_ref;
 use futures_signals::signal::always;
 use futures_signals::signal::Mutable;
-use futures_signals::signal_vec::MutableVec;
 
-use dmat_components::components::input::input_props::InputProps;
-use dmat_components::components::input::SelectProps;
-use dmat_components::components::input::{ComboBoxProps, SwitchProps};
+use dmat_components::components::input::combo_box::*;
+
+use dmat_components::components::input::select::*;
+use dmat_components::components::input::switch::*;
 use dmat_components::components::*;
 use dmat_components::utils::signals::stream_flipflop::stream_to_flipflop_mixin;
 
@@ -63,69 +63,35 @@ fn combo_box_demo(value: &Mutable<String>) -> Dom {
         .child(list!({
             .rows([
                 text!("Selection"),
-                combo_box!(ComboBoxProps {
-                    options: MutableVec::new_with_values(vec![
-                        "Banana".to_string(),
-                        "Orange".to_string(),
-                        "Apple".to_string()
-                    ]),
-                    data_list_id: "demo-list-a".into(),
-                    input_props: InputProps {
-                        label: Some(always(Some("Oranges are the best".to_string()))),
-                        value: value.clone(),
-                        is_valid: Some(value.signal_ref(|v| v == "Orange")),
-                        assistive_text_signal: Some(always(None)),
-                        error_text_signal: Some(always(None)),
-                        disabled_signal: Some(always(false))
-                    }
+                combo_box!({
+                    .options(make_select_options())
+                    .data_list_id("demo-list-a".into())
+                    .value_signal(value.signal_cloned())
+                    .on_change(clone!(value => move |v| value.set(v)))
+                    .is_valid_signal(value.signal_ref(|v| v == "Orange"))
                 }),
-                combo_box!(ComboBoxProps {
-                    options: MutableVec::new_with_values(vec![
-                        "Banana".to_string(),
-                        "Orange".to_string(),
-                        "Apple".to_string()
-                    ]),
-                    data_list_id: "demo-list-a".into(),
-                    input_props: InputProps {
-                        label: Some(always(Some("Oranges are the best".to_string()))),
-                        value: value.clone(),
-                        is_valid: Some(value.signal_ref(|v| v == "Orange")),
-                        assistive_text_signal: Some(always(None)),
-                        error_text_signal: Some(always(Some("With assistive/error text signal".to_string()))),
-                        disabled_signal: Some(always(false))
-                    }
+                combo_box!({
+                    .options(make_select_options())
+                    .data_list_id("demo-list-b".into())
+                    .label(Some(html!("span", { .text("Oranges are the best")})))
+                    .value_signal(value.signal_cloned())
+                    .on_change(clone!(value => move |v| value.set(v)))
+                    .is_valid_signal(value.signal_ref(|v| v == "Orange"))
+                    .error_text(Some(html!("span", {.text("Error text signal")})))
                 }),
-                select!(SelectProps {
-                    data_list_id: "data-list-b".to_string(),
-                    options: MutableVec::new_with_values(vec![
-                        "Banana".to_string(),
-                        "Orange".to_string(),
-                        "Apple".to_string()
-                    ]),
-                    input_props: InputProps {
-                        label: Some(always(Some("Pick one".to_string()))),
-                        value: value.clone(),
-                        is_valid: Some(always(true)),
-                        assistive_text_signal: Some(always(None)),
-                        error_text_signal: Some(always(None)),
-                        disabled_signal: Some(always(false))
-                    }
+                select!({
+                    .options(make_select_options())
+                    .label(Some(html!("span", { .text("Pick one")})))
+                    .value_signal(value.signal_cloned())
+                    .on_change(clone!(value => move |v| value.set(v)))
                 }),
-                select!(SelectProps {
-                    data_list_id: "data-list-c".to_string(),
-                    options: MutableVec::new_with_values(vec![
-                        "Banana".to_string(),
-                        "Orange".to_string(),
-                        "Apple".to_string()
-                    ]),
-                    input_props: InputProps {
-                        label: Some(always(Some("select with assistive text".to_string()))),
-                        value: value.clone(),
-                        is_valid: Some(value.signal_ref(|v| v == "Banana")),
-                        assistive_text_signal: Some(always(Some("This one likes Bananas".to_string()))),
-                        error_text_signal: Some(always(None)),
-                        disabled_signal: Some(always(false))
-                    }
+                select!({
+                    .options(make_select_options())
+                    .label(Some(html!("span", { .text("select with assistive text")})))
+                    .value_signal(value.signal_cloned())
+                    .on_change(clone!(value => move |v| value.set(v)))
+                    .is_valid_signal(value.signal_ref(|v| v == "Banana"))
+                    .assistive_text(Some(html!("span", { .text("This one likes Bananas")})))
                 }),
             ])
         }))
@@ -140,31 +106,39 @@ fn text_input_demo(value: &Mutable<String>) -> Dom {
                 html!("div", {
                     .children(&mut [
                         text_field!({
-                            .claim_focus()
-                            .label("With dynamic help text")
-                            .value(value.clone())
+                            .claim_focus(true)
+                            .label(Some(html!("span", { .text("With dynamic help text")})))
+                            .value_signal(value.signal_cloned())
+                            .on_value_change(clone!(value => move |v| value.set(v)))
                             .assistive_text_signal(map_ref!(let cur_val = value.signal_cloned() =>
-                                Some(format!("Assistive text - {}", cur_val))))
+                                Some(html!("span", {
+                                    .text(format!("Assistive text - {}", cur_val).as_str())
+                                }))))
                         }).0
                     ])
                 }),
                 html!("div", {
                     .children(&mut [
                         text_field!({
-                            .label("With error text")
-                            .value(value.clone())
+                            .label(Some(html!("span", { .text("With error text")})))
+                            .value_signal(value.signal_cloned())
+                            .on_value_change(clone!(value => move |v| value.set(v)))
                             .is_valid_signal(value.signal_ref(|v| v.contains("foobar")))
                             .assistive_text_signal(map_ref!(let cur_val = value.signal_cloned() =>
-                                Some(format!("Assistive text - {}", cur_val))))
-                            .error_text_signal(always(Some("Accepts string containing `foobar`".to_string())))
+                                Some(html!("span", {
+                                    .text(format!("Assistive text - {}", cur_val).as_str())
+                                }))))
+                            .error_text(Some(html!("span", { .text("Accepts string containing `foobar`")})))
                         }).0
                     ])
                 }),
                 html!("div", {
                     .children(&mut [
                         text_field!({
-                            .label("Always invalid")
-                            .value(value.clone())
+                            .label(Some(html!("span", { .text("Always invalid")})))
+                            .value_signal(value.signal_cloned())
+                            .on_value_change(clone!(value => move |v| value.set(v)))
+                            .is_valid(false)
                         }).0
                     ])
                 }),
@@ -172,4 +146,21 @@ fn text_input_demo(value: &Mutable<String>) -> Dom {
         }))
         .apply(|v| v.class("demo-card"))
     })
+}
+
+fn make_select_options() -> Vec<SelectOption> {
+    vec![
+        SelectOption {
+            value: "Banana".to_string(),
+            display_text: "Banana".to_string(),
+        },
+        SelectOption {
+            value: "Orange".to_string(),
+            display_text: "Orange".to_string(),
+        },
+        SelectOption {
+            value: "Apple".to_string(),
+            display_text: "Nice red apples".to_string(),
+        },
+    ]
 }

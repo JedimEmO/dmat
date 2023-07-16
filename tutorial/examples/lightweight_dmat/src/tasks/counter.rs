@@ -1,4 +1,5 @@
 use dmat_components::components::button::*;
+use dmat_components::components::input::text_field::*;
 use dominator::{clone, html, Dom};
 use futures_signals::signal::Mutable;
 
@@ -7,9 +8,8 @@ pub fn counter() -> Dom {
 
     html!("div", {
         .child(text_field!({
-            .label("Counter Value")
-            .value(counter_state.clone())
-            .disabled()
+            .label(Some(html!("span", { .text("Counter Value")})))
+            .value_signal(counter_state.signal_cloned())
         }).0)
         .child(button!({
             .content(html!("span", { .text("Increment")}))

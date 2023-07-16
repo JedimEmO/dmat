@@ -1,95 +1,106 @@
-use dominator::{clone, events, html, Dom, DomBuilder};
-use futures_signals::signal::{Mutable, Signal};
-use futures_signals::signal_vec::{MutableVec, SignalVecExt};
-use web_sys::HtmlElement;
+use dominator::{clone, events, html, Dom};
+use futures_signals::signal::{Mutable, Signal, SignalExt};
+use futures_signals::signal_vec::{SignalVec, SignalVecExt};
 
-use crate::components::input::input_field::input;
-use crate::components::input::input_props::InputProps;
+use crate::components::input::input_field::{input_wrapper, InputWrapperProps};
+use crate::components::input::SelectOption;
 
-#[macro_export]
-macro_rules! combo_box {
-    ($props: expr) => {{
-        $crate::components::input::combo_box::combo_box($props, |d| d)
-    }};
+#[component(render_fn = combo_box)]
+struct ComboBox<TOnValuePickCb: Fn(String) = fn(String) -> ()> {
+    data_list_id: String,
+    #[signal_vec]
+    #[default(vec ! [])]
+    options: SelectOption,
 
-    ($props: expr, $mixin: expr) => {{
-        $crate::components::input::combo_box::combo_box($props, $mixin)
-    }};
-}
+    #[default(|_| {})]
+    on_change: TOnValuePickCb,
 
-pub struct ComboBoxProps<
-    TLabelSignal: Signal<Item = Option<String>> + Unpin + 'static,
-    TValidSignal: Signal<Item = bool> + Unpin + 'static,
-    TAssistiveTextSignal: Signal<Item = Option<String>> + Unpin + 'static,
-    TErrorTextSignal: Signal<Item = Option<String>> + Unpin + 'static,
-    TDisabledSignal: Signal<Item = bool> + Unpin + 'static,
-> {
-    pub options: MutableVec<String>,
-    pub data_list_id: String,
-    pub input_props: InputProps<
-        TLabelSignal,
-        TValidSignal,
-        TAssistiveTextSignal,
-        TErrorTextSignal,
-        TDisabledSignal,
-    >,
+    #[signal]
+    #[default(None)]
+    label: Option<Dom>,
+
+    #[signal]
+    #[default("".to_string())]
+    value: String,
+
+    #[signal]
+    #[default(true)]
+    is_valid: bool,
+
+    #[signal]
+    #[default(false)]
+    disabled: bool,
+
+    #[signal]
+    #[default(None)]
+    assistive_text: Option<Dom>,
+
+    #[signal]
+    #[default(None)]
+    error_text: Option<Dom>,
 }
 
 /// The combo box is a searchable dropdown or text field with hints, depending on your point of view.
 /// It renders as a text field in which the user can type freely, but it will have a filtered list
 /// of options in a dropdown to select from as well.
 #[inline]
-pub fn combo_box<
-    TLabelSignal: Signal<Item = Option<String>> + Unpin + 'static,
-    TValidSignal: Signal<Item = bool> + Unpin + 'static,
-    TAssistiveTextSignal: Signal<Item = Option<String>> + Unpin + 'static,
-    TErrorTextSignal: Signal<Item = Option<String>> + Unpin + 'static,
-    TDisabledSignal: Signal<Item = bool> + Unpin + 'static,
-    F,
->(
-    props: ComboBoxProps<
-        TLabelSignal,
-        TValidSignal,
-        TAssistiveTextSignal,
-        TErrorTextSignal,
-        TDisabledSignal,
-    >,
-    mixin: F,
-) -> Dom
-where
-    F: Fn(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>,
-{
-    let (combo_input, has_focus) =
-        combo_box_input(props.data_list_id.as_str(), &props.input_props.value);
+pub fn combo_box(props: impl ComboBoxPropsTrait + 'static) -> Dom {
+    let ComboBoxProps {
+        data_list_id,
+        options,
+        on_change,
+        label,
+        value,
+        is_valid,
+        disabled,
+        assistive_text,
+        error_text,
+        apply,
+    } = props.take();
 
-    input(
-        combo_input,
-        &has_focus,
-        props.input_props,
-        mixin,
-        "dmat-input-combo-box",
-        Some(combo_box_datalist(
-            props.data_list_id.as_str(),
-            &props.options,
-        )),
+    let value_bc = value.broadcast();
+
+    let (combo_input, has_focus) = combo_box_input(
+        data_list_id.clone().unwrap().as_str(),
+        value_bc.signal_ref(|v| v.clone()),
+        on_change,
+    );
+
+    input_wrapper(
+        InputWrapperProps::new()
+            .input(combo_input)
+            .has_focus_signal(has_focus.signal())
+            .class_name("dmat-input-combo-box".to_string())
+            .extra_child(combo_box_datalist(data_list_id.unwrap().as_str(), options))
+            .apply(|d| if let Some(a) = apply { d.apply(a) } else { d })
+            .error_text_signal(error_text)
+            .assistive_text_signal(assistive_text)
+            .disabled_signal(disabled)
+            .is_valid_signal(is_valid)
+            .label_signal(label)
+            .value_signal(value_bc.signal_ref(|v| v.clone())),
     )
 }
 
 #[inline]
-fn combo_box_input(data_list_id: &str, value: &Mutable<String>) -> (Dom, Mutable<bool>) {
+fn combo_box_input(
+    data_list_id: &str,
+    value_signal: impl Signal<Item = String> + 'static,
+    on_change: impl Fn(String) + 'static,
+) -> (Dom, Mutable<bool>) {
     let has_focus = Mutable::new(false);
 
     (
         html!("input", {
             .class("dmat-input-element")
             .attr("list", data_list_id)
-            .prop_signal("value", value.signal_cloned())
-            .event(clone!(value => move |e: events::Input| {
+            .prop_signal("value", value_signal)
+            .event(move |e: events::Input| {
                 #[allow(deprecated)]
                 if let Some(new_value) = e.value() {
-                    value.set(new_value);
+                    on_change(new_value);
                 }
-            }))
+            })
             .event(clone!(has_focus => {
                 move |_e: events::Focus| {
                     has_focus.set(true);
@@ -106,11 +117,15 @@ fn combo_box_input(data_list_id: &str, value: &Mutable<String>) -> (Dom, Mutable
 }
 
 #[inline]
-fn combo_box_datalist(data_list_id: &str, options: &MutableVec<String>) -> Dom {
+fn combo_box_datalist(
+    data_list_id: &str,
+    options: impl SignalVec<Item = SelectOption> + 'static,
+) -> Dom {
     html!("datalist", {
         .attr("id", data_list_id)
-        .children_signal_vec(options.signal_vec_cloned().map(|v| html!("option", {
-            .prop("value", v)
+        .children_signal_vec(options.map(|v| html!("option", {
+            .apply_if(v.value != v.display_text, |d | d.text(v.display_text.as_str()))
+            .prop("value", v.value)
         })))
     })
 }
