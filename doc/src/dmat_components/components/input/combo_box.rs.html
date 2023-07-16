@@ -114,98 +114,124 @@
 <a href="#114" id="114">114</a>
 <a href="#115" id="115">115</a>
 <a href="#116" id="116">116</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{clone, events, html, Dom, DomBuilder};
-<span class="kw">use </span>futures_signals::signal::{Mutable, Signal};
-<span class="kw">use </span>futures_signals::signal_vec::{MutableVec, SignalVecExt};
-<span class="kw">use </span>web_sys::HtmlElement;
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{clone, events, html, Dom};
+<span class="kw">use </span>futures_signals::signal::{Mutable, Signal, SignalExt};
+<span class="kw">use </span>futures_signals::signal_vec::{SignalVec, SignalVecExt};
 
-<span class="kw">use </span><span class="kw">crate</span>::components::input::input_field::input;
-<span class="kw">use </span><span class="kw">crate</span>::components::input::input_props::InputProps;
+<span class="kw">use </span><span class="kw">crate</span>::components::input::input_field::{input_wrapper, InputWrapperProps};
+<span class="kw">use </span><span class="kw">crate</span>::components::input::SelectOption;
 
-<span class="attr">#[macro_export]
-</span><span class="macro">macro_rules! </span>combo_box {
-    (<span class="macro-nonterminal">$props</span>: expr) =&gt; {{
-        <span class="macro-nonterminal">$crate::components::input::combo_box::combo_box</span>(<span class="macro-nonterminal">$props</span>, |d| d)
-    }};
+<span class="attr">#[component(render_fn = combo_box)]
+</span><span class="kw">struct </span>ComboBox&lt;TOnValuePickCb: Fn(String) = <span class="kw">fn</span>(String) -&gt; ()&gt; {
+    data_list_id: String,
+    <span class="attr">#[signal_vec]
+    #[default(vec ! []</span>)]
+    options: SelectOption,
 
-    (<span class="macro-nonterminal">$props</span>: expr, <span class="macro-nonterminal">$mixin</span>: expr) =&gt; {{
-        <span class="macro-nonterminal">$crate::components::input::combo_box::combo_box</span>(<span class="macro-nonterminal">$props</span>, <span class="macro-nonterminal">$mixin</span>)
-    }};
-}
+    <span class="attr">#[default(|<span class="kw">_</span>| {})]
+    </span>on_change: TOnValuePickCb,
 
-<span class="kw">pub struct </span>ComboBoxProps&lt;
-    TLabelSignal: Signal&lt;Item = <span class="prelude-ty">Option</span>&lt;String&gt;&gt; + Unpin + <span class="lifetime">&#39;static</span>,
-    TValidSignal: Signal&lt;Item = bool&gt; + Unpin + <span class="lifetime">&#39;static</span>,
-    TAssistiveTextSignal: Signal&lt;Item = <span class="prelude-ty">Option</span>&lt;String&gt;&gt; + Unpin + <span class="lifetime">&#39;static</span>,
-    TErrorTextSignal: Signal&lt;Item = <span class="prelude-ty">Option</span>&lt;String&gt;&gt; + Unpin + <span class="lifetime">&#39;static</span>,
-    TDisabledSignal: Signal&lt;Item = bool&gt; + Unpin + <span class="lifetime">&#39;static</span>,
-&gt; {
-    <span class="kw">pub </span>options: MutableVec&lt;String&gt;,
-    <span class="kw">pub </span>data_list_id: String,
-    <span class="kw">pub </span>input_props: InputProps&lt;
-        TLabelSignal,
-        TValidSignal,
-        TAssistiveTextSignal,
-        TErrorTextSignal,
-        TDisabledSignal,
-    &gt;,
+    <span class="attr">#[signal]
+    #[default(<span class="prelude-val">None</span>)]
+    </span>label: <span class="prelude-ty">Option</span>&lt;Dom&gt;,
+
+    <span class="attr">#[signal]
+    #[default(<span class="string">&quot;&quot;</span>.to_string())]
+    </span>value: String,
+
+    <span class="attr">#[signal]
+    #[default(<span class="bool-val">true</span>)]
+    </span>is_valid: bool,
+
+    <span class="attr">#[signal]
+    #[default(<span class="bool-val">false</span>)]
+    </span>disabled: bool,
+
+    <span class="attr">#[signal]
+    #[default(<span class="prelude-val">None</span>)]
+    </span>assistive_text: <span class="prelude-ty">Option</span>&lt;Dom&gt;,
+
+    <span class="attr">#[signal]
+    #[default(<span class="prelude-val">None</span>)]
+    </span>error_text: <span class="prelude-ty">Option</span>&lt;Dom&gt;,
 }
 
 <span class="doccomment">/// The combo box is a searchable dropdown or text field with hints, depending on your point of view.
 /// It renders as a text field in which the user can type freely, but it will have a filtered list
 /// of options in a dropdown to select from as well.
 </span><span class="attr">#[inline]
-</span><span class="kw">pub fn </span>combo_box&lt;
-    TLabelSignal: Signal&lt;Item = <span class="prelude-ty">Option</span>&lt;String&gt;&gt; + Unpin + <span class="lifetime">&#39;static</span>,
-    TValidSignal: Signal&lt;Item = bool&gt; + Unpin + <span class="lifetime">&#39;static</span>,
-    TAssistiveTextSignal: Signal&lt;Item = <span class="prelude-ty">Option</span>&lt;String&gt;&gt; + Unpin + <span class="lifetime">&#39;static</span>,
-    TErrorTextSignal: Signal&lt;Item = <span class="prelude-ty">Option</span>&lt;String&gt;&gt; + Unpin + <span class="lifetime">&#39;static</span>,
-    TDisabledSignal: Signal&lt;Item = bool&gt; + Unpin + <span class="lifetime">&#39;static</span>,
-    F,
-&gt;(
-    props: ComboBoxProps&lt;
-        TLabelSignal,
-        TValidSignal,
-        TAssistiveTextSignal,
-        TErrorTextSignal,
-        TDisabledSignal,
-    &gt;,
-    mixin: F,
-) -&gt; Dom
-<span class="kw">where
-    </span>F: Fn(DomBuilder&lt;HtmlElement&gt;) -&gt; DomBuilder&lt;HtmlElement&gt;,
-{
-    <span class="kw">let </span>(combo_input, has_focus) =
-        combo_box_input(props.data_list_id.as_str(), <span class="kw-2">&amp;</span>props.input_props.value);
+</span><span class="kw">pub fn </span>combo_box(props: <span class="kw">impl </span>ComboBoxPropsTrait + <span class="lifetime">&#39;static</span>) -&gt; Dom {
+    <span class="kw">let </span>ComboBoxProps {
+        data_list_id,
+        options,
+        on_change,
+        label,
+        value,
+        is_valid,
+        disabled,
+        assistive_text,
+        error_text,
+        apply,
+    } = props.take();
 
-    input(
-        combo_input,
-        <span class="kw-2">&amp;</span>has_focus,
-        props.input_props,
-        mixin,
-        <span class="string">&quot;dmat-input-combo-box&quot;</span>,
-        <span class="prelude-val">Some</span>(combo_box_datalist(
-            props.data_list_id.as_str(),
-            <span class="kw-2">&amp;</span>props.options,
-        )),
+    <span class="kw">let </span>value_bc = value.broadcast();
+
+    <span class="kw">let </span>(combo_input, has_focus) = combo_box_input(
+        data_list_id.clone().unwrap().as_str(),
+        value_bc.signal_ref(|v| v.clone()),
+        on_change,
+    );
+
+    input_wrapper(
+        InputWrapperProps::new()
+            .input(combo_input)
+            .has_focus_signal(has_focus.signal())
+            .class_name(<span class="string">&quot;dmat-input-combo-box&quot;</span>.to_string())
+            .extra_child(combo_box_datalist(data_list_id.unwrap().as_str(), options))
+            .apply(|d| <span class="kw">if let </span><span class="prelude-val">Some</span>(a) = apply { d.apply(a) } <span class="kw">else </span>{ d })
+            .error_text_signal(error_text)
+            .assistive_text_signal(assistive_text)
+            .disabled_signal(disabled)
+            .is_valid_signal(is_valid)
+            .label_signal(label)
+            .value_signal(value_bc.signal_ref(|v| v.clone())),
     )
 }
 
 <span class="attr">#[inline]
-</span><span class="kw">fn </span>combo_box_input(data_list_id: <span class="kw-2">&amp;</span>str, value: <span class="kw-2">&amp;</span>Mutable&lt;String&gt;) -&gt; (Dom, Mutable&lt;bool&gt;) {
+</span><span class="kw">fn </span>combo_box_input(
+    data_list_id: <span class="kw-2">&amp;</span>str,
+    value_signal: <span class="kw">impl </span>Signal&lt;Item = String&gt; + <span class="lifetime">&#39;static</span>,
+    on_change: <span class="kw">impl </span>Fn(String) + <span class="lifetime">&#39;static</span>,
+) -&gt; (Dom, Mutable&lt;bool&gt;) {
     <span class="kw">let </span>has_focus = Mutable::new(<span class="bool-val">false</span>);
 
     (
         <span class="macro">html!</span>(<span class="string">&quot;input&quot;</span>, {
             .class(<span class="string">&quot;dmat-input-element&quot;</span>)
             .attr(<span class="string">&quot;list&quot;</span>, data_list_id)
-            .prop_signal(<span class="string">&quot;value&quot;</span>, value.signal_cloned())
-            .event(<span class="macro">clone!</span>(value =&gt; <span class="kw">move </span>|e: events::Input| {
+            .prop_signal(<span class="string">&quot;value&quot;</span>, value_signal)
+            .event(<span class="kw">move </span>|e: events::Input| {
                 <span class="attr">#[allow(deprecated)]
                 </span><span class="kw">if let </span><span class="prelude-val">Some</span>(new_value) = e.value() {
-                    value.set(new_value);
+                    on_change(new_value);
                 }
-            }))
+            })
             .event(<span class="macro">clone!</span>(has_focus =&gt; {
                 <span class="kw">move </span>|_e: events::Focus| {
                     has_focus.set(<span class="bool-val">true</span>);
@@ -222,11 +248,15 @@
 }
 
 <span class="attr">#[inline]
-</span><span class="kw">fn </span>combo_box_datalist(data_list_id: <span class="kw-2">&amp;</span>str, options: <span class="kw-2">&amp;</span>MutableVec&lt;String&gt;) -&gt; Dom {
+</span><span class="kw">fn </span>combo_box_datalist(
+    data_list_id: <span class="kw-2">&amp;</span>str,
+    options: <span class="kw">impl </span>SignalVec&lt;Item = SelectOption&gt; + <span class="lifetime">&#39;static</span>,
+) -&gt; Dom {
     <span class="macro">html!</span>(<span class="string">&quot;datalist&quot;</span>, {
         .attr(<span class="string">&quot;id&quot;</span>, data_list_id)
-        .children_signal_vec(options.signal_vec_cloned().map(|v| <span class="macro">html!</span>(<span class="string">&quot;option&quot;</span>, {
-            .prop(<span class="string">&quot;value&quot;</span>, v)
+        .children_signal_vec(options.map(|v| <span class="macro">html!</span>(<span class="string">&quot;option&quot;</span>, {
+            .apply_if(v.value != v.display_text, |d | d.text(v.display_text.as_str()))
+            .prop(<span class="string">&quot;value&quot;</span>, v.value)
         })))
     })
 }

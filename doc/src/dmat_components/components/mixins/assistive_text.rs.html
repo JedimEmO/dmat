@@ -30,31 +30,31 @@
 <a href="#30" id="30">30</a>
 <a href="#31" id="31">31</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{html, Dom};
-<span class="kw">use </span>futures_signals::map_ref;
-<span class="kw">use </span>futures_signals::signal::{Mutable, Signal};
+<span class="kw">use </span>futures_signals::signal::{Mutable, Signal, SignalExt};
 
 <span class="kw">pub fn </span>assistive_text&lt;TAssistiveTextSignal&gt;(
     assistive_text_signal: TAssistiveTextSignal,
     has_assistive: <span class="kw-2">&amp;</span>Mutable&lt;bool&gt;,
 ) -&gt; Dom
 <span class="kw">where
-    </span>TAssistiveTextSignal: Signal&lt;Item = <span class="prelude-ty">Option</span>&lt;String&gt;&gt; + Unpin + <span class="lifetime">&#39;static</span>,
+    </span>TAssistiveTextSignal: Signal&lt;Item = <span class="prelude-ty">Option</span>&lt;Dom&gt;&gt; + <span class="lifetime">&#39;static</span>,
 {
     <span class="kw">let </span>has_assistive = has_assistive.clone();
 
-    <span class="kw">let </span>assistive_element_signal = <span class="macro">map_ref!</span>(
-        <span class="kw">let </span>assistive_text = assistive_text_signal =&gt; <span class="kw">move </span>{
-            <span class="kw">let </span>ass = has_assistive.clone();
+    <span class="kw">let </span>assistive_element_signal = assistive_text_signal.map(<span class="kw">move </span>|assistive_text| {
+        <span class="kw">let </span>ass = has_assistive.clone();
 
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(str) = assistive_text {
-                ass.set(<span class="bool-val">true</span>);
-                <span class="prelude-val">Some</span>(<span class="macro">crate::text!</span>(str, |d| d.class(<span class="string">&quot;dmat-assistive-text&quot;</span>)))
-            } <span class="kw">else </span>{
-                ass.set(<span class="bool-val">false</span>);
-                <span class="prelude-val">None
-            </span>}
-        }
-    );
+        <span class="kw">if let </span><span class="prelude-val">Some</span>(assistive_child) = assistive_text {
+            ass.set(<span class="bool-val">true</span>);
+            <span class="prelude-val">Some</span>(<span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
+                .child(assistive_child)
+                .class(<span class="string">&quot;dmat-assistive-text&quot;</span>)
+            }))
+        } <span class="kw">else </span>{
+            ass.set(<span class="bool-val">false</span>);
+            <span class="prelude-val">None
+        </span>}
+    });
 
     <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {
         .child_signal(assistive_element_signal)

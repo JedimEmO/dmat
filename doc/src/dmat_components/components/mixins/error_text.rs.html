@@ -34,9 +34,15 @@
 <a href="#34" id="34">34</a>
 <a href="#35" id="35">35</a>
 <a href="#36" id="36">36</a>
+<a href="#37" id="37">37</a>
+<a href="#38" id="38">38</a>
+<a href="#39" id="39">39</a>
+<a href="#40" id="40">40</a>
+<a href="#41" id="41">41</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{html, Dom};
-<span class="kw">use </span>futures_signals::map_ref;
 <span class="kw">use </span>futures_signals::signal::{Mutable, Signal};
+
+<span class="kw">use </span>futures_signals::map_mut;
 
 <span class="kw">pub fn </span>error_text&lt;TValidSig, TErrorTextSignal&gt;(
     error_text_signal: TErrorTextSignal,
@@ -44,18 +50,22 @@
     has_error: <span class="kw-2">&amp;</span>Mutable&lt;bool&gt;,
 ) -&gt; Dom
 <span class="kw">where
-    </span>TValidSig: Signal&lt;Item = bool&gt; + Unpin + <span class="lifetime">&#39;static</span>,
-    TErrorTextSignal: Signal&lt;Item = <span class="prelude-ty">Option</span>&lt;String&gt;&gt; + Unpin + <span class="lifetime">&#39;static</span>,
+    </span>TValidSig: Signal&lt;Item = bool&gt; + <span class="lifetime">&#39;static</span>,
+    TErrorTextSignal: Signal&lt;Item = <span class="prelude-ty">Option</span>&lt;Dom&gt;&gt; + <span class="lifetime">&#39;static</span>,
 {
     <span class="kw">let </span>has_error = has_error.clone();
 
-    <span class="kw">let </span>error_text_signal = <span class="macro">map_ref!</span>(
+    <span class="kw">let </span>error_text_signal = <span class="macro">map_mut!</span>(
         <span class="kw">let </span>valid = is_valid,
-        <span class="kw">let </span>error_text = error_text_signal =&gt; <span class="kw">move </span>{
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(str) = error_text {
+        <span class="kw">let </span>error = error_text_signal =&gt; <span class="kw">move </span>{
+            <span class="kw">if let </span><span class="prelude-val">Some</span>(error_child) = error {
                 <span class="kw">if </span>!<span class="kw-2">*</span>valid {
                     has_error.set(<span class="bool-val">true</span>);
-                    <span class="prelude-val">Some</span>(<span class="macro">crate::text!</span>(str, |d| d.class(<span class="string">&quot;dmat-assistive-text&quot;</span>).class(<span class="string">&quot;dmat-error-text&quot;</span>)))
+                    <span class="prelude-val">Some</span>(<span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
+                            .class(<span class="string">&quot;dmat-assistive-text&quot;</span>)
+                            .class(<span class="string">&quot;dmat-error-text&quot;</span>)
+                            .child(error_child)
+                        }))
                 } <span class="kw">else </span>{
                     <span class="prelude-val">None
                 </span>}

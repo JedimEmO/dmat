@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["text_field"],"struct":["TextFieldOutput","TextFieldProps"]};
+window.SIDEBAR_ITEMS = {"fn":["text_field"],"struct":["TextFieldOutput","TextFieldProps"],"trait":["TextFieldPropsTrait"]};

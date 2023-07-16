@@ -81,75 +81,109 @@
 <a href="#81" id="81">81</a>
 <a href="#82" id="82">82</a>
 <a href="#83" id="83">83</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::futures_signals::signal::SignalExt;
-<span class="kw">use </span>dominator::{html, Dom, DomBuilder};
+<a href="#84" id="84">84</a>
+<a href="#85" id="85">85</a>
+<a href="#86" id="86">86</a>
+<a href="#87" id="87">87</a>
+<a href="#88" id="88">88</a>
+<a href="#89" id="89">89</a>
+<a href="#90" id="90">90</a>
+<a href="#91" id="91">91</a>
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{html, Dom};
 <span class="kw">use </span>futures_signals::map_ref;
-<span class="kw">use </span>futures_signals::signal::{Broadcaster, Mutable, Signal};
-<span class="kw">use </span>web_sys::HtmlElement;
+<span class="kw">use </span>futures_signals::signal::{Broadcaster, Mutable, SignalExt};
+<span class="kw">use </span>wasm_bindgen::UnwrapThrowExt;
 
-<span class="kw">use </span><span class="kw">crate</span>::components::input::input_props::InputProps;
 <span class="kw">use </span><span class="kw">crate</span>::components::input::label::label_element;
 <span class="kw">use </span><span class="kw">crate</span>::components::mixins::children_builder::build_children;
 <span class="kw">use </span><span class="kw">crate</span>::components::mixins::{
     assistive_text, disabled_signal_mixin, error_text, invalid_signal_mixin,
 };
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn </span>input&lt;
-    TLabelSignal: Signal&lt;Item = <span class="prelude-ty">Option</span>&lt;String&gt;&gt; + Unpin + <span class="lifetime">&#39;static</span>,
-    TValidSignal: Signal&lt;Item = bool&gt; + Unpin + <span class="lifetime">&#39;static</span>,
-    TAssistiveTextSignal: Signal&lt;Item = <span class="prelude-ty">Option</span>&lt;String&gt;&gt; + Unpin + <span class="lifetime">&#39;static</span>,
-    TErrorTextSignal: Signal&lt;Item = <span class="prelude-ty">Option</span>&lt;String&gt;&gt; + Unpin + <span class="lifetime">&#39;static</span>,
-    TDisabledSignal: Signal&lt;Item = bool&gt; + Unpin + <span class="lifetime">&#39;static</span>,
-    F,
-&gt;(
-    input_element: Dom,
-    has_focus: <span class="kw-2">&amp;</span>Mutable&lt;bool&gt;,
-    props: InputProps&lt;
-        TLabelSignal,
-        TValidSignal,
-        TAssistiveTextSignal,
-        TErrorTextSignal,
-        TDisabledSignal,
-    &gt;,
-    mixin: F,
-    class_name: <span class="kw-2">&amp;</span>str,
-    extra_child: <span class="prelude-ty">Option</span>&lt;Dom&gt;,
-) -&gt; Dom
-<span class="kw">where
-    </span>F: FnOnce(DomBuilder&lt;HtmlElement&gt;) -&gt; DomBuilder&lt;HtmlElement&gt;,
-{
-    <span class="kw">let </span>value = props.value.clone();
-    <span class="kw">let </span>label_element = props
-        .label
-        .map(|label| label_element(input_element, value.clone(), has_focus, label));
+<span class="attr">#[component(render_fn = input_wrapper)]
+</span><span class="kw">struct </span>InputWrapper {
+    input: Dom,
 
+    <span class="attr">#[signal]
+    #[default(<span class="prelude-val">None</span>)]
+    </span>label: <span class="prelude-ty">Option</span>&lt;Dom&gt;,
+
+    <span class="attr">#[signal]
+    #[default(<span class="string">&quot;&quot;</span>.to_string())]
+    </span>value: String,
+
+    <span class="attr">#[signal]
+    #[default(<span class="bool-val">true</span>)]
+    </span>is_valid: bool,
+
+    <span class="attr">#[signal]
+    #[default(<span class="bool-val">false</span>)]
+    </span>disabled: bool,
+
+    <span class="attr">#[signal]
+    #[default(<span class="prelude-val">None</span>)]
+    </span>assistive_text: <span class="prelude-ty">Option</span>&lt;Dom&gt;,
+
+    <span class="attr">#[signal]
+    #[default(<span class="prelude-val">None</span>)]
+    </span>error_text: <span class="prelude-ty">Option</span>&lt;Dom&gt;,
+
+    <span class="attr">#[signal]
+    #[default(<span class="bool-val">false</span>)]
+    </span>has_focus: bool,
+
+    class_name: String,
+    extra_child: Dom,
+}
+
+<span class="kw">pub fn </span>input_wrapper(props: <span class="kw">impl </span>InputWrapperPropsTrait + <span class="lifetime">&#39;static</span>) -&gt; Dom {
+    <span class="kw">let </span>InputWrapperProps {
+        input,
+        label,
+        value,
+        is_valid,
+        disabled: disabled_signal,
+        assistive_text: assistive_text_signal,
+        error_text: error_text_signal,
+        has_focus,
+        class_name,
+        extra_child,
+        apply,
+    } = props.take();
+
+    <span class="kw">let </span>label_element = label_element(
+        input.unwrap_throw(),
+        value.map(|v| !v.is_empty()),
+        has_focus,
+        label,
+    );
     <span class="kw">let </span>has_assistive = Mutable::new(<span class="bool-val">false</span>);
     <span class="kw">let </span>has_error = Mutable::new(<span class="bool-val">false</span>);
-    <span class="kw">let </span>is_valid = props.is_valid;
-    <span class="kw">let </span>disabled_signal = props.disabled_signal;
 
-    <span class="kw">let </span>is_valid_broadcast = is_valid.map(|valid_signal| Broadcaster::new(valid_signal));
-    <span class="kw">let </span>is_valid_broadcast_cloned = is_valid_broadcast.as_ref().map(|b| b.signal_cloned());
+    <span class="kw">let </span>is_valid_broadcast = Broadcaster::new(is_valid);
 
-    <span class="kw">let </span>error = <span class="kw">if </span>props.error_text_signal.is_some() &amp;&amp; is_valid_broadcast.is_some() {
-        <span class="prelude-val">Some</span>(error_text(
-            props.error_text_signal.unwrap(),
-            is_valid_broadcast_cloned.unwrap(),
-            <span class="kw-2">&amp;</span>has_error,
-        ))
-    } <span class="kw">else </span>{
-        <span class="prelude-val">None
-    </span>};
+    <span class="kw">let </span>error = <span class="prelude-val">Some</span>(error_text(
+        error_text_signal,
+        is_valid_broadcast.signal(),
+        <span class="kw-2">&amp;</span>has_error,
+    ));
 
-    <span class="kw">let </span>assistive = props
-        .assistive_text_signal
-        .map(|assistive_text_signal| assistive_text(assistive_text_signal, <span class="kw-2">&amp;</span>has_assistive));
+    <span class="kw">let </span>assistive = assistive_text(assistive_text_signal, <span class="kw-2">&amp;</span>has_assistive);
 
-    <span class="kw">let </span>children = build_children(<span class="kw-2">&amp;mut </span>[label_element, extra_child, error, assistive]);
+    <span class="kw">let </span>children = build_children(<span class="kw-2">&amp;mut </span>[<span class="prelude-val">Some</span>(label_element), extra_child, error, <span class="prelude-val">Some</span>(assistive)]);
 
     <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
         .children(children.into_iter())
-        .apply(mixin)
+        .apply_if(apply.is_some(), |d| d.apply(apply.unwrap()))
         .class_signal(
             <span class="string">&quot;assistive&quot;</span>,
             <span class="macro">map_ref!</span>(
@@ -159,9 +193,9 @@
                 }
             )
         )
-        .apply_if(disabled_signal.is_some(), |d| d.apply(disabled_signal_mixin(disabled_signal.unwrap())))
-        .apply_if(is_valid_broadcast.is_some(), |d| d.apply(invalid_signal_mixin(is_valid_broadcast.unwrap().signal().map(|v| v))))
-        .class(class_name)
+        .apply(disabled_signal_mixin(disabled_signal))
+        .apply(invalid_signal_mixin(is_valid_broadcast.signal()))
+        .apply_if(class_name.is_some(), |d| d.class(class_name.unwrap()))
     })
 }
 </code></pre></div></section></main></body></html>

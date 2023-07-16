@@ -37,28 +37,28 @@
 <a href="#37" id="37">37</a>
 <a href="#38" id="38">38</a>
 <a href="#39" id="39">39</a>
+<a href="#40" id="40">40</a>
+<a href="#41" id="41">41</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::futures_signals::signal::SignalExt;
-<span class="kw">use </span>dominator::{clone, html, Dom};
+<span class="kw">use </span>dominator::{html, Dom};
 <span class="kw">use </span>futures_signals::map_ref;
-<span class="kw">use </span>futures_signals::signal::{Mutable, Signal};
+<span class="kw">use </span>futures_signals::signal::Signal;
 
 <span class="attr">#[inline]
-</span><span class="kw">pub fn </span>label_element&lt;TLabelSignal: Signal&lt;Item = <span class="prelude-ty">Option</span>&lt;String&gt;&gt; + Unpin + <span class="lifetime">&#39;static</span>&gt;(
+</span><span class="kw">pub fn </span>label_element(
     input: Dom,
-    value: Mutable&lt;String&gt;,
-    has_focus: <span class="kw-2">&amp;</span>Mutable&lt;bool&gt;,
-    label: TLabelSignal,
+    has_value_signal: <span class="kw">impl </span>Signal&lt;Item = bool&gt; + <span class="lifetime">&#39;static</span>,
+    has_focus_signal: <span class="kw">impl </span>Signal&lt;Item = bool&gt; + <span class="lifetime">&#39;static</span>,
+    label: <span class="kw">impl </span>Signal&lt;Item = <span class="prelude-ty">Option</span>&lt;Dom&gt;&gt; + <span class="lifetime">&#39;static</span>,
 ) -&gt; Dom {
     <span class="macro">html!</span>(<span class="string">&quot;label&quot;</span>, {
         .class_signal(
             <span class="string">&quot;above&quot;</span>,
-            <span class="macro">clone!</span>(value =&gt; <span class="macro">map_ref!</span>(
-                <span class="kw">let </span>focus = has_focus.signal_cloned(),
-                <span class="kw">let </span>current_value = value.signal_cloned() =&gt; <span class="kw">move </span>{
-                    <span class="kw">let </span>has_value = !current_value.is_empty();
-
-                    <span class="kw-2">*</span>focus || has_value
-                })))
+            <span class="macro">map_ref!</span>(
+                <span class="kw">let </span>has_focus = has_focus_signal,
+                <span class="kw">let </span>has_value = has_value_signal =&gt; <span class="kw">move </span>{
+                    <span class="kw-2">*</span>has_focus || <span class="kw-2">*</span>has_value
+                }))
         .children(<span class="kw-2">&amp;mut </span>[
             input,
             <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {.class(<span class="string">&quot;dmat-notch-left&quot;</span>)}),
@@ -66,14 +66,18 @@
                 .class(<span class="string">&quot;dmat-notch-middle&quot;</span>)
                 .apply(|dom_builder| {
                     dom_builder.child_signal(label.map(|label_content| {
-                        label_content.map(|label_text| <span class="macro">crate::text!</span>(label_text, |dom_builder| dom_builder.class(<span class="string">&quot;dmat-input-label-text&quot;</span>)))
+                        label_content.map(|label_content| {
+                            <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {
+                                .child(label_content)
+                                .class(<span class="string">&quot;dmat-input-label-text&quot;</span>)
+                            })
+                        })
                     }))
                 })
             }),
             <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {.class(<span class="string">&quot;dmat-notch-right&quot;</span>)}),
         ])
         .class(<span class="string">&quot;dmat-floating-label&quot;</span>)
-
     })
 }
 </code></pre></div></section></main></body></html>

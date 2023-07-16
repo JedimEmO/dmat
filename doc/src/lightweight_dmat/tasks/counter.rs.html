@@ -22,6 +22,7 @@
 <a href="#22" id="22">22</a>
 <a href="#23" id="23">23</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>dmat_components::components::button::<span class="kw-2">*</span>;
+<span class="kw">use </span>dmat_components::components::input::text_field::<span class="kw-2">*</span>;
 <span class="kw">use </span>dominator::{clone, html, Dom};
 <span class="kw">use </span>futures_signals::signal::Mutable;
 
@@ -30,9 +31,8 @@
 
     <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
         .child(<span class="macro">text_field!</span>({
-            .label(<span class="string">&quot;Counter Value&quot;</span>)
-            .value(counter_state.clone())
-            .disabled()
+            .label(<span class="prelude-val">Some</span>(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;Counter Value&quot;</span>)})))
+            .value_signal(counter_state.signal_cloned())
         }).<span class="number">0</span>)
         .child(<span class="macro">button!</span>({
             .content(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;Increment&quot;</span>)}))

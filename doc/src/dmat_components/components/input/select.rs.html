@@ -89,95 +89,113 @@
 <a href="#89" id="89">89</a>
 <a href="#90" id="90">90</a>
 <a href="#91" id="91">91</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{clone, events, html, Dom, DomBuilder};
-<span class="kw">use </span>futures_signals::signal::{Mutable, Signal};
-<span class="kw">use </span>futures_signals::signal_vec::{MutableVec, SignalVecExt};
+<a href="#92" id="92">92</a>
+<a href="#93" id="93">93</a>
+<a href="#94" id="94">94</a>
+<a href="#95" id="95">95</a>
+<a href="#96" id="96">96</a>
+<a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::components::input::input_field::{input_wrapper, InputWrapperProps};
+<span class="kw">use </span>dominator::{events, html, Dom};
+<span class="kw">use </span>futures_signals::signal::{Signal, SignalExt};
+<span class="kw">use </span>futures_signals::signal_vec::{SignalVec, SignalVecExt};
 <span class="kw">use </span>wasm_bindgen::JsCast;
-<span class="kw">use </span>web_sys::{HtmlElement, HtmlSelectElement};
+<span class="kw">use </span>web_sys::HtmlSelectElement;
 
-<span class="kw">use </span><span class="kw">crate</span>::components::input::input_field::input;
-<span class="kw">use </span><span class="kw">crate</span>::components::input::input_props::InputProps;
-
-<span class="attr">#[macro_export]
-</span><span class="macro">macro_rules! </span>select {
-    (<span class="macro-nonterminal">$props</span>: expr) =&gt; {{
-        <span class="macro-nonterminal">$crate::components::input::select::select</span>(<span class="macro-nonterminal">$props</span>, |d| d)
-    }};
-
-    (<span class="macro-nonterminal">$props</span>: expr, <span class="macro-nonterminal">$mixin</span>: expr) =&gt; {{
-        <span class="macro-nonterminal">$crate::components::input::select::select</span>(<span class="macro-nonterminal">$props</span>, <span class="macro-nonterminal">$mixin</span>)
-    }};
+<span class="kw">pub struct </span>SelectOption {
+    <span class="kw">pub </span>value: String,
+    <span class="kw">pub </span>display_text: String,
 }
 
-<span class="kw">pub struct </span>SelectProps&lt;
-    TLabelSignal: Signal&lt;Item = <span class="prelude-ty">Option</span>&lt;String&gt;&gt; + Unpin + <span class="lifetime">&#39;static</span>,
-    TValidSignal: Signal&lt;Item = bool&gt; + Unpin + <span class="lifetime">&#39;static</span>,
-    TAssistiveTextSignal: Signal&lt;Item = <span class="prelude-ty">Option</span>&lt;String&gt;&gt; + Unpin + <span class="lifetime">&#39;static</span>,
-    TErrorTextSignal: Signal&lt;Item = <span class="prelude-ty">Option</span>&lt;String&gt;&gt; + Unpin + <span class="lifetime">&#39;static</span>,
-    TDisabledSignal: Signal&lt;Item = bool&gt; + Unpin + <span class="lifetime">&#39;static</span>,
-&gt; {
-    <span class="kw">pub </span>options: MutableVec&lt;String&gt;,
-    <span class="kw">pub </span>data_list_id: String,
-    <span class="kw">pub </span>input_props: InputProps&lt;
-        TLabelSignal,
-        TValidSignal,
-        TAssistiveTextSignal,
-        TErrorTextSignal,
-        TDisabledSignal,
-    &gt;,
+<span class="attr">#[component(render_fn = select)]
+</span><span class="kw">pub struct </span>Select&lt;TOnValuePickCb: Fn(String) = <span class="kw">fn</span>(String) -&gt; ()&gt; {
+    <span class="attr">#[signal_vec]
+    #[default(vec ! []</span>)]
+    options: SelectOption,
+
+    <span class="attr">#[default(|<span class="kw">_</span>| {})]
+    </span>on_change: TOnValuePickCb,
+
+    <span class="attr">#[signal]
+    #[default(<span class="prelude-val">None</span>)]
+    </span>label: <span class="prelude-ty">Option</span>&lt;Dom&gt;,
+
+    <span class="attr">#[signal]
+    #[default(<span class="string">&quot;&quot;</span>.to_string())]
+    </span>value: String,
+
+    <span class="attr">#[signal]
+    #[default(<span class="bool-val">true</span>)]
+    </span>is_valid: bool,
+
+    <span class="attr">#[signal]
+    #[default(<span class="bool-val">false</span>)]
+    </span>disabled: bool,
+
+    <span class="attr">#[signal]
+    #[default(<span class="prelude-val">None</span>)]
+    </span>assistive_text: <span class="prelude-ty">Option</span>&lt;Dom&gt;,
+
+    <span class="attr">#[signal]
+    #[default(<span class="prelude-val">None</span>)]
+    </span>error_text: <span class="prelude-ty">Option</span>&lt;Dom&gt;,
 }
 
 <span class="doccomment">/// The select component is a dropdown from which the user can chose 1 value
 </span><span class="attr">#[inline]
-</span><span class="kw">pub fn </span>select&lt;
-    TLabelSignal: Signal&lt;Item = <span class="prelude-ty">Option</span>&lt;String&gt;&gt; + Unpin + <span class="lifetime">&#39;static</span>,
-    TValidSignal: Signal&lt;Item = bool&gt; + Unpin + <span class="lifetime">&#39;static</span>,
-    TAssistiveTextSignal: Signal&lt;Item = <span class="prelude-ty">Option</span>&lt;String&gt;&gt; + Unpin + <span class="lifetime">&#39;static</span>,
-    TErrorTextSignal: Signal&lt;Item = <span class="prelude-ty">Option</span>&lt;String&gt;&gt; + Unpin + <span class="lifetime">&#39;static</span>,
-    TDisabledSignal: Signal&lt;Item = bool&gt; + Unpin + <span class="lifetime">&#39;static</span>,
-    F,
-&gt;(
-    props: SelectProps&lt;
-        TLabelSignal,
-        TValidSignal,
-        TAssistiveTextSignal,
-        TErrorTextSignal,
-        TDisabledSignal,
-    &gt;,
-    mixin: F,
-) -&gt; Dom
-<span class="kw">where
-    </span>F: Fn(DomBuilder&lt;HtmlElement&gt;) -&gt; DomBuilder&lt;HtmlElement&gt;,
-{
-    <span class="kw">let </span>has_focus = Mutable::new(<span class="bool-val">true</span>);
-    <span class="kw">let </span>options = props.options;
-    <span class="kw">let </span>input_ele = select_input_ele(<span class="kw-2">&amp;</span>props.input_props.value, <span class="kw-2">&amp;</span>options);
+</span><span class="kw">pub fn </span>select(props: <span class="kw">impl </span>SelectPropsTrait + <span class="lifetime">&#39;static</span>) -&gt; Dom {
+    <span class="kw">let </span>SelectProps {
+        options,
+        on_change,
+        label,
+        value,
+        is_valid,
+        disabled,
+        assistive_text,
+        error_text,
+        apply,
+    } = props.take();
 
-    input(
-        input_ele,
-        <span class="kw-2">&amp;</span>has_focus,
-        props.input_props,
-        mixin,
-        <span class="string">&quot;dmat-input-select&quot;</span>,
-        <span class="prelude-val">None</span>,
+    <span class="kw">let </span>value_bc = value.broadcast();
+    <span class="kw">let </span>input_ele = select_input_ele(value_bc.signal_ref(|v| v.clone()), on_change, options);
+
+    input_wrapper(
+        InputWrapperProps::new()
+            .input(input_ele)
+            .has_focus(<span class="bool-val">true</span>)
+            .class_name(<span class="string">&quot;dmat-input-select&quot;</span>.to_string())
+            .apply(|d| <span class="kw">if let </span><span class="prelude-val">Some</span>(a) = apply { d.apply(a) } <span class="kw">else </span>{ d })
+            .error_text_signal(error_text)
+            .assistive_text_signal(assistive_text)
+            .disabled_signal(disabled)
+            .is_valid_signal(is_valid)
+            .label_signal(label)
+            .value_signal(value_bc.signal_ref(|v| v.clone())),
     )
 }
 
-<span class="kw">fn </span>select_input_ele(value: <span class="kw-2">&amp;</span>Mutable&lt;String&gt;, options: <span class="kw-2">&amp;</span>MutableVec&lt;String&gt;) -&gt; Dom {
+<span class="kw">fn </span>select_input_ele(
+    value_signal: <span class="kw">impl </span>Signal&lt;Item = String&gt; + <span class="lifetime">&#39;static</span>,
+    value_change_cb: <span class="kw">impl </span>Fn(String) + <span class="lifetime">&#39;static</span>,
+    options: <span class="kw">impl </span>SignalVec&lt;Item = SelectOption&gt; + <span class="lifetime">&#39;static</span>,
+) -&gt; Dom {
     <span class="macro">html!</span>(<span class="string">&quot;select&quot;</span>, {
-        .prop_signal(<span class="string">&quot;value&quot;</span>, value.signal_cloned())
-        .children_signal_vec(options.signal_vec_cloned().map(|v| <span class="macro">html!</span>(<span class="string">&quot;option&quot;</span>, {
-            .text(v.as_str())
-            .prop(<span class="string">&quot;value&quot;</span>, v)
+        .prop_signal(<span class="string">&quot;value&quot;</span>, value_signal)
+        .children_signal_vec(options.map(|v| <span class="macro">html!</span>(<span class="string">&quot;option&quot;</span>, {
+            .text(v.display_text.as_str())
+            .prop(<span class="string">&quot;value&quot;</span>, v.value)
         })))
-        .event(<span class="macro">clone!</span>(value =&gt; <span class="kw">move </span>|e: events::Change| {
+        .event(<span class="kw">move </span>|e: events::Change| {
             <span class="attr">#[allow(deprecated)]
             </span><span class="kw">if let </span><span class="prelude-val">Some</span>(target) = e.target() {
                 <span class="kw">if let </span><span class="prelude-val">Some</span>(target) = target.dyn_ref::&lt;HtmlSelectElement&gt;() {
-                    value.set(target.value());
+                    value_change_cb(target.value());
                 }
             }
-        }))
+        })
     })
 }
 </code></pre></div></section></main></body></html>

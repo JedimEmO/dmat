@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["select"],"struct":["SelectProps"]};
+window.SIDEBAR_ITEMS = {"fn":["select"],"struct":["SelectOption","SelectProps"],"trait":["SelectPropsTrait"]};
