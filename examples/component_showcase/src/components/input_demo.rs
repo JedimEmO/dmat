@@ -7,6 +7,8 @@ use dmat_components::components::input::combo_box::*;
 
 use dmat_components::components::input::select::*;
 use dmat_components::components::input::switch::*;
+use dmat_components::components::input::validation_result::ValidationResult;
+use dmat_components::components::input::value_adapters::mutable_t_value_adapter::MutableTValueAdapter;
 use dmat_components::components::*;
 use dmat_components::utils::signals::stream_flipflop::stream_to_flipflop_mixin;
 
@@ -99,6 +101,8 @@ fn combo_box_demo(value: &Mutable<String>) -> Dom {
 }
 
 fn text_input_demo(value: &Mutable<String>) -> Dom {
+    let i32_value = Mutable::new(0);
+
     card!({
         .child( list!({
             .rows([
@@ -108,8 +112,7 @@ fn text_input_demo(value: &Mutable<String>) -> Dom {
                         text_field!({
                             .claim_focus(true)
                             .label(Some(html!("span", { .text("With dynamic help text")})))
-                            .value_signal(value.signal_cloned())
-                            .on_value_change(clone!(value => move |v| value.set(v)))
+                            .value(MutableTValueAdapter::new_simple(value))
                             .assistive_text_signal(map_ref!(let cur_val = value.signal_cloned() =>
                                 Some(html!("span", {
                                     .text(format!("Assistive text - {}", cur_val).as_str())
@@ -121,8 +124,7 @@ fn text_input_demo(value: &Mutable<String>) -> Dom {
                     .children(&mut [
                         text_field!({
                             .label(Some(html!("span", { .text("With error text")})))
-                            .value_signal(value.signal_cloned())
-                            .on_value_change(clone!(value => move |v| value.set(v)))
+                            .value(MutableTValueAdapter::new_simple(value))
                             .is_valid_signal(value.signal_ref(|v| v.contains("foobar")))
                             .assistive_text_signal(map_ref!(let cur_val = value.signal_cloned() =>
                                 Some(html!("span", {
@@ -136,9 +138,35 @@ fn text_input_demo(value: &Mutable<String>) -> Dom {
                     .children(&mut [
                         text_field!({
                             .label(Some(html!("span", { .text("Always invalid")})))
-                            .value_signal(value.signal_cloned())
-                            .on_value_change(clone!(value => move |v| value.set(v)))
+                            .value(MutableTValueAdapter::new_simple(value))
                             .is_valid(false)
+                        }).0
+                    ])
+                }),
+                html!("div", {
+                    .children(&mut [
+                        text_field!({
+                            .label(Some(html!("span", { .text("Only accepts UPPERCASE characters")})))
+                            .value(MutableTValueAdapter::new_with_sanitizer(value, |v| {
+                                if v.chars().all(|c| c.is_uppercase()) {
+                                    ValidationResult::Valid
+                                } else {
+                                    ValidationResult::Invalid{message: "Sanitized for uppercase characters".to_string()}
+                                }
+                            }))
+                        }).0
+                    ])
+                }),
+
+                html!("div", {
+                    .children(&mut [
+                        text_field!({
+                            .label(Some(html!("span", { .text("Only accepts i32 values")})))
+                            .value(MutableTValueAdapter::new_simple(&i32_value))
+                            .assistive_text_signal(map_ref!(let cur_val = i32_value.signal_cloned() =>
+                                Some(html!("span", {
+                                    .text(format!("{}*2={}", cur_val, cur_val*2).as_str())
+                                }))))
                         }).0
                     ])
                 }),

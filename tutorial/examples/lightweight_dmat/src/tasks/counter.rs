@@ -1,3 +1,4 @@
+use crate::input::value_adapters::mutable_t_value_adapter::MutableTValueAdapter;
 use dmat_components::components::button::*;
 use dmat_components::components::input::text_field::*;
 use dominator::{clone, html, Dom};
@@ -9,7 +10,7 @@ pub fn counter() -> Dom {
     html!("div", {
         .child(text_field!({
             .label(Some(html!("span", { .text("Counter Value")})))
-            .value_signal(counter_state.signal_cloned())
+            .value(MutableTValueAdapter::new_simple(&counter_state))
         }).0)
         .child(button!({
             .content(html!("span", { .text("Increment")}))

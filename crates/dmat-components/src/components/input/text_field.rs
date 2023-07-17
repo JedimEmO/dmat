@@ -1,19 +1,19 @@
 use crate::components::input::input_field::{input_wrapper, InputWrapperProps};
+use crate::components::input::validation_result::ValidationResult;
+use crate::components::input::value_adapters::mutable_t_value_adapter::MutableTValueAdapter;
+use crate::components::input::value_adapters::value_adapter::ValueAdapter;
 use dominator::{clone, events, html, Dom};
-use futures_signals::signal::{Mutable, MutableSignalCloned, Signal, SignalExt};
+use futures_signals::signal::{Mutable, MutableSignalCloned, SignalExt};
+use futures_signals::{map_mut, map_ref};
 
 #[component(render_fn = text_field)]
-pub struct TextField<TOnValuePickCb: Fn(String) = fn(String) -> ()> {
-    #[default(| _ | {})]
-    on_value_change: TOnValuePickCb,
-
+pub struct TextField<TValueAdapter: ValueAdapter + 'static = MutableTValueAdapter<String>> {
     #[signal]
     #[default(None)]
     label: Option<Dom>,
 
-    #[signal]
-    #[default("".to_string())]
-    value: String,
+    #[default(MutableTValueAdapter::default())]
+    value: TValueAdapter,
 
     #[signal]
     #[default(true)]
@@ -46,7 +46,6 @@ pub struct TextFieldOutput {
 /// 1: output of the component, containing a boolean signal for the  validity of the input according to the validator
 pub fn text_field(props: impl TextFieldPropsTrait + 'static) -> (Dom, TextFieldOutput) {
     let TextFieldProps {
-        on_value_change,
         label,
         value,
         is_valid,
@@ -57,28 +56,62 @@ pub fn text_field(props: impl TextFieldPropsTrait + 'static) -> (Dom, TextFieldO
         apply,
     } = props.take();
 
-    let value_bc = value.broadcast();
+    let value_signal = value.get_value_signal();
+    let sanitize_result = Mutable::new(ValidationResult::Valid);
     let has_focus = Mutable::new(false);
-    let input_element = text_field_input(
-        value_bc.signal_ref(|v| v.clone()),
-        on_value_change,
-        &has_focus,
-        claim_focus,
-    );
+
+    let input_element = text_field_input(value, &sanitize_result, has_focus.clone(), claim_focus);
+
+    let is_valid_combined = map_ref! {
+        let is_valid_outer = is_valid,
+        let is_valid_sanitized = sanitize_result.signal_cloned()
+            => {
+                *is_valid_outer && is_valid_sanitized.is_valid()
+            }
+    };
+
+    let error_text_combined = map_mut! {
+        let error_text_outer = error_text,
+        let error_text_sanitized = sanitize_result.signal_cloned()
+            => {
+                if error_text_outer.is_some() {
+                    error_text_outer.take()
+                } else if let ValidationResult::Invalid { message } = error_text_sanitized {
+                    Some(html!("div", {
+                        .text(message)
+                    }))
+                } else {
+                    None
+                }
+            }
+    };
+
+    let value_combined_signal = map_ref! {
+        let value_outer = value_signal,
+        let value_sanitized = sanitize_result.signal_cloned()
+            => {
+                if let ValidationResult::Valid = value_sanitized {
+                    value_outer.clone()
+                } else {
+                    // We don't care about the contents of the value if it is invalid
+                    "whatever".to_string()
+                }
+            }
+    };
 
     (
         input_wrapper(
             InputWrapperProps::new()
-                .value_signal(value_bc.signal_ref(|v| v.clone()))
+                .value_signal(value_combined_signal)
                 .input(input_element)
                 .has_focus_signal(has_focus.signal())
                 .apply(|d| if let Some(a) = apply { a(d) } else { d })
                 .has_focus_signal(has_focus.signal())
                 .class_name("dmat-input-text-field".to_string())
-                .error_text_signal(error_text)
+                .error_text_signal(error_text_combined)
                 .assistive_text_signal(assistive_text)
                 .disabled_signal(disabled)
-                .is_valid_signal(is_valid)
+                .is_valid_signal(is_valid_combined)
                 .label_signal(label),
         ),
         TextFieldOutput {
@@ -89,23 +122,37 @@ pub fn text_field(props: impl TextFieldPropsTrait + 'static) -> (Dom, TextFieldO
 
 #[inline]
 fn text_field_input(
-    value_signal: impl Signal<Item = String> + 'static,
-    on_value_change: impl Fn(String) + 'static,
-    has_focus: &Mutable<bool>,
+    value: impl ValueAdapter + 'static,
+    sanitize_result: &Mutable<ValidationResult>,
+    has_focus: Mutable<bool>,
     claim_focus: bool,
 ) -> Dom {
+    let value_signal = value.get_value_signal();
+    let value_signal_reset = value.get_value_signal();
+
+    // We let the external value signal override any sanitizing we do internally
+    let reset_sanitize_result = value_signal_reset.for_each(clone!(sanitize_result => move |_| {
+        sanitize_result.set(ValidationResult::Valid);
+        async {}
+    }));
+
     html!("input", {
         .apply_if(claim_focus, clone!(has_focus => move|builder| {
             has_focus.set(true);
             builder.focused(true)
         }))
-        .event(move |e: events::Input| {
+        .future(reset_sanitize_result)
+        .event(clone!(sanitize_result => move |e: events::Input| {
             #[allow(deprecated)]
             if let Some(val) = e.value() {
-                on_value_change(val)
+                if let ValidationResult::Invalid { message } = value.set_value(val) {
+                    sanitize_result.set(ValidationResult::Invalid { message })
+                } else {
+                    sanitize_result.set(ValidationResult::Valid)
+                }
             };
 
-        })
+        }))
         .event(clone!(has_focus => {
             move |_e: events::Focus| {
                 has_focus.set(true);
@@ -126,6 +173,7 @@ mod test {
     use futures_signals::signal::Mutable;
     use wasm_bindgen_test::*;
 
+    use crate::components::input::value_adapters::mutable_t_value_adapter::MutableTValueAdapter;
     use crate::components::{text_field, TextFieldProps};
 
     #[wasm_bindgen_test]
@@ -133,7 +181,7 @@ mod test {
         let val = Mutable::new("".to_string());
 
         let field = text_field!({
-            .value_signal(val.signal_cloned())
+            .value(MutableTValueAdapter::new_simple(&val))
             .is_valid_signal(val.signal_ref(|v| v == "hello"))
             .apply(|d| d.attr("id", "testfield"))
         });
