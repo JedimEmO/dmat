@@ -2,8 +2,9 @@ use crate::components::input::input_field::{input_wrapper, InputWrapperProps};
 use crate::components::input::validation_result::ValidationResult;
 use crate::components::input::value_adapters::mutable_t_value_adapter::MutableTValueAdapter;
 use crate::components::input::value_adapters::value_adapter::ValueAdapter;
+use crate::components::mixins::disabled_signal_mixin;
 use dominator::{clone, events, html, Dom};
-use futures_signals::signal::{Mutable, MutableSignalCloned, SignalExt};
+use futures_signals::signal::{Mutable, MutableSignalCloned, Signal, SignalExt};
 use futures_signals::{map_mut, map_ref};
 
 #[component(render_fn = text_field)]
@@ -60,7 +61,13 @@ pub fn text_field(props: impl TextFieldPropsTrait + 'static) -> (Dom, TextFieldO
     let sanitize_result = Mutable::new(ValidationResult::Valid);
     let has_focus = Mutable::new(false);
 
-    let input_element = text_field_input(value, &sanitize_result, has_focus.clone(), claim_focus);
+    let input_element = text_field_input(
+        value,
+        &sanitize_result,
+        disabled,
+        has_focus.clone(),
+        claim_focus,
+    );
 
     let is_valid_combined = map_ref! {
         let is_valid_outer = is_valid,
@@ -106,11 +113,9 @@ pub fn text_field(props: impl TextFieldPropsTrait + 'static) -> (Dom, TextFieldO
                 .input(input_element)
                 .has_focus_signal(has_focus.signal())
                 .apply(|d| if let Some(a) = apply { a(d) } else { d })
-                .has_focus_signal(has_focus.signal())
                 .class_name("dmat-input-text-field".to_string())
                 .error_text_signal(error_text_combined)
                 .assistive_text_signal(assistive_text)
-                .disabled_signal(disabled)
                 .is_valid_signal(is_valid_combined)
                 .label_signal(label),
         ),
@@ -124,6 +129,7 @@ pub fn text_field(props: impl TextFieldPropsTrait + 'static) -> (Dom, TextFieldO
 fn text_field_input(
     value: impl ValueAdapter + 'static,
     sanitize_result: &Mutable<ValidationResult>,
+    disabled_signal: impl Signal<Item = bool> + 'static,
     has_focus: Mutable<bool>,
     claim_focus: bool,
 ) -> Dom {
@@ -165,6 +171,7 @@ fn text_field_input(
         }))
         .prop_signal("value", value_signal)
         .class("dmat-input-element")
+        .apply(disabled_signal_mixin(disabled_signal))
     })
 }
 

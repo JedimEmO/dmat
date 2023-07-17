@@ -36,6 +36,7 @@
     display: grid;
     position: relative;
     grid-template-columns: 10px 10fr 1fr;
+    flex: 1;
 
     & > input, & > select {
       grid-column: 2;

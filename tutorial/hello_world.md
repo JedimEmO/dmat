@@ -41,7 +41,7 @@ fn main() {
 The `append_dom` function from dominator lets us attach a dom node we construct from rust to the dom tree.
 In this case, we use the `body` utility function, which effectively lets us add our node to the `<body>` node in our html file.
 
-The `html!` macro from dominator will be our main tool for constructing dom nodes.
+The `html!` macro from dominator will be our main tool for constructing dom HTML nodes.
 The first parameter is the tag name to construct.
 
 The second parameter is a list of chained method calls that will be applied to the `DomBuilder<HtmlElement>` instance used to construct the node.
@@ -141,4 +141,4 @@ Now is a great time to jump over to Pauan's [great tutorial on futures signals](
 I recommend going through it, as we will be using signals a lot in the following chapters.
 
 ----
-Previous: [Introduction](./introduction.md) 
+Previous: [Introduction](./introduction.md) Next: [Lightweight DMAT](./lightweight_dmat.md)

@@ -24,11 +24,11 @@ pub fn button_demo() -> Dom {
                                     .style(ButtonStyle::Prominent)
                                     .content(text!("prominent"))
                                 }),
-                                    button!({
+                                button!({
                                     .style(ButtonStyle::Neutral)
                                     .content(text!("neutral"))
                                 }),
-                                    button!({
+                                button!({
                                     .style(ButtonStyle::Unimportant)
                                     .content(text!("unimportant"))
                                 })

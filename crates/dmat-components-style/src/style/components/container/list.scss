@@ -7,6 +7,10 @@
       display: flex;
       position: relative;
       padding: 4px 8px;
+
+      & > * {
+        flex: 1;
+      }
     }
   }
 }

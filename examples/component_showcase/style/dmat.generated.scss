@@ -556,6 +556,10 @@ $example-app:("colors": ("primary": #263238,
       display: flex;
       position: relative;
       padding: 4px 8px;
+
+      & > * {
+        flex: 1;
+      }
     }
   }
 }
@@ -1120,6 +1124,7 @@ $example-app:("colors": ("primary": #263238,
     display: grid;
     position: relative;
     grid-template-columns: 10px 10fr 1fr;
+    flex: 1;
 
     & > input, & > select {
       grid-column: 2;

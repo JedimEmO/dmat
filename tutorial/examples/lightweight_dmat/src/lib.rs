@@ -12,6 +12,7 @@ fn main_js() {
     append_dom(
         &body(),
         card!({
+            .apply(|dom_builder| dom_builder.style("max-width", "250px"))
             .child(html!("div", {
                 .child(tasks::counter::counter())
             }))

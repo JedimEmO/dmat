@@ -27,16 +27,16 @@ pub fn main_view() -> Dom {
     });
 
     app_bar!({
-            .header(html!("div", {
-                .children(&mut [
-                    html!("h1", {
-                       .text("Dmat Examples")
-                    }),
-                    menu_tabs
-                ])
-            }))
-            .main(main_app_view(active_tab))
-            .fixed()
+        .header(html!("div", {
+            .children(&mut [
+                html!("h1", {
+                   .text("Dmat Examples")
+                }),
+                menu_tabs
+            ])
+        }))
+        .main(main_app_view(active_tab))
+        .fixed()
         .apply(|d| {
             d.apply(id_attribute_mixin("dmat-example-app"))
                 .apply(stream_handler_mixin(

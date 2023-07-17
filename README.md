@@ -7,19 +7,34 @@ The example app is hosted on github pages here:
 
 Docs are hosted here:
 <a href="https://jedimemo.github.io/dmat/#/component/appbar" target="_blank">https://jedimemo.github.io/dmat/doc/dmat_components/index.html </a>
+
 ## dmat-components
 
+For instructions on how to use DMAT, see the [tutorial](tutorial/README.md)
 
-All components have a corresponding macro rule, which will insert the identity mixin for us by default to avoid pointless ```|d| d``` parameters everywhere:
+This crate provides a collection of common interface components for the dominator framework.
+Here's a small counter example:
 
 ```rust
-// Text with no mixin
-text!("Hi there!");
-
-// Text with an ID property mixin:
-text!("Hi, I have an id!", with_id("some-text-element-id"));
+fn my_counter() -> Dom {
+    let counter = Mutable::new(0);
+    
+    list!({
+        .rows(vec![
+            button!({
+                .label("Increment")
+                .click_handler(clone!(counter => move |_| {
+                    let v = *counter.lock_ref();
+                    *counter.lock_mut() = v + 1;
+                }))
+            }),
+            html!("span", {
+                .text_signal(counter.signal_cloned().map(|v| format!("Counter: {}", v)))
+            })
+        ])
+    })
+}
 ```
-
 
 # dmat-components-style
 
