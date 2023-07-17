@@ -53,7 +53,7 @@ In this case, we use it to set the `id` attribute of the button, which we'll use
 ### List
 
 Let's start at the top.
-The `list!` component is a fairly simple on; it lists a vector of components vertically, as you would expect.
+The `list!` component is a fairly simple one; it lists a vector of components vertically, as you would expect.
 
 In the counter example, the list has a static collection of rows, but know that it has a `rows_signal` method that takes a signal of vectors of components, and will update the list as the signal changes.
 
