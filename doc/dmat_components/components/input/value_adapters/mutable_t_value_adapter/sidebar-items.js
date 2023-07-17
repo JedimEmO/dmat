@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["MutableI32ValueAdapter","MutableTValueAdapter"]};

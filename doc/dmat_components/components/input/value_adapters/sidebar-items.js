@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["mutable_t_value_adapter","value_adapter"]};

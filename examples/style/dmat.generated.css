@@ -163,6 +163,7 @@ button.dmat-button.-text.-unimportant:hover:active {
   display: grid;
   position: relative;
   grid-template-columns: 10px 10fr 1fr;
+  flex: 1;
 }
 .dmat-input-combo-box > .dmat-floating-label > input, .dmat-input-combo-box > .dmat-floating-label > select {
   grid-column: 2;
@@ -254,6 +255,7 @@ button.dmat-button.-text.-unimportant:hover:active {
   display: grid;
   position: relative;
   grid-template-columns: 10px 10fr 1fr;
+  flex: 1;
 }
 .dmat-input-select > .dmat-floating-label > input, .dmat-input-select > .dmat-floating-label > select {
   grid-column: 2;
@@ -353,6 +355,7 @@ button.dmat-button.-text.-unimportant:hover:active {
   display: grid;
   position: relative;
   grid-template-columns: 10px 10fr 1fr;
+  flex: 1;
 }
 .dmat-input-text-field > .dmat-floating-label > input, .dmat-input-text-field > .dmat-floating-label > select {
   grid-column: 2;
@@ -726,6 +729,9 @@ ul.dmat-list > .dmat-list-item {
   display: flex;
   position: relative;
   padding: 4px 8px;
+}
+ul.dmat-list > .dmat-list-item > * {
+  flex: 1;
 }
 
 .dmat-interactive-list {

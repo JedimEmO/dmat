@@ -95,16 +95,16 @@
     });
 
     <span class="macro">app_bar!</span>({
-            .header(<span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
-                .children(<span class="kw-2">&amp;mut </span>[
-                    <span class="macro">html!</span>(<span class="string">&quot;h1&quot;</span>, {
-                       .text(<span class="string">&quot;Dmat Examples&quot;</span>)
-                    }),
-                    menu_tabs
-                ])
-            }))
-            .main(main_app_view(active_tab))
-            .fixed()
+        .header(<span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
+            .children(<span class="kw-2">&amp;mut </span>[
+                <span class="macro">html!</span>(<span class="string">&quot;h1&quot;</span>, {
+                   .text(<span class="string">&quot;Dmat Examples&quot;</span>)
+                }),
+                menu_tabs
+            ])
+        }))
+        .main(main_app_view(active_tab))
+        .fixed()
         .apply(|d| {
             d.apply(id_attribute_mixin(<span class="string">&quot;dmat-example-app&quot;</span>))
                 .apply(stream_handler_mixin(

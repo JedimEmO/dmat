@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["combo_box","input_field","input_props","label","select","switch","text_field"]};
+window.SIDEBAR_ITEMS = {"mod":["combo_box","input_field","input_props","label","select","switch","text_field","validation_result","value_adapters"]};

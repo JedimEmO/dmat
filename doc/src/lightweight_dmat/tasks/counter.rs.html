@@ -21,27 +21,37 @@
 <a href="#21" id="21">21</a>
 <a href="#22" id="22">22</a>
 <a href="#23" id="23">23</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>dmat_components::components::button::<span class="kw-2">*</span>;
+<a href="#24" id="24">24</a>
+<a href="#25" id="25">25</a>
+<a href="#26" id="26">26</a>
+<a href="#27" id="27">27</a>
+<a href="#28" id="28">28</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::input::value_adapters::mutable_t_value_adapter::MutableTValueAdapter;
+<span class="kw">use </span>dmat_components::components::button::<span class="kw-2">*</span>;
 <span class="kw">use </span>dmat_components::components::input::text_field::<span class="kw-2">*</span>;
+<span class="kw">use </span>dmat_components::components::list::<span class="kw-2">*</span>;
 <span class="kw">use </span>dominator::{clone, html, Dom};
 <span class="kw">use </span>futures_signals::signal::Mutable;
 
 <span class="kw">pub fn </span>counter() -&gt; Dom {
-    <span class="kw">let </span>counter_state = Mutable::new(<span class="string">&quot;0&quot;</span>.to_string());
+    <span class="kw">let </span>counter_state = Mutable::new(<span class="number">0</span>);
 
-    <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
-        .child(<span class="macro">text_field!</span>({
-            .label(<span class="prelude-val">Some</span>(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;Counter Value&quot;</span>)})))
-            .value_signal(counter_state.signal_cloned())
-        }).<span class="number">0</span>)
-        .child(<span class="macro">button!</span>({
-            .content(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;Increment&quot;</span>)}))
-            .style(ButtonStyle::Prominent)
-            .click_handler(<span class="macro">clone!</span>(counter_state =&gt; <span class="kw">move </span>|<span class="kw">_</span>| {
-                counter_state.set((counter_state.get_cloned().as_str().parse::&lt;i32&gt;().unwrap() + <span class="number">1</span>).to_string());
-            }))
-            .apply(|dom_builder| dom_builder.attr(<span class="string">&quot;id&quot;</span>, <span class="string">&quot;increment-button&quot;</span>))
-        }))
+    <span class="macro">list!</span>({
+        .rows([
+            <span class="macro">text_field!</span>({
+                .label(<span class="prelude-val">Some</span>(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;Counter Value&quot;</span>)})))
+                .value(MutableTValueAdapter::new_simple(<span class="kw-2">&amp;</span>counter_state))
+                .disabled(<span class="bool-val">true</span>)
+            }).<span class="number">0</span>,
+            <span class="macro">button!</span>({
+                .label(<span class="string">&quot;Increment&quot;</span>)
+                .style(ButtonStyle::Prominent)
+                .click_handler(<span class="macro">clone!</span>(counter_state =&gt; <span class="kw">move </span>|<span class="kw">_</span>| {
+                    counter_state.set(counter_state.get() + <span class="number">1</span>);
+                }))
+                .apply(|dom_builder| dom_builder.attr(<span class="string">&quot;id&quot;</span>, <span class="string">&quot;increment-button&quot;</span>))
+            })
+        ])
     })
 }
 </code></pre></div></section></main></body></html>

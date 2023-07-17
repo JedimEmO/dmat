@@ -18,6 +18,7 @@
 <a href="#18" id="18">18</a>
 <a href="#19" id="19">19</a>
 <a href="#20" id="20">20</a>
+<a href="#21" id="21">21</a>
 </pre></div><pre class="rust"><code><span class="attr">#[macro_use]
 </span><span class="kw">extern crate </span>dmat_components;
 
@@ -32,6 +33,7 @@
     append_dom(
         <span class="kw-2">&amp;</span>body(),
         <span class="macro">card!</span>({
+            .apply(|dom_builder| dom_builder.style(<span class="string">&quot;max-width&quot;</span>, <span class="string">&quot;250px&quot;</span>))
             .child(<span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
                 .child(tasks::counter::counter())
             }))

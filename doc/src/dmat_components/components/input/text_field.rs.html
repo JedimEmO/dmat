@@ -158,22 +158,78 @@
 <a href="#158" id="158">158</a>
 <a href="#159" id="159">159</a>
 <a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a>
+<a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
+<a href="#207" id="207">207</a>
+<a href="#208" id="208">208</a>
+<a href="#209" id="209">209</a>
+<a href="#210" id="210">210</a>
+<a href="#211" id="211">211</a>
+<a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::components::input::input_field::{input_wrapper, InputWrapperProps};
+<span class="kw">use </span><span class="kw">crate</span>::components::input::validation_result::ValidationResult;
+<span class="kw">use </span><span class="kw">crate</span>::components::input::value_adapters::mutable_t_value_adapter::MutableTValueAdapter;
+<span class="kw">use </span><span class="kw">crate</span>::components::input::value_adapters::value_adapter::ValueAdapter;
+<span class="kw">use </span><span class="kw">crate</span>::components::mixins::disabled_signal_mixin;
 <span class="kw">use </span>dominator::{clone, events, html, Dom};
 <span class="kw">use </span>futures_signals::signal::{Mutable, MutableSignalCloned, Signal, SignalExt};
+<span class="kw">use </span>futures_signals::{map_mut, map_ref};
 
 <span class="attr">#[component(render_fn = text_field)]
-</span><span class="kw">pub struct </span>TextField&lt;TOnValuePickCb: Fn(String) = <span class="kw">fn</span>(String) -&gt; ()&gt; {
-    <span class="attr">#[default(| <span class="kw">_ </span>| {})]
-    </span>on_value_change: TOnValuePickCb,
-
+</span><span class="kw">pub struct </span>TextField&lt;TValueAdapter: ValueAdapter + <span class="lifetime">&#39;static </span>= MutableTValueAdapter&lt;String&gt;&gt; {
     <span class="attr">#[signal]
     #[default(<span class="prelude-val">None</span>)]
     </span>label: <span class="prelude-ty">Option</span>&lt;Dom&gt;,
 
-    <span class="attr">#[signal]
-    #[default(<span class="string">&quot;&quot;</span>.to_string())]
-    </span>value: String,
+    <span class="attr">#[default(MutableTValueAdapter::default())]
+    </span>value: TValueAdapter,
 
     <span class="attr">#[signal]
     #[default(<span class="bool-val">true</span>)]
@@ -206,7 +262,6 @@
 /// 1: output of the component, containing a boolean signal for the  validity of the input according to the validator
 </span><span class="kw">pub fn </span>text_field(props: <span class="kw">impl </span>TextFieldPropsTrait + <span class="lifetime">&#39;static</span>) -&gt; (Dom, TextFieldOutput) {
     <span class="kw">let </span>TextFieldProps {
-        on_value_change,
         label,
         value,
         is_valid,
@@ -217,28 +272,66 @@
         apply,
     } = props.take();
 
-    <span class="kw">let </span>value_bc = value.broadcast();
+    <span class="kw">let </span>value_signal = value.get_value_signal();
+    <span class="kw">let </span>sanitize_result = Mutable::new(ValidationResult::Valid);
     <span class="kw">let </span>has_focus = Mutable::new(<span class="bool-val">false</span>);
+
     <span class="kw">let </span>input_element = text_field_input(
-        value_bc.signal_ref(|v| v.clone()),
-        on_value_change,
-        <span class="kw-2">&amp;</span>has_focus,
+        value,
+        <span class="kw-2">&amp;</span>sanitize_result,
+        disabled,
+        has_focus.clone(),
         claim_focus,
     );
+
+    <span class="kw">let </span>is_valid_combined = <span class="macro">map_ref! </span>{
+        <span class="kw">let </span>is_valid_outer = is_valid,
+        <span class="kw">let </span>is_valid_sanitized = sanitize_result.signal_cloned()
+            =&gt; {
+                <span class="kw-2">*</span>is_valid_outer &amp;&amp; is_valid_sanitized.is_valid()
+            }
+    };
+
+    <span class="kw">let </span>error_text_combined = <span class="macro">map_mut! </span>{
+        <span class="kw">let </span>error_text_outer = error_text,
+        <span class="kw">let </span>error_text_sanitized = sanitize_result.signal_cloned()
+            =&gt; {
+                <span class="kw">if </span>error_text_outer.is_some() {
+                    error_text_outer.take()
+                } <span class="kw">else if let </span>ValidationResult::Invalid { message } = error_text_sanitized {
+                    <span class="prelude-val">Some</span>(<span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
+                        .text(message)
+                    }))
+                } <span class="kw">else </span>{
+                    <span class="prelude-val">None
+                </span>}
+            }
+    };
+
+    <span class="kw">let </span>value_combined_signal = <span class="macro">map_ref! </span>{
+        <span class="kw">let </span>value_outer = value_signal,
+        <span class="kw">let </span>value_sanitized = sanitize_result.signal_cloned()
+            =&gt; {
+                <span class="kw">if let </span>ValidationResult::Valid = value_sanitized {
+                    value_outer.clone()
+                } <span class="kw">else </span>{
+                    <span class="comment">// We don&#39;t care about the contents of the value if it is invalid
+                    </span><span class="string">&quot;whatever&quot;</span>.to_string()
+                }
+            }
+    };
 
     (
         input_wrapper(
             InputWrapperProps::new()
-                .value_signal(value_bc.signal_ref(|v| v.clone()))
+                .value_signal(value_combined_signal)
                 .input(input_element)
                 .has_focus_signal(has_focus.signal())
                 .apply(|d| <span class="kw">if let </span><span class="prelude-val">Some</span>(a) = apply { a(d) } <span class="kw">else </span>{ d })
-                .has_focus_signal(has_focus.signal())
                 .class_name(<span class="string">&quot;dmat-input-text-field&quot;</span>.to_string())
-                .error_text_signal(error_text)
+                .error_text_signal(error_text_combined)
                 .assistive_text_signal(assistive_text)
-                .disabled_signal(disabled)
-                .is_valid_signal(is_valid)
+                .is_valid_signal(is_valid_combined)
                 .label_signal(label),
         ),
         TextFieldOutput {
@@ -249,23 +342,38 @@
 
 <span class="attr">#[inline]
 </span><span class="kw">fn </span>text_field_input(
-    value_signal: <span class="kw">impl </span>Signal&lt;Item = String&gt; + <span class="lifetime">&#39;static</span>,
-    on_value_change: <span class="kw">impl </span>Fn(String) + <span class="lifetime">&#39;static</span>,
-    has_focus: <span class="kw-2">&amp;</span>Mutable&lt;bool&gt;,
+    value: <span class="kw">impl </span>ValueAdapter + <span class="lifetime">&#39;static</span>,
+    sanitize_result: <span class="kw-2">&amp;</span>Mutable&lt;ValidationResult&gt;,
+    disabled_signal: <span class="kw">impl </span>Signal&lt;Item = bool&gt; + <span class="lifetime">&#39;static</span>,
+    has_focus: Mutable&lt;bool&gt;,
     claim_focus: bool,
 ) -&gt; Dom {
+    <span class="kw">let </span>value_signal = value.get_value_signal();
+    <span class="kw">let </span>value_signal_reset = value.get_value_signal();
+
+    <span class="comment">// We let the external value signal override any sanitizing we do internally
+    </span><span class="kw">let </span>reset_sanitize_result = value_signal_reset.for_each(<span class="macro">clone!</span>(sanitize_result =&gt; <span class="kw">move </span>|<span class="kw">_</span>| {
+        sanitize_result.set(ValidationResult::Valid);
+        <span class="kw">async </span>{}
+    }));
+
     <span class="macro">html!</span>(<span class="string">&quot;input&quot;</span>, {
         .apply_if(claim_focus, <span class="macro">clone!</span>(has_focus =&gt; <span class="kw">move</span>|builder| {
             has_focus.set(<span class="bool-val">true</span>);
             builder.focused(<span class="bool-val">true</span>)
         }))
-        .event(<span class="kw">move </span>|e: events::Input| {
+        .future(reset_sanitize_result)
+        .event(<span class="macro">clone!</span>(sanitize_result =&gt; <span class="kw">move </span>|e: events::Input| {
             <span class="attr">#[allow(deprecated)]
             </span><span class="kw">if let </span><span class="prelude-val">Some</span>(val) = e.value() {
-                on_value_change(val)
+                <span class="kw">if let </span>ValidationResult::Invalid { message } = value.set_value(val) {
+                    sanitize_result.set(ValidationResult::Invalid { message })
+                } <span class="kw">else </span>{
+                    sanitize_result.set(ValidationResult::Valid)
+                }
             };
 
-        })
+        }))
         .event(<span class="macro">clone!</span>(has_focus =&gt; {
             <span class="kw">move </span>|_e: events::Focus| {
                 has_focus.set(<span class="bool-val">true</span>);
@@ -278,6 +386,7 @@
         }))
         .prop_signal(<span class="string">&quot;value&quot;</span>, value_signal)
         .class(<span class="string">&quot;dmat-input-element&quot;</span>)
+        .apply(disabled_signal_mixin(disabled_signal))
     })
 }
 
@@ -286,6 +395,7 @@
     <span class="kw">use </span>futures_signals::signal::Mutable;
     <span class="kw">use </span>wasm_bindgen_test::<span class="kw-2">*</span>;
 
+    <span class="kw">use </span><span class="kw">crate</span>::components::input::value_adapters::mutable_t_value_adapter::MutableTValueAdapter;
     <span class="kw">use </span><span class="kw">crate</span>::components::{text_field, TextFieldProps};
 
     <span class="attr">#[wasm_bindgen_test]
@@ -293,7 +403,7 @@
         <span class="kw">let </span>val = Mutable::new(<span class="string">&quot;&quot;</span>.to_string());
 
         <span class="kw">let </span>field = <span class="macro">text_field!</span>({
-            .value_signal(val.signal_cloned())
+            .value(MutableTValueAdapter::new_simple(<span class="kw-2">&amp;</span>val))
             .is_valid_signal(val.signal_ref(|v| v == <span class="string">&quot;hello&quot;</span>))
             .apply(|d| d.attr(<span class="string">&quot;id&quot;</span>, <span class="string">&quot;testfield&quot;</span>))
         });
