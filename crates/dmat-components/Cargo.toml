@@ -25,5 +25,5 @@ web-sys = { version = "0.3.55", features = ["console", "Document", "DomRect", "H
 
 [dev-dependencies]
 dominator-testing = { path = "../dominator-testing" }
-tokio = { version = "1.14.0", features = ["macros", "rt"] }
+tokio = { workspace = true, features = ["macros", "rt"] }
 wasm-bindgen-test = "0.3.28"

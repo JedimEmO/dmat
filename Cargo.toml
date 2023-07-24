@@ -2,6 +2,7 @@
 debug = true
 
 [workspace.dependencies]
+anyhow = "1.0.71"
 dominator = "0.5.28"
 futures-signals = "0.3.31"
 tokio = "1.29.1"
@@ -18,6 +19,8 @@ members = [
     "crates/dmat-utils",
     "crates/dominator-testing",
     "crates/dominator-component-macros",
+    "crates/futures-signals-utils",
+    "crates/futures-signals-utils-derive",
     "examples/component_showcase",
     "tutorial/examples/hello_world",
     "tutorial/examples/lightweight_dmat",
