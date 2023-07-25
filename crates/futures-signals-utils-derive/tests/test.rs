@@ -10,19 +10,16 @@ mod test {
 
     #[derive(Updateable)]
     struct MyProp {
-        #[updateable]
         pub param_a: Mutable<String>,
     }
 
     #[derive(Updateable)]
     struct MyStruct {
-        #[updateable]
         pub param_a: Mutable<String>,
-        #[updateable]
         pub some_vec: MutableVec<Mutable<String>>,
-
-        #[updateable]
         pub prop: MyProp,
+
+        #[skip]
         pub param_not_updated: Mutable<String>,
     }
 

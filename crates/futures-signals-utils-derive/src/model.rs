@@ -27,11 +27,7 @@ fn get_updateables_from_struct(strct: DataStruct) -> Vec<Ident> {
         .fields
         .iter()
         .filter_map(|field| {
-            if field
-                .attrs
-                .iter()
-                .any(|attr| attr.path().is_ident("updateable"))
-            {
+            if !field.attrs.iter().any(|attr| attr.path().is_ident("skip")) {
                 field.ident.clone()
             } else {
                 None

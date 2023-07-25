@@ -15,8 +15,8 @@ pub trait Identifiable {
 }
 
 impl<K, V> Identifiable for (K, V)
-    where
-        K: Eq + Hash + Clone,
+where
+    K: Eq + Hash + Clone,
 {
     type Key = K;
 
@@ -26,8 +26,8 @@ impl<K, V> Identifiable for (K, V)
 }
 
 impl<K, V> Updateable for (K, V)
-    where
-        V: Updateable,
+where
+    V: Updateable,
 {
     fn update(&self, other: &Self) {
         self.1.update(&other.1)
@@ -35,8 +35,8 @@ impl<K, V> Updateable for (K, V)
 }
 
 impl<T> Updateable for MutableVec<T>
-    where
-        T: Updateable + Clone,
+where
+    T: Updateable + Clone,
 {
     fn update(&self, other: &Self) {
         let mut self_lock = self.lock_mut();
@@ -66,8 +66,8 @@ impl<T> Updateable for MutableVec<T>
 }
 
 impl<T> Updateable for Mutable<T>
-    where
-        T: PartialEq,
+where
+    T: PartialEq,
 {
     fn update(&self, other: &Self) {
         {
