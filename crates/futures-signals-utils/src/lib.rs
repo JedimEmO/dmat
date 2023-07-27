@@ -6,7 +6,7 @@ use std::hash::Hash;
 use std::ops::Deref;
 
 pub trait Updateable {
-    fn update(&self, other: &Self);
+    fn update(&self, other: Self);
 }
 
 pub trait Identifiable {
@@ -29,8 +29,8 @@ impl<K, V> Updateable for (K, V)
 where
     V: Updateable,
 {
-    fn update(&self, other: &Self) {
-        self.1.update(&other.1)
+    fn update(&self, other: Self) {
+        self.1.update(other.1)
     }
 }
 
@@ -38,7 +38,7 @@ impl<T> Updateable for MutableVec<T>
 where
     T: Updateable + Clone,
 {
-    fn update(&self, other: &Self) {
+    fn update(&self, other: Self) {
         let mut self_lock = self.lock_mut();
         let mut other_lock = other.lock_mut();
 
@@ -47,15 +47,17 @@ where
 
         let last_common_idx = min(self_len, other_len);
 
+        let other_moved = other_lock.drain(..last_common_idx);
+
         self_lock
             .iter()
-            .zip(other_lock.iter())
+            .zip(other_moved)
             .take(last_common_idx)
             .for_each(|(s, o)| s.update(o));
 
         match self_len.cmp(&other_len) {
             std::cmp::Ordering::Less => {
-                self_lock.extend(other_lock.drain(self_len..));
+                self_lock.extend(other_lock.drain(..));
             }
             std::cmp::Ordering::Greater => {
                 self_lock.truncate(other_len);
@@ -69,7 +71,7 @@ impl<T> Updateable for Mutable<T>
 where
     T: PartialEq,
 {
-    fn update(&self, other: &Self) {
+    fn update(&self, other: Self) {
         {
             let s = self.lock_ref();
             let o = other.lock_ref();
@@ -79,6 +81,77 @@ where
             }
         }
 
-        self.swap(other);
+        self.swap(&other);
+    }
+}
+
+pub fn update_vec_direct_cloned<T: PartialEq + Clone>(
+    target: &MutableVec<T>,
+    other: MutableVec<T>,
+) {
+    let mut target_lock = target.lock_mut();
+    let mut other_lock = other.lock_mut();
+
+    let self_len = target_lock.len();
+    let other_len = other_lock.len();
+
+    let last_common_idx = min(self_len, other_len);
+
+    {
+        let mut other_moved = other_lock.drain(..last_common_idx);
+
+        for i in 0..last_common_idx {
+            let next_other = other_moved.next().unwrap();
+
+            if target_lock[i] == next_other {
+                continue;
+            }
+
+            target_lock.set_cloned(i, next_other);
+        }
+    }
+
+    match self_len.cmp(&other_len) {
+        std::cmp::Ordering::Less => {
+            target_lock.extend(other_lock.drain(..));
+        }
+        std::cmp::Ordering::Greater => {
+            target_lock.truncate(other_len);
+        }
+        std::cmp::Ordering::Equal => {}
+    }
+}
+
+pub fn update_vec_direct_copied<T: PartialEq + Copy>(target: &MutableVec<T>, other: MutableVec<T>) {
+    let mut target_lock = target.lock_mut();
+    let mut other_lock = other.lock_mut();
+
+    let self_len = target_lock.len();
+    let other_len = other_lock.len();
+
+    let last_common_idx = min(self_len, other_len);
+
+    {
+        let mut other_moved = other_lock.drain(..last_common_idx);
+
+        for i in 0..last_common_idx {
+            let next_other = other_moved.next().unwrap();
+
+            if target_lock[i] == next_other {
+                continue;
+            }
+
+            target_lock.set(i, next_other);
+        }
+    }
+
+    match self_len.cmp(&other_len) {
+        std::cmp::Ordering::Less => {
+            target_lock.extend(other_lock.drain(..));
+        }
+        std::cmp::Ordering::Greater => {
+            target_lock.truncate(other_len);
+        }
+        std::cmp::Ordering::Equal => {}
     }
 }

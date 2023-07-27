@@ -21,6 +21,14 @@ mod test {
 
         #[skip]
         pub param_not_updated: Mutable<String>,
+
+        // This will not call update on the elements, but will do a index-by-index compare and replace instead.
+        // Useful if you don't want to hold an Updateable type, but can use partialeq and clone instead
+        #[update_in_place_cloned]
+        pub update_cloned: MutableVec<String>,
+
+        #[update_in_place_copied]
+        pub update_copied: MutableVec<i32>,
     }
 
     #[test]
@@ -35,7 +43,10 @@ mod test {
             prop: MyProp {
                 param_a: Default::default(),
             },
+            update_cloned: Default::default(),
+            update_copied: Default::default(),
         };
+
         let b = MyStruct {
             param_a: Mutable::new("42".to_string()),
             param_not_updated: Mutable::new("666".to_string()),
@@ -46,9 +57,11 @@ mod test {
             prop: MyProp {
                 param_a: Mutable::new("new prop value".to_string()),
             },
+            update_cloned: Default::default(),
+            update_copied: Default::default(),
         };
 
-        a.update(&b);
+        a.update(b);
 
         assert_eq!(a.param_a.get_cloned(), "42".to_string());
         assert_eq!(a.param_not_updated.get_cloned(), "".to_string());
@@ -67,13 +80,27 @@ mod test {
             prop: MyProp {
                 param_a: Default::default(),
             },
+            update_cloned: Default::default(),
+            update_copied: Default::default(),
         };
 
         let update_count = Mutable::new(0);
         let update_count_ = update_count.clone();
+        let update_count__ = update_count.clone();
+        let update_count___ = update_count.clone();
 
         tokio::spawn(a.some_vec.signal_vec_cloned().for_each(move |_| {
             update_count_.replace_with(|v| *v + 1);
+            async {}
+        }));
+
+        tokio::spawn(a.update_cloned.signal_vec_cloned().for_each(move |_| {
+            update_count__.replace_with(|v| *v + 1);
+            async {}
+        }));
+
+        tokio::spawn(a.update_copied.signal_vec().for_each(move |_| {
+            update_count___.replace_with(|v| *v + 1);
             async {}
         }));
 
@@ -88,13 +115,37 @@ mod test {
                 prop: MyProp {
                     param_a: Default::default(),
                 },
+                update_cloned: MutableVec::new_with_values(vec![1.to_string(), 2.to_string()]),
+                update_copied: MutableVec::new_with_values(vec![2]),
             };
 
-            a.update(&b);
+            a.update(b);
         }
 
         tokio::time::sleep(Duration::from_millis(100)).await;
 
-        assert_eq!(update_count.get_cloned(), 2);
+        assert_eq!(update_count.get(), 5);
+
+        for i in 0..100 {
+            let b = MyStruct {
+                param_a: Mutable::new(i.to_string()),
+                param_not_updated: Mutable::new("666".to_string()),
+                some_vec: MutableVec::new_with_values(vec![
+                    Mutable::new("6".to_string()),
+                    Mutable::new("4".to_string()),
+                ]),
+                prop: MyProp {
+                    param_a: Default::default(),
+                },
+                update_cloned: MutableVec::new_with_values(vec![i.to_string(), i.to_string()]),
+                update_copied: MutableVec::new_with_values(vec![i]),
+            };
+
+            a.update(b);
+        }
+
+        tokio::time::sleep(Duration::from_millis(100)).await;
+
+        assert_eq!(update_count.get(), 305);
     }
 }

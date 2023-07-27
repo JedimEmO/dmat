@@ -6,7 +6,10 @@ use crate::render::render_derive;
 use proc_macro::TokenStream;
 use syn::{parse_macro_input, DeriveInput};
 
-#[proc_macro_derive(Updateable, attributes(skip))]
+#[proc_macro_derive(
+    Updateable,
+    attributes(skip, update_in_place_cloned, update_in_place_copied)
+)]
 pub fn updateable(input: TokenStream) -> TokenStream {
     let inp: DeriveInput = parse_macro_input!(input);
 
