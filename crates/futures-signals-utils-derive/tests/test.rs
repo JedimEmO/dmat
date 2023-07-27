@@ -1,5 +1,6 @@
 #[cfg(test)]
 mod test {
+    use dominator_testing::async_yield;
     use futures_signals::signal::Mutable;
     use futures_signals::signal_vec::MutableVec;
     use futures_signals::signal_vec::SignalVecExt;
@@ -7,7 +8,6 @@ mod test {
     use futures_signals_utils_derive::*;
     use std::default::Default;
     use wasm_bindgen_futures::spawn_local;
-    use dominator_testing::async_yield;
 
     #[derive(Updateable)]
     struct MyProp {
@@ -89,7 +89,6 @@ mod test {
         let update_count_ = update_count.clone();
         let update_count__ = update_count.clone();
         let update_count___ = update_count.clone();
-
 
         spawn_local(a.some_vec.signal_vec_cloned().for_each(move |_| {
             update_count_.replace_with(|v| *v + 1);
