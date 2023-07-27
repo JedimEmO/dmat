@@ -1,9 +1,8 @@
-use dominator::{clone, html, Dom};
+use dominator::{html, Dom};
 use futures_signals::signal::{Signal, SignalExt};
-use futures_signals::signal_vec::MutableVec;
 
-use dmat_components::components::TabsProps;
-use dmat_components::utils::mixin::{id_attribute_mixin, stream_handler_mixin};
+use dmat_components::components::{tabs, TabsProps};
+use dmat_components::utils::mixin::id_attribute_mixin;
 
 use crate::demo_views::about::about_view;
 use crate::demo_views::component_demo::component_demo_view;
@@ -13,18 +12,32 @@ use crate::vis_components::line_chart_demo::line_chart_demo;
 pub fn main_view() -> Dom {
     let active_tab = ExampleAppRoute::signal();
 
-    let (menu_tabs, menu_tabs_out) = tabs!(TabsProps {
-        tab_render_fn: render_top_level_tabs,
-        is_active_tab_signal_factory: |id| ExampleAppRoute::signal().map(clone!(id => move |v| {
-               v.is_same_category(id)
-        })),
-        tabs_list: MutableVec::new_with_values(vec![
-            ExampleAppRoute::About,
-            ExampleAppRoute::Components(DemoRoute::AppBar),
-            ExampleAppRoute::VisComponents(VisDemoRoute::LineChart)
-        ])
-        .signal_vec()
-    });
+    let tabs_dom = tabs(
+        TabsProps::new()
+            .active_tab_signal(ExampleAppRoute::signal().map(|active_tab| {
+                Some(match active_tab {
+                    ExampleAppRoute::About => 0,
+                    ExampleAppRoute::Components(_) => 1,
+                    ExampleAppRoute::VisComponents(_) => 2,
+                })
+            }))
+            .tab_click_handler(|idx| match idx {
+                1 => ExampleAppRoute::goto(ExampleAppRoute::Components(DemoRoute::Button)),
+                2 => ExampleAppRoute::goto(ExampleAppRoute::VisComponents(VisDemoRoute::LineChart)),
+                _ => ExampleAppRoute::goto(ExampleAppRoute::About),
+            })
+            .tabs(vec![
+                html!("div", {
+                    .text("About")
+                }),
+                html!("div", {
+                    .text("Components")
+                }),
+                html!("div", {
+                    .text("Visualization Components")
+                }),
+            ]),
+    );
 
     app_bar!({
         .header(html!("div", {
@@ -32,17 +45,13 @@ pub fn main_view() -> Dom {
                 html!("h1", {
                    .text("Dmat Examples")
                 }),
-                menu_tabs
+                tabs_dom
             ])
         }))
         .main(main_app_view(active_tab))
         .fixed()
         .apply(|d| {
             d.apply(id_attribute_mixin("dmat-example-app"))
-                .apply(stream_handler_mixin(
-                    menu_tabs_out.tab_select_stream,
-                    ExampleAppRoute::goto,
-                ))
         })
     })
 }
@@ -57,12 +66,4 @@ fn main_app_view<S: Signal<Item = ExampleAppRoute> + 'static>(active_route: S) -
             }
         }))
     })
-}
-
-fn render_top_level_tabs(route: ExampleAppRoute) -> Dom {
-    match route {
-        ExampleAppRoute::About => text!("About"),
-        ExampleAppRoute::Components(_) => text!("Components"),
-        ExampleAppRoute::VisComponents(_) => text!("Visualization Components"),
-    }
 }

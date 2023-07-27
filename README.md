@@ -76,6 +76,5 @@ npm start
 
 To run tests in chrome, you need
 * `chromedriver` installed
-* `wasm-bindgen-cli` installed (`cargo install wasm-bindgen-cli`). This must match the version of `wasm-bindgen` in the `Cargo.toml` file.
 
 now do `CHROMEDRIVER=/path/to/chromedriver cargo test --target wasm32-unknown-unknown`

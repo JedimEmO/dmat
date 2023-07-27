@@ -1,99 +1,77 @@
-use dominator::{events, html, Dom, DomBuilder};
-use futures::channel::mpsc::{channel, Receiver, Sender};
-use futures_signals::signal::Signal;
-use futures_signals::signal_vec::SignalVec;
+use dominator::{clone, events, html, Dom};
+use futures_signals::signal::SignalExt;
 use futures_signals::signal_vec::SignalVecExt;
-use std::fmt::Debug;
-use std::sync::Mutex;
-use web_sys::HtmlElement;
+use std::rc::Rc;
 
-pub struct TabsProps<
-    TabList: SignalVec<Item = TabId>,
-    TabId: Copy + std::cmp::PartialEq + Debug,
-    FActiveSignalFactory,
-    ActiveSignal,
-    FTabRender: Fn(TabId) -> Dom,
-> where
-    FActiveSignalFactory: Fn(TabId) -> ActiveSignal,
-    ActiveSignal: Signal<Item = bool>,
-{
-    /// This method transforms a TabId -> Dom
-    pub tab_render_fn: FTabRender,
-    /// Invoked per tab, this function should create a signal which indicates if the current tab is the active one or not
-    pub is_active_tab_signal_factory: FActiveSignalFactory,
-    pub tabs_list: TabList,
-}
+/// Navigation tabs
+///
+/// # Example
+/// ```rust,no_run
+/// use dmat_components::components::tabs::*;
+/// use dominator::{clone, html, Dom};
+/// use futures_signals::signal::Mutable;
+///
+/// fn tabs_example() -> Dom {
+///     let active_tab_index = Mutable::new(0);
+///     tabs!({
+///      .active_tab_signal(active_tab_index.signal())
+///      .tab_click_handler(clone!(active_tab_signal => move |idx| active_tab_index.set(idx)))
+///      .tabs(vec![
+///          html!("div", {
+///              .text("About")
+///          }),
+///          html!("div", {
+///              .text("Components")
+///          }),
+///          html!("div", {
+///              .text("Visualization Components")
+///          }),
+///      ]))
+/// }
+///```
+#[component(render_fn = tabs)]
+struct Tabs<TClickHandler: Fn(usize) = fn(usize) -> ()> {
+    #[signal_vec]
+    #[default(vec ! [])]
+    tabs: Dom,
 
-pub struct TabsOut<TabId: Copy + std::cmp::PartialEq + Debug> {
-    pub tab_select_stream: Receiver<TabId>,
-}
+    #[signal]
+    #[default(None)]
+    active_tab: Option<usize>,
 
-#[macro_export]
-macro_rules! tabs {
-    ($props: expr) => {{
-        $crate::components::tabs::tabs($props, |d| d)
-    }};
-
-    ($props: expr, $mixin: expr) => {{
-        $crate::components::tabs::tabs($props, $mixin)
-    }};
+    #[default(|_| {})]
+    tab_click_handler: TClickHandler,
 }
 
 #[inline]
-pub fn tabs<TabList, TabId, TActiveSignal, FActiveSignalFactory, F, FTabRender>(
-    props: TabsProps<TabList, TabId, FActiveSignalFactory, TActiveSignal, FTabRender>,
-    mixin: F,
-) -> (Dom, TabsOut<TabId>)
-where
-    TabList: SignalVec<Item = TabId> + 'static,
-    TabId: Copy + std::cmp::PartialEq + Debug + 'static,
-    F: FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>,
-    FActiveSignalFactory: Fn(TabId) -> TActiveSignal + 'static,
-    TActiveSignal: Signal<Item = bool> + 'static,
-    FTabRender: Fn(TabId) -> Dom + 'static,
-{
-    let tab_list = props.tabs_list;
-    let tab_fn = props.tab_render_fn;
-    let active_tab_signal_factory = props.is_active_tab_signal_factory;
+pub fn tabs(props: impl TabsPropsTrait + 'static) -> Dom {
+    let TabsProps {
+        tabs,
+        active_tab,
+        tab_click_handler,
+        apply,
+    } = props.take();
 
-    let (tab_tx, tab_rx) = channel(1);
+    let active_tab_bc = active_tab.broadcast();
+    let handler = Rc::new(tab_click_handler);
 
-    (
-        html!("div", {
-            .class("dmat-tabs")
-            .apply(mixin)
-            .children_signal_vec(tab_list.map(move |v| {
-                tab(tab_fn(v), v, active_tab_signal_factory(v), tab_tx.clone())
-            }))
-        }),
-        TabsOut {
-            tab_select_stream: tab_rx,
-        },
-    )
-}
-
-fn tab<
-    TabId: Copy + std::cmp::PartialEq + Debug + 'static,
-    TIsActiveSignal: Signal<Item = bool> + 'static,
->(
-    content_node: Dom,
-    tab_id: TabId,
-    is_active: TIsActiveSignal,
-    tab_tx: Sender<TabId>,
-) -> Dom {
-    let tab_tx = Mutex::new(tab_tx);
-
-    html!("button", {
-        .children(&mut [
-            content_node,
-            html!("span", {
-                .class("dmat-tab-indicator")
+    html!("div", {
+        .class("dmat-tabs")
+        .apply_if(apply.is_some(), |dom| apply.unwrap()(dom))
+        .children_signal_vec(tabs.enumerate().map(move |(idx_tab,tab_content)| {
+            html!("button", {
+                .children(&mut [
+                    tab_content,
+                    html!("span", {
+                        .class("dmat-tab-indicator")
+                    })
+                ])
+                .class("tab")
+                .class_signal("active", active_tab_bc.signal_ref(clone!(idx_tab => move |idx_active| idx_active == &idx_tab.get())))
+                .event(clone!(handler => move |_: events::Click| {
+                    handler(idx_tab.get().unwrap());
+                }))
             })
-        ])
-        .class("tab")
-        .class_signal("active", is_active)
-        .event(move |_: events::Click| {
-            tab_tx.lock().unwrap().try_send(tab_id).unwrap_or(());
-        })
+        }))
     })
 }
