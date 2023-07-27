@@ -6,7 +6,8 @@ mod test {
     use futures_signals_utils::Updateable;
     use futures_signals_utils_derive::*;
     use std::default::Default;
-    use std::time::Duration;
+    use wasm_bindgen_futures::spawn_local;
+    use dominator_testing::async_yield;
 
     #[derive(Updateable)]
     struct MyProp {
@@ -71,7 +72,7 @@ mod test {
         assert_eq!(a.prop.param_a.get_cloned(), "new prop value".to_string());
     }
 
-    #[tokio::test]
+    #[wasm_bindgen_test::wasm_bindgen_test]
     async fn num_updates_verify() {
         let a = MyStruct {
             param_a: Default::default(),
@@ -89,17 +90,18 @@ mod test {
         let update_count__ = update_count.clone();
         let update_count___ = update_count.clone();
 
-        tokio::spawn(a.some_vec.signal_vec_cloned().for_each(move |_| {
+
+        spawn_local(a.some_vec.signal_vec_cloned().for_each(move |_| {
             update_count_.replace_with(|v| *v + 1);
             async {}
         }));
 
-        tokio::spawn(a.update_cloned.signal_vec_cloned().for_each(move |_| {
+        spawn_local(a.update_cloned.signal_vec_cloned().for_each(move |_| {
             update_count__.replace_with(|v| *v + 1);
             async {}
         }));
 
-        tokio::spawn(a.update_copied.signal_vec().for_each(move |_| {
+        spawn_local(a.update_copied.signal_vec().for_each(move |_| {
             update_count___.replace_with(|v| *v + 1);
             async {}
         }));
@@ -122,7 +124,7 @@ mod test {
             a.update(b);
         }
 
-        tokio::time::sleep(Duration::from_millis(100)).await;
+        async_yield().await;
 
         assert_eq!(update_count.get(), 5);
 
@@ -144,7 +146,7 @@ mod test {
             a.update(b);
         }
 
-        tokio::time::sleep(Duration::from_millis(100)).await;
+        async_yield().await;
 
         assert_eq!(update_count.get(), 305);
     }

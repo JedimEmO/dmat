@@ -8,6 +8,7 @@ futures-signals = "0.3.31"
 tokio = "1.29.1"
 wasm-bindgen = { version = "0.2.87", features = ["serde-serialize"] }
 wasm-bindgen-futures = "0.4.28"
+wasm-bindgen-test = "0.3.28"
 web-sys = { version = "0.3.55", features = ["DocumentFragment", "Storage", "Url", "console", "Window", "Request", "Response", "RequestInit", "SvgAnimationElement"] }
 
 [workspace]

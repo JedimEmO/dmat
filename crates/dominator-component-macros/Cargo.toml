@@ -19,6 +19,8 @@ quote = "^1.0.29"
 
 [dev-dependencies]
 dominator = { workspace = true }
+dominator-testing = { path = "../dominator-testing" }
 futures-signals = { workspace = true }
-tokio = { workspace = true }
+wasm-bindgen-test = { workspace = true }
+wasm-bindgen-futures = { workspace = true }
 web-sys = { workspace = true }

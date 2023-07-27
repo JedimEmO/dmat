@@ -22,4 +22,6 @@ syn = { version = "^2.0.22", features = ["full"] }
 quote = "^1.0.29"
 
 [dev-dependencies]
-tokio = { workspace = true, features = ["full"] }
+dominator-testing = { path = "../dominator-testing" }
+wasm-bindgen-test = { workspace = true }
+wasm-bindgen-futures = { workspace = true }

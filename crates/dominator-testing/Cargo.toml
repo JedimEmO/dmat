@@ -12,6 +12,6 @@ dominator = "0.5.23"
 rust-embed = "6.3.0"
 web-sys = { version = "0.3.55", features = ["console", "Document", "HtmlDocument", "EventTarget", "HtmlSelectElement", "Element", "Window"] }
 wasm-bindgen.workspace = true
-wasm-bindgen-test = "0.3.28"
+wasm-bindgen-test = { workspace = true }
 wasm-bindgen-futures.workspace = true
 js-sys = "0.3.56"

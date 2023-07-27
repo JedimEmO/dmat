@@ -52,7 +52,7 @@ mod test {
 
     use crate::test::foo::*;
 
-    #[tokio::test]
+    #[wasm_bindgen_test::wasm_bindgen_test]
     async fn cmp_macro_test() {
         let rendered = some_button!({
             .foo_signal(always("test".to_string()))
@@ -100,7 +100,7 @@ mod test {
             .apply(|dom_builder| dom_builder.attr("id", "yay"));
     }
 
-    #[tokio::test]
+    #[wasm_bindgen_test::wasm_bindgen_test]
     async fn default_val_test() {
         #[component(render_fn = _r)]
         struct DefaultVal<T: ToI32 = i32> {
