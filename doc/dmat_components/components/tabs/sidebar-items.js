@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["tabs"],"struct":["TabsOut","TabsProps"]};
+window.SIDEBAR_ITEMS = {"fn":["tabs"],"struct":["TabsProps"],"trait":["TabsPropsTrait"]};

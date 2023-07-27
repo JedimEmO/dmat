@@ -75,125 +75,81 @@
 <a href="#75" id="75">75</a>
 <a href="#76" id="76">76</a>
 <a href="#77" id="77">77</a>
-<a href="#78" id="78">78</a>
-<a href="#79" id="79">79</a>
-<a href="#80" id="80">80</a>
-<a href="#81" id="81">81</a>
-<a href="#82" id="82">82</a>
-<a href="#83" id="83">83</a>
-<a href="#84" id="84">84</a>
-<a href="#85" id="85">85</a>
-<a href="#86" id="86">86</a>
-<a href="#87" id="87">87</a>
-<a href="#88" id="88">88</a>
-<a href="#89" id="89">89</a>
-<a href="#90" id="90">90</a>
-<a href="#91" id="91">91</a>
-<a href="#92" id="92">92</a>
-<a href="#93" id="93">93</a>
-<a href="#94" id="94">94</a>
-<a href="#95" id="95">95</a>
-<a href="#96" id="96">96</a>
-<a href="#97" id="97">97</a>
-<a href="#98" id="98">98</a>
-<a href="#99" id="99">99</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{events, html, Dom, DomBuilder};
-<span class="kw">use </span>futures::channel::mpsc::{channel, Receiver, Sender};
-<span class="kw">use </span>futures_signals::signal::Signal;
-<span class="kw">use </span>futures_signals::signal_vec::SignalVec;
+</pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{clone, events, html, Dom};
+<span class="kw">use </span>futures_signals::signal::SignalExt;
 <span class="kw">use </span>futures_signals::signal_vec::SignalVecExt;
-<span class="kw">use </span>std::fmt::Debug;
-<span class="kw">use </span>std::sync::Mutex;
-<span class="kw">use </span>web_sys::HtmlElement;
+<span class="kw">use </span>std::rc::Rc;
 
-<span class="kw">pub struct </span>TabsProps&lt;
-    TabList: SignalVec&lt;Item = TabId&gt;,
-    TabId: Copy + std::cmp::PartialEq + Debug,
-    FActiveSignalFactory,
-    ActiveSignal,
-    FTabRender: Fn(TabId) -&gt; Dom,
-&gt; <span class="kw">where
-    </span>FActiveSignalFactory: Fn(TabId) -&gt; ActiveSignal,
-    ActiveSignal: Signal&lt;Item = bool&gt;,
-{
-    <span class="doccomment">/// This method transforms a TabId -&gt; Dom
-    </span><span class="kw">pub </span>tab_render_fn: FTabRender,
-    <span class="doccomment">/// Invoked per tab, this function should create a signal which indicates if the current tab is the active one or not
-    </span><span class="kw">pub </span>is_active_tab_signal_factory: FActiveSignalFactory,
-    <span class="kw">pub </span>tabs_list: TabList,
-}
+<span class="doccomment">/// Navigation tabs
+///
+/// # Example
+/// ```rust,no_run
+/// use dmat_components::components::tabs::*;
+/// use dominator::{clone, html, Dom};
+/// use futures_signals::signal::Mutable;
+///
+/// fn tabs_example() -&gt; Dom {
+///     let active_tab_index = Mutable::new(0);
+///     tabs!({
+///      .active_tab_signal(active_tab_index.signal())
+///      .tab_click_handler(clone!(active_tab_signal =&gt; move |idx| active_tab_index.set(idx)))
+///      .tabs(vec![
+///          html!(&quot;div&quot;, {
+///              .text(&quot;About&quot;)
+///          }),
+///          html!(&quot;div&quot;, {
+///              .text(&quot;Components&quot;)
+///          }),
+///          html!(&quot;div&quot;, {
+///              .text(&quot;Visualization Components&quot;)
+///          }),
+///      ]))
+/// }
+///```
+</span><span class="attr">#[component(render_fn = tabs)]
+</span><span class="kw">struct </span>Tabs&lt;TClickHandler: Fn(usize) = <span class="kw">fn</span>(usize) -&gt; ()&gt; {
+    <span class="attr">#[signal_vec]
+    #[default(vec ! []</span>)]
+    tabs: Dom,
 
-<span class="kw">pub struct </span>TabsOut&lt;TabId: Copy + std::cmp::PartialEq + Debug&gt; {
-    <span class="kw">pub </span>tab_select_stream: Receiver&lt;TabId&gt;,
-}
+    <span class="attr">#[signal]
+    #[default(<span class="prelude-val">None</span>)]
+    </span>active_tab: <span class="prelude-ty">Option</span>&lt;usize&gt;,
 
-<span class="attr">#[macro_export]
-</span><span class="macro">macro_rules! </span>tabs {
-    (<span class="macro-nonterminal">$props</span>: expr) =&gt; {{
-        <span class="macro-nonterminal">$crate::components::tabs::tabs</span>(<span class="macro-nonterminal">$props</span>, |d| d)
-    }};
-
-    (<span class="macro-nonterminal">$props</span>: expr, <span class="macro-nonterminal">$mixin</span>: expr) =&gt; {{
-        <span class="macro-nonterminal">$crate::components::tabs::tabs</span>(<span class="macro-nonterminal">$props</span>, <span class="macro-nonterminal">$mixin</span>)
-    }};
+    <span class="attr">#[default(|<span class="kw">_</span>| {})]
+    </span>tab_click_handler: TClickHandler,
 }
 
 <span class="attr">#[inline]
-</span><span class="kw">pub fn </span>tabs&lt;TabList, TabId, TActiveSignal, FActiveSignalFactory, F, FTabRender&gt;(
-    props: TabsProps&lt;TabList, TabId, FActiveSignalFactory, TActiveSignal, FTabRender&gt;,
-    mixin: F,
-) -&gt; (Dom, TabsOut&lt;TabId&gt;)
-<span class="kw">where
-    </span>TabList: SignalVec&lt;Item = TabId&gt; + <span class="lifetime">&#39;static</span>,
-    TabId: Copy + std::cmp::PartialEq + Debug + <span class="lifetime">&#39;static</span>,
-    F: FnOnce(DomBuilder&lt;HtmlElement&gt;) -&gt; DomBuilder&lt;HtmlElement&gt;,
-    FActiveSignalFactory: Fn(TabId) -&gt; TActiveSignal + <span class="lifetime">&#39;static</span>,
-    TActiveSignal: Signal&lt;Item = bool&gt; + <span class="lifetime">&#39;static</span>,
-    FTabRender: Fn(TabId) -&gt; Dom + <span class="lifetime">&#39;static</span>,
-{
-    <span class="kw">let </span>tab_list = props.tabs_list;
-    <span class="kw">let </span>tab_fn = props.tab_render_fn;
-    <span class="kw">let </span>active_tab_signal_factory = props.is_active_tab_signal_factory;
+</span><span class="kw">pub fn </span>tabs(props: <span class="kw">impl </span>TabsPropsTrait + <span class="lifetime">&#39;static</span>) -&gt; Dom {
+    <span class="kw">let </span>TabsProps {
+        tabs,
+        active_tab,
+        tab_click_handler,
+        apply,
+    } = props.take();
 
-    <span class="kw">let </span>(tab_tx, tab_rx) = channel(<span class="number">1</span>);
+    <span class="kw">let </span>active_tab_bc = active_tab.broadcast();
+    <span class="kw">let </span>handler = Rc::new(tab_click_handler);
 
-    (
-        <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
-            .class(<span class="string">&quot;dmat-tabs&quot;</span>)
-            .apply(mixin)
-            .children_signal_vec(tab_list.map(<span class="kw">move </span>|v| {
-                tab(tab_fn(v), v, active_tab_signal_factory(v), tab_tx.clone())
-            }))
-        }),
-        TabsOut {
-            tab_select_stream: tab_rx,
-        },
-    )
-}
-
-<span class="kw">fn </span>tab&lt;
-    TabId: Copy + std::cmp::PartialEq + Debug + <span class="lifetime">&#39;static</span>,
-    TIsActiveSignal: Signal&lt;Item = bool&gt; + <span class="lifetime">&#39;static</span>,
-&gt;(
-    content_node: Dom,
-    tab_id: TabId,
-    is_active: TIsActiveSignal,
-    tab_tx: Sender&lt;TabId&gt;,
-) -&gt; Dom {
-    <span class="kw">let </span>tab_tx = Mutex::new(tab_tx);
-
-    <span class="macro">html!</span>(<span class="string">&quot;button&quot;</span>, {
-        .children(<span class="kw-2">&amp;mut </span>[
-            content_node,
-            <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {
-                .class(<span class="string">&quot;dmat-tab-indicator&quot;</span>)
+    <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
+        .class(<span class="string">&quot;dmat-tabs&quot;</span>)
+        .apply_if(apply.is_some(), |dom| apply.unwrap()(dom))
+        .children_signal_vec(tabs.enumerate().map(<span class="kw">move </span>|(idx_tab,tab_content)| {
+            <span class="macro">html!</span>(<span class="string">&quot;button&quot;</span>, {
+                .children(<span class="kw-2">&amp;mut </span>[
+                    tab_content,
+                    <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {
+                        .class(<span class="string">&quot;dmat-tab-indicator&quot;</span>)
+                    })
+                ])
+                .class(<span class="string">&quot;tab&quot;</span>)
+                .class_signal(<span class="string">&quot;active&quot;</span>, active_tab_bc.signal_ref(<span class="macro">clone!</span>(idx_tab =&gt; <span class="kw">move </span>|idx_active| idx_active == <span class="kw-2">&amp;</span>idx_tab.get())))
+                .event(<span class="macro">clone!</span>(handler =&gt; <span class="kw">move </span>|<span class="kw">_</span>: events::Click| {
+                    handler(idx_tab.get().unwrap());
+                }))
             })
-        ])
-        .class(<span class="string">&quot;tab&quot;</span>)
-        .class_signal(<span class="string">&quot;active&quot;</span>, is_active)
-        .event(<span class="kw">move </span>|<span class="kw">_</span>: events::Click| {
-            tab_tx.lock().unwrap().try_send(tab_id).unwrap_or(());
-        })
+        }))
     })
 }
 </code></pre></div></section></main></body></html>

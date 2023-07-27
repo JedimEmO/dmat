@@ -66,12 +66,12 @@
 <a href="#66" id="66">66</a>
 <a href="#67" id="67">67</a>
 <a href="#68" id="68">68</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{clone, html, Dom};
+<a href="#69" id="69">69</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{html, Dom};
 <span class="kw">use </span>futures_signals::signal::{Signal, SignalExt};
-<span class="kw">use </span>futures_signals::signal_vec::MutableVec;
 
-<span class="kw">use </span>dmat_components::components::TabsProps;
-<span class="kw">use </span>dmat_components::utils::mixin::{id_attribute_mixin, stream_handler_mixin};
+<span class="kw">use </span>dmat_components::components::{tabs, TabsProps};
+<span class="kw">use </span>dmat_components::utils::mixin::id_attribute_mixin;
 
 <span class="kw">use </span><span class="kw">crate</span>::demo_views::about::about_view;
 <span class="kw">use </span><span class="kw">crate</span>::demo_views::component_demo::component_demo_view;
@@ -81,18 +81,32 @@
 <span class="kw">pub fn </span>main_view() -&gt; Dom {
     <span class="kw">let </span>active_tab = ExampleAppRoute::signal();
 
-    <span class="kw">let </span>(menu_tabs, menu_tabs_out) = <span class="macro">tabs!</span>(TabsProps {
-        tab_render_fn: render_top_level_tabs,
-        is_active_tab_signal_factory: |id| ExampleAppRoute::signal().map(<span class="macro">clone!</span>(id =&gt; <span class="kw">move </span>|v| {
-               v.is_same_category(id)
-        })),
-        tabs_list: MutableVec::new_with_values(<span class="macro">vec!</span>[
-            ExampleAppRoute::About,
-            ExampleAppRoute::Components(DemoRoute::AppBar),
-            ExampleAppRoute::VisComponents(VisDemoRoute::LineChart)
-        ])
-        .signal_vec()
-    });
+    <span class="kw">let </span>tabs_dom = tabs(
+        TabsProps::new()
+            .active_tab_signal(ExampleAppRoute::signal().map(|active_tab| {
+                <span class="prelude-val">Some</span>(<span class="kw">match </span>active_tab {
+                    ExampleAppRoute::About =&gt; <span class="number">0</span>,
+                    ExampleAppRoute::Components(<span class="kw">_</span>) =&gt; <span class="number">1</span>,
+                    ExampleAppRoute::VisComponents(<span class="kw">_</span>) =&gt; <span class="number">2</span>,
+                })
+            }))
+            .tab_click_handler(|idx| <span class="kw">match </span>idx {
+                <span class="number">1 </span>=&gt; ExampleAppRoute::goto(ExampleAppRoute::Components(DemoRoute::Button)),
+                <span class="number">2 </span>=&gt; ExampleAppRoute::goto(ExampleAppRoute::VisComponents(VisDemoRoute::LineChart)),
+                <span class="kw">_ </span>=&gt; ExampleAppRoute::goto(ExampleAppRoute::About),
+            })
+            .tabs(<span class="macro">vec!</span>[
+                <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
+                    .text(<span class="string">&quot;About&quot;</span>)
+                }),
+                <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
+                    .text(<span class="string">&quot;Components&quot;</span>)
+                }),
+                <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
+                    .text(<span class="string">&quot;Visualization Components&quot;</span>)
+                }),
+            ]),
+    );
 
     <span class="macro">app_bar!</span>({
         .header(<span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
@@ -100,17 +114,13 @@
                 <span class="macro">html!</span>(<span class="string">&quot;h1&quot;</span>, {
                    .text(<span class="string">&quot;Dmat Examples&quot;</span>)
                 }),
-                menu_tabs
+                tabs_dom
             ])
         }))
         .main(main_app_view(active_tab))
         .fixed()
         .apply(|d| {
             d.apply(id_attribute_mixin(<span class="string">&quot;dmat-example-app&quot;</span>))
-                .apply(stream_handler_mixin(
-                    menu_tabs_out.tab_select_stream,
-                    ExampleAppRoute::goto,
-                ))
         })
     })
 }
@@ -125,13 +135,5 @@
             }
         }))
     })
-}
-
-<span class="kw">fn </span>render_top_level_tabs(route: ExampleAppRoute) -&gt; Dom {
-    <span class="kw">match </span>route {
-        ExampleAppRoute::About =&gt; <span class="macro">text!</span>(<span class="string">&quot;About&quot;</span>),
-        ExampleAppRoute::Components(<span class="kw">_</span>) =&gt; <span class="macro">text!</span>(<span class="string">&quot;Components&quot;</span>),
-        ExampleAppRoute::VisComponents(<span class="kw">_</span>) =&gt; <span class="macro">text!</span>(<span class="string">&quot;Visualization Components&quot;</span>),
-    }
 }
 </code></pre></div></section></main></body></html>

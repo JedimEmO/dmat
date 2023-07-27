@@ -6,6 +6,8 @@ var sourcesIndex = JSON.parse('{\
 "dmat_vis":["",[["contexts",[["charts",[],["axis.rs","line_chart.rs","mod.rs","point.rs","view_box.rs"]]],["mod.rs"]]],["lib.rs"]],\
 "dominator_component_macros":["",[["parse",[],["mod.rs","parse_field.rs"]],["render",[],["mod.rs","render_component_macro.rs","render_prop_impl.rs","render_props_builder_struct.rs","render_utils.rs"]]],["lib.rs"]],\
 "dominator_testing":["",[],["lib.rs"]],\
+"futures_signals_utils":["",[],["lib.rs"]],\
+"futures_signals_utils_derive":["",[],["lib.rs","model.rs","render.rs"]],\
 "hello_world_tutorial":["",[],["lib.rs"]],\
 "lightweight_dmat":["",[["tasks",[],["counter.rs","mod.rs"]]],["lib.rs"]]\
 }');

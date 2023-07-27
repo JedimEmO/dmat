@@ -1,1 +1,1 @@
-window.ALL_CRATES = ["dmat_components","dmat_components_style","dmat_showcase","dmat_utils","dmat_vis","dominator_component_macros","dominator_testing","hello_world_tutorial","lightweight_dmat"];
+window.ALL_CRATES = ["dmat_components","dmat_components_style","dmat_showcase","dmat_utils","dmat_vis","dominator_component_macros","dominator_testing","futures_signals_utils","futures_signals_utils_derive","hello_world_tutorial","lightweight_dmat"];

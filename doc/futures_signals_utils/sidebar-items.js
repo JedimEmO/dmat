@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["update_vec_direct_cloned","update_vec_direct_copied"],"trait":["Identifiable","Updateable"]};
