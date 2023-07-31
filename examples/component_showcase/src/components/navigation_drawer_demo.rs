@@ -1,14 +1,12 @@
-use dominator::{clone, html, Dom, DomBuilder};
+use dominator::{clone, html, Dom};
 use futures_signals::signal::from_stream;
 use futures_signals::signal::{always, Mutable};
 use futures_signals::signal_vec::{MutableVec, SignalVecExt};
 use lipsum::lipsum;
-use web_sys::HtmlElement;
 
 use dmat_components::components::layouts::ContentBlockProps;
 use dmat_components::components::*;
 use dmat_components::utils::signals::mutation::store_signal_value_opt_mixin;
-use dmat_components::utils::signals::stream_flipflop::stream_to_flipflop_mixin;
 
 use crate::utils::toggle_button::toggle_button;
 
@@ -66,9 +64,8 @@ pub fn navigation_drawers_demo() -> Dom {
                                 html!("div", {
                                     .class("navigation-drawer-demo")
                                     .apply(|d| {
-                                        let (toggled, mixin) = toggled(true);
+                                        let toggled = toggled(true);
                                         d.child(toggled)
-                                        .apply(mixin)
                                 })
                         })])
                     })),
@@ -88,9 +85,8 @@ pub fn navigation_drawers_demo() -> Dom {
                                 html!("div", {
                                     .class("navigation-drawer-demo")
                                     .apply(|d| {
-                                        let (toggled, mixin) = toggled(false);
+                                        let toggled = toggled(false);
                                         d.child(toggled)
-                                        .apply(mixin)
                                     })
                                 })
                             ])
@@ -105,66 +101,54 @@ pub fn navigation_drawers_demo() -> Dom {
     })
 }
 
-fn toggled(
-    modal: bool,
-) -> (
-    Dom,
-    impl FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>,
-) {
+fn toggled(modal: bool) -> Dom {
     let expanded = Mutable::new(true);
 
-    let props = NavigationDrawerProps {
-        visible_signal: expanded.signal_cloned(),
-        with_scrim: true,
-        width: DrawerWidth::Full,
-        retracts: false,
-        modal,
-        drawer_content: html!("div", {
+    navigation_drawer!({
+        .expanded_signal(expanded.signal_cloned())
+        .with_scrim(true)
+        .drawer_content(Some(html!("div", {
             .children(&mut[mock_view_select(), toggle_button(&expanded, "Close")])
-        }),
-        main_content: html!("div", {
+        })))
+        .modal(modal)
+        .main_content(Some(html!("div", {
              .children(&mut[
                 html!("div", {
                     .text(lipsum(100).as_str())
                 }),
                 toggle_button(&expanded, "Show")
             ])
-        }),
-    };
-
-    let drawer = navigation_drawer!(props);
-
-    let flipflop_mixin = stream_to_flipflop_mixin(drawer.1.scrim_click_stream.unwrap(), &expanded);
-
-    (drawer.0, flipflop_mixin)
+        })))
+    })
 }
 
 fn retracting(modal: bool) -> Dom {
-    let props = NavigationDrawerProps {
-        visible_signal: always(true),
-        with_scrim: false,
-        width: DrawerWidth::Full,
-        retracts: true,
-        modal,
-        drawer_content: mock_view_select(),
-        main_content: html!("div", {.text(lipsum(100).as_str())}),
-    };
+    let is_extended = Mutable::new(false);
 
-    navigation_drawer!(props).0
+    navigation_drawer!({
+        .expanded(true)
+        .extended_signal(is_extended.signal())
+        .on_extended_change(clone!(is_extended => move |v| {
+            is_extended.set_neq(v);
+        }))
+        .retracts(true)
+        .modal(modal)
+        .drawer_content(Some(mock_view_select()))
+        .main_content(Some(html!("div", {
+            .text(lipsum(100).as_str())
+        })))
+    })
 }
 
 pub fn static_drawers(retracts: bool, width: DrawerWidth) -> Dom {
-    let props = NavigationDrawerProps {
-        visible_signal: always(true),
-        with_scrim: false,
-        width,
-        retracts,
-        modal: false,
-        drawer_content: mock_view_select(),
-        main_content: html!("div", {.text(lipsum(100).as_str())}),
-    };
-
-    navigation_drawer!(props).0
+    navigation_drawer!({
+        .width(width)
+        .retracts(retracts)
+        .drawer_content(Some(mock_view_select()))
+        .main_content(Some(html!("div", {
+            .text(lipsum(100).as_str())
+        })))
+    })
 }
 
 pub fn mock_view_select() -> Dom {

@@ -4,7 +4,7 @@ use futures_signals::signal::always;
 use futures_signals::signal_vec::{MutableVec, SignalVecExt};
 
 use dmat_components::components::ListEntry;
-use dmat_components::components::{DrawerWidth, InteractiveListProps, NavigationDrawerProps};
+use dmat_components::components::*;
 use dmat_components::utils::mixin::stream_handler_mixin;
 
 use crate::components::app_bar_demo::app_bar_demo;
@@ -23,17 +23,10 @@ use crate::route::{DemoRoute, ExampleAppRoute};
 pub fn component_demo_view(current_route: DemoRoute) -> Dom {
     let (component_list, component_change_stream) = component_demo_list(current_route);
 
-    let app_navigation_props = NavigationDrawerProps {
-        visible_signal: always(true),
-        with_scrim: false,
-        width: DrawerWidth::Full,
-        retracts: false,
-        modal: false,
-        drawer_content: component_list,
-        main_content: component_demo(current_route, component_change_stream),
-    };
-
-    navigation_drawer!(app_navigation_props).0
+    navigation_drawer!({
+        .drawer_content(Some(component_list))
+        .main_content(Some(component_demo(current_route, component_change_stream)))
+    })
 }
 
 fn component_demo_list(current_value: DemoRoute) -> (Dom, impl Stream<Item = Option<DemoRoute>>) {

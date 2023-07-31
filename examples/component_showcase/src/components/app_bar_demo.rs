@@ -1,5 +1,4 @@
 use dominator::{html, Dom};
-use futures_signals::signal::always;
 use lipsum::lipsum;
 
 use dmat_components::components::layouts::AppBarType;
@@ -36,18 +35,12 @@ fn normal_unfixed_demo() -> Dom {
 }
 
 fn prominent_fixed_demo() -> Dom {
-    let drawer = navigation_drawer!(NavigationDrawerProps {
-        main_content: container!(|d| d.child(html!("div", {
+    let drawer = navigation_drawer!({
+        .main_content(Some(container!(|d| d.child(html!("div", {
             .text(lipsum(1024).as_str())
-        }))),
-        drawer_content: mock_view_select(),
-        width: DrawerWidth::Full,
-        modal: false,
-        retracts: false,
-        visible_signal: always(true),
-        with_scrim: false
-    })
-    .0;
+        })))))
+        .drawer_content(Some(mock_view_select()))
+    });
 
     app_bar!({
         .header(html!("h1", {

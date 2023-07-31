@@ -1,7 +1,6 @@
 use dmat_components::components::button::*;
-use dmat_components::components::layouts::{ModalSheetProps, SheetProps, SheetSide};
-use dmat_components::utils::signals::stream_flipflop::stream_to_flipflop_mixin;
-use dominator::{html, Dom};
+use dmat_components::components::layouts::*;
+use dominator::{clone, html, Dom};
 use futures_signals::signal::Mutable;
 
 pub fn sheet_demo() -> Dom {
@@ -10,26 +9,22 @@ pub fn sheet_demo() -> Dom {
 
 fn bottom_sheet() -> Dom {
     let show_bottom = Mutable::new(true);
-    let show = show_bottom.clone();
     let expanded_signal = show_bottom.signal_cloned();
 
-    let (sheet_dom, modal_sheet_out) = modal_sheet!(ModalSheetProps {
-        sheet_props: SheetProps {
-            sheet_content: text!("Bottom sheet"),
-            wrapped_view: html!("div", {
-                .child(left_sheet(
-                    show_bottom
-                ))
-            }),
-            side: SheetSide::Bottom,
-            expanded_signal
-        }
+    let sheet_dom = sheet!({
+        .sheet_content(Some(text!("Bottom sheet")))
+        .underlying_view(Some(html!("div", {
+            .child(left_sheet(
+                show_bottom.clone()
+            ))
+        })))
+        .side(SheetSide::Bottom)
+        .expanded_signal(expanded_signal)
+        .show_scrim(true)
+        .on_scrim_click(clone!(show_bottom => move |_| show_bottom.set(false)))
     });
 
-    let flipflop_mixin = stream_to_flipflop_mixin(modal_sheet_out.toggle_stream, &show);
-
     html!("div", {
-        .apply(flipflop_mixin)
         .child(sheet_dom)
     })
 }
@@ -38,16 +33,16 @@ fn left_sheet(show_bottom: Mutable<bool>) -> Dom {
     let show_left = Mutable::new(true);
     let expanded_signal = show_left.signal_cloned();
 
-    sheet!(SheetProps {
-        sheet_content: container!(|d| d.text("Left hand side sheet")),
-        wrapped_view: html!("div",  {
+    sheet!( {
+        .sheet_content(Some(container!(|d| d.text("Left hand side sheet"))))
+        .underlying_view(Some(html!("div",  {
             .child(right_sheet(
                 show_bottom,
                 show_left
             ))
-        }),
-        side: SheetSide::Left,
-        expanded_signal
+        })))
+        .side(SheetSide::Left)
+        .expanded_signal(expanded_signal)
     })
 }
 
@@ -55,9 +50,9 @@ fn right_sheet(show_bottom: Mutable<bool>, show_left: Mutable<bool>) -> Dom {
     let show_right = Mutable::new(true);
     let expanded_signal = show_right.signal_cloned();
 
-    sheet!(SheetProps {
-        sheet_content: container!(|d| d.text("Right hand side sheet")),
-        wrapped_view: container!(|d| d.children(&mut [
+    sheet!({
+        .sheet_content(Some(container!(|d| d.text("Right hand side sheet"))))
+        .underlying_view(Some(container!(|d| d.children(&mut [
             button!({
                 .click_handler(move |_| show_left.set(!show_left.get()))
                 .label("Toggle left sheet")
@@ -70,8 +65,8 @@ fn right_sheet(show_bottom: Mutable<bool>, show_left: Mutable<bool>) -> Dom {
                 .click_handler(move |_| show_right.set(!show_right.get()))
                 .content(text!("Toggle right sheet"))
             })
-        ])),
-        side: SheetSide::Right,
-        expanded_signal
+        ]))))
+        .side(SheetSide::Right)
+        .expanded_signal(expanded_signal)
     })
 }

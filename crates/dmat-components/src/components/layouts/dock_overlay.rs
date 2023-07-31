@@ -1,20 +1,8 @@
-use dominator::{html, Dom, DomBuilder};
-use futures::channel::mpsc::Receiver;
-use futures_signals::signal::{Signal, SignalExt};
-use web_sys::HtmlElement;
+use crate::futures_signals::signal_vec::SignalVecExt;
+use dominator::{events, html, Dom};
+use futures_signals::signal::SignalExt;
 
 use crate::components::scrim::*;
-
-#[macro_export]
-macro_rules! dock_overlay {
-    ($props: expr) => {{
-        $crate::components::layouts::dock_overlay::dock_overlay($props, |d| d)
-    }};
-
-    ($props: expr, $mixin: expr) => {{
-        $crate::components::layouts::dock_overlay::dock_overlay($props, $mixin)
-    }};
-}
 
 pub enum DockPoint {
     TopLeft,
@@ -28,84 +16,85 @@ pub enum DockPoint {
     BottomRight,
 }
 
-pub struct DockOverlayProps<
-    TOverlayViewSignal: Signal<Item = Option<Dom>>,
-    TShowOverlaySignal: Signal<Item = bool>,
-> {
-    pub inner_view: Dom,
-    pub dock_point: DockPoint,
-    pub overlay_view_signal: TOverlayViewSignal,
-    pub show_scrim: bool,
-    pub show_overlay_signal: TShowOverlaySignal,
-}
-
-pub struct DockOverlayOut {
-    pub scrim_click_stream: Option<Receiver<()>>,
-}
-
 /// Renders an overlay with 9 of dock points for UI elements
 /// Elements in the dock positions will hover over the inner view.
 /// This can be used to represent dialogs, FABs, status messages etc.
 ///
 /// # Examples
 /// ```no_run
-/// use dmat_components::components::layouts::dock_overlay::{DockOverlayProps, DockPoint};
+/// use dmat_components::components::layouts::dock_overlay::*;
 /// use futures_signals::signal::always;
 /// use futures_signals::signal::Mutable;
+///
 /// let show_overlay = Mutable::new(true);
 ///
-/// dmat_components::dock_overlay!(DockOverlayProps {
-///         inner_view: dmat_components::container!(|d| d.child(dmat_components::text!("This view will have an overlay"))),
-///         dock_point: DockPoint::MiddleCenter,
-///         show_overlay_signal: show_overlay.signal(),
-///         show_scrim: true,
-///         overlay_view_signal: always(Some(dmat_components::card!({
-///             .child(dmat_components::text!("A dialog!"))
-///         }))),
-///     });
+/// dock_overlay!({
+///  .underlying_view(Some(underlying_view))
+///  .overlay_views(vec![
+///      (DockPoint::MiddleLeft, card!({.child(text!("Middle Left Dialog!"))})),
+///      (DockPoint::MiddleCenter, middle_center_dialog(show_overlay.clone())),
+///      (DockPoint::MiddleRight, html!("span", {.text("Middle Right Dialog!")})),
+///      (DockPoint::TopLeft, html!("span", {.text("Top Left Dialog!")})),
+///      (DockPoint::TopCenter, html!("span", {.text("Top Center Dialog!")})),
+///      (DockPoint::TopRight, html!("span", {.text("Top Right Dialog!")})),
+///      (DockPoint::BottomLeft, html!("span", {.text("Bottom Left Dialog!")})),
+///      (DockPoint::BottomCenter, html!("span", {.text("Bottom Center Dialog!")})),
+///      (DockPoint::BottomRight, html!("span", {.text("Bottom Right Dialog!")})),
+///  ])
+///  .show_scrim(true)
+///  .show_overlay_signal(show_overlay.signal())
+/// })
 /// ```
-pub fn dock_overlay<TOverlayViewSignal, TShowOverlaySignal, F>(
-    props: DockOverlayProps<TOverlayViewSignal, TShowOverlaySignal>,
-    mixin: F,
-) -> (Dom, DockOverlayOut)
-where
-    TOverlayViewSignal: Signal<Item = Option<Dom>> + 'static,
-    TShowOverlaySignal: Signal<Item = bool> + 'static,
-    F: FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>,
-{
-    let overlay_view_signal = props.overlay_view_signal;
-    let dock_point = props.dock_point;
-    let show_overlay_signal = props.show_overlay_signal;
+#[component(render_fn = dock_overlay)]
+struct DockOverlay<TOnScrimClick: Fn(events::Click) -> () = fn(events::Click) -> ()> {
+    #[signal]
+    #[default(None)]
+    pub underlying_view: Option<Dom>,
+    #[signal_vec]
+    #[default(vec ! [])]
+    pub overlay_views: (DockPoint, Dom),
+    #[signal]
+    #[default(false)]
+    pub show_scrim: bool,
+    #[signal]
+    #[default(true)]
+    pub show_overlay: bool,
+    #[default(| _ | {})]
+    pub on_scrim_click: TOnScrimClick,
+}
 
-    let mut out = DockOverlayOut {
-        scrim_click_stream: None,
-    };
+pub fn dock_overlay(props: impl DockOverlayPropsTrait + 'static) -> Dom {
+    let DockOverlayProps {
+        underlying_view,
+        overlay_views,
+        show_scrim,
+        show_overlay: show_overlay_signal,
+        on_scrim_click,
+        apply,
+    } = props.take();
 
-    let inner_dom = if props.show_scrim {
-        let (inner_dom, _inner_scrim_out) = scrim(ScrimProps::new().content(props.inner_view));
+    let view = scrim(
+        ScrimProps::new()
+            .content_signal(underlying_view)
+            .on_click(on_scrim_click)
+            .hide_signal(show_scrim.map(|v| !v)),
+    );
 
-        out.scrim_click_stream = Some(_inner_scrim_out.click_stream);
-        inner_dom
-    } else {
-        props.inner_view
-    };
+    let children = overlay_views.map(|(dock_point, overlay_view)| {
+        html!("dom", {
+            .class("dmat-overlay-view")
+            .class(dock_point_to_css_class(dock_point))
+            .child(overlay_view)
+        })
+    });
 
-    (
-        html!("div", {
-            .class("dmat-dock-overlay")
-            .class_signal("-hidden", show_overlay_signal.map(|v| !v))
-            .apply(mixin)
-            .children(&mut [
-                inner_dom,
-                html!("div", {
-                    .class("dmat-overlay-view")
-                    .class(dock_point_to_css_class(dock_point))
-                    .child_signal(overlay_view_signal)
-                })
-            ])
-        }),
-        out,
-    )
+    html!("div", {
+        .class("dmat-dock-overlay")
+        .class_signal("-hidden", show_overlay_signal.map(|v| !v))
+        .apply_if(apply.is_some(), |dom| dom.apply(apply.unwrap()))
+        .child(view)
+        .children_signal_vec(children)
+    })
 }
 
 fn dock_point_to_css_class(dock_point: DockPoint) -> &'static str {
