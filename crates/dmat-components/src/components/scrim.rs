@@ -2,7 +2,7 @@ use dominator::{events, html, Dom};
 
 /// Overlays a semi-opaque toggleable scrim over a component
 #[component(render_fn = scrim)]
-struct Scrim<TOnClick: Fn(events::Click) -> () = fn(events::Click) -> ()> {
+struct Scrim<TOnClick: Fn(events::Click) = fn(events::Click) -> ()> {
     /// The Dom that will be overlaid by the scrim when it is visible
     #[signal]
     #[default(None)]

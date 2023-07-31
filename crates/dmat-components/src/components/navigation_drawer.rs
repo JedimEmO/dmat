@@ -1,7 +1,7 @@
-use std::sync::Arc;
+use crate::components::scrim::*;
 use crate::futures_signals::signal::SignalExt;
 use dominator::{clone, events, html, Dom};
-use crate::components::scrim::*;
+use std::sync::Arc;
 
 #[derive(Copy, Clone, PartialEq, Eq)]
 pub enum DrawerWidth {
@@ -38,7 +38,7 @@ pub enum DrawerWidth {
 /// }
 /// ```
 #[component(render_fn = navigation_drawer)]
-pub struct NavigationDrawer<TOnExtendedChange: Fn(bool) -> () = fn(bool) -> ()> {
+pub struct NavigationDrawer<TOnExtendedChange: Fn(bool) = fn(bool) -> ()> {
     #[signal]
     #[default(true)]
     pub expanded: bool,
@@ -89,7 +89,7 @@ pub fn navigation_drawer(props: impl NavigationDrawerPropsTrait + 'static) -> Do
             .hide(!with_scrim),
     );
 
-    let extend_cb = on_extended_change.map(|v| Arc::new(v));
+    let extend_cb = on_extended_change.map(Arc::new);
     let width_bc = width.broadcast();
 
     html!("div", {

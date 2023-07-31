@@ -46,7 +46,7 @@ pub enum DockPoint {
 /// })
 /// ```
 #[component(render_fn = dock_overlay)]
-struct DockOverlay<TOnScrimClick: Fn(events::Click) -> () = fn(events::Click) -> ()> {
+struct DockOverlay<TOnScrimClick: Fn(events::Click) = fn(events::Click) -> ()> {
     #[signal]
     #[default(None)]
     pub underlying_view: Option<Dom>,

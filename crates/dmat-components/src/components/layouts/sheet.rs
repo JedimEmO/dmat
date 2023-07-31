@@ -1,5 +1,5 @@
 use crate::components::scrim::*;
-use dominator::{ events, html, Dom};
+use dominator::{events, html, Dom};
 use futures_signals::map_ref;
 use futures_signals::signal::SignalExt;
 use wasm_bindgen::UnwrapThrowExt;
@@ -10,7 +10,7 @@ use wasm_bindgen::UnwrapThrowExt;
 /// <https://material.io/components/sheets-side>
 /// <https://material.io/components/sheets-bottom>
 #[component(render_fn = render_sheet)]
-pub struct Sheet<TOnScrimClick: Fn(events::Click) -> () = fn(events::Click) -> ()> {
+pub struct Sheet<TOnScrimClick: Fn(events::Click) = fn(events::Click) -> ()> {
     #[signal]
     #[default(SheetSide::Left)]
     side: SheetSide,
