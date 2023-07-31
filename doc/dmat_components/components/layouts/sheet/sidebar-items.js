@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["SheetSide"],"fn":["modal_sheet","sheet"],"struct":["ModalSheetOut","ModalSheetProps","SheetProps"]};
+window.SIDEBAR_ITEMS = {"enum":["SheetSide"],"fn":["render_sheet"],"struct":["SheetProps"],"trait":["SheetPropsTrait"]};

@@ -103,20 +103,13 @@
 <a href="#103" id="103">103</a>
 <a href="#104" id="104">104</a>
 <a href="#105" id="105">105</a>
-<a href="#106" id="106">106</a>
-<a href="#107" id="107">107</a>
-<a href="#108" id="108">108</a>
-<a href="#109" id="109">109</a>
-<a href="#110" id="110">110</a>
-<a href="#111" id="111">111</a>
-<a href="#112" id="112">112</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{clone, html, Dom};
 <span class="kw">use </span>futures::Stream;
 <span class="kw">use </span>futures_signals::signal::always;
 <span class="kw">use </span>futures_signals::signal_vec::{MutableVec, SignalVecExt};
 
 <span class="kw">use </span>dmat_components::components::ListEntry;
-<span class="kw">use </span>dmat_components::components::{DrawerWidth, InteractiveListProps, NavigationDrawerProps};
+<span class="kw">use </span>dmat_components::components::<span class="kw-2">*</span>;
 <span class="kw">use </span>dmat_components::utils::mixin::stream_handler_mixin;
 
 <span class="kw">use </span><span class="kw">crate</span>::components::app_bar_demo::app_bar_demo;
@@ -135,18 +128,11 @@
 <span class="kw">pub fn </span>component_demo_view(current_route: DemoRoute) -&gt; Dom {
     <span class="kw">let </span>(component_list, component_change_stream) = component_demo_list(current_route);
 
-    <span class="kw">let </span>app_navigation_props = NavigationDrawerProps {
-        visible_signal: always(<span class="bool-val">true</span>),
-        with_scrim: <span class="bool-val">false</span>,
-        width: DrawerWidth::Full,
-        retracts: <span class="bool-val">false</span>,
-        modal: <span class="bool-val">false</span>,
-        drawer_content: component_list,
-        main_content: component_demo(current_route, component_change_stream),
-    };
-
-    <span class="macro">navigation_drawer!</span>(app_navigation_props).<span class="number">0
-</span>}
+    <span class="macro">navigation_drawer!</span>({
+        .drawer_content(<span class="prelude-val">Some</span>(component_list))
+        .main_content(<span class="prelude-val">Some</span>(component_demo(current_route, component_change_stream)))
+    })
+}
 
 <span class="kw">fn </span>component_demo_list(current_value: DemoRoute) -&gt; (Dom, <span class="kw">impl </span>Stream&lt;Item = <span class="prelude-ty">Option</span>&lt;DemoRoute&gt;&gt;) {
     <span class="kw">let </span>entries = MutableVec::new_with_values(<span class="macro">vec!</span>[

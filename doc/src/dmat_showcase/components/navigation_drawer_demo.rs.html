@@ -175,33 +175,15 @@
 <a href="#175" id="175">175</a>
 <a href="#176" id="176">176</a>
 <a href="#177" id="177">177</a>
-<a href="#178" id="178">178</a>
-<a href="#179" id="179">179</a>
-<a href="#180" id="180">180</a>
-<a href="#181" id="181">181</a>
-<a href="#182" id="182">182</a>
-<a href="#183" id="183">183</a>
-<a href="#184" id="184">184</a>
-<a href="#185" id="185">185</a>
-<a href="#186" id="186">186</a>
-<a href="#187" id="187">187</a>
-<a href="#188" id="188">188</a>
-<a href="#189" id="189">189</a>
-<a href="#190" id="190">190</a>
-<a href="#191" id="191">191</a>
-<a href="#192" id="192">192</a>
-<a href="#193" id="193">193</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{clone, html, Dom, DomBuilder};
+</pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{clone, html, Dom};
 <span class="kw">use </span>futures_signals::signal::from_stream;
 <span class="kw">use </span>futures_signals::signal::{always, Mutable};
 <span class="kw">use </span>futures_signals::signal_vec::{MutableVec, SignalVecExt};
 <span class="kw">use </span>lipsum::lipsum;
-<span class="kw">use </span>web_sys::HtmlElement;
 
 <span class="kw">use </span>dmat_components::components::layouts::ContentBlockProps;
 <span class="kw">use </span>dmat_components::components::<span class="kw-2">*</span>;
 <span class="kw">use </span>dmat_components::utils::signals::mutation::store_signal_value_opt_mixin;
-<span class="kw">use </span>dmat_components::utils::signals::stream_flipflop::stream_to_flipflop_mixin;
 
 <span class="kw">use </span><span class="kw">crate</span>::utils::toggle_button::toggle_button;
 
@@ -259,9 +241,8 @@
                                 <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
                                     .class(<span class="string">&quot;navigation-drawer-demo&quot;</span>)
                                     .apply(|d| {
-                                        <span class="kw">let </span>(toggled, mixin) = toggled(<span class="bool-val">true</span>);
+                                        <span class="kw">let </span>toggled = toggled(<span class="bool-val">true</span>);
                                         d.child(toggled)
-                                        .apply(mixin)
                                 })
                         })])
                     })),
@@ -281,9 +262,8 @@
                                 <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
                                     .class(<span class="string">&quot;navigation-drawer-demo&quot;</span>)
                                     .apply(|d| {
-                                        <span class="kw">let </span>(toggled, mixin) = toggled(<span class="bool-val">false</span>);
+                                        <span class="kw">let </span>toggled = toggled(<span class="bool-val">false</span>);
                                         d.child(toggled)
-                                        .apply(mixin)
                                     })
                                 })
                             ])
@@ -298,67 +278,55 @@
     })
 }
 
-<span class="kw">fn </span>toggled(
-    modal: bool,
-) -&gt; (
-    Dom,
-    <span class="kw">impl </span>FnOnce(DomBuilder&lt;HtmlElement&gt;) -&gt; DomBuilder&lt;HtmlElement&gt;,
-) {
+<span class="kw">fn </span>toggled(modal: bool) -&gt; Dom {
     <span class="kw">let </span>expanded = Mutable::new(<span class="bool-val">true</span>);
 
-    <span class="kw">let </span>props = NavigationDrawerProps {
-        visible_signal: expanded.signal_cloned(),
-        with_scrim: <span class="bool-val">true</span>,
-        width: DrawerWidth::Full,
-        retracts: <span class="bool-val">false</span>,
-        modal,
-        drawer_content: <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
+    <span class="macro">navigation_drawer!</span>({
+        .expanded_signal(expanded.signal_cloned())
+        .with_scrim(<span class="bool-val">true</span>)
+        .drawer_content(<span class="prelude-val">Some</span>(<span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
             .children(<span class="kw-2">&amp;mut</span>[mock_view_select(), toggle_button(<span class="kw-2">&amp;</span>expanded, <span class="string">&quot;Close&quot;</span>)])
-        }),
-        main_content: <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
+        })))
+        .modal(modal)
+        .main_content(<span class="prelude-val">Some</span>(<span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
              .children(<span class="kw-2">&amp;mut</span>[
                 <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
                     .text(lipsum(<span class="number">100</span>).as_str())
                 }),
                 toggle_button(<span class="kw-2">&amp;</span>expanded, <span class="string">&quot;Show&quot;</span>)
             ])
-        }),
-    };
-
-    <span class="kw">let </span>drawer = <span class="macro">navigation_drawer!</span>(props);
-
-    <span class="kw">let </span>flipflop_mixin = stream_to_flipflop_mixin(drawer.<span class="number">1</span>.scrim_click_stream.unwrap(), <span class="kw-2">&amp;</span>expanded);
-
-    (drawer.<span class="number">0</span>, flipflop_mixin)
+        })))
+    })
 }
 
 <span class="kw">fn </span>retracting(modal: bool) -&gt; Dom {
-    <span class="kw">let </span>props = NavigationDrawerProps {
-        visible_signal: always(<span class="bool-val">true</span>),
-        with_scrim: <span class="bool-val">false</span>,
-        width: DrawerWidth::Full,
-        retracts: <span class="bool-val">true</span>,
-        modal,
-        drawer_content: mock_view_select(),
-        main_content: <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {.text(lipsum(<span class="number">100</span>).as_str())}),
-    };
+    <span class="kw">let </span>is_extended = Mutable::new(<span class="bool-val">false</span>);
 
-    <span class="macro">navigation_drawer!</span>(props).<span class="number">0
-</span>}
+    <span class="macro">navigation_drawer!</span>({
+        .expanded(<span class="bool-val">true</span>)
+        .extended_signal(is_extended.signal())
+        .on_extended_change(<span class="macro">clone!</span>(is_extended =&gt; <span class="kw">move </span>|v| {
+            is_extended.set_neq(v);
+        }))
+        .retracts(<span class="bool-val">true</span>)
+        .modal(modal)
+        .drawer_content(<span class="prelude-val">Some</span>(mock_view_select()))
+        .main_content(<span class="prelude-val">Some</span>(<span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
+            .text(lipsum(<span class="number">100</span>).as_str())
+        })))
+    })
+}
 
 <span class="kw">pub fn </span>static_drawers(retracts: bool, width: DrawerWidth) -&gt; Dom {
-    <span class="kw">let </span>props = NavigationDrawerProps {
-        visible_signal: always(<span class="bool-val">true</span>),
-        with_scrim: <span class="bool-val">false</span>,
-        width,
-        retracts,
-        modal: <span class="bool-val">false</span>,
-        drawer_content: mock_view_select(),
-        main_content: <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {.text(lipsum(<span class="number">100</span>).as_str())}),
-    };
-
-    <span class="macro">navigation_drawer!</span>(props).<span class="number">0
-</span>}
+    <span class="macro">navigation_drawer!</span>({
+        .width(width)
+        .retracts(retracts)
+        .drawer_content(<span class="prelude-val">Some</span>(mock_view_select()))
+        .main_content(<span class="prelude-val">Some</span>(<span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
+            .text(lipsum(<span class="number">100</span>).as_str())
+        })))
+    })
+}
 
 <span class="kw">pub fn </span>mock_view_select() -&gt; Dom {
     <span class="kw">let </span>entries = MutableVec::new_with_values(<span class="macro">vec!</span>[<span class="string">&quot;Inbox&quot;</span>, <span class="string">&quot;Spam&quot;</span>]);

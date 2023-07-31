@@ -70,15 +70,9 @@
 <a href="#70" id="70">70</a>
 <a href="#71" id="71">71</a>
 <a href="#72" id="72">72</a>
-<a href="#73" id="73">73</a>
-<a href="#74" id="74">74</a>
-<a href="#75" id="75">75</a>
-<a href="#76" id="76">76</a>
-<a href="#77" id="77">77</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>dmat_components::components::button::<span class="kw-2">*</span>;
-<span class="kw">use </span>dmat_components::components::layouts::{ModalSheetProps, SheetProps, SheetSide};
-<span class="kw">use </span>dmat_components::utils::signals::stream_flipflop::stream_to_flipflop_mixin;
-<span class="kw">use </span>dominator::{html, Dom};
+<span class="kw">use </span>dmat_components::components::layouts::<span class="kw-2">*</span>;
+<span class="kw">use </span>dominator::{clone, html, Dom};
 <span class="kw">use </span>futures_signals::signal::Mutable;
 
 <span class="kw">pub fn </span>sheet_demo() -&gt; Dom {
@@ -87,26 +81,22 @@
 
 <span class="kw">fn </span>bottom_sheet() -&gt; Dom {
     <span class="kw">let </span>show_bottom = Mutable::new(<span class="bool-val">true</span>);
-    <span class="kw">let </span>show = show_bottom.clone();
     <span class="kw">let </span>expanded_signal = show_bottom.signal_cloned();
 
-    <span class="kw">let </span>(sheet_dom, modal_sheet_out) = <span class="macro">modal_sheet!</span>(ModalSheetProps {
-        sheet_props: SheetProps {
-            sheet_content: <span class="macro">text!</span>(<span class="string">&quot;Bottom sheet&quot;</span>),
-            wrapped_view: <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
-                .child(left_sheet(
-                    show_bottom
-                ))
-            }),
-            side: SheetSide::Bottom,
-            expanded_signal
-        }
+    <span class="kw">let </span>sheet_dom = <span class="macro">sheet!</span>({
+        .sheet_content(<span class="prelude-val">Some</span>(<span class="macro">text!</span>(<span class="string">&quot;Bottom sheet&quot;</span>)))
+        .underlying_view(<span class="prelude-val">Some</span>(<span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
+            .child(left_sheet(
+                show_bottom.clone()
+            ))
+        })))
+        .side(SheetSide::Bottom)
+        .expanded_signal(expanded_signal)
+        .show_scrim(<span class="bool-val">true</span>)
+        .on_scrim_click(<span class="macro">clone!</span>(show_bottom =&gt; <span class="kw">move </span>|<span class="kw">_</span>| show_bottom.set(<span class="bool-val">false</span>)))
     });
 
-    <span class="kw">let </span>flipflop_mixin = stream_to_flipflop_mixin(modal_sheet_out.toggle_stream, <span class="kw-2">&amp;</span>show);
-
     <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
-        .apply(flipflop_mixin)
         .child(sheet_dom)
     })
 }
@@ -115,16 +105,16 @@
     <span class="kw">let </span>show_left = Mutable::new(<span class="bool-val">true</span>);
     <span class="kw">let </span>expanded_signal = show_left.signal_cloned();
 
-    <span class="macro">sheet!</span>(SheetProps {
-        sheet_content: <span class="macro">container!</span>(|d| d.text(<span class="string">&quot;Left hand side sheet&quot;</span>)),
-        wrapped_view: <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>,  {
+    <span class="macro">sheet!</span>( {
+        .sheet_content(<span class="prelude-val">Some</span>(<span class="macro">container!</span>(|d| d.text(<span class="string">&quot;Left hand side sheet&quot;</span>))))
+        .underlying_view(<span class="prelude-val">Some</span>(<span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>,  {
             .child(right_sheet(
                 show_bottom,
                 show_left
             ))
-        }),
-        side: SheetSide::Left,
-        expanded_signal
+        })))
+        .side(SheetSide::Left)
+        .expanded_signal(expanded_signal)
     })
 }
 
@@ -132,9 +122,9 @@
     <span class="kw">let </span>show_right = Mutable::new(<span class="bool-val">true</span>);
     <span class="kw">let </span>expanded_signal = show_right.signal_cloned();
 
-    <span class="macro">sheet!</span>(SheetProps {
-        sheet_content: <span class="macro">container!</span>(|d| d.text(<span class="string">&quot;Right hand side sheet&quot;</span>)),
-        wrapped_view: <span class="macro">container!</span>(|d| d.children(<span class="kw-2">&amp;mut </span>[
+    <span class="macro">sheet!</span>({
+        .sheet_content(<span class="prelude-val">Some</span>(<span class="macro">container!</span>(|d| d.text(<span class="string">&quot;Right hand side sheet&quot;</span>))))
+        .underlying_view(<span class="prelude-val">Some</span>(<span class="macro">container!</span>(|d| d.children(<span class="kw-2">&amp;mut </span>[
             <span class="macro">button!</span>({
                 .click_handler(<span class="kw">move </span>|<span class="kw">_</span>| show_left.set(!show_left.get()))
                 .label(<span class="string">&quot;Toggle left sheet&quot;</span>)
@@ -147,9 +137,9 @@
                 .click_handler(<span class="kw">move </span>|<span class="kw">_</span>| show_right.set(!show_right.get()))
                 .content(<span class="macro">text!</span>(<span class="string">&quot;Toggle right sheet&quot;</span>))
             })
-        ])),
-        side: SheetSide::Right,
-        expanded_signal
+        ]))))
+        .side(SheetSide::Right)
+        .expanded_signal(expanded_signal)
     })
 }
 </code></pre></div></section></main></body></html>

@@ -128,20 +128,9 @@
 <a href="#128" id="128">128</a>
 <a href="#129" id="129">129</a>
 <a href="#130" id="130">130</a>
-<a href="#131" id="131">131</a>
-<a href="#132" id="132">132</a>
-<a href="#133" id="133">133</a>
-<a href="#134" id="134">134</a>
-<a href="#135" id="135">135</a>
-<a href="#136" id="136">136</a>
-<a href="#137" id="137">137</a>
-<a href="#138" id="138">138</a>
-<a href="#139" id="139">139</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{clone, events, html, Dom, DomBuilder};
-<span class="kw">use </span>futures::channel::mpsc::Receiver;
-<span class="kw">use </span>futures_signals::signal::{Mutable, MutableSignalCloned, Signal};
-<span class="kw">use </span>web_sys::HtmlElement;
-
+</pre></div><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
+<span class="kw">use </span><span class="kw">crate</span>::futures_signals::signal::SignalExt;
+<span class="kw">use </span>dominator::{clone, events, html, Dom};
 <span class="kw">use </span><span class="kw">crate</span>::components::scrim::<span class="kw-2">*</span>;
 
 <span class="attr">#[derive(Copy, Clone, PartialEq, Eq)]
@@ -150,130 +139,123 @@
     Narrow,
 }
 
-<span class="kw">pub struct </span>NavigationDrawerProps&lt;TVisibleSignal: Signal&lt;Item = bool&gt;&gt; {
-    <span class="kw">pub </span>visible_signal: TVisibleSignal,
-    <span class="doccomment">/// If true, a scrim will be rendered on top of the contained UI when the drawer is expanded
-    </span><span class="kw">pub </span>with_scrim: bool,
-    <span class="kw">pub </span>width: DrawerWidth,
-    <span class="doccomment">/// Determines if the drawer will collapse and extend based on mouse hover
-    </span><span class="kw">pub </span>retracts: bool,
-    <span class="doccomment">/// Determines if the drawer overlays the held UI, or if it is render side by side with it
-    </span><span class="kw">pub </span>modal: bool,
-    <span class="doccomment">/// The content of the navigation drawer
-    </span><span class="kw">pub </span>drawer_content: Dom,
-    <span class="doccomment">/// The main view which the drawer is attached to
-    </span><span class="kw">pub </span>main_content: Dom,
-}
-
-<span class="kw">pub struct </span>NavigationDrawerOut {
-    <span class="doccomment">/// If the drawer is configured to retract, this signal will contain the extended state
-    </span><span class="kw">pub </span>is_extended: <span class="prelude-ty">Option</span>&lt;MutableSignalCloned&lt;bool&gt;&gt;,
-    <span class="kw">pub </span>scrim_click_stream: <span class="prelude-ty">Option</span>&lt;Receiver&lt;()&gt;&gt;,
-}
-
-<span class="attr">#[macro_export]
-</span><span class="macro">macro_rules! </span>navigation_drawer {
-    (<span class="macro-nonterminal">$props</span>: expr) =&gt; {{
-        <span class="macro-nonterminal">$crate::components::navigation_drawer::navigation_drawer</span>(<span class="macro-nonterminal">$props</span>, |d| d)
-    }};
-
-    (<span class="macro-nonterminal">$props</span>: expr, <span class="macro-nonterminal">$mixin</span>: expr) =&gt; {{
-        <span class="macro-nonterminal">$crate::components::navigation_drawer::nacarvigation_drawer</span>(<span class="macro-nonterminal">$props</span>, <span class="macro-nonterminal">$mixin</span>)
-    }};
-}
-
 <span class="doccomment">/// Navigation drawer: &lt;https://material.io/components/navigation-drawer&gt;
 ///
 /// # Examples
 ///
 /// ```no_run
 /// use dominator::{Dom, html};
-/// use futures_signals::signal::always;
-/// use dmat_components::components::{NavigationDrawerProps, DrawerWidth};
+/// use dmat_components::components::*;
 ///
 /// fn retracting(modal: bool) -&gt; Dom {
-///     let props = NavigationDrawerProps {
-///         visible_signal: always(true),
-///         with_scrim: false,
-///         width: DrawerWidth::Full,
-///         retracts: true,
-///         modal,
-///         drawer_content: html!(&quot;div&quot;, {.text(&quot;This is the content of the drawer. Put menu items etc. here!&quot;)}),
-///         main_content: html!(&quot;div&quot;, {.text(&quot;This is the main view, a modal drawer will cover it, whereas a non-modal drawer will displace it&quot;)}),
-///     };
-///
-///     dmat_components::navigation_drawer!(props).0
+///   navigation_drawer!({
+///       .expanded_signal(expanded.signal_cloned())
+///       .with_scrim(true)
+///       .drawer_content(Some(html!(&quot;div&quot;, {
+///           .children(&amp;mut[mock_view_select(), toggle_button(&amp;expanded, &quot;Close&quot;)])
+///       })))
+///       .retracts(true)
+///       .modal(modal)
+///       .main_content(Some(html!(&quot;div&quot;, {
+///            .children(&amp;mut[
+///               html!(&quot;div&quot;, {
+///                   .text(lipsum(100).as_str())
+///               }),
+///               toggle_button(&amp;expanded, &quot;Show&quot;)
+///           ])
+///       })))
+///   })
 /// }
 /// ```
-</span><span class="kw">pub fn </span>navigation_drawer&lt;F, TVisibleSignal&gt;(
-    props: NavigationDrawerProps&lt;TVisibleSignal&gt;,
-    mixin: F,
-) -&gt; (Dom, NavigationDrawerOut)
-<span class="kw">where
-    </span>TVisibleSignal: Signal&lt;Item = bool&gt; + <span class="lifetime">&#39;static</span>,
-    F: FnOnce(DomBuilder&lt;HtmlElement&gt;) -&gt; DomBuilder&lt;HtmlElement&gt;,
-{
-    <span class="kw">let </span>expanded = props.visible_signal;
-    <span class="kw">let </span>width = props.width;
-    <span class="kw">let </span>extended = Mutable::new(<span class="bool-val">false</span>);
-    <span class="kw">let </span>retracts = props.retracts;
-    <span class="kw">let </span>main_content = props.main_content;
-    <span class="kw">let </span>drawer_content = props.drawer_content;
-
-    <span class="kw">let </span>(main_content, scrim_click_stream) = <span class="kw">match </span>props.with_scrim {
-        <span class="bool-val">true </span>=&gt; {
-            <span class="kw">let </span>(main_out, scrim_out) = scrim(ScrimProps::new().content(main_content));
-
-            (main_out, <span class="prelude-val">Some</span>(scrim_out.click_stream))
-        }
-        <span class="kw">_ </span>=&gt; (main_content, <span class="prelude-val">None</span>),
-    };
-
-    <span class="kw">let </span>out = NavigationDrawerOut {
-        is_extended: <span class="kw">match </span>retracts {
-            <span class="bool-val">true </span>=&gt; <span class="prelude-val">Some</span>(extended.signal_cloned()),
-            <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
-        },
-        scrim_click_stream,
-    };
-
-    (
-        <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
-            .class(<span class="string">&quot;dmat-navigation-drawer&quot;</span>)
-            .apply(mixin)
-            .class_signal(<span class="string">&quot;-expanded&quot;</span>, expanded)
-            .class_signal(<span class="string">&quot;-extended&quot;</span>, extended.signal_cloned())
-            .apply_if(props.retracts, |d| d.class(<span class="string">&quot;-retracting&quot;</span>))
-            .apply_if(props.modal, |d| d.class(<span class="string">&quot;-modal&quot;</span>))
-            .class(drawer_width_to_css_class(width))
-            .children(<span class="kw-2">&amp;mut </span>[
-                <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
-                    .class(<span class="string">&quot;drawer&quot;</span>)
-                    .apply_if(retracts, <span class="macro">clone!</span>(extended =&gt; <span class="kw">move </span>|d| {
-                        d.event(<span class="macro">clone!</span>(extended =&gt; <span class="kw">move </span>|<span class="kw">_</span>:events::MouseEnter| {
-                            extended.set(<span class="bool-val">true</span>);
-                        }))
-                        .event(<span class="macro">clone!</span>(extended =&gt; <span class="kw">move </span>|<span class="kw">_</span>:events::MouseMove| {
-                            extended.set(<span class="bool-val">true</span>);
-                        }))
-                        .event(<span class="macro">clone!</span>(extended=&gt; <span class="kw">move </span>|<span class="kw">_</span>:events::MouseLeave| {
-                            extended.set(<span class="bool-val">false</span>);
-                        }))
-                    }))
-
-                    .child(drawer_content)
-                }),
-                main_content
-            ])
-        }),
-        out,
-    )
+</span><span class="attr">#[component(render_fn = navigation_drawer)]
+</span><span class="kw">pub struct </span>NavigationDrawer&lt;TOnExtendedChange: Fn(bool) -&gt; () = <span class="kw">fn</span>(bool) -&gt; ()&gt; {
+    <span class="attr">#[signal]
+    #[default(<span class="bool-val">true</span>)]
+    </span><span class="kw">pub </span>expanded: bool,
+    <span class="attr">#[signal]
+    #[default(<span class="bool-val">true</span>)]
+    </span><span class="kw">pub </span>extended: bool,
+    <span class="kw">pub </span>on_extended_change: TOnExtendedChange,
+    <span class="doccomment">/// If true, a scrim will be rendered on top of the contained UI when the drawer is expanded
+    </span><span class="attr">#[default(<span class="bool-val">false</span>)]
+    </span><span class="kw">pub </span>with_scrim: bool,
+    <span class="attr">#[signal]
+    #[default(DrawerWidth::Full)]
+    </span><span class="kw">pub </span>width: DrawerWidth,
+    <span class="doccomment">/// Determines if the drawer will collapse and extend based on mouse hover
+    </span><span class="attr">#[default(<span class="bool-val">false</span>)]
+    </span><span class="kw">pub </span>retracts: bool,
+    <span class="doccomment">/// Determines if the drawer overlays the held UI, or if it is render side by side with it
+    </span><span class="attr">#[signal]
+    #[default(<span class="bool-val">false</span>)]
+    </span><span class="kw">pub </span>modal: bool,
+    <span class="doccomment">/// The content of the navigation drawer
+    </span><span class="attr">#[signal]
+    #[default(<span class="prelude-val">None</span>)]
+    </span><span class="kw">pub </span>drawer_content: <span class="prelude-ty">Option</span>&lt;Dom&gt;,
+    <span class="doccomment">/// The main view which the drawer is attached to
+    </span><span class="attr">#[signal]
+    #[default(<span class="prelude-val">None</span>)]
+    </span><span class="kw">pub </span>main_content: <span class="prelude-ty">Option</span>&lt;Dom&gt;,
 }
 
-<span class="kw">fn </span>drawer_width_to_css_class(width: DrawerWidth) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
-    <span class="kw">match </span>width {
-        DrawerWidth::Narrow =&gt; <span class="string">&quot;-narrow&quot;</span>,
-        DrawerWidth::Full =&gt; <span class="string">&quot;-full&quot;</span>,
-    }
+<span class="kw">pub fn </span>navigation_drawer(props: <span class="kw">impl </span>NavigationDrawerPropsTrait + <span class="lifetime">&#39;static</span>) -&gt; Dom {
+    <span class="kw">let </span>NavigationDrawerProps {
+        expanded,
+        extended,
+        on_extended_change,
+        with_scrim,
+        width,
+        retracts,
+        modal,
+        drawer_content,
+        main_content,
+        apply,
+    } = props.take();
+
+    <span class="kw">let </span>main_content = scrim(
+        ScrimProps::new()
+            .content_signal(main_content)
+            .hide(!with_scrim),
+    );
+
+    <span class="kw">let </span>extend_cb = on_extended_change.map(|v| Arc::new(v));
+    <span class="kw">let </span>width_bc = width.broadcast();
+
+    <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
+        .class(<span class="string">&quot;dmat-navigation-drawer&quot;</span>)
+        .apply_if(apply.is_some(), |d| d.apply(apply.unwrap()))
+        .class_signal(<span class="string">&quot;-expanded&quot;</span>, expanded)
+        .class_signal(<span class="string">&quot;-extended&quot;</span>, extended)
+        .class_signal(<span class="string">&quot;-modal&quot;</span>, modal)
+        .class_signal(<span class="string">&quot;-narrow&quot;</span>, width_bc.signal_ref(|w| <span class="kw-2">*</span>w == DrawerWidth::Narrow))
+        .class_signal(<span class="string">&quot;-full&quot;</span>, width_bc.signal_ref(|w| <span class="kw-2">*</span>w == DrawerWidth::Full))
+        .apply_if(retracts, |d| d.class(<span class="string">&quot;-retracting&quot;</span>))
+        .children(<span class="kw-2">&amp;mut </span>[
+            <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
+                .class(<span class="string">&quot;drawer&quot;</span>)
+                .apply_if(retracts, <span class="macro">clone!</span>(extend_cb =&gt; <span class="kw">move </span>|d| {
+                    d.event(<span class="macro">clone!</span>(extend_cb =&gt; <span class="kw">move </span>|<span class="kw">_</span>:events::MouseEnter| {
+                        <span class="kw">if let </span><span class="prelude-val">Some</span>(cb) = extend_cb.as_ref() {
+                            cb(<span class="bool-val">true</span>);
+                        }
+                    }))
+                    .event(<span class="macro">clone!</span>(extend_cb =&gt; <span class="kw">move </span>|<span class="kw">_</span>:events::MouseMove| {
+                        <span class="kw">if let </span><span class="prelude-val">Some</span>(cb) = extend_cb.as_ref() {
+                            cb(<span class="bool-val">true</span>);
+                        }
+                    }))
+                    .event(<span class="macro">clone!</span>(extend_cb=&gt; <span class="kw">move </span>|<span class="kw">_</span>:events::MouseLeave| {
+                        <span class="kw">if let </span><span class="prelude-val">Some</span>(cb) = extend_cb.as_ref() {
+                            cb(<span class="bool-val">false</span>);
+                        }
+                    }))
+                }))
+
+                .child_signal(drawer_content)
+            }),
+            main_content
+        ])
+    })
 }
 </code></pre></div></section></main></body></html>

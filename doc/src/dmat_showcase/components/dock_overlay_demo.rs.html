@@ -54,172 +54,43 @@
 <a href="#54" id="54">54</a>
 <a href="#55" id="55">55</a>
 <a href="#56" id="56">56</a>
-<a href="#57" id="57">57</a>
-<a href="#58" id="58">58</a>
-<a href="#59" id="59">59</a>
-<a href="#60" id="60">60</a>
-<a href="#61" id="61">61</a>
-<a href="#62" id="62">62</a>
-<a href="#63" id="63">63</a>
-<a href="#64" id="64">64</a>
-<a href="#65" id="65">65</a>
-<a href="#66" id="66">66</a>
-<a href="#67" id="67">67</a>
-<a href="#68" id="68">68</a>
-<a href="#69" id="69">69</a>
-<a href="#70" id="70">70</a>
-<a href="#71" id="71">71</a>
-<a href="#72" id="72">72</a>
-<a href="#73" id="73">73</a>
-<a href="#74" id="74">74</a>
-<a href="#75" id="75">75</a>
-<a href="#76" id="76">76</a>
-<a href="#77" id="77">77</a>
-<a href="#78" id="78">78</a>
-<a href="#79" id="79">79</a>
-<a href="#80" id="80">80</a>
-<a href="#81" id="81">81</a>
-<a href="#82" id="82">82</a>
-<a href="#83" id="83">83</a>
-<a href="#84" id="84">84</a>
-<a href="#85" id="85">85</a>
-<a href="#86" id="86">86</a>
-<a href="#87" id="87">87</a>
-<a href="#88" id="88">88</a>
-<a href="#89" id="89">89</a>
-<a href="#90" id="90">90</a>
-<a href="#91" id="91">91</a>
-<a href="#92" id="92">92</a>
-<a href="#93" id="93">93</a>
-<a href="#94" id="94">94</a>
-<a href="#95" id="95">95</a>
-<a href="#96" id="96">96</a>
-<a href="#97" id="97">97</a>
-<a href="#98" id="98">98</a>
-<a href="#99" id="99">99</a>
-<a href="#100" id="100">100</a>
-<a href="#101" id="101">101</a>
-<a href="#102" id="102">102</a>
-<a href="#103" id="103">103</a>
-<a href="#104" id="104">104</a>
-<a href="#105" id="105">105</a>
-<a href="#106" id="106">106</a>
-<a href="#107" id="107">107</a>
-<a href="#108" id="108">108</a>
-<a href="#109" id="109">109</a>
-<a href="#110" id="110">110</a>
-<a href="#111" id="111">111</a>
-<a href="#112" id="112">112</a>
-<a href="#113" id="113">113</a>
-<a href="#114" id="114">114</a>
-<a href="#115" id="115">115</a>
-<a href="#116" id="116">116</a>
-<a href="#117" id="117">117</a>
-<a href="#118" id="118">118</a>
-<a href="#119" id="119">119</a>
-<a href="#120" id="120">120</a>
-<a href="#121" id="121">121</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>dmat_components::components::layouts::ContentBlockProps;
-<span class="kw">use </span>dmat_components::components::layouts::{DockOverlayOut, DockOverlayProps, DockPoint};
+</pre></div><pre class="rust"><code><span class="kw">use </span>dmat_components::components::layouts::<span class="kw-2">*</span>;
 <span class="kw">use </span>dmat_components::components::<span class="kw-2">*</span>;
-<span class="kw">use </span>dmat_components::utils::signals::stream_flipflop::stream_to_flipflop_mixin;
 <span class="kw">use </span>dominator::{clone, events, html, Dom};
-<span class="kw">use </span>futures_signals::signal::{always, Mutable, ReadOnlyMutable};
+<span class="kw">use </span>futures_signals::signal::always;
+<span class="kw">use </span>futures_signals::signal::Mutable;
 <span class="kw">use </span>lipsum::lipsum;
 
 <span class="kw">pub fn </span>dock_overlay_demo() -&gt; Dom {
     <span class="kw">let </span>show_overlay = Mutable::new(<span class="bool-val">true</span>);
 
-    <span class="kw">let </span>(innermost_overlay, innermost_overlay_out) = middle_center_dialog(show_overlay.clone());
-    <span class="kw">let </span>scrim_click_stream = innermost_overlay_out
-        .scrim_click_stream
-        .expect(<span class="string">&quot;innermost demo dock overlay should have a scrim&quot;</span>);
-
-    <span class="kw">let </span>flipflop_mixin = stream_to_flipflop_mixin(scrim_click_stream, <span class="kw-2">&amp;</span>show_overlay);
-
-    <span class="kw">let </span>middle_left = <span class="macro">dock_overlay!</span>(DockOverlayProps {
-        inner_view: innermost_overlay,
-        dock_point: DockPoint::MiddleLeft,
-        show_overlay_signal: show_overlay.signal(),
-        show_scrim: <span class="bool-val">false</span>,
-        overlay_view_signal: always(<span class="prelude-val">Some</span>(
-            <span class="macro">card!</span>({.child(<span class="macro">text!</span>(<span class="string">&quot;Middle Left Dialog!&quot;</span>, flipflop_mixin))})
-        )),
-    })
-    .<span class="number">0</span>;
-
-    <span class="kw">let </span>middle_right = generic_dialog(
-        middle_left,
-        DockPoint::MiddleRight,
-        <span class="string">&quot;Middle Right Dialog!&quot;</span>,
-        <span class="kw-2">&amp;</span>show_overlay,
-    );
-    <span class="kw">let </span>top_left = generic_dialog(
-        middle_right,
-        DockPoint::TopLeft,
-        <span class="string">&quot;Top Left Dialog!&quot;</span>,
-        <span class="kw-2">&amp;</span>show_overlay,
-    );
-    <span class="kw">let </span>top_center = generic_dialog(
-        top_left,
-        DockPoint::TopCenter,
-        <span class="string">&quot;Top Center Dialog!&quot;</span>,
-        <span class="kw-2">&amp;</span>show_overlay,
-    );
-    <span class="kw">let </span>top_right = generic_dialog(
-        top_center,
-        DockPoint::TopRight,
-        <span class="string">&quot;Top Right Dialog!&quot;</span>,
-        <span class="kw-2">&amp;</span>show_overlay,
-    );
-    <span class="kw">let </span>bottom_left = generic_dialog(
-        top_right,
-        DockPoint::BottomLeft,
-        <span class="string">&quot;Bottom Left Dialog!&quot;</span>,
-        <span class="kw-2">&amp;</span>show_overlay,
-    );
-    <span class="kw">let </span>bottom_center = generic_dialog(
-        bottom_left,
-        DockPoint::BottomCenter,
-        <span class="string">&quot;Bottom Center Dialog!&quot;</span>,
-        <span class="kw-2">&amp;</span>show_overlay,
-    );
-
-    generic_dialog(
-        bottom_center,
-        DockPoint::BottomRight,
-        <span class="string">&quot;Bottom Right Dialog!&quot;</span>,
-        <span class="kw-2">&amp;</span>show_overlay,
-    )
-}
-
-<span class="kw">fn </span>generic_dialog(
-    inner_view: Dom,
-    dock_point: DockPoint,
-    content: <span class="kw-2">&amp;</span>str,
-    show_overlay: <span class="kw-2">&amp;</span>ReadOnlyMutable&lt;bool&gt;,
-) -&gt; Dom {
-    <span class="macro">dock_overlay!</span>(DockOverlayProps {
-        inner_view,
-        dock_point,
-        show_overlay_signal: show_overlay.signal(),
-        show_scrim: <span class="bool-val">false</span>,
-        overlay_view_signal: always(<span class="prelude-val">Some</span>(<span class="macro">card!</span>({.child(<span class="macro">text!</span>(content))}))),
-    })
-    .<span class="number">0
-</span>}
-
-<span class="kw">fn </span>middle_center_dialog(show_overlay: Mutable&lt;bool&gt;) -&gt; (Dom, DockOverlayOut) {
-    <span class="macro">dock_overlay!</span>(DockOverlayProps {
-        inner_view: <span class="macro">container!</span>(|d| d.child(<span class="macro">button!</span>({
+    <span class="kw">let </span>underlying_view = <span class="macro">button!</span>({
             .label(<span class="string">&quot;Show overlay&quot;</span>)
             .click_handler(<span class="macro">clone!</span>(show_overlay =&gt; <span class="kw">move </span>|<span class="kw">_</span>: events::Click| show_overlay.set(<span class="bool-val">true</span>)))
-        }))),
-        dock_point: DockPoint::MiddleCenter,
-        show_overlay_signal: show_overlay.signal(),
-        show_scrim: <span class="bool-val">true</span>,
-        overlay_view_signal: always(<span class="prelude-val">Some</span>(<span class="macro">card!</span>({
-            .child(         <span class="macro">content_block!</span>(ContentBlockProps {
+    });
+
+    <span class="macro">dock_overlay!</span>({
+        .underlying_view(<span class="prelude-val">Some</span>(underlying_view))
+        .overlay_views(<span class="macro">vec!</span>[
+            (DockPoint::MiddleLeft, <span class="macro">card!</span>({.child(<span class="macro">text!</span>(<span class="string">&quot;Middle Left Dialog!&quot;</span>))})),
+            (DockPoint::MiddleCenter, middle_center_dialog(show_overlay.clone())),
+            (DockPoint::MiddleRight, <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {.text(<span class="string">&quot;Middle Right Dialog!&quot;</span>)})),
+            (DockPoint::TopLeft, <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {.text(<span class="string">&quot;Top Left Dialog!&quot;</span>)})),
+            (DockPoint::TopCenter, <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {.text(<span class="string">&quot;Top Center Dialog!&quot;</span>)})),
+            (DockPoint::TopRight, <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {.text(<span class="string">&quot;Top Right Dialog!&quot;</span>)})),
+            (DockPoint::BottomLeft, <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {.text(<span class="string">&quot;Bottom Left Dialog!&quot;</span>)})),
+            (DockPoint::BottomCenter, <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {.text(<span class="string">&quot;Bottom Center Dialog!&quot;</span>)})),
+            (DockPoint::BottomRight, <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {.text(<span class="string">&quot;Bottom Right Dialog!&quot;</span>)})),
+        ])
+        .show_scrim(<span class="bool-val">true</span>)
+        .show_overlay_signal(show_overlay.signal())
+    })
+}
+
+<span class="kw">fn </span>middle_center_dialog(show_overlay: Mutable&lt;bool&gt;) -&gt; Dom {
+    <span class="macro">card!</span>({
+        .child(
+            <span class="macro">content_block!</span>(ContentBlockProps {
                 title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>(TitleProps {
                     header_text_signal: always(<span class="string">&quot;Card with content block&quot;</span>.to_string()),
                     sub_header_text_signal: always(<span class="prelude-val">Some</span>(<span class="string">&quot;All sections&quot;</span>.to_string())),
@@ -237,7 +108,6 @@
                 })),
             }))
             .apply(|d| d.style(<span class="string">&quot;width&quot;</span>, <span class="string">&quot;300px&quot;</span>))
-        }))),
     })
 }
 </code></pre></div></section></main></body></html>

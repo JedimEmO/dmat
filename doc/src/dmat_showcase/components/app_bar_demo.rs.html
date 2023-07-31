@@ -53,15 +53,7 @@
 <a href="#53" id="53">53</a>
 <a href="#54" id="54">54</a>
 <a href="#55" id="55">55</a>
-<a href="#56" id="56">56</a>
-<a href="#57" id="57">57</a>
-<a href="#58" id="58">58</a>
-<a href="#59" id="59">59</a>
-<a href="#60" id="60">60</a>
-<a href="#61" id="61">61</a>
-<a href="#62" id="62">62</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{html, Dom};
-<span class="kw">use </span>futures_signals::signal::always;
 <span class="kw">use </span>lipsum::lipsum;
 
 <span class="kw">use </span>dmat_components::components::layouts::AppBarType;
@@ -98,18 +90,12 @@
 }
 
 <span class="kw">fn </span>prominent_fixed_demo() -&gt; Dom {
-    <span class="kw">let </span>drawer = <span class="macro">navigation_drawer!</span>(NavigationDrawerProps {
-        main_content: <span class="macro">container!</span>(|d| d.child(<span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
+    <span class="kw">let </span>drawer = <span class="macro">navigation_drawer!</span>({
+        .main_content(<span class="prelude-val">Some</span>(<span class="macro">container!</span>(|d| d.child(<span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
             .text(lipsum(<span class="number">1024</span>).as_str())
-        }))),
-        drawer_content: mock_view_select(),
-        width: DrawerWidth::Full,
-        modal: <span class="bool-val">false</span>,
-        retracts: <span class="bool-val">false</span>,
-        visible_signal: always(<span class="bool-val">true</span>),
-        with_scrim: <span class="bool-val">false
-    </span>})
-    .<span class="number">0</span>;
+        })))))
+        .drawer_content(<span class="prelude-val">Some</span>(mock_view_select()))
+    });
 
     <span class="macro">app_bar!</span>({
         .header(<span class="macro">html!</span>(<span class="string">&quot;h1&quot;</span>, {

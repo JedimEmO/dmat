@@ -110,34 +110,11 @@
 <a href="#110" id="110">110</a>
 <a href="#111" id="111">111</a>
 <a href="#112" id="112">112</a>
-<a href="#113" id="113">113</a>
-<a href="#114" id="114">114</a>
-<a href="#115" id="115">115</a>
-<a href="#116" id="116">116</a>
-<a href="#117" id="117">117</a>
-<a href="#118" id="118">118</a>
-<a href="#119" id="119">119</a>
-<a href="#120" id="120">120</a>
-<a href="#121" id="121">121</a>
-<a href="#122" id="122">122</a>
-<a href="#123" id="123">123</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{html, Dom, DomBuilder};
-<span class="kw">use </span>futures::channel::mpsc::Receiver;
-<span class="kw">use </span>futures_signals::signal::{Signal, SignalExt};
-<span class="kw">use </span>web_sys::HtmlElement;
+</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::futures_signals::signal_vec::SignalVecExt;
+<span class="kw">use </span>dominator::{events, html, Dom};
+<span class="kw">use </span>futures_signals::signal::SignalExt;
 
 <span class="kw">use </span><span class="kw">crate</span>::components::scrim::<span class="kw-2">*</span>;
-
-<span class="attr">#[macro_export]
-</span><span class="macro">macro_rules! </span>dock_overlay {
-    (<span class="macro-nonterminal">$props</span>: expr) =&gt; {{
-        <span class="macro-nonterminal">$crate::components::layouts::dock_overlay::dock_overlay</span>(<span class="macro-nonterminal">$props</span>, |d| d)
-    }};
-
-    (<span class="macro-nonterminal">$props</span>: expr, <span class="macro-nonterminal">$mixin</span>: expr) =&gt; {{
-        <span class="macro-nonterminal">$crate::components::layouts::dock_overlay::dock_overlay</span>(<span class="macro-nonterminal">$props</span>, <span class="macro-nonterminal">$mixin</span>)
-    }};
-}
 
 <span class="kw">pub enum </span>DockPoint {
     TopLeft,
@@ -151,84 +128,85 @@
     BottomRight,
 }
 
-<span class="kw">pub struct </span>DockOverlayProps&lt;
-    TOverlayViewSignal: Signal&lt;Item = <span class="prelude-ty">Option</span>&lt;Dom&gt;&gt;,
-    TShowOverlaySignal: Signal&lt;Item = bool&gt;,
-&gt; {
-    <span class="kw">pub </span>inner_view: Dom,
-    <span class="kw">pub </span>dock_point: DockPoint,
-    <span class="kw">pub </span>overlay_view_signal: TOverlayViewSignal,
-    <span class="kw">pub </span>show_scrim: bool,
-    <span class="kw">pub </span>show_overlay_signal: TShowOverlaySignal,
-}
-
-<span class="kw">pub struct </span>DockOverlayOut {
-    <span class="kw">pub </span>scrim_click_stream: <span class="prelude-ty">Option</span>&lt;Receiver&lt;()&gt;&gt;,
-}
-
 <span class="doccomment">/// Renders an overlay with 9 of dock points for UI elements
 /// Elements in the dock positions will hover over the inner view.
 /// This can be used to represent dialogs, FABs, status messages etc.
 ///
 /// # Examples
 /// ```no_run
-/// use dmat_components::components::layouts::dock_overlay::{DockOverlayProps, DockPoint};
+/// use dmat_components::components::layouts::dock_overlay::*;
 /// use futures_signals::signal::always;
 /// use futures_signals::signal::Mutable;
+///
 /// let show_overlay = Mutable::new(true);
 ///
-/// dmat_components::dock_overlay!(DockOverlayProps {
-///         inner_view: dmat_components::container!(|d| d.child(dmat_components::text!(&quot;This view will have an overlay&quot;))),
-///         dock_point: DockPoint::MiddleCenter,
-///         show_overlay_signal: show_overlay.signal(),
-///         show_scrim: true,
-///         overlay_view_signal: always(Some(dmat_components::card!({
-///             .child(dmat_components::text!(&quot;A dialog!&quot;))
-///         }))),
-///     });
+/// dock_overlay!({
+///  .underlying_view(Some(underlying_view))
+///  .overlay_views(vec![
+///      (DockPoint::MiddleLeft, card!({.child(text!(&quot;Middle Left Dialog!&quot;))})),
+///      (DockPoint::MiddleCenter, middle_center_dialog(show_overlay.clone())),
+///      (DockPoint::MiddleRight, html!(&quot;span&quot;, {.text(&quot;Middle Right Dialog!&quot;)})),
+///      (DockPoint::TopLeft, html!(&quot;span&quot;, {.text(&quot;Top Left Dialog!&quot;)})),
+///      (DockPoint::TopCenter, html!(&quot;span&quot;, {.text(&quot;Top Center Dialog!&quot;)})),
+///      (DockPoint::TopRight, html!(&quot;span&quot;, {.text(&quot;Top Right Dialog!&quot;)})),
+///      (DockPoint::BottomLeft, html!(&quot;span&quot;, {.text(&quot;Bottom Left Dialog!&quot;)})),
+///      (DockPoint::BottomCenter, html!(&quot;span&quot;, {.text(&quot;Bottom Center Dialog!&quot;)})),
+///      (DockPoint::BottomRight, html!(&quot;span&quot;, {.text(&quot;Bottom Right Dialog!&quot;)})),
+///  ])
+///  .show_scrim(true)
+///  .show_overlay_signal(show_overlay.signal())
+/// })
 /// ```
-</span><span class="kw">pub fn </span>dock_overlay&lt;TOverlayViewSignal, TShowOverlaySignal, F&gt;(
-    props: DockOverlayProps&lt;TOverlayViewSignal, TShowOverlaySignal&gt;,
-    mixin: F,
-) -&gt; (Dom, DockOverlayOut)
-<span class="kw">where
-    </span>TOverlayViewSignal: Signal&lt;Item = <span class="prelude-ty">Option</span>&lt;Dom&gt;&gt; + <span class="lifetime">&#39;static</span>,
-    TShowOverlaySignal: Signal&lt;Item = bool&gt; + <span class="lifetime">&#39;static</span>,
-    F: FnOnce(DomBuilder&lt;HtmlElement&gt;) -&gt; DomBuilder&lt;HtmlElement&gt;,
-{
-    <span class="kw">let </span>overlay_view_signal = props.overlay_view_signal;
-    <span class="kw">let </span>dock_point = props.dock_point;
-    <span class="kw">let </span>show_overlay_signal = props.show_overlay_signal;
+</span><span class="attr">#[component(render_fn = dock_overlay)]
+</span><span class="kw">struct </span>DockOverlay&lt;TOnScrimClick: Fn(events::Click) -&gt; () = <span class="kw">fn</span>(events::Click) -&gt; ()&gt; {
+    <span class="attr">#[signal]
+    #[default(<span class="prelude-val">None</span>)]
+    </span><span class="kw">pub </span>underlying_view: <span class="prelude-ty">Option</span>&lt;Dom&gt;,
+    <span class="attr">#[signal_vec]
+    #[default(vec ! []</span>)]
+    <span class="kw">pub </span>overlay_views: (DockPoint, Dom),
+    <span class="attr">#[signal]
+    #[default(<span class="bool-val">false</span>)]
+    </span><span class="kw">pub </span>show_scrim: bool,
+    <span class="attr">#[signal]
+    #[default(<span class="bool-val">true</span>)]
+    </span><span class="kw">pub </span>show_overlay: bool,
+    <span class="attr">#[default(| <span class="kw">_ </span>| {})]
+    </span><span class="kw">pub </span>on_scrim_click: TOnScrimClick,
+}
 
-    <span class="kw">let </span><span class="kw-2">mut </span>out = DockOverlayOut {
-        scrim_click_stream: <span class="prelude-val">None</span>,
-    };
+<span class="kw">pub fn </span>dock_overlay(props: <span class="kw">impl </span>DockOverlayPropsTrait + <span class="lifetime">&#39;static</span>) -&gt; Dom {
+    <span class="kw">let </span>DockOverlayProps {
+        underlying_view,
+        overlay_views,
+        show_scrim,
+        show_overlay: show_overlay_signal,
+        on_scrim_click,
+        apply,
+    } = props.take();
 
-    <span class="kw">let </span>inner_dom = <span class="kw">if </span>props.show_scrim {
-        <span class="kw">let </span>(inner_dom, _inner_scrim_out) = scrim(ScrimProps::new().content(props.inner_view));
+    <span class="kw">let </span>view = scrim(
+        ScrimProps::new()
+            .content_signal(underlying_view)
+            .on_click(on_scrim_click)
+            .hide_signal(show_scrim.map(|v| !v)),
+    );
 
-        out.scrim_click_stream = <span class="prelude-val">Some</span>(_inner_scrim_out.click_stream);
-        inner_dom
-    } <span class="kw">else </span>{
-        props.inner_view
-    };
+    <span class="kw">let </span>children = overlay_views.map(|(dock_point, overlay_view)| {
+        <span class="macro">html!</span>(<span class="string">&quot;dom&quot;</span>, {
+            .class(<span class="string">&quot;dmat-overlay-view&quot;</span>)
+            .class(dock_point_to_css_class(dock_point))
+            .child(overlay_view)
+        })
+    });
 
-    (
-        <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
-            .class(<span class="string">&quot;dmat-dock-overlay&quot;</span>)
-            .class_signal(<span class="string">&quot;-hidden&quot;</span>, show_overlay_signal.map(|v| !v))
-            .apply(mixin)
-            .children(<span class="kw-2">&amp;mut </span>[
-                inner_dom,
-                <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
-                    .class(<span class="string">&quot;dmat-overlay-view&quot;</span>)
-                    .class(dock_point_to_css_class(dock_point))
-                    .child_signal(overlay_view_signal)
-                })
-            ])
-        }),
-        out,
-    )
+    <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
+        .class(<span class="string">&quot;dmat-dock-overlay&quot;</span>)
+        .class_signal(<span class="string">&quot;-hidden&quot;</span>, show_overlay_signal.map(|v| !v))
+        .apply_if(apply.is_some(), |dom| dom.apply(apply.unwrap()))
+        .child(view)
+        .children_signal_vec(children)
+    })
 }
 
 <span class="kw">fn </span>dock_point_to_css_class(dock_point: DockPoint) -&gt; <span class="kw-2">&amp;</span><span class="lifetime">&#39;static </span>str {
