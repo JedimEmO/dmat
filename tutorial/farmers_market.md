@@ -54,13 +54,15 @@ For the rest of this tutorial, you should keep the server running!
 
 ## Creating the frontend
 
+To run the frontend application, go to `tutorial/examples/farmers-market/farmers-market-web` and run `npm install && npm start`.
+
 For now, we want the farmers market UI to show a simple table of all the available products.
 But we'll want to periodically fetch the list of products from the backend, and update the table accordingly whenever the list or the available quantity of a product changes!
 
 Part of this is solved by using Mutable and MutableVec as we did in the counter example.
 However, if we simply put the data in a MutableVec, and replace the entire vector whenever we get a new list of products, we'll force the entire table to re-render, which is not what we want.
 
-This is where the `Updateable` trait from `crates/futures-signals-utils` comes in.
+This is where the `Updateable` trait from `crates/futures-signals-utils` and `crates/futures-signals-utils-derive` comes in.
 It allows us to derive an `update(&self, &other)` function for a type.
 This function will recursively apply changes (and only changes!) to our data, causing the DOM to only update the parts that have changed.
 
@@ -113,6 +115,22 @@ impl ProductRepository for ProductRepositoryImpl {
 }
 ```
 
+This uses a `reqwest` client to perform the get request, and returns the response as a vec of the `Product` type we defined in the API crate.
+
+We then utilise an impl of `From<farmers_market_api::Product>` for `Product` to convert the API type to our frontend type with `products.into_iter().map(|p| p.into()).collect()`:
+
+```rust
+impl From<farmers_market_api::Product> for Product {
+    fn from(value: farmers_market_api::Product) -> Self {
+        Self {
+            name: Mutable::new(value.name),
+            price: Mutable::new(value.price),
+            quantity: Mutable::new(value.quantity),
+        }
+    }
+}
+```
+
 We can now create a small async loop that will periodically fetch the list of products from the backend, and update our MutableVec with the new list:
 
 ```rust
@@ -139,6 +157,10 @@ pub fn run_product_service(
 
 Observe that `products.update(new_products);` is using the `Updateable` trait to sparsely update the MutableVec of products.
 The future performing the loop will have to be executed somehow; in the example app it is simply spawned using `wasm_bindgen_futures::spawn_local`
+
+We also leak the `ProductService` struct.
+This gives us a `&'static` lifetime reference to the service, which makes sure it will live as long as the application.
+This makes it a bit easier to pass around the service to the different parts of the application, but you could also use a `Rc` or `Arc` if you prefer.
 
 Finally, we can create our table:
 
@@ -176,6 +198,11 @@ pub fn product_list(products: impl SignalVec<Item = Product> + 'static) -> Dom {
 ```
 
 If you run this UI while the backend is running, you should see a table with the products from the backend, and the quantity of apples should change every second!
+And if you inspect the DOM, you'll see that only the quantity of apples is updated every second, and the rest of the table is left untouched.
+
+It's also worth noting that the `product_list` function is depending on strictly the parameters and types that it needs to perform its job, nothing else.
+It would certainly be possible to pass in at `&'static ProductService` instead of a `impl SignalVec<Item = Product>`, but that would make it harder to test, and it would be harder to see what the function actually depends on.
+We know, by looking at the function signature, that this component is not mutating the product vector!
 
 ----
 Previous: [Lightweight Dmat](./lightweight_dmat.md) 
