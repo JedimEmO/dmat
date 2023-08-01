@@ -155,14 +155,14 @@
 <span class="kw">use </span>futures_signals::signal::always;
 <span class="kw">use </span>futures_signals::signal::Mutable;
 
-<span class="kw">use </span>dmat_components::components::layouts::ContentBlockProps;
+<span class="kw">use </span>dmat_components::components::layouts::<span class="kw-2">*</span>;
 <span class="kw">use </span>dmat_components::components::<span class="kw-2">*</span>;
 
 <span class="kw">pub fn </span>button_demo() -&gt; Dom {
     <span class="kw">let </span>counter = Mutable::new(<span class="number">0</span>);
 
-    <span class="macro">container!</span>(|d| {
-        d.children(<span class="kw-2">&amp;mut</span>[
+    <span class="macro">container!</span>({
+        .children([
                 <span class="macro">card!</span>({
                 .child(<span class="macro">content_block!</span>(
                     ContentBlockProps {

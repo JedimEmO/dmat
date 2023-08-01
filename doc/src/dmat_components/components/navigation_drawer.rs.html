@@ -128,10 +128,10 @@
 <a href="#128" id="128">128</a>
 <a href="#129" id="129">129</a>
 <a href="#130" id="130">130</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::sync::Arc;
+</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::components::scrim::<span class="kw-2">*</span>;
 <span class="kw">use </span><span class="kw">crate</span>::futures_signals::signal::SignalExt;
 <span class="kw">use </span>dominator::{clone, events, html, Dom};
-<span class="kw">use </span><span class="kw">crate</span>::components::scrim::<span class="kw-2">*</span>;
+<span class="kw">use </span>std::sync::Arc;
 
 <span class="attr">#[derive(Copy, Clone, PartialEq, Eq)]
 </span><span class="kw">pub enum </span>DrawerWidth {
@@ -168,7 +168,7 @@
 /// }
 /// ```
 </span><span class="attr">#[component(render_fn = navigation_drawer)]
-</span><span class="kw">pub struct </span>NavigationDrawer&lt;TOnExtendedChange: Fn(bool) -&gt; () = <span class="kw">fn</span>(bool) -&gt; ()&gt; {
+</span><span class="kw">pub struct </span>NavigationDrawer&lt;TOnExtendedChange: Fn(bool) = <span class="kw">fn</span>(bool) -&gt; ()&gt; {
     <span class="attr">#[signal]
     #[default(<span class="bool-val">true</span>)]
     </span><span class="kw">pub </span>expanded: bool,
@@ -219,7 +219,7 @@
             .hide(!with_scrim),
     );
 
-    <span class="kw">let </span>extend_cb = on_extended_change.map(|v| Arc::new(v));
+    <span class="kw">let </span>extend_cb = on_extended_change.map(Arc::new);
     <span class="kw">let </span>width_bc = width.broadcast();
 
     <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {

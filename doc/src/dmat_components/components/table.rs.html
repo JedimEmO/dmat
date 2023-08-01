@@ -95,14 +95,6 @@
 <a href="#95" id="95">95</a>
 <a href="#96" id="96">96</a>
 <a href="#97" id="97">97</a>
-<a href="#98" id="98">98</a>
-<a href="#99" id="99">99</a>
-<a href="#100" id="100">100</a>
-<a href="#101" id="101">101</a>
-<a href="#102" id="102">102</a>
-<a href="#103" id="103">103</a>
-<a href="#104" id="104">104</a>
-<a href="#105" id="105">105</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::time::Duration;
 
 <span class="kw">use </span>dominator::{html, Dom, DomBuilder};
@@ -121,7 +113,7 @@
 
     <span class="attr">#[signal_vec]
     #[default(Vec::new())]
-    </span>rows: Vec&lt;Dom&gt;,
+    </span>rows: Dom,
 
     <span class="attr">#[signal_vec]
     </span>footer: Dom,
@@ -164,17 +156,9 @@
     })
 }
 
-<span class="kw">fn </span>tbody(rows: <span class="kw">impl </span>SignalVec&lt;Item = Vec&lt;Dom&gt;&gt; + <span class="lifetime">&#39;static</span>) -&gt; Dom {
+<span class="kw">fn </span>tbody(rows: <span class="kw">impl </span>SignalVec&lt;Item = Dom&gt; + <span class="lifetime">&#39;static</span>) -&gt; Dom {
     <span class="macro">html!</span>(<span class="string">&quot;tbody&quot;</span>, {
-    .children_signal_vec(rows.map( | row_cells | {
-        html ! (<span class="string">&quot;tr&quot;</span>, {
-            .children(row_cells.into_iter().map( | cell | {
-                html ! (<span class="string">&quot;td&quot;</span>, {
-                .child(cell)
-                })
-            }).collect::&lt; Vec &lt; Dom &gt; &gt;().as_mut_slice())
-        })
-    }))
+        .children_signal_vec(rows)
     })
 }
 

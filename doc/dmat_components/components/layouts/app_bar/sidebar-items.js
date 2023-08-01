@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["AppBarType"],"fn":["app_bar"],"struct":["AppBarProps"]};
+window.SIDEBAR_ITEMS = {"enum":["AppBarType"],"fn":["app_bar"],"struct":["AppBarProps"],"trait":["AppBarPropsTrait"]};

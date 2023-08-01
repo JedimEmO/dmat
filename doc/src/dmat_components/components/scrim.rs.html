@@ -109,7 +109,7 @@
 
 <span class="doccomment">/// Overlays a semi-opaque toggleable scrim over a component
 </span><span class="attr">#[component(render_fn = scrim)]
-</span><span class="kw">struct </span>Scrim&lt;TOnClick: Fn(events::Click) -&gt; () = <span class="kw">fn</span>(events::Click) -&gt; ()&gt; {
+</span><span class="kw">struct </span>Scrim&lt;TOnClick: Fn(events::Click) = <span class="kw">fn</span>(events::Click) -&gt; ()&gt; {
     <span class="doccomment">/// The Dom that will be overlaid by the scrim when it is visible
     </span><span class="attr">#[signal]
     #[default(<span class="prelude-val">None</span>)]

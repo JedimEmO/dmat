@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["container"]};
+window.SIDEBAR_ITEMS = {"fn":["container"],"struct":["ContainerProps"],"trait":["ContainerPropsTrait"]};

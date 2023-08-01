@@ -72,12 +72,14 @@
 <a href="#72" id="72">72</a>
 <a href="#73" id="73">73</a>
 <a href="#74" id="74">74</a>
+<a href="#75" id="75">75</a>
+<a href="#76" id="76">76</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{clone, html, Dom};
 <span class="kw">use </span>futures_signals::signal::always;
 <span class="kw">use </span>futures_signals::signal::Mutable;
 <span class="kw">use </span>futures_signals::signal_vec::{MutableVec, SignalVecExt};
 
-<span class="kw">use </span>dmat_components::components::layouts::ContentBlockProps;
+<span class="kw">use </span>dmat_components::components::layouts::<span class="kw-2">*</span>;
 <span class="kw">use </span>dmat_components::components::<span class="kw-2">*</span>;
 <span class="kw">use </span>dmat_components::utils::timeout::timeout;
 
@@ -105,14 +107,16 @@
         <span class="string">&quot;eve&quot;</span>.to_string(),
     ]);
     <span class="kw">let </span>rows = data.signal_vec_cloned().map(|v| {
-        <span class="macro">vec!</span>[
-            <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {
-                .text(v.as_str())
-            }),
-            <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {
-                .text(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, v.len()).as_str())
-            }),
-        ]
+        <span class="macro">html!</span>(<span class="string">&quot;tr&quot;</span>, {
+            .children(<span class="kw-2">&amp;mut</span>[
+                <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {
+                    .text(v.as_str())
+                }),
+                <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {
+                    .text(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, v.len()).as_str())
+                }),
+            ])
+        })
     });
 
     <span class="kw">let </span>t = <span class="macro">table!</span>({
@@ -128,7 +132,7 @@
         .is_loading_signal(is_loading.signal())
     });
 
-    <span class="macro">container!</span>(|d| d.child(<span class="macro">content_block!</span>(
+    <span class="macro">container!</span>({.apply(|d| d.child(<span class="macro">content_block!</span>(
         ContentBlockProps {
             title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>(TitleProps {
                 header_text_signal: always(<span class="string">&quot;Simple table&quot;</span>.to_string()),
@@ -144,6 +148,6 @@
             footer_section: <span class="prelude-val">None
         </span>},
         |v| v.class(<span class="string">&quot;demo-card&quot;</span>)
-    ),))
+    )))})
 }
 </code></pre></div></section></main></body></html>

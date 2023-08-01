@@ -16,24 +16,22 @@
 <a href="#16" id="16">16</a>
 <a href="#17" id="17">17</a>
 <a href="#18" id="18">18</a>
-<a href="#19" id="19">19</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{html, Dom, DomBuilder};
-<span class="kw">use </span>web_sys::HtmlElement;
+</pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{html, Dom};
 
-<span class="attr">#[macro_export]
-</span><span class="macro">macro_rules! </span>container {
-    (<span class="macro-nonterminal">$mixin</span>: expr) =&gt; {{
-        <span class="macro-nonterminal">$crate::components::layouts::container::container</span>(<span class="macro-nonterminal">$mixin</span>)
-    }};
+<span class="attr">#[component(render_fn = container)]
+</span><span class="kw">pub struct </span>Container {
+    <span class="attr">#[signal_vec]
+    #[default(<span class="macro">vec!</span>[]</span>)]
+    children: Dom,
 }
 
-<span class="kw">pub fn </span>container&lt;F&gt;(mixin: F) -&gt; Dom
-<span class="kw">where
-    </span>F: FnOnce(DomBuilder&lt;HtmlElement&gt;) -&gt; DomBuilder&lt;HtmlElement&gt;,
-{
+<span class="kw">pub fn </span>container(props: <span class="kw">impl </span>ContainerPropsTrait + <span class="lifetime">&#39;static</span>) -&gt; Dom {
+    <span class="kw">let </span>ContainerProps { children, apply } = props.take();
+
     <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
         .class(<span class="string">&quot;dmat-container&quot;</span>)
-        .apply(mixin)
+        .apply_if(apply.is_some(), |dom| dom.apply(apply.unwrap()))
+        .children_signal_vec(children)
     })
 }
 </code></pre></div></section></main></body></html>

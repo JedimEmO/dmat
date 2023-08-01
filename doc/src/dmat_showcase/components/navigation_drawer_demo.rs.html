@@ -181,7 +181,7 @@
 <span class="kw">use </span>futures_signals::signal_vec::{MutableVec, SignalVecExt};
 <span class="kw">use </span>lipsum::lipsum;
 
-<span class="kw">use </span>dmat_components::components::layouts::ContentBlockProps;
+<span class="kw">use </span>dmat_components::components::layouts::<span class="kw-2">*</span>;
 <span class="kw">use </span>dmat_components::components::<span class="kw-2">*</span>;
 <span class="kw">use </span>dmat_components::utils::signals::mutation::store_signal_value_opt_mixin;
 
@@ -191,7 +191,7 @@
 </span><span class="kw">pub fn </span>navigation_drawers_demo() -&gt; Dom {
     <span class="macro">list!</span>({
         .rows([
-        <span class="macro">container!</span>(|d| d.children(<span class="kw-2">&amp;mut </span>[
+        <span class="macro">container!</span>({.children([
             <span class="macro">card!</span>({
                 .child(<span class="macro">content_block!</span>(ContentBlockProps {
                     title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>(TitleProps {
@@ -228,8 +228,8 @@
                 </span>}))
                 .apply(|d| d.class(<span class="string">&quot;drawer-demo-card&quot;</span>).style(<span class="string">&quot;height&quot;</span>, <span class="string">&quot;350px&quot;</span>))
             }),
-        ])),
-        <span class="macro">container!</span>(|d| d.children(<span class="kw-2">&amp;mut </span>[
+        ])}),
+        <span class="macro">container!</span>({.children([
             <span class="macro">card!</span>({
                 .child(<span class="macro">content_block!</span>(ContentBlockProps {
                     title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>(TitleProps {
@@ -273,7 +273,7 @@
                 </span>}))
                 .apply(|d| d.class(<span class="string">&quot;drawer-demo-card&quot;</span>).style(<span class="string">&quot;height&quot;</span>, <span class="string">&quot;350px&quot;</span>))
             })
-        ]))
+        ])})
     ])
     })
 }

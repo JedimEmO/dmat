@@ -65,7 +65,7 @@
 <a href="#65" id="65">65</a>
 <a href="#66" id="66">66</a>
 <a href="#67" id="67">67</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>dmat_components::components::layouts::ContentBlockProps;
+</pre></div><pre class="rust"><code><span class="kw">use </span>dmat_components::components::layouts::<span class="kw-2">*</span>;
 <span class="kw">use </span>dmat_components::components::<span class="kw-2">*</span>;
 <span class="kw">use </span>dominator::{html, Dom};
 <span class="kw">use </span>futures_signals::signal::always;
@@ -130,6 +130,6 @@
         }),
     ];
 
-    <span class="macro">container!</span>(|d| d.children(cards))
+    <span class="macro">container!</span>({.children(cards)})
 }
 </code></pre></div></section></main></body></html>

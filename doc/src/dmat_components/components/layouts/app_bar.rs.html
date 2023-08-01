@@ -56,282 +56,62 @@
 <a href="#56" id="56">56</a>
 <a href="#57" id="57">57</a>
 <a href="#58" id="58">58</a>
-<a href="#59" id="59">59</a>
-<a href="#60" id="60">60</a>
-<a href="#61" id="61">61</a>
-<a href="#62" id="62">62</a>
-<a href="#63" id="63">63</a>
-<a href="#64" id="64">64</a>
-<a href="#65" id="65">65</a>
-<a href="#66" id="66">66</a>
-<a href="#67" id="67">67</a>
-<a href="#68" id="68">68</a>
-<a href="#69" id="69">69</a>
-<a href="#70" id="70">70</a>
-<a href="#71" id="71">71</a>
-<a href="#72" id="72">72</a>
-<a href="#73" id="73">73</a>
-<a href="#74" id="74">74</a>
-<a href="#75" id="75">75</a>
-<a href="#76" id="76">76</a>
-<a href="#77" id="77">77</a>
-<a href="#78" id="78">78</a>
-<a href="#79" id="79">79</a>
-<a href="#80" id="80">80</a>
-<a href="#81" id="81">81</a>
-<a href="#82" id="82">82</a>
-<a href="#83" id="83">83</a>
-<a href="#84" id="84">84</a>
-<a href="#85" id="85">85</a>
-<a href="#86" id="86">86</a>
-<a href="#87" id="87">87</a>
-<a href="#88" id="88">88</a>
-<a href="#89" id="89">89</a>
-<a href="#90" id="90">90</a>
-<a href="#91" id="91">91</a>
-<a href="#92" id="92">92</a>
-<a href="#93" id="93">93</a>
-<a href="#94" id="94">94</a>
-<a href="#95" id="95">95</a>
-<a href="#96" id="96">96</a>
-<a href="#97" id="97">97</a>
-<a href="#98" id="98">98</a>
-<a href="#99" id="99">99</a>
-<a href="#100" id="100">100</a>
-<a href="#101" id="101">101</a>
-<a href="#102" id="102">102</a>
-<a href="#103" id="103">103</a>
-<a href="#104" id="104">104</a>
-<a href="#105" id="105">105</a>
-<a href="#106" id="106">106</a>
-<a href="#107" id="107">107</a>
-<a href="#108" id="108">108</a>
-<a href="#109" id="109">109</a>
-<a href="#110" id="110">110</a>
-<a href="#111" id="111">111</a>
-<a href="#112" id="112">112</a>
-<a href="#113" id="113">113</a>
-<a href="#114" id="114">114</a>
-<a href="#115" id="115">115</a>
-<a href="#116" id="116">116</a>
-<a href="#117" id="117">117</a>
-<a href="#118" id="118">118</a>
-<a href="#119" id="119">119</a>
-<a href="#120" id="120">120</a>
-<a href="#121" id="121">121</a>
-<a href="#122" id="122">122</a>
-<a href="#123" id="123">123</a>
-<a href="#124" id="124">124</a>
-<a href="#125" id="125">125</a>
-<a href="#126" id="126">126</a>
-<a href="#127" id="127">127</a>
-<a href="#128" id="128">128</a>
-<a href="#129" id="129">129</a>
-<a href="#130" id="130">130</a>
-<a href="#131" id="131">131</a>
-<a href="#132" id="132">132</a>
-<a href="#133" id="133">133</a>
-<a href="#134" id="134">134</a>
-<a href="#135" id="135">135</a>
-<a href="#136" id="136">136</a>
-<a href="#137" id="137">137</a>
-<a href="#138" id="138">138</a>
-<a href="#139" id="139">139</a>
-<a href="#140" id="140">140</a>
-<a href="#141" id="141">141</a>
-<a href="#142" id="142">142</a>
-<a href="#143" id="143">143</a>
-<a href="#144" id="144">144</a>
-<a href="#145" id="145">145</a>
-<a href="#146" id="146">146</a>
-<a href="#147" id="147">147</a>
-<a href="#148" id="148">148</a>
-<a href="#149" id="149">149</a>
-<a href="#150" id="150">150</a>
-<a href="#151" id="151">151</a>
-<a href="#152" id="152">152</a>
-<a href="#153" id="153">153</a>
-<a href="#154" id="154">154</a>
-<a href="#155" id="155">155</a>
-<a href="#156" id="156">156</a>
-<a href="#157" id="157">157</a>
-<a href="#158" id="158">158</a>
-<a href="#159" id="159">159</a>
-<a href="#160" id="160">160</a>
-<a href="#161" id="161">161</a>
-<a href="#162" id="162">162</a>
-<a href="#163" id="163">163</a>
-<a href="#164" id="164">164</a>
-<a href="#165" id="165">165</a>
-<a href="#166" id="166">166</a>
-<a href="#167" id="167">167</a>
-<a href="#168" id="168">168</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{html, Dom, DomBuilder};
-<span class="kw">use </span>futures_signals::signal::{always, Always};
-<span class="kw">use </span>web_sys::HtmlElement;
+</pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{html, Dom};
+<span class="kw">use </span>futures_signals::signal::SignalExt;
 
-<span class="kw">use </span><span class="kw">crate</span>::utils::component_signal::{ComponentSignal, NoSignal};
-<span class="kw">use </span><span class="kw">crate</span>::utils::mixin::ApplyMixin;
+<span class="attr">#[component(render_fn = app_bar)]
+</span><span class="kw">pub struct </span>AppBar {
+    <span class="attr">#[signal]
+    #[default(<span class="prelude-val">None</span>)]
+    </span><span class="kw">pub </span>main: <span class="prelude-ty">Option</span>&lt;Dom&gt;,
+    <span class="attr">#[signal]
+    #[default(<span class="prelude-val">None</span>)]
+    </span><span class="kw">pub </span>header: <span class="prelude-ty">Option</span>&lt;Dom&gt;,
+    <span class="attr">#[signal]
+    #[default(AppBarType::Normal)]
+    </span><span class="kw">pub </span>app_bar_type: AppBarType,
+    <span class="attr">#[signal]
+    #[default(<span class="bool-val">false</span>)]
+    </span><span class="kw">pub </span>fixed: bool,
+}
 
 <span class="attr">#[inline]
-</span><span class="kw">pub fn </span>app_bar&lt;TMainSignal: ComponentSignal, THeaderSignal: ComponentSignal&gt;(
-    props: AppBarProps&lt;TMainSignal, THeaderSignal&gt;,
-) -&gt; Dom {
-    <span class="kw">let </span>type_class = <span class="kw">match </span>props.app_bar_type {
-        AppBarType::Normal =&gt; <span class="string">&quot;-normal&quot;</span>,
-        AppBarType::Prominent =&gt; <span class="string">&quot;-prominent&quot;</span>,
-    };
+</span><span class="kw">pub fn </span>app_bar(props: <span class="kw">impl </span>AppBarPropsTrait + <span class="lifetime">&#39;static</span>) -&gt; Dom {
+    <span class="kw">let </span>AppBarProps {
+        main,
+        header,
+        app_bar_type,
+        fixed,
+        apply,
+    } = props.take();
 
-    <span class="kw">let </span>main_view = props.main_view;
-    <span class="kw">let </span>header_view = props.header_view;
-    <span class="kw">let </span>mixin = props.apply;
+    <span class="kw">let </span>type_bc = app_bar_type.broadcast();
 
     <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
         .class(<span class="string">&quot;dmat-app-bar&quot;</span>)
-        .apply_if(mixin.is_some(), |dom| dom.apply(mixin.unwrap()))
-        .apply_if(props.fixed, |dom| dom.class(<span class="string">&quot;-fixed&quot;</span>))
-        .children(<span class="kw-2">&amp;mut </span>[
-            <span class="macro">html!</span>(<span class="string">&quot;header&quot;</span>, {
-                .apply_if(header_view.is_some(), <span class="kw">move </span>|header| {
-                     header.class(<span class="string">&quot;header&quot;</span>)
-                    .child_signal(header_view.unwrap())
-                })
-            }),
-            <span class="macro">html!</span>(<span class="string">&quot;main&quot;</span>, {
-                .apply_if(main_view.is_some(), <span class="kw">move </span>|main| {
-                    main.class(<span class="string">&quot;main&quot;</span>)
-                    .class(type_class)
-                    .child_signal(main_view.unwrap())
-                })
-            })
-        ])
+        .apply_if(apply.is_some(), |dom| dom.apply(apply.unwrap()))
+        .class_signal(<span class="string">&quot;-fixed&quot;</span>, fixed)
+        .child_signal(header.map(|header_view| {
+            <span class="prelude-val">Some</span>(<span class="macro">html!</span>(<span class="string">&quot;header&quot;</span>, {
+                .class(<span class="string">&quot;header&quot;</span>)
+                .apply_if(header_view.is_some(), |d| d.child(header_view.unwrap()))
+            }))
+        }))
+        .child_signal(main.map(<span class="kw">move </span>|main_view| {
+            <span class="prelude-val">Some</span>(<span class="macro">html!</span>(<span class="string">&quot;main&quot;</span>, {
+                .class(<span class="string">&quot;main&quot;</span>)
+                .class_signal(<span class="string">&quot;-normal&quot;</span>, type_bc.signal_cloned().map(|t| t == AppBarType::Normal))
+                .class_signal(<span class="string">&quot;-prominent&quot;</span>, type_bc.signal_cloned().map(|t| t == AppBarType::Prominent))
+                .apply_if(main_view.is_some(), |d| d.child(main_view.unwrap()))
+            }))
+        }))
     })
 }
 
-<span class="attr">#[macro_export]
-</span><span class="macro">macro_rules! </span>app_bar {
-    ($(<span class="macro-nonterminal">$methods</span>:tt)<span class="kw-2">*</span>) =&gt; {{
-        <span class="kw">let </span>default_props =<span class="macro-nonterminal">$crate::components::layouts::app_bar::AppBarProps::new</span>();
-        <span class="kw">let </span>applied_props = <span class="macro">dominator::apply_methods!</span>(default_props, $(<span class="macro-nonterminal">$methods</span>)<span class="kw-2">*</span>);
-        <span class="macro-nonterminal">$crate::components::layouts::app_bar::app_bar</span>(applied_props)
-    }};
-}
-
-<span class="attr">#[derive(Clone, Default)]
+<span class="attr">#[derive(Clone, Default, PartialEq)]
 </span><span class="kw">pub enum </span>AppBarType {
     <span class="attr">#[default]
     </span>Normal,
     Prominent,
-}
-
-<span class="kw">pub struct </span>AppBarProps&lt;
-    TMainSignal: ComponentSignal = NoSignal,
-    THeaderSignal: ComponentSignal = NoSignal,
-&gt; {
-    <span class="kw">pub </span>main_view: <span class="prelude-ty">Option</span>&lt;TMainSignal&gt;,
-    <span class="kw">pub </span>header_view: <span class="prelude-ty">Option</span>&lt;THeaderSignal&gt;,
-    <span class="kw">pub </span>app_bar_type: AppBarType,
-    <span class="kw">pub </span>fixed: bool,
-    <span class="kw">pub </span>apply: ApplyMixin,
-}
-
-<span class="kw">impl </span>Default <span class="kw">for </span>AppBarProps {
-    <span class="kw">fn </span>default() -&gt; <span class="self">Self </span>{
-        <span class="self">Self</span>::new()
-    }
-}
-
-<span class="kw">impl </span>AppBarProps {
-    <span class="kw">pub fn </span>new() -&gt; AppBarProps {
-        <span class="self">Self </span>{
-            main_view: <span class="prelude-val">None</span>,
-            header_view: <span class="prelude-val">None</span>,
-            app_bar_type: AppBarType::Normal,
-            fixed: <span class="bool-val">false</span>,
-            apply: <span class="prelude-val">None</span>,
-        }
-    }
-}
-
-<span class="kw">impl</span>&lt;TMainSignal: ComponentSignal, THeaderSignal: ComponentSignal&gt;
-    AppBarProps&lt;TMainSignal, THeaderSignal&gt;
-{
-    <span class="attr">#[inline]
-    #[must_use]
-    </span><span class="kw">pub fn </span>bar_type(<span class="kw-2">mut </span><span class="self">self</span>, bar_type: AppBarType) -&gt; <span class="self">Self </span>{
-        <span class="self">self</span>.app_bar_type = bar_type;
-        <span class="self">self
-    </span>}
-
-    <span class="attr">#[inline]
-    #[must_use]
-    </span><span class="kw">pub fn </span>fixed(<span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="self">Self </span>{
-        <span class="self">self</span>.fixed = <span class="bool-val">true</span>;
-        <span class="self">self
-    </span>}
-
-    <span class="attr">#[inline]
-    #[must_use]
-    </span><span class="kw">pub fn </span>header(
-        <span class="self">self</span>,
-        child: <span class="kw">impl </span>Into&lt;<span class="prelude-ty">Option</span>&lt;Dom&gt;&gt;,
-    ) -&gt; AppBarProps&lt;TMainSignal, Always&lt;<span class="prelude-ty">Option</span>&lt;Dom&gt;&gt;&gt; {
-        AppBarProps {
-            main_view: <span class="self">self</span>.main_view,
-            header_view: <span class="prelude-val">Some</span>(always(child.into())),
-            app_bar_type: <span class="self">self</span>.app_bar_type,
-            fixed: <span class="self">self</span>.fixed,
-            apply: <span class="self">self</span>.apply,
-        }
-    }
-
-    <span class="attr">#[inline]
-    #[must_use]
-    </span><span class="kw">pub fn </span>header_signal&lt;T: ComponentSignal&gt;(<span class="self">self</span>, child: T) -&gt; AppBarProps&lt;TMainSignal, T&gt; {
-        AppBarProps {
-            main_view: <span class="self">self</span>.main_view,
-            header_view: <span class="prelude-val">Some</span>(child),
-            app_bar_type: <span class="self">self</span>.app_bar_type,
-            fixed: <span class="self">self</span>.fixed,
-            apply: <span class="self">self</span>.apply,
-        }
-    }
-
-    <span class="attr">#[inline]
-    #[must_use]
-    </span><span class="kw">pub fn </span>main(
-        <span class="self">self</span>,
-        child: <span class="kw">impl </span>Into&lt;<span class="prelude-ty">Option</span>&lt;Dom&gt;&gt;,
-    ) -&gt; AppBarProps&lt;Always&lt;<span class="prelude-ty">Option</span>&lt;Dom&gt;&gt;, THeaderSignal&gt; {
-        AppBarProps {
-            main_view: <span class="prelude-val">Some</span>(always(child.into())),
-            header_view: <span class="self">self</span>.header_view,
-            app_bar_type: <span class="self">self</span>.app_bar_type,
-            fixed: <span class="self">self</span>.fixed,
-            apply: <span class="self">self</span>.apply,
-        }
-    }
-
-    <span class="attr">#[inline]
-    #[must_use]
-    </span><span class="kw">pub fn </span>main_signal&lt;T: ComponentSignal&gt;(<span class="self">self</span>, child: T) -&gt; AppBarProps&lt;T, THeaderSignal&gt; {
-        AppBarProps {
-            main_view: <span class="prelude-val">Some</span>(child),
-            header_view: <span class="self">self</span>.header_view,
-            app_bar_type: <span class="self">self</span>.app_bar_type,
-            fixed: <span class="self">self</span>.fixed,
-            apply: <span class="self">self</span>.apply,
-        }
-    }
-
-    <span class="attr">#[inline]
-    #[must_use]
-    </span><span class="kw">pub fn </span>apply(
-        <span class="kw-2">mut </span><span class="self">self</span>,
-        apply: <span class="kw">impl </span>FnOnce(DomBuilder&lt;HtmlElement&gt;) -&gt; DomBuilder&lt;HtmlElement&gt; + <span class="lifetime">&#39;static</span>,
-    ) -&gt; <span class="self">Self </span>{
-        <span class="self">self</span>.apply = <span class="prelude-val">Some</span>(Box::new(apply));
-        <span class="self">self
-    </span>}
 }
 </code></pre></div></section></main></body></html>

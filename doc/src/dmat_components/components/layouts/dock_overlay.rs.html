@@ -158,7 +158,7 @@
 /// })
 /// ```
 </span><span class="attr">#[component(render_fn = dock_overlay)]
-</span><span class="kw">struct </span>DockOverlay&lt;TOnScrimClick: Fn(events::Click) -&gt; () = <span class="kw">fn</span>(events::Click) -&gt; ()&gt; {
+</span><span class="kw">struct </span>DockOverlay&lt;TOnScrimClick: Fn(events::Click) = <span class="kw">fn</span>(events::Click) -&gt; ()&gt; {
     <span class="attr">#[signal]
     #[default(<span class="prelude-val">None</span>)]
     </span><span class="kw">pub </span>underlying_view: <span class="prelude-ty">Option</span>&lt;Dom&gt;,

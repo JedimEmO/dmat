@@ -1,0 +1,3 @@
+(function() {var implementors = {
+"farmers_market_api":[["impl <a class=\"trait\" href=\"https://docs.rs/serde/1.0.180/serde/ser/trait.Serialize.html\" title=\"trait serde::ser::Serialize\">Serialize</a> for <a class=\"struct\" href=\"farmers_market_api/struct.Product.html\" title=\"struct farmers_market_api::Product\">Product</a>"]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

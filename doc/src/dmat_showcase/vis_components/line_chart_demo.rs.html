@@ -184,7 +184,7 @@
 <a href="#184" id="184">184</a>
 <a href="#185" id="185">185</a>
 <a href="#186" id="186">186</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>dmat_components::components::layouts::ContentBlockProps;
+</pre></div><pre class="rust"><code><span class="kw">use </span>dmat_components::components::layouts::<span class="kw-2">*</span>;
 <span class="kw">use </span>dmat_components::components::<span class="kw-2">*</span>;
 <span class="kw">use </span>dmat_vis::contexts::charts::axis::{AxisDescription, TickInfo};
 <span class="kw">use </span>dmat_vis::contexts::charts::line_chart::{
@@ -201,7 +201,7 @@
 <span class="kw">use </span>web_sys::SvgElement;
 
 <span class="kw">pub fn </span>line_chart_demo() -&gt; Dom {
-    <span class="macro">container!</span>(|b| { b.children([dynamic_chart(), static_centered_axis_chart()]) })
+    <span class="macro">container!</span>({ .children([dynamic_chart(), static_centered_axis_chart()]) })
 }
 
 <span class="kw">fn </span>static_centered_axis_chart() -&gt; Dom {

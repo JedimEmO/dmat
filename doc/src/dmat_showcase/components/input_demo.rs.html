@@ -192,12 +192,14 @@
 <a href="#192" id="192">192</a>
 <a href="#193" id="193">193</a>
 <a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{clone, html, Dom};
 <span class="kw">use </span>futures_signals::map_ref;
 <span class="kw">use </span>futures_signals::signal::always;
 <span class="kw">use </span>futures_signals::signal::Mutable;
 
 <span class="kw">use </span>dmat_components::components::input::combo_box::<span class="kw-2">*</span>;
+<span class="kw">use </span>dmat_components::components::layouts::<span class="kw-2">*</span>;
 
 <span class="kw">use </span>dmat_components::components::input::select::<span class="kw-2">*</span>;
 <span class="kw">use </span>dmat_components::components::input::switch::<span class="kw-2">*</span>;
@@ -208,8 +210,8 @@
 
 <span class="kw">pub fn </span>input_demo() -&gt; Dom {
     <span class="kw">let </span>value = Mutable::new(<span class="string">&quot;&quot;</span>.to_string());
-    <span class="macro">container!</span>(|d| {
-        d.children(<span class="kw-2">&amp;mut </span>[
+    <span class="macro">container!</span>({
+        .children([
             text_input_demo(<span class="kw-2">&amp;</span>value),
             combo_box_demo(<span class="kw-2">&amp;</span>value),
             switch_demo(),

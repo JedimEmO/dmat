@@ -86,7 +86,7 @@
 <a href="#86" id="86">86</a>
 <a href="#87" id="87">87</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::components::scrim::<span class="kw-2">*</span>;
-<span class="kw">use </span>dominator::{ events, html, Dom};
+<span class="kw">use </span>dominator::{events, html, Dom};
 <span class="kw">use </span>futures_signals::map_ref;
 <span class="kw">use </span>futures_signals::signal::SignalExt;
 <span class="kw">use </span>wasm_bindgen::UnwrapThrowExt;
@@ -97,7 +97,7 @@
 /// &lt;https://material.io/components/sheets-side&gt;
 /// &lt;https://material.io/components/sheets-bottom&gt;
 </span><span class="attr">#[component(render_fn = render_sheet)]
-</span><span class="kw">pub struct </span>Sheet&lt;TOnScrimClick: Fn(events::Click) -&gt; () = <span class="kw">fn</span>(events::Click) -&gt; ()&gt; {
+</span><span class="kw">pub struct </span>Sheet&lt;TOnScrimClick: Fn(events::Click) = <span class="kw">fn</span>(events::Click) -&gt; ()&gt; {
     <span class="attr">#[signal]
     #[default(SheetSide::Left)]
     </span>side: SheetSide,
