@@ -1,6 +1,6 @@
 use dominator::{clone, html, Dom};
 use futures_signals::signal::from_stream;
-use futures_signals::signal::{always, Mutable};
+use futures_signals::signal::Mutable;
 use futures_signals::signal_vec::{MutableVec, SignalVecExt};
 use lipsum::lipsum;
 
@@ -17,9 +17,8 @@ pub fn navigation_drawers_demo() -> Dom {
         container!({.children([
             card!({
                 .child(content_block!(ContentBlockProps {
-                    title_section: Some(title!(TitleProps {
-                        header_text_signal: always("Retracting modal drawer".to_string()),
-                        sub_header_text_signal: always(None)
+                    title_section: Some(title!({
+                        .header_text("Retracting modal drawer".to_string())
                     })),
                     media_section: Some(list!({
                             .rows([html!("div", {
@@ -34,9 +33,8 @@ pub fn navigation_drawers_demo() -> Dom {
             }),
             card!({
                 .child( content_block!(ContentBlockProps {
-                    title_section: Some(title!(TitleProps {
-                        header_text_signal: always("Retracting non-modal drawer".to_string()),
-                        sub_header_text_signal: always(None)
+                    title_section: Some(title!({
+                        .header_text("Retracting non-modal drawer".to_string())
                     })),
                     media_section: Some(list!({
                         .rows([
@@ -55,9 +53,8 @@ pub fn navigation_drawers_demo() -> Dom {
         container!({.children([
             card!({
                 .child(content_block!(ContentBlockProps {
-                    title_section: Some(title!(TitleProps {
-                        header_text_signal: always("Modal toggled".to_string()),
-                        sub_header_text_signal: always(None)
+                    title_section: Some(title!({
+                        .header_text("Modal toggled".to_string())
                     })),
                     media_section: Some(list!({
                             .rows([
@@ -76,9 +73,8 @@ pub fn navigation_drawers_demo() -> Dom {
             }),
             card!({
                 .child(content_block!(ContentBlockProps {
-                    title_section: Some(title!(TitleProps {
-                        header_text_signal: always("Toggled non-modal".to_string()),
-                        sub_header_text_signal: always(None)
+                    title_section: Some(title!({
+                        .header_text("Toggled non-modal".to_string())
                     })),
                     media_section: Some(list!({
                             .rows([

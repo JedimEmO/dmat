@@ -1,7 +1,6 @@
 use dmat_components::components::layouts::*;
 use dmat_components::components::*;
 use dominator::{clone, events, html, Dom};
-use futures_signals::signal::always;
 use futures_signals::signal::Mutable;
 use lipsum::lipsum;
 
@@ -35,9 +34,9 @@ fn middle_center_dialog(show_overlay: Mutable<bool>) -> Dom {
     card!({
         .child(
             content_block!(ContentBlockProps {
-                title_section: Some(title!(TitleProps {
-                    header_text_signal: always("Card with content block".to_string()),
-                    sub_header_text_signal: always(Some("All sections".to_string())),
+                title_section: Some(title!({
+                    .header_text("Card with content block".to_string())
+                    .sub_header_text(Some("All sections".to_string()))
                 })),
                 media_section: Some(html!("img", {
                     .attr("src", "images/shapes.svg")

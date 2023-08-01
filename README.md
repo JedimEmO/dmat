@@ -77,4 +77,4 @@ npm start
 To run tests in chrome, you need
 * `chromedriver` installed
 
-now do `CHROMEDRIVER=/path/to/chromedriver cargo test --target wasm32-unknown-unknown`
+now do `CHROMEDRIVER=/path/to/chromedriver cargo test --target wasm32-unknown-unknown --exclude farmers-market-backend --workspace --exclude lightweight-dmat --exclude farmers-market-web`

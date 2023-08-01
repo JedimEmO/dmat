@@ -5,7 +5,7 @@ use futures_signals::signal::{Signal, SignalExt};
 use futures_signals::signal_vec::{SignalVec, SignalVecExt};
 use web_sys::HtmlElement;
 
-use crate::components::ProgressIndicatorIterations;
+use crate::components::*;
 
 /// Renders a simple table. Allows for a loading state to be displayed.
 #[component(render_fn = table)]
@@ -82,11 +82,14 @@ fn loading_row(
     dom_builder.apply_if(is_loading.is_some(), |dom| {
         dom.child_signal(is_loading.unwrap().map(|is_loading_now| {
             if is_loading_now {
-                Some( html!("tr", {
+                Some(html!("tr", {
                     .class("loading-row")
                     .child(html!("th", {
                         .attr("colspan", "10000")
-                        .child(crate::progress_indicator ! (Duration::from_millis(500), ProgressIndicatorIterations::Count(1)))
+                        .child(loading_bar(LoadingBarProps::new()
+                            .duration(Duration::from_millis(500))
+                            .iterations(ProgressIndicatorIterations::Count(1))
+                        ))
                     }))
                 }))
             } else {

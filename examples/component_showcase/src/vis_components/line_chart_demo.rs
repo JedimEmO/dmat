@@ -6,7 +6,6 @@ use dmat_vis::contexts::charts::line_chart::{
 };
 use dmat_vis::contexts::charts::point::Point;
 use dominator::{Dom, DomBuilder};
-use futures_signals::signal::always;
 use futures_signals::signal_vec::{MutableVec, SignalVecExt};
 use std::future::Future;
 use std::rc::Rc;
@@ -75,9 +74,9 @@ fn static_centered_axis_chart() -> Dom {
 
     card!({
         .child(content_block!(ContentBlockProps {
-        title_section: Some(title!(TitleProps {
-            header_text_signal: always("Static data line chart".to_string()),
-            sub_header_text_signal: always(Some("Axis center within view box".to_string()))
+        title_section: Some(title!({
+            .header_text("Static data line chart".to_string())
+            .sub_header_text(Some("Axis center within view box".to_string()))
         })),
         media_section: Some(line_chart!(props, datasets.signal_vec_cloned())),
         ..Default::default()
@@ -135,9 +134,8 @@ fn dynamic_chart() -> Dom {
 
     card!({
         .child(content_block!(ContentBlockProps {
-        title_section: Some(title!(TitleProps {
-            header_text_signal: always("Dynamic data line chart".to_string()),
-            sub_header_text_signal: always(None)
+        title_section: Some(title!({
+            .header_text("Dynamic data line chart".to_string())
         })),
         media_section: Some(line_chart(
             props,

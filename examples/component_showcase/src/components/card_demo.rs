@@ -1,16 +1,15 @@
 use dmat_components::components::layouts::*;
 use dmat_components::components::*;
 use dominator::{html, Dom};
-use futures_signals::signal::always;
 use lipsum::lipsum;
 
 pub fn card_demo() -> Dom {
     let cards = [
         card!({
             .child(content_block!(ContentBlockProps {
-                title_section: Some(title!(TitleProps {
-                    header_text_signal: always("Card with content block".to_string()),
-                    sub_header_text_signal: always(Some("All sections".to_string())),
+                title_section: Some(title!({
+                    .header_text("Card with content block".to_string())
+                    .sub_header_text(Some("All sections".to_string()))
                 })),
                 media_section: Some(html!("img", {
                     .attr("src", "images/shapes.svg")
@@ -29,9 +28,9 @@ pub fn card_demo() -> Dom {
         }),
         card!({
              .child(content_block!(ContentBlockProps {
-                title_section: Some(title!(TitleProps {
-                    header_text_signal: always("Card without block".to_string()),
-                    sub_header_text_signal: always(Some("A sub header".to_string())),
+                title_section: Some(title!({
+                    .header_text("Card without block".to_string())
+                    .sub_header_text(Some("A sub header".to_string()))
                 })),
                 media_section: None,
                 supporting_section: Some(text!(lipsum(30))),
@@ -50,9 +49,8 @@ pub fn card_demo() -> Dom {
                 })),
                 supporting_section: Some(list!({
                     .rows([
-                        title!(TitleProps {
-                            header_text_signal: always("Title within supporting".to_string()),
-                            sub_header_text_signal: always(None),
+                        title!( {
+                            .header_text("Title within supporting".to_string())
                         }),
                         text!(lipsum(30))
                     ])

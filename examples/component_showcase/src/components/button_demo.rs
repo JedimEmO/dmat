@@ -1,6 +1,5 @@
 use dominator::{clone, Dom};
 use futures_signals::map_ref;
-use futures_signals::signal::always;
 use futures_signals::signal::Mutable;
 
 use dmat_components::components::layouts::*;
@@ -14,9 +13,9 @@ pub fn button_demo() -> Dom {
                 card!({
                 .child(content_block!(
                     ContentBlockProps {
-                        title_section: Some(title!(TitleProps {
-                            header_text_signal: always("ButtonType::Contained".to_string()),
-                            sub_header_text_signal: always(None)
+                        title_section: Some(title!({
+                            .header_text("ButtonType::Contained".to_string())
+                            .sub_header_text(None)
                         })),
                         media_section: Some(list!({
                             .rows([
@@ -41,9 +40,8 @@ pub fn button_demo() -> Dom {
 
             card!({.child(content_block!(
                     ContentBlockProps {
-                        title_section: Some(title!(TitleProps {
-                            header_text_signal: always("ButtonType::Elevated".to_string()),
-                            sub_header_text_signal: always(None)
+                        title_section: Some(title!( {
+                            .header_text("ButtonType::Elevated".to_string())
                         })),
                         media_section: Some(list!({
                                 .rows([
@@ -69,9 +67,8 @@ pub fn button_demo() -> Dom {
                     }))}),
                 card!({.child(content_block!(
                     ContentBlockProps {
-                        title_section: Some(title!(TitleProps {
-                            header_text_signal: always("ButtonType::Text".to_string()),
-                            sub_header_text_signal: always(None)
+                        title_section: Some(title!( {
+                            .header_text("ButtonType::Text".to_string())
                         })),
                         media_section: Some(list!({
                             .rows([
@@ -97,9 +94,8 @@ pub fn button_demo() -> Dom {
                     }))}),
                 card!({.child(content_block!(
                     ContentBlockProps {
-                        title_section: Some(title!(TitleProps {
-                            header_text_signal: always("ButtonType::Outlined".to_string()),
-                            sub_header_text_signal: always(None)
+                        title_section: Some(title!({
+                            .header_text("ButtonType::Outlined".to_string())
                         })),
                         media_section: Some(list!({
                             .rows([
@@ -125,11 +121,11 @@ pub fn button_demo() -> Dom {
                     }))}),
                 card!({.child(content_block!(
                     ContentBlockProps {
-                        title_section: Some(title!(TitleProps {
-                            header_text_signal: always("Button with dynamic content".to_string()),
-                            sub_header_text_signal: map_ref! {
+                        title_section: Some(title!({
+                            .header_text("Button with dynamic content".to_string())
+                            .sub_header_text_signal(map_ref! {
                                 let value = counter.signal() => Some(format!("Button with dynamic content -  value is {}", value))
-                            }
+                            })
                         })),
                         media_section: Some(list!({
                              .rows([

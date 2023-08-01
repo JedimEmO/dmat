@@ -1,39 +1,27 @@
-use dominator::{html, Dom, DomBuilder};
+use dominator::{html, Dom};
 use futures_signals::map_ref;
-use futures_signals::signal::{Signal, SignalExt};
-use web_sys::HtmlElement;
+use futures_signals::signal::SignalExt;
 
-#[macro_export]
-macro_rules! title {
-    ($props: expr) => {{
-        $crate::components::title::title($props, |d| d)
-    }};
-
-    ($props: expr, $mixin: expr) => {{
-        $crate::components::title::title($props, $mixin)
-    }};
+#[component(render_fn = title)]
+pub struct Title {
+    #[signal]
+    #[default(String::new())]
+    pub header_text: String,
+    #[signal]
+    #[default(None)]
+    pub sub_header_text: Option<String>,
 }
 
-pub struct TitleProps<
-    THeaderTextSignal: Signal<Item = String>,
-    TSubHeaderTextSignal: Signal<Item = Option<String>>,
-> {
-    pub header_text_signal: THeaderTextSignal,
-    pub sub_header_text_signal: TSubHeaderTextSignal,
-}
+pub fn title(props: impl TitlePropsTrait + 'static) -> Dom {
+    let TitleProps {
+        header_text,
+        sub_header_text,
+        apply,
+    } = props.take();
 
-pub fn title<THeaderTextSignal, TSubHeaderTextSignal, F>(
-    props: TitleProps<THeaderTextSignal, TSubHeaderTextSignal>,
-    mixin: F,
-) -> Dom
-where
-    F: FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>,
-    THeaderTextSignal: Signal<Item = String> + 'static,
-    TSubHeaderTextSignal: Signal<Item = Option<String>> + 'static,
-{
     let children = map_ref! {
-        let header = props.header_text_signal,
-        let sub_header = props.sub_header_text_signal => move {
+        let header = header_text,
+        let sub_header = sub_header_text => move {
             vec![
                 Some(html!("div", {
                     .class("title")
@@ -50,7 +38,7 @@ where
 
     html!("div",{
         .class("dmat-title")
-        .apply(mixin)
+        .apply_if(apply.is_some(), |d| d.apply(apply.unwrap()))
         .children_signal_vec(children)
     })
 }

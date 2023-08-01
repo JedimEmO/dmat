@@ -1,5 +1,4 @@
 use dominator::{clone, html, Dom};
-use futures_signals::signal::always;
 use futures_signals::signal::Mutable;
 use futures_signals::signal_vec::{MutableVec, SignalVecExt};
 
@@ -58,9 +57,8 @@ pub fn table_demo() -> Dom {
 
     container!({.apply(|d| d.child(content_block!(
         ContentBlockProps {
-            title_section: Some(title!(TitleProps {
-                header_text_signal: always("Simple table".to_string()),
-                sub_header_text_signal: always(None)
+            title_section: Some(title!({
+                .header_text("Simple table".to_string())
             })),
             media_section: Some(list!({
                 .rows(vec![

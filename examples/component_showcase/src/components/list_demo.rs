@@ -1,6 +1,5 @@
 use dominator::{clone, html, Dom};
 use futures_signals::map_ref;
-use futures_signals::signal::always;
 use futures_signals::signal::from_stream;
 use futures_signals::signal::{Mutable, SignalExt};
 use futures_signals::signal_vec::{MutableVec, SignalVecExt};
@@ -55,9 +54,8 @@ fn interactive_list_demo() -> Dom {
 
     card!({
         .child(content_block!(ContentBlockProps {
-            title_section: Some(title!(TitleProps {
-                header_text_signal: always("Interactive list with selectable items".to_string()),
-                sub_header_text_signal: always(None)
+            title_section: Some(title!( {
+                .header_text("Interactive list with selectable items".to_string())
             })),
             media_section: Some(container!({
                 .children([
@@ -91,9 +89,8 @@ fn dynamic_list_demo() -> Dom {
 
     card!({
         .child(content_block!(ContentBlockProps {
-            title_section: Some(title!(TitleProps {
-                header_text_signal: always("Dynamic list holding dom elements".to_string()),
-                sub_header_text_signal: always(None)
+            title_section: Some(title!({
+                .header_text("Dynamic list holding dom elements".to_string())
             })),
             media_section: Some(list!({
                 .rows([
