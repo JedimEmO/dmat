@@ -182,8 +182,6 @@
 <a href="#182" id="182">182</a>
 <a href="#183" id="183">183</a>
 <a href="#184" id="184">184</a>
-<a href="#185" id="185">185</a>
-<a href="#186" id="186">186</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>dmat_components::components::layouts::<span class="kw-2">*</span>;
 <span class="kw">use </span>dmat_components::components::<span class="kw-2">*</span>;
 <span class="kw">use </span>dmat_vis::contexts::charts::axis::{AxisDescription, TickInfo};
@@ -192,7 +190,6 @@
 };
 <span class="kw">use </span>dmat_vis::contexts::charts::point::Point;
 <span class="kw">use </span>dominator::{Dom, DomBuilder};
-<span class="kw">use </span>futures_signals::signal::always;
 <span class="kw">use </span>futures_signals::signal_vec::{MutableVec, SignalVecExt};
 <span class="kw">use </span>std::future::Future;
 <span class="kw">use </span>std::rc::Rc;
@@ -261,9 +258,9 @@
 
     <span class="macro">card!</span>({
         .child(<span class="macro">content_block!</span>(ContentBlockProps {
-        title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>(TitleProps {
-            header_text_signal: always(<span class="string">&quot;Static data line chart&quot;</span>.to_string()),
-            sub_header_text_signal: always(<span class="prelude-val">Some</span>(<span class="string">&quot;Axis center within view box&quot;</span>.to_string()))
+        title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>({
+            .header_text(<span class="string">&quot;Static data line chart&quot;</span>.to_string())
+            .sub_header_text(<span class="prelude-val">Some</span>(<span class="string">&quot;Axis center within view box&quot;</span>.to_string()))
         })),
         media_section: <span class="prelude-val">Some</span>(<span class="macro">line_chart!</span>(props, datasets.signal_vec_cloned())),
         ..Default::default()
@@ -321,9 +318,8 @@
 
     <span class="macro">card!</span>({
         .child(<span class="macro">content_block!</span>(ContentBlockProps {
-        title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>(TitleProps {
-            header_text_signal: always(<span class="string">&quot;Dynamic data line chart&quot;</span>.to_string()),
-            sub_header_text_signal: always(<span class="prelude-val">None</span>)
+        title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>({
+            .header_text(<span class="string">&quot;Dynamic data line chart&quot;</span>.to_string())
         })),
         media_section: <span class="prelude-val">Some</span>(line_chart(
             props,

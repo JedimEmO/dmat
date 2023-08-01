@@ -146,13 +146,8 @@
 <a href="#146" id="146">146</a>
 <a href="#147" id="147">147</a>
 <a href="#148" id="148">148</a>
-<a href="#149" id="149">149</a>
-<a href="#150" id="150">150</a>
-<a href="#151" id="151">151</a>
-<a href="#152" id="152">152</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{clone, Dom};
 <span class="kw">use </span>futures_signals::map_ref;
-<span class="kw">use </span>futures_signals::signal::always;
 <span class="kw">use </span>futures_signals::signal::Mutable;
 
 <span class="kw">use </span>dmat_components::components::layouts::<span class="kw-2">*</span>;
@@ -166,9 +161,9 @@
                 <span class="macro">card!</span>({
                 .child(<span class="macro">content_block!</span>(
                     ContentBlockProps {
-                        title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>(TitleProps {
-                            header_text_signal: always(<span class="string">&quot;ButtonType::Contained&quot;</span>.to_string()),
-                            sub_header_text_signal: always(<span class="prelude-val">None</span>)
+                        title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>({
+                            .header_text(<span class="string">&quot;ButtonType::Contained&quot;</span>.to_string())
+                            .sub_header_text(<span class="prelude-val">None</span>)
                         })),
                         media_section: <span class="prelude-val">Some</span>(<span class="macro">list!</span>({
                             .rows([
@@ -193,9 +188,8 @@
 
             <span class="macro">card!</span>({.child(<span class="macro">content_block!</span>(
                     ContentBlockProps {
-                        title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>(TitleProps {
-                            header_text_signal: always(<span class="string">&quot;ButtonType::Elevated&quot;</span>.to_string()),
-                            sub_header_text_signal: always(<span class="prelude-val">None</span>)
+                        title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>( {
+                            .header_text(<span class="string">&quot;ButtonType::Elevated&quot;</span>.to_string())
                         })),
                         media_section: <span class="prelude-val">Some</span>(<span class="macro">list!</span>({
                                 .rows([
@@ -221,9 +215,8 @@
                     </span>}))}),
                 <span class="macro">card!</span>({.child(<span class="macro">content_block!</span>(
                     ContentBlockProps {
-                        title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>(TitleProps {
-                            header_text_signal: always(<span class="string">&quot;ButtonType::Text&quot;</span>.to_string()),
-                            sub_header_text_signal: always(<span class="prelude-val">None</span>)
+                        title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>( {
+                            .header_text(<span class="string">&quot;ButtonType::Text&quot;</span>.to_string())
                         })),
                         media_section: <span class="prelude-val">Some</span>(<span class="macro">list!</span>({
                             .rows([
@@ -249,9 +242,8 @@
                     </span>}))}),
                 <span class="macro">card!</span>({.child(<span class="macro">content_block!</span>(
                     ContentBlockProps {
-                        title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>(TitleProps {
-                            header_text_signal: always(<span class="string">&quot;ButtonType::Outlined&quot;</span>.to_string()),
-                            sub_header_text_signal: always(<span class="prelude-val">None</span>)
+                        title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>({
+                            .header_text(<span class="string">&quot;ButtonType::Outlined&quot;</span>.to_string())
                         })),
                         media_section: <span class="prelude-val">Some</span>(<span class="macro">list!</span>({
                             .rows([
@@ -277,11 +269,11 @@
                     </span>}))}),
                 <span class="macro">card!</span>({.child(<span class="macro">content_block!</span>(
                     ContentBlockProps {
-                        title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>(TitleProps {
-                            header_text_signal: always(<span class="string">&quot;Button with dynamic content&quot;</span>.to_string()),
-                            sub_header_text_signal: <span class="macro">map_ref! </span>{
+                        title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>({
+                            .header_text(<span class="string">&quot;Button with dynamic content&quot;</span>.to_string())
+                            .sub_header_text_signal(<span class="macro">map_ref! </span>{
                                 <span class="kw">let </span>value = counter.signal() =&gt; <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">&quot;Button with dynamic content -  value is {}&quot;</span>, value))
-                            }
+                            })
                         })),
                         media_section: <span class="prelude-val">Some</span>(<span class="macro">list!</span>({
                              .rows([

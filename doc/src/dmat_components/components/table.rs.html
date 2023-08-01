@@ -95,6 +95,9 @@
 <a href="#95" id="95">95</a>
 <a href="#96" id="96">96</a>
 <a href="#97" id="97">97</a>
+<a href="#98" id="98">98</a>
+<a href="#99" id="99">99</a>
+<a href="#100" id="100">100</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>std::time::Duration;
 
 <span class="kw">use </span>dominator::{html, Dom, DomBuilder};
@@ -102,7 +105,7 @@
 <span class="kw">use </span>futures_signals::signal_vec::{SignalVec, SignalVecExt};
 <span class="kw">use </span>web_sys::HtmlElement;
 
-<span class="kw">use </span><span class="kw">crate</span>::components::ProgressIndicatorIterations;
+<span class="kw">use </span><span class="kw">crate</span>::components::<span class="kw-2">*</span>;
 
 <span class="doccomment">/// Renders a simple table. Allows for a loading state to be displayed.
 </span><span class="attr">#[component(render_fn = table)]
@@ -179,11 +182,14 @@
     dom_builder.apply_if(is_loading.is_some(), |dom| {
         dom.child_signal(is_loading.unwrap().map(|is_loading_now| {
             <span class="kw">if </span>is_loading_now {
-                <span class="prelude-val">Some</span>( <span class="macro">html!</span>(<span class="string">&quot;tr&quot;</span>, {
+                <span class="prelude-val">Some</span>(<span class="macro">html!</span>(<span class="string">&quot;tr&quot;</span>, {
                     .class(<span class="string">&quot;loading-row&quot;</span>)
                     .child(<span class="macro">html!</span>(<span class="string">&quot;th&quot;</span>, {
                         .attr(<span class="string">&quot;colspan&quot;</span>, <span class="string">&quot;10000&quot;</span>)
-                        .child(<span class="kw">crate</span>::progress_indicator ! (Duration::from_millis(<span class="number">500</span>), ProgressIndicatorIterations::Count(<span class="number">1</span>)))
+                        .child(loading_bar(LoadingBarProps::new()
+                            .duration(Duration::from_millis(<span class="number">500</span>))
+                            .iterations(ProgressIndicatorIterations::Count(<span class="number">1</span>))
+                        ))
                     }))
                 }))
             } <span class="kw">else </span>{

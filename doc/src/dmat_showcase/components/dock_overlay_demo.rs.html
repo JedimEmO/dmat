@@ -53,11 +53,9 @@
 <a href="#53" id="53">53</a>
 <a href="#54" id="54">54</a>
 <a href="#55" id="55">55</a>
-<a href="#56" id="56">56</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>dmat_components::components::layouts::<span class="kw-2">*</span>;
 <span class="kw">use </span>dmat_components::components::<span class="kw-2">*</span>;
 <span class="kw">use </span>dominator::{clone, events, html, Dom};
-<span class="kw">use </span>futures_signals::signal::always;
 <span class="kw">use </span>futures_signals::signal::Mutable;
 <span class="kw">use </span>lipsum::lipsum;
 
@@ -91,9 +89,9 @@
     <span class="macro">card!</span>({
         .child(
             <span class="macro">content_block!</span>(ContentBlockProps {
-                title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>(TitleProps {
-                    header_text_signal: always(<span class="string">&quot;Card with content block&quot;</span>.to_string()),
-                    sub_header_text_signal: always(<span class="prelude-val">Some</span>(<span class="string">&quot;All sections&quot;</span>.to_string())),
+                title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>({
+                    .header_text(<span class="string">&quot;Card with content block&quot;</span>.to_string())
+                    .sub_header_text(<span class="prelude-val">Some</span>(<span class="string">&quot;All sections&quot;</span>.to_string()))
                 })),
                 media_section: <span class="prelude-val">Some</span>(<span class="macro">html!</span>(<span class="string">&quot;img&quot;</span>, {
                     .attr(<span class="string">&quot;src&quot;</span>, <span class="string">&quot;images/shapes.svg&quot;</span>)

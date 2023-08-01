@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["title"],"struct":["TitleProps"]};
+window.SIDEBAR_ITEMS = {"fn":["title"],"struct":["TitleProps"],"trait":["TitlePropsTrait"]};

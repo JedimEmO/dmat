@@ -114,12 +114,8 @@
 <a href="#114" id="114">114</a>
 <a href="#115" id="115">115</a>
 <a href="#116" id="116">116</a>
-<a href="#117" id="117">117</a>
-<a href="#118" id="118">118</a>
-<a href="#119" id="119">119</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{clone, html, Dom};
 <span class="kw">use </span>futures_signals::map_ref;
-<span class="kw">use </span>futures_signals::signal::always;
 <span class="kw">use </span>futures_signals::signal::from_stream;
 <span class="kw">use </span>futures_signals::signal::{Mutable, SignalExt};
 <span class="kw">use </span>futures_signals::signal_vec::{MutableVec, SignalVecExt};
@@ -174,9 +170,8 @@
 
     <span class="macro">card!</span>({
         .child(<span class="macro">content_block!</span>(ContentBlockProps {
-            title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>(TitleProps {
-                header_text_signal: always(<span class="string">&quot;Interactive list with selectable items&quot;</span>.to_string()),
-                sub_header_text_signal: always(<span class="prelude-val">None</span>)
+            title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>( {
+                .header_text(<span class="string">&quot;Interactive list with selectable items&quot;</span>.to_string())
             })),
             media_section: <span class="prelude-val">Some</span>(<span class="macro">container!</span>({
                 .children([
@@ -210,9 +205,8 @@
 
     <span class="macro">card!</span>({
         .child(<span class="macro">content_block!</span>(ContentBlockProps {
-            title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>(TitleProps {
-                header_text_signal: always(<span class="string">&quot;Dynamic list holding dom elements&quot;</span>.to_string()),
-                sub_header_text_signal: always(<span class="prelude-val">None</span>)
+            title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>({
+                .header_text(<span class="string">&quot;Dynamic list holding dom elements&quot;</span>.to_string())
             })),
             media_section: <span class="prelude-val">Some</span>(<span class="macro">list!</span>({
                 .rows([

@@ -63,21 +63,18 @@
 <a href="#63" id="63">63</a>
 <a href="#64" id="64">64</a>
 <a href="#65" id="65">65</a>
-<a href="#66" id="66">66</a>
-<a href="#67" id="67">67</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>dmat_components::components::layouts::<span class="kw-2">*</span>;
 <span class="kw">use </span>dmat_components::components::<span class="kw-2">*</span>;
 <span class="kw">use </span>dominator::{html, Dom};
-<span class="kw">use </span>futures_signals::signal::always;
 <span class="kw">use </span>lipsum::lipsum;
 
 <span class="kw">pub fn </span>card_demo() -&gt; Dom {
     <span class="kw">let </span>cards = [
         <span class="macro">card!</span>({
             .child(<span class="macro">content_block!</span>(ContentBlockProps {
-                title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>(TitleProps {
-                    header_text_signal: always(<span class="string">&quot;Card with content block&quot;</span>.to_string()),
-                    sub_header_text_signal: always(<span class="prelude-val">Some</span>(<span class="string">&quot;All sections&quot;</span>.to_string())),
+                title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>({
+                    .header_text(<span class="string">&quot;Card with content block&quot;</span>.to_string())
+                    .sub_header_text(<span class="prelude-val">Some</span>(<span class="string">&quot;All sections&quot;</span>.to_string()))
                 })),
                 media_section: <span class="prelude-val">Some</span>(<span class="macro">html!</span>(<span class="string">&quot;img&quot;</span>, {
                     .attr(<span class="string">&quot;src&quot;</span>, <span class="string">&quot;images/shapes.svg&quot;</span>)
@@ -96,9 +93,9 @@
         }),
         <span class="macro">card!</span>({
              .child(<span class="macro">content_block!</span>(ContentBlockProps {
-                title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>(TitleProps {
-                    header_text_signal: always(<span class="string">&quot;Card without block&quot;</span>.to_string()),
-                    sub_header_text_signal: always(<span class="prelude-val">Some</span>(<span class="string">&quot;A sub header&quot;</span>.to_string())),
+                title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>({
+                    .header_text(<span class="string">&quot;Card without block&quot;</span>.to_string())
+                    .sub_header_text(<span class="prelude-val">Some</span>(<span class="string">&quot;A sub header&quot;</span>.to_string()))
                 })),
                 media_section: <span class="prelude-val">None</span>,
                 supporting_section: <span class="prelude-val">Some</span>(<span class="macro">text!</span>(lipsum(<span class="number">30</span>))),
@@ -117,9 +114,8 @@
                 })),
                 supporting_section: <span class="prelude-val">Some</span>(<span class="macro">list!</span>({
                     .rows([
-                        <span class="macro">title!</span>(TitleProps {
-                            header_text_signal: always(<span class="string">&quot;Title within supporting&quot;</span>.to_string()),
-                            sub_header_text_signal: always(<span class="prelude-val">None</span>),
+                        <span class="macro">title!</span>( {
+                            .header_text(<span class="string">&quot;Title within supporting&quot;</span>.to_string())
                         }),
                         <span class="macro">text!</span>(lipsum(<span class="number">30</span>))
                     ])

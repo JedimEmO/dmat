@@ -171,13 +171,9 @@
 <a href="#171" id="171">171</a>
 <a href="#172" id="172">172</a>
 <a href="#173" id="173">173</a>
-<a href="#174" id="174">174</a>
-<a href="#175" id="175">175</a>
-<a href="#176" id="176">176</a>
-<a href="#177" id="177">177</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{clone, html, Dom};
 <span class="kw">use </span>futures_signals::signal::from_stream;
-<span class="kw">use </span>futures_signals::signal::{always, Mutable};
+<span class="kw">use </span>futures_signals::signal::Mutable;
 <span class="kw">use </span>futures_signals::signal_vec::{MutableVec, SignalVecExt};
 <span class="kw">use </span>lipsum::lipsum;
 
@@ -194,9 +190,8 @@
         <span class="macro">container!</span>({.children([
             <span class="macro">card!</span>({
                 .child(<span class="macro">content_block!</span>(ContentBlockProps {
-                    title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>(TitleProps {
-                        header_text_signal: always(<span class="string">&quot;Retracting modal drawer&quot;</span>.to_string()),
-                        sub_header_text_signal: always(<span class="prelude-val">None</span>)
+                    title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>({
+                        .header_text(<span class="string">&quot;Retracting modal drawer&quot;</span>.to_string())
                     })),
                     media_section: <span class="prelude-val">Some</span>(<span class="macro">list!</span>({
                             .rows([<span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
@@ -211,9 +206,8 @@
             }),
             <span class="macro">card!</span>({
                 .child( <span class="macro">content_block!</span>(ContentBlockProps {
-                    title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>(TitleProps {
-                        header_text_signal: always(<span class="string">&quot;Retracting non-modal drawer&quot;</span>.to_string()),
-                        sub_header_text_signal: always(<span class="prelude-val">None</span>)
+                    title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>({
+                        .header_text(<span class="string">&quot;Retracting non-modal drawer&quot;</span>.to_string())
                     })),
                     media_section: <span class="prelude-val">Some</span>(<span class="macro">list!</span>({
                         .rows([
@@ -232,9 +226,8 @@
         <span class="macro">container!</span>({.children([
             <span class="macro">card!</span>({
                 .child(<span class="macro">content_block!</span>(ContentBlockProps {
-                    title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>(TitleProps {
-                        header_text_signal: always(<span class="string">&quot;Modal toggled&quot;</span>.to_string()),
-                        sub_header_text_signal: always(<span class="prelude-val">None</span>)
+                    title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>({
+                        .header_text(<span class="string">&quot;Modal toggled&quot;</span>.to_string())
                     })),
                     media_section: <span class="prelude-val">Some</span>(<span class="macro">list!</span>({
                             .rows([
@@ -253,9 +246,8 @@
             }),
             <span class="macro">card!</span>({
                 .child(<span class="macro">content_block!</span>(ContentBlockProps {
-                    title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>(TitleProps {
-                        header_text_signal: always(<span class="string">&quot;Toggled non-modal&quot;</span>.to_string()),
-                        sub_header_text_signal: always(<span class="prelude-val">None</span>)
+                    title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>({
+                        .header_text(<span class="string">&quot;Toggled non-modal&quot;</span>.to_string())
                     })),
                     media_section: <span class="prelude-val">Some</span>(<span class="macro">list!</span>({
                             .rows([
