@@ -32,7 +32,7 @@ jobs:
           toolchain: stable
           target: wasm32-unknown-unknown
       - name: Run chrome tests
-        run: RUST_BACKTRACE=1 CHROMEDRIVER=/usr/local/share/chromedriver-linux64/chromedriver cargo test --target wasm32-unknown-unknown
+        run: RUST_BACKTRACE=1 CHROMEDRIVER=/usr/local/share/chromedriver-linux64/chromedriver cargo test --target wasm32-unknown-unknown --exclude farmers-market-backend --workspace --exclude lightweight-dmat --exclude farmers-market-web
       - name: clippy checks
         run: cargo clippy
       - name: Run unit tests
