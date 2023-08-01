@@ -176,3 +176,6 @@ pub fn product_list(products: impl SignalVec<Item = Product> + 'static) -> Dom {
 ```
 
 If you run this UI while the backend is running, you should see a table with the products from the backend, and the quantity of apples should change every second!
+
+----
+Previous: [Lightweight Dmat](./lightweight_dmat.md) 

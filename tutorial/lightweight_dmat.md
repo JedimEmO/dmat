@@ -109,6 +109,4 @@ Don't be afraid to look at the [DMAT docs](https://jedimemo.github.io/dmat/doc/d
 
 ---
 ----
-Previous: [Hello World!](./hello_world.md)
-
-Next: [Farmers Market](./farmers_market.md) 
+Previous: [Hello World!](./hello_world.md) Next: [Farmers Market](./farmers_market.md) 
