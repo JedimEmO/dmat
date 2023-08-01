@@ -1,4 +1,4 @@
-use dmat_components::components::layouts::ContentBlockProps;
+use dmat_components::components::layouts::*;
 use dmat_components::components::*;
 use dominator::{html, Dom};
 use futures_signals::signal::always;
@@ -63,5 +63,5 @@ pub fn card_demo() -> Dom {
         }),
     ];
 
-    container!(|d| d.children(cards))
+    container!({.children(cards)})
 }

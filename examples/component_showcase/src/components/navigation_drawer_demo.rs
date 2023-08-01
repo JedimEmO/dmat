@@ -4,7 +4,7 @@ use futures_signals::signal::{always, Mutable};
 use futures_signals::signal_vec::{MutableVec, SignalVecExt};
 use lipsum::lipsum;
 
-use dmat_components::components::layouts::ContentBlockProps;
+use dmat_components::components::layouts::*;
 use dmat_components::components::*;
 use dmat_components::utils::signals::mutation::store_signal_value_opt_mixin;
 
@@ -14,7 +14,7 @@ use crate::utils::toggle_button::toggle_button;
 pub fn navigation_drawers_demo() -> Dom {
     list!({
         .rows([
-        container!(|d| d.children(&mut [
+        container!({.children([
             card!({
                 .child(content_block!(ContentBlockProps {
                     title_section: Some(title!(TitleProps {
@@ -51,8 +51,8 @@ pub fn navigation_drawers_demo() -> Dom {
                 }))
                 .apply(|d| d.class("drawer-demo-card").style("height", "350px"))
             }),
-        ])),
-        container!(|d| d.children(&mut [
+        ])}),
+        container!({.children([
             card!({
                 .child(content_block!(ContentBlockProps {
                     title_section: Some(title!(TitleProps {
@@ -96,7 +96,7 @@ pub fn navigation_drawers_demo() -> Dom {
                 }))
                 .apply(|d| d.class("drawer-demo-card").style("height", "350px"))
             })
-        ]))
+        ])})
     ])
     })
 }

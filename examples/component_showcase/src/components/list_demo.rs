@@ -6,7 +6,7 @@ use futures_signals::signal::{Mutable, SignalExt};
 use futures_signals::signal_vec::{MutableVec, SignalVecExt};
 use wasm_bindgen::__rt::std::rc::Rc;
 
-use dmat_components::components::layouts::ContentBlockProps;
+use dmat_components::components::layouts::*;
 use dmat_components::components::*;
 use dmat_components::utils::mixin::stream_handler_mixin;
 use dmat_components::utils::signals::mutation::store_signal_value_opt_mixin;
@@ -14,7 +14,7 @@ use dmat_components::utils::signals::mutation::store_signal_value_opt_mixin;
 use crate::utils::toggle_button::toggle_button;
 
 pub fn list_demo() -> Dom {
-    container!(|d| { d.children(&mut [dynamic_list_demo(), interactive_list_demo(),]) })
+    container!({ .children([dynamic_list_demo(), interactive_list_demo(),]) })
 }
 
 fn interactive_list_demo() -> Dom {
@@ -59,13 +59,17 @@ fn interactive_list_demo() -> Dom {
                 header_text_signal: always("Interactive list with selectable items".to_string()),
                 sub_header_text_signal: always(None)
             })),
-            media_section: Some(container!(|d| d.child(list!({
-                .rows([
-                    list_body,
-                    toggle_button(&has_before, "Toggle Before"),
-                    toggle_button(&has_after, "Toggle After")
+            media_section: Some(container!({
+                .children([
+                    list!({
+                        .rows([
+                            list_body,
+                            toggle_button(&has_before, "Toggle Before"),
+                            toggle_button(&has_after, "Toggle After")
+                        ])
+                    })
                 ])
-            })))),
+            })),
             supporting_section: None,
             footer_section: None
         }))

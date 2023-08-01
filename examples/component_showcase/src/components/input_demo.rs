@@ -4,6 +4,7 @@ use futures_signals::signal::always;
 use futures_signals::signal::Mutable;
 
 use dmat_components::components::input::combo_box::*;
+use dmat_components::components::layouts::*;
 
 use dmat_components::components::input::select::*;
 use dmat_components::components::input::switch::*;
@@ -14,8 +15,8 @@ use dmat_components::utils::signals::stream_flipflop::stream_to_flipflop_mixin;
 
 pub fn input_demo() -> Dom {
     let value = Mutable::new("".to_string());
-    container!(|d| {
-        d.children(&mut [
+    container!({
+        .children([
             text_input_demo(&value),
             combo_box_demo(&value),
             switch_demo(),

@@ -3,14 +3,14 @@ use futures_signals::map_ref;
 use futures_signals::signal::always;
 use futures_signals::signal::Mutable;
 
-use dmat_components::components::layouts::ContentBlockProps;
+use dmat_components::components::layouts::*;
 use dmat_components::components::*;
 
 pub fn button_demo() -> Dom {
     let counter = Mutable::new(0);
 
-    container!(|d| {
-        d.children(&mut[
+    container!({
+        .children([
                 card!({
                 .child(content_block!(
                     ContentBlockProps {

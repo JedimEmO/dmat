@@ -1,3 +1,4 @@
+use dmat_components::components::layouts::*;
 use dominator::{html, Dom};
 use futures_signals::signal::{Mutable, MutableSignal};
 
@@ -29,14 +30,13 @@ impl CarouselDemoSource {
 
 impl CarouselSource for CarouselDemoSource {
     fn get_entry(&self, _: usize) -> Dom {
-        container!(|d| {
-            d.child(html!("img", {
+        container!({
+            .apply(|d| d.child(html!("img", {
                 .attr("src", "images/shapes.svg")
                 .attr("width", "60%")
                 .attr("height", "100%")
                 .attr("alt", "shapes!")
-            }))
-            .class("demo-carousel-item")
+            })).class("demo-carousel-item"))
         })
     }
 

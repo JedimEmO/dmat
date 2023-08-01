@@ -16,7 +16,7 @@ struct Table {
 
     #[signal_vec]
     #[default(Vec::new())]
-    rows: Vec<Dom>,
+    rows: Dom,
 
     #[signal_vec]
     footer: Dom,
@@ -59,17 +59,9 @@ fn thead(headers: impl SignalVec<Item = Dom> + 'static) -> Dom {
     })
 }
 
-fn tbody(rows: impl SignalVec<Item = Vec<Dom>> + 'static) -> Dom {
+fn tbody(rows: impl SignalVec<Item = Dom> + 'static) -> Dom {
     html!("tbody", {
-    .children_signal_vec(rows.map( | row_cells | {
-        html ! ("tr", {
-            .children(row_cells.into_iter().map( | cell | {
-                html ! ("td", {
-                .child(cell)
-                })
-            }).collect::< Vec < Dom > >().as_mut_slice())
-        })
-    }))
+        .children_signal_vec(rows)
     })
 }
 

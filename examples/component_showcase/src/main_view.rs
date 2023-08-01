@@ -1,6 +1,7 @@
 use dominator::{html, Dom};
 use futures_signals::signal::{Signal, SignalExt};
 
+use dmat_components::components::layouts::*;
 use dmat_components::components::{tabs, TabsProps};
 use dmat_components::utils::mixin::id_attribute_mixin;
 
@@ -40,16 +41,16 @@ pub fn main_view() -> Dom {
     );
 
     app_bar!({
-        .header(html!("div", {
+        .header(Some(html!("div", {
             .children(&mut [
                 html!("h1", {
                    .text("Dmat Examples")
                 }),
                 tabs_dom
             ])
-        }))
-        .main(main_app_view(active_tab))
-        .fixed()
+        })))
+        .main(Some(main_app_view(active_tab)))
+        .fixed(true)
         .apply(|d| {
             d.apply(id_attribute_mixin("dmat-example-app"))
         })

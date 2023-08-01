@@ -1,4 +1,4 @@
-use dmat_components::components::layouts::ContentBlockProps;
+use dmat_components::components::layouts::*;
 use dmat_components::components::*;
 use dmat_vis::contexts::charts::axis::{AxisDescription, TickInfo};
 use dmat_vis::contexts::charts::line_chart::{
@@ -15,7 +15,7 @@ use wasm_timer::Delay;
 use web_sys::SvgElement;
 
 pub fn line_chart_demo() -> Dom {
-    container!(|b| { b.children([dynamic_chart(), static_centered_axis_chart()]) })
+    container!({ .children([dynamic_chart(), static_centered_axis_chart()]) })
 }
 
 fn static_centered_axis_chart() -> Dom {

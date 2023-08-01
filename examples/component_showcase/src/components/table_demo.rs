@@ -3,7 +3,7 @@ use futures_signals::signal::always;
 use futures_signals::signal::Mutable;
 use futures_signals::signal_vec::{MutableVec, SignalVecExt};
 
-use dmat_components::components::layouts::ContentBlockProps;
+use dmat_components::components::layouts::*;
 use dmat_components::components::*;
 use dmat_components::utils::timeout::timeout;
 
@@ -31,14 +31,16 @@ pub fn table_demo() -> Dom {
         "eve".to_string(),
     ]);
     let rows = data.signal_vec_cloned().map(|v| {
-        vec![
-            html!("span", {
-                .text(v.as_str())
-            }),
-            html!("span", {
-                .text(format!("{}", v.len()).as_str())
-            }),
-        ]
+        html!("tr", {
+            .children(&mut[
+                html!("span", {
+                    .text(v.as_str())
+                }),
+                html!("span", {
+                    .text(format!("{}", v.len()).as_str())
+                }),
+            ])
+        })
     });
 
     let t = table!({
@@ -54,7 +56,7 @@ pub fn table_demo() -> Dom {
         .is_loading_signal(is_loading.signal())
     });
 
-    container!(|d| d.child(content_block!(
+    container!({.apply(|d| d.child(content_block!(
         ContentBlockProps {
             title_section: Some(title!(TitleProps {
                 header_text_signal: always("Simple table".to_string()),
@@ -70,5 +72,5 @@ pub fn table_demo() -> Dom {
             footer_section: None
         },
         |v| v.class("demo-card")
-    ),))
+    )))})
 }

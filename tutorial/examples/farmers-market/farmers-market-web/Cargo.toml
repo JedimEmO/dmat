@@ -1,0 +1,30 @@
+[package]
+name = "farmers-market-web"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+farmers-market-api = { path = "../farmers-market-api" }
+
+anyhow = { workspace = true }
+async-std = "1.12.0"
+async-trait = "0.1.72"
+dmat-components = { path = "../../../../crates/dmat-components" }
+dominator = { workspace = true }
+futures = { workspace = true }
+futures-signals = { workspace = true }
+futures-signals-utils = { path = "../../../../crates/futures-signals-utils" }
+futures-signals-utils-derive = { path = "../../../../crates/futures-signals-utils-derive" }
+reqwest = { version = "0.11.18", features = ["json"] }
+wasm-bindgen = { workspace = true }
+wasm-bindgen-futures = { workspace = true }
+web-sys = { workspace = true }
+
+[build-dependencies]
+dmat-components-style = { path = "../../../../crates/dmat-components-style" }
+

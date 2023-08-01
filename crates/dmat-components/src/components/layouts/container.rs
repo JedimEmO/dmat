@@ -1,19 +1,18 @@
-use dominator::{html, Dom, DomBuilder};
-use web_sys::HtmlElement;
+use dominator::{html, Dom};
 
-#[macro_export]
-macro_rules! container {
-    ($mixin: expr) => {{
-        $crate::components::layouts::container::container($mixin)
-    }};
+#[component(render_fn = container)]
+pub struct Container {
+    #[signal_vec]
+    #[default(vec![])]
+    children: Dom,
 }
 
-pub fn container<F>(mixin: F) -> Dom
-where
-    F: FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>,
-{
+pub fn container(props: impl ContainerPropsTrait + 'static) -> Dom {
+    let ContainerProps { children, apply } = props.take();
+
     html!("div", {
         .class("dmat-container")
-        .apply(mixin)
+        .apply_if(apply.is_some(), |dom| dom.apply(apply.unwrap()))
+        .children_signal_vec(children)
     })
 }

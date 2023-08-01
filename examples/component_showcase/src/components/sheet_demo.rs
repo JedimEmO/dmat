@@ -34,7 +34,7 @@ fn left_sheet(show_bottom: Mutable<bool>) -> Dom {
     let expanded_signal = show_left.signal_cloned();
 
     sheet!( {
-        .sheet_content(Some(container!(|d| d.text("Left hand side sheet"))))
+        .sheet_content(Some(container!({.apply(|d| d.text("Left hand side sheet"))})))
         .underlying_view(Some(html!("div",  {
             .child(right_sheet(
                 show_bottom,
@@ -51,8 +51,8 @@ fn right_sheet(show_bottom: Mutable<bool>, show_left: Mutable<bool>) -> Dom {
     let expanded_signal = show_right.signal_cloned();
 
     sheet!({
-        .sheet_content(Some(container!(|d| d.text("Right hand side sheet"))))
-        .underlying_view(Some(container!(|d| d.children(&mut [
+        .sheet_content(Some(container!({.apply(|d| d.text("Right hand side sheet"))})))
+        .underlying_view(Some(container!({.children([
             button!({
                 .click_handler(move |_| show_left.set(!show_left.get()))
                 .label("Toggle left sheet")
@@ -65,7 +65,7 @@ fn right_sheet(show_bottom: Mutable<bool>, show_left: Mutable<bool>) -> Dom {
                 .click_handler(move |_| show_right.set(!show_right.get()))
                 .content(text!("Toggle right sheet"))
             })
-        ]))))
+        ])})))
         .side(SheetSide::Right)
         .expanded_signal(expanded_signal)
     })

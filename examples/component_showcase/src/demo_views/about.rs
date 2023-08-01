@@ -1,8 +1,9 @@
+use dmat_components::components::layouts::*;
 use dmat_components::components::*;
 use dominator::{html, with_node, Dom};
 
 pub fn about_view() -> Dom {
-    container!(|d| {
+    container!({.apply(|d| {
         d.child(card!({
             .child( list!({
                 .rows([
@@ -20,7 +21,7 @@ pub fn about_view() -> Dom {
             ])
             }))
         }))
-    })
+    })})
 }
 
 const DESCRIPTION_TEXT: &str = r#"
