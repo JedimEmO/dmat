@@ -1,6 +1,5 @@
 use dominator::{clone, html, Dom};
 use futures_signals::map_ref;
-use futures_signals::signal::from_stream;
 use futures_signals::signal::{Mutable, SignalExt};
 use futures_signals::signal_vec::{MutableVec, SignalVecExt};
 use wasm_bindgen::__rt::std::rc::Rc;
@@ -8,7 +7,6 @@ use wasm_bindgen::__rt::std::rc::Rc;
 use dmat_components::components::layouts::*;
 use dmat_components::components::*;
 use dmat_components::utils::mixin::stream_handler_mixin;
-use dmat_components::utils::signals::mutation::store_signal_value_opt_mixin;
 
 use crate::utils::toggle_button::toggle_button;
 
@@ -17,7 +15,7 @@ pub fn list_demo() -> Dom {
 }
 
 fn interactive_list_demo() -> Dom {
-    let selected_item = Mutable::<Option<u32>>::new(None);
+    let selected_item = Mutable::<Vec<usize>>::new(vec![]);
     let entries = MutableVec::new_with_values(vec![1, 2, 3]);
 
     let has_before = Mutable::new(false);
@@ -26,57 +24,48 @@ fn interactive_list_demo() -> Dom {
     let settings = map_ref! {
         let _before = has_before.signal_cloned(),
         let _after = has_after.signal_cloned() => move {
-
         }
     };
 
-    let items = entries.signal_vec().map(
-        clone!(selected_item, has_before, has_after => move |entry| ListEntry {
+    let items = entries
+        .signal_vec()
+        .map(clone!(has_before, has_after => move |entry| ListEntry {
             before: match has_before.get() {
-                true => Some(text!("Before")),
+                true => Some(html!("span", { .text("Before")})),
                 _ => None
             },
             content: html!("div", { .text(format!("Entry {}", entry).as_str())}),
             after: match has_after.get() {
-                true => Some(text!("After")),
+                true => Some(html!("span", { .text("After")})),
                 _ => None
-            },
-            selected_signal: Box::new(
-                selected_item.signal_ref(clone!(entry => move |v| v == &Some(entry))),
-            ),
-            item_value: entry
-        }),
-    );
-
-    let props = InteractiveListProps { items };
-
-    let (list_body, out) = interactive_list!(props);
+            }
+        }));
 
     card!({
-        .child(content_block!(ContentBlockProps {
-            title_section: Some(title!( {
+        .child(content_block!({
+            .title_section(Some(title!( {
                 .header_text("Interactive list with selectable items".to_string())
-            })),
-            media_section: Some(container!({
+            })))
+            .media_section(Some(container!({
                 .children([
                     list!({
                         .rows([
-                            list_body,
+                            interactive_list!({
+                                .items_signal_vec(items)
+                                .selected_indexes_signal(selected_item.signal_cloned())
+                                .on_item_selected(move |idx| {
+                                    selected_item.set(vec![idx]);
+                                })
+                            }),
                             toggle_button(&has_before, "Toggle Before"),
                             toggle_button(&has_after, "Toggle After")
                         ])
                     })
                 ])
-            })),
-            supporting_section: None,
-            footer_section: None
+            })))
         }))
         .apply(move |d| {
             d.class("demo-card")
-                .apply(store_signal_value_opt_mixin(
-                    from_stream(out.item_select_stream),
-                    &selected_item,
-                ))
                 .apply(stream_handler_mixin(settings.to_stream(), move |_| {
                     entries.lock_mut().replace(vec![1, 2, 3])
                 }))
@@ -88,11 +77,11 @@ fn dynamic_list_demo() -> Dom {
     let entries: Rc<MutableVec<String>> = Default::default();
 
     card!({
-        .child(content_block!(ContentBlockProps {
-            title_section: Some(title!({
+        .child(content_block!({
+            .title_section(Some(title!({
                 .header_text("Dynamic list holding dom elements".to_string())
-            })),
-            media_section: Some(list!({
+            })))
+            .media_section(Some(list!({
                 .rows([
                     button!({
                         .label("Add new entry")
@@ -107,9 +96,7 @@ fn dynamic_list_demo() -> Dom {
                         .map(|entry| html!("span", { .text(entry.as_str())})))
                     }),
                 ])
-            })),
-            supporting_section: None,
-            footer_section: None
+            })))
         }))
         .apply(|v| v.class("demo-card"))
     })

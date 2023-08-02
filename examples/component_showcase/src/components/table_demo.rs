@@ -55,20 +55,16 @@ pub fn table_demo() -> Dom {
         .is_loading_signal(is_loading.signal())
     });
 
-    container!({.apply(|d| d.child(content_block!(
-        ContentBlockProps {
-            title_section: Some(title!({
-                .header_text("Simple table".to_string())
-            })),
-            media_section: Some(list!({
-                .rows(vec![
-                    controls,
-                    t,
-                ])
-            })),
-            supporting_section: None,
-            footer_section: None
-        },
-        |v| v.class("demo-card")
-    )))})
+    container!({.apply(|d| d.child(content_block!({
+        .title_section(Some(title!({
+            .header_text("Simple table".to_string())
+        })))
+        .media_section(Some(list!({
+            .rows(vec![
+                controls,
+                t,
+            ])
+        })))
+        .apply(|v| v.class("demo-card"))
+    })))})
 }

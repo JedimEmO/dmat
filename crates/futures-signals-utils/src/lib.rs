@@ -1,3 +1,5 @@
+pub mod split_signal;
+
 use futures_signals::signal::Mutable;
 use futures_signals::signal_vec::MutableVec;
 use std::cmp::min;

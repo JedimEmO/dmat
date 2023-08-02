@@ -15,7 +15,7 @@ mod test {
         T: ToString,
     {
         fn to_i32(self) -> Result<i32, ParseIntError> {
-            i32::from_str_radix(self.to_string().as_str(), 10)
+            self.to_string().as_str().parse::<i32>()
         }
     }
 
@@ -67,12 +67,10 @@ mod test {
 
         some_generic_signal_vec
             .for_each(|change| {
-                match change {
-                    VecDiff::Replace { values, .. } => {
-                        copied = values;
-                    }
-                    _ => {}
+                if let VecDiff::Replace { values, .. } = change {
+                    copied = values;
                 }
+
                 async {}
             })
             .await;
@@ -128,12 +126,10 @@ mod test {
             let mut vec_val = vec![];
 
             baz.for_each(|change| {
-                match change {
-                    VecDiff::Replace { values, .. } => {
-                        vec_val = values;
-                    }
-                    _ => {}
+                if let VecDiff::Replace { values, .. } = change {
+                    vec_val = values;
                 }
+
                 async {}
             })
             .await;

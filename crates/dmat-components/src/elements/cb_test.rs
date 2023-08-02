@@ -2,8 +2,7 @@
 mod test {
     use std::rc::Rc;
 
-    use dominator::events::Click;
-    use dominator::{body, clone, Dom, DomBuilder};
+    use dominator::{body, clone, events, html, Dom, DomBuilder};
     use futures_signals::signal::{Mutable, SignalExt};
     use futures_util::StreamExt;
     use wasm_bindgen::JsCast;
@@ -49,15 +48,18 @@ mod test {
                     child_count.set(child_count.get() + 1);
 
                     Some(
-                        crate::text!(format!("{}", v).as_str(), clone!(state => move |d| {
-                            d.attr("id", "inner")
-                                .event(move |_: Click| {
-                                    // This is what we are checking; that each
-                                    // child yielded by this signal (which will generate a new clone of state)
-                                    // will be properly discarded when a new child arrives
-                                    assert_eq!(Rc::strong_count(&state), 3);
-                                })
-                        })),
+                        html!("span", {
+                            .text(format!("{}", v).as_str())
+                            .apply(clone!(state => move |d| {
+                                d.attr("id", "inner")
+                                    .event(move |_: events::Click| {
+                                        // This is what we are checking; that each
+                                        // child yielded by this signal (which will generate a new clone of state)
+                                        // will be properly discarded when a new child arrives
+                                        assert_eq!(Rc::strong_count(&state), 3);
+                                    })
+                            }))
+                        })
                     )
                 })));
 

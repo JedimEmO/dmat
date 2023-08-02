@@ -1,12 +1,10 @@
 use dominator::{clone, html, Dom};
-use futures_signals::signal::from_stream;
 use futures_signals::signal::Mutable;
 use futures_signals::signal_vec::{MutableVec, SignalVecExt};
 use lipsum::lipsum;
 
 use dmat_components::components::layouts::*;
 use dmat_components::components::*;
-use dmat_components::utils::signals::mutation::store_signal_value_opt_mixin;
 
 use crate::utils::toggle_button::toggle_button;
 
@@ -16,47 +14,43 @@ pub fn navigation_drawers_demo() -> Dom {
         .rows([
         container!({.children([
             card!({
-                .child(content_block!(ContentBlockProps {
-                    title_section: Some(title!({
+                .child(content_block!({
+                    .title_section(Some(title!({
                         .header_text("Retracting modal drawer".to_string())
-                    })),
-                    media_section: Some(list!({
+                    })))
+                    .media_section(Some(list!({
                             .rows([html!("div", {
                             .class("navigation-drawer-demo")
                             .child(retracting(true))
                         })])
-                    })),
-                    supporting_section: None,
-                    footer_section: None
+                    })))
                 }))
                 .apply(|d| d.class("drawer-demo-card").style("height", "350px"))
             }),
             card!({
-                .child( content_block!(ContentBlockProps {
-                    title_section: Some(title!({
+                .child( content_block!({
+                    .title_section(Some(title!({
                         .header_text("Retracting non-modal drawer".to_string())
-                    })),
-                    media_section: Some(list!({
+                    })))
+                    .media_section(Some(list!({
                         .rows([
                                 html!("div", {
                                 .class("navigation-drawer-demo")
                                 .child(retracting(false))
                             })
                         ])
-                    })),
-                    supporting_section: None,
-                    footer_section: None
+                    })))
                 }))
                 .apply(|d| d.class("drawer-demo-card").style("height", "350px"))
             }),
         ])}),
         container!({.children([
             card!({
-                .child(content_block!(ContentBlockProps {
-                    title_section: Some(title!({
+                .child(content_block!({
+                    .title_section(Some(title!({
                         .header_text("Modal toggled".to_string())
-                    })),
-                    media_section: Some(list!({
+                    })))
+                    .media_section(Some(list!({
                             .rows([
                                 html!("div", {
                                     .class("navigation-drawer-demo")
@@ -65,18 +59,16 @@ pub fn navigation_drawers_demo() -> Dom {
                                         d.child(toggled)
                                 })
                         })])
-                    })),
-                    supporting_section: None,
-                    footer_section: None
+                    })))
                 }))
                 .apply(|d| d.class("drawer-demo-card").style("height", "350px"))
             }),
             card!({
-                .child(content_block!(ContentBlockProps {
-                    title_section: Some(title!({
+                .child(content_block!({
+                    .title_section(Some(title!({
                         .header_text("Toggled non-modal".to_string())
-                    })),
-                    media_section: Some(list!({
+                    })))
+                    .media_section(Some(list!({
                             .rows([
                                 html!("div", {
                                     .class("navigation-drawer-demo")
@@ -86,9 +78,7 @@ pub fn navigation_drawers_demo() -> Dom {
                                     })
                                 })
                             ])
-                        })),
-                    supporting_section: None,
-                    footer_section: None
+                        })))
                 }))
                 .apply(|d| d.class("drawer-demo-card").style("height", "350px"))
             })
@@ -149,25 +139,20 @@ pub fn static_drawers(retracts: bool, width: DrawerWidth) -> Dom {
 
 pub fn mock_view_select() -> Dom {
     let entries = MutableVec::new_with_values(vec!["Inbox", "Spam"]);
-    let selected_item = Mutable::<Option<&str>>::new(None);
+    let selected_item = Mutable::<Vec<usize>>::new(vec![]);
 
-    let items = entries
-        .signal_vec()
-        .map(clone!(selected_item => move |entry| ListEntry {
-            before: None,
-            content: html!("div", { .text(entry.to_string().as_str())}),
-            after: None,
-            selected_signal: Box::new(
-                selected_item.signal_ref(clone!(entry => move |v| v == &Some(entry))),
-            ),
-            item_value: entry
-        }));
-
-    let props = InteractiveListProps { items };
-    let (list_body, out) = interactive_list!(props);
+    let items = entries.signal_vec().map(|entry| ListEntry {
+        before: None,
+        content: html!("div", { .text(entry.to_string().as_str())}),
+        after: None,
+    });
 
     html!("div", {
-        .child(list_body)
-        .apply(store_signal_value_opt_mixin(from_stream(out.item_select_stream), &selected_item))
+        .child(interactive_list!({
+            .items_signal_vec(items)
+            .on_item_selected(move |index| {
+                selected_item.set(vec![index]);
+            })
+        }))
     })
 }

@@ -15,7 +15,7 @@ pub fn dock_overlay_demo() -> Dom {
     dock_overlay!({
         .underlying_view(Some(underlying_view))
         .overlay_views(vec![
-            (DockPoint::MiddleLeft, card!({.child(text!("Middle Left Dialog!"))})),
+            (DockPoint::MiddleLeft, card!({.child(html!("span", { .text("Middle Left Dialog!")}))})),
             (DockPoint::MiddleCenter, middle_center_dialog(show_overlay.clone())),
             (DockPoint::MiddleRight, html!("span", {.text("Middle Right Dialog!")})),
             (DockPoint::TopLeft, html!("span", {.text("Top Left Dialog!")})),
@@ -33,22 +33,22 @@ pub fn dock_overlay_demo() -> Dom {
 fn middle_center_dialog(show_overlay: Mutable<bool>) -> Dom {
     card!({
         .child(
-            content_block!(ContentBlockProps {
-                title_section: Some(title!({
+            content_block!({
+                .title_section(Some(title!({
                     .header_text("Card with content block".to_string())
                     .sub_header_text(Some("All sections".to_string()))
-                })),
-                media_section: Some(html!("img", {
+                })))
+                .media_section(Some(html!("img", {
                     .attr("src", "images/shapes.svg")
                     .attr("width", "100%")
                     .attr("height", "100%")
                     .attr("alt", "shapes!")
-                })),
-                supporting_section: Some(text!(lipsum(30))),
-                footer_section: Some(button!({
+                })))
+                .supporting_section(Some(html!("span", {.text(lipsum(30).as_str())})))
+                .footer_section(Some(button!({
                     .label("Hide overlay")
                     .click_handler(clone!(show_overlay => move |_: events::Click| show_overlay.set(false)))
-                })),
+                })))
             }))
             .apply(|d| d.style("width", "300px"))
     })

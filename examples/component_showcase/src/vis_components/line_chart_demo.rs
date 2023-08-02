@@ -73,13 +73,12 @@ fn static_centered_axis_chart() -> Dom {
     };
 
     card!({
-        .child(content_block!(ContentBlockProps {
-        title_section: Some(title!({
+        .child(content_block!({
+        .title_section(Some(title!({
             .header_text("Static data line chart".to_string())
             .sub_header_text(Some("Axis center within view box".to_string()))
-        })),
-        media_section: Some(line_chart!(props, datasets.signal_vec_cloned())),
-        ..Default::default()
+        })))
+        .media_section(Some(line_chart!(props, datasets.signal_vec_cloned())))
     }))
     })
 }
@@ -133,17 +132,16 @@ fn dynamic_chart() -> Dom {
     };
 
     card!({
-        .child(content_block!(ContentBlockProps {
-        title_section: Some(title!({
-            .header_text("Dynamic data line chart".to_string())
-        })),
-        media_section: Some(line_chart(
-            props,
-            datasets.signal_vec_cloned(),
-            |b: DomBuilder<SvgElement>| b.future(changer_fut).future(changer_fut2),
-        )),
-        ..Default::default()
-    }))
+        .child(content_block!({
+            .title_section(Some(title!({
+                .header_text("Dynamic data line chart".to_string())
+            })))
+            .media_section(Some(line_chart(
+                props,
+                datasets.signal_vec_cloned(),
+                |b: DomBuilder<SvgElement>| b.future(changer_fut).future(changer_fut2),
+            )))
+        }))
     })
 }
 

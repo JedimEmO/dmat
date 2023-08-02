@@ -1,19 +1,87 @@
-use std::error::Error;
-
-use dominator::{clone, events, html, Dom, DomBuilder};
+use dominator::{clone, events, html, Dom};
 use futures_signals::map_ref;
-use futures_signals::signal::{Mutable, MutableSignal, Signal};
+use futures_signals::signal::{Mutable, Signal};
 use wasm_bindgen::__rt::std::rc::Rc;
 use wasm_bindgen::prelude::Closure;
-use wasm_bindgen::JsCast;
-use web_sys::HtmlElement;
+use wasm_bindgen::{JsCast, UnwrapThrowExt};
 
 use crate::futures_signals::signal::SignalExt;
 
-pub trait CarouselSource: Clone {
-    fn get_entry(&self, index: usize) -> Dom;
-    fn total_count_signal(&self) -> MutableSignal<usize>;
-    fn total_count(&self) -> usize;
+#[component(render_fn = carousel)]
+pub struct Carousel<TItemRenderFn: Fn(i32) -> Dom = fn(i32) -> Dom> {
+    pub item_render_fn: TItemRenderFn,
+}
+
+#[inline]
+pub fn carousel(props: impl CarouselPropsTrait + 'static) -> Dom {
+    let CarouselProps {
+        item_render_fn,
+        apply,
+    } = props.take();
+
+    let state = Rc::new(Carousel {
+        current_item_index: Mutable::new(0),
+        previous_item_index: Mutable::new(0),
+        is_transitioning: Mutable::new(false),
+    });
+
+    let item_render_fn = Rc::new(item_render_fn.expect_throw("item_render_fn missing"));
+
+    let child_odd_signal =
+        state
+            .current_item_index
+            .signal()
+            .filter_map(clone!(item_render_fn => move |v| {
+                if v % 2 == 1 {
+                    Some((*item_render_fn)(v))
+                } else {
+                    None
+                }
+            }));
+
+    let child_even_signal =
+        state
+            .current_item_index
+            .signal()
+            .filter_map(clone!(item_render_fn => move |v| {
+                if v % 2 == 0 {
+                    Some((*item_render_fn)(v))
+                } else {
+                    None
+                }
+            }));
+
+    html!("div", {
+        .class("dmat-carousel")
+        .child(html!("div", {
+            .class("container")
+            .apply_if(apply.is_some(), |dom| dom.apply(apply.unwrap_throw()))
+            .children(&mut [
+                carousel_item(
+                    child_even_signal,
+                    state.hidden_signal(0),
+                    state.child_leave_signal(0, OutgoingItemDirection::Left),
+                    state.child_leave_signal(0, OutgoingItemDirection::Right)
+                ),
+                carousel_item(
+                    child_odd_signal,
+                    state.hidden_signal(1),
+                    state.child_leave_signal(1, OutgoingItemDirection::Left),
+                    state.child_leave_signal(1, OutgoingItemDirection::Right)
+                ),
+                carousel_button(clone!(state => {
+                    move |_: events::Click| {
+                        state.transition(OutgoingItemDirection::Left)
+                    }
+                }), "left"),
+                carousel_button(clone!(state => {
+                    move |_: events::Click| {
+                        state.transition(OutgoingItemDirection::Right)
+                    }
+                }), "right")
+            ])
+        }))
+    })
 }
 
 #[derive(Clone, Eq, PartialEq)]
@@ -22,98 +90,62 @@ pub enum OutgoingItemDirection {
     Right,
 }
 
-#[derive(Clone)]
-pub struct OutgoingItem {
-    pub index: usize,
-    pub direction: OutgoingItemDirection,
+#[derive(Default)]
+struct Carousel {
+    pub current_item_index: Mutable<i32>,
+    pub previous_item_index: Mutable<i32>,
+    pub is_transitioning: Mutable<bool>,
 }
 
-struct Carousel<T: CarouselSource + 'static> {
-    pub current_item_index: Mutable<usize>,
-    pub outgoing_item: Mutable<Option<OutgoingItem>>,
-    current_active_child_element: Mutable<usize>,
-    source: Rc<T>,
-}
-
-impl<T: CarouselSource> Carousel<T> {
+impl Carousel {
     /// This produces a signal which will yield true if the child at `child_index`
     /// is considered leaving in `direction`
     fn child_leave_signal(
         &self,
-        child_index: usize,
+        oddity: i32,
         direction: OutgoingItemDirection,
     ) -> impl Signal<Item = bool> {
         map_ref!(
-            let outgoing = self.outgoing_item.signal_cloned(),
-            let active_child_element = self.current_active_child_element.signal() => move {
-                if *active_child_element == child_index {
-                    false
-                } else if let Some(outgoing)= outgoing {
-                    outgoing.direction != direction
-                } else {
-                    false
-                }
-            }
-        )
-    }
-
-    fn hidden_signal(&self, index: usize) -> impl Signal<Item = bool> {
-        map_ref!(
-            let transitioning = self.outgoing_item.signal_cloned(),
-            let active = self.current_active_child_element.signal() => move {
-                transitioning.is_none() && *active != index
-            }
-        )
-    }
-
-    fn child_signal(&self, index: usize) -> impl Signal<Item = Option<Dom>> {
-        let source = self.source.clone();
-        let transition = self.outgoing_item.clone();
-        map_ref!(
             let current = self.current_item_index.signal(),
-            let active = self.current_active_child_element.signal() => move {
-                if *active == index {
-                    Some(source.get_entry(*current))
+            let previous = self.previous_item_index.signal() => move {
+                if current % 2 == oddity {
+                    false
+                } else if *current < *previous {
+                    direction == OutgoingItemDirection::Right
                 } else {
-                    None
+                    direction == OutgoingItemDirection::Left
                 }
             }
         )
-        .filter_map(clone!(transition => move |v| {
-            if transition.get_cloned().is_some() {
-                v
-            } else {
-                None
-            }
-        }))
     }
 
-    fn transition(&self, direction: OutgoingItemDirection, target_idx: Option<usize>) {
-        let current = self.current_item_index.get();
+    fn hidden_signal(&self, oddity: i32) -> impl Signal<Item = bool> {
+        map_ref!(
+            let transitioning = self.is_transitioning.signal(),
+            let current = self.current_item_index.signal() => move {
+                (!transitioning) && current %2 != oddity
+            }
+        )
+    }
 
-        let next = match target_idx {
-            Some(next_idx) => next_idx,
-            _ => match direction {
-                OutgoingItemDirection::Left => {
-                    (self.source.total_count() + current - 1) % self.source.total_count()
-                }
-                OutgoingItemDirection::Right => (current + 1) % self.source.total_count(),
-            },
-        };
+    fn transition(&self, direction: OutgoingItemDirection) {
+        self.previous_item_index.set(self.current_item_index.get());
 
-        let outgoing = self.outgoing_item.clone();
+        match direction {
+            OutgoingItemDirection::Left => {
+                self.current_item_index.replace_with(|v| *v - 1);
+            }
+            OutgoingItemDirection::Right => {
+                self.current_item_index.replace_with(|v| *v + 1);
+            }
+        }
 
-        let active_item = (self.current_active_child_element.get() + 1) % 2;
-        self.current_active_child_element.set(active_item);
-        self.current_item_index.set(next);
-        self.outgoing_item.set(Some(OutgoingItem {
-            index: current,
-            direction,
-        }));
+        let is_transitioning = self.is_transitioning.clone();
+        self.is_transitioning.set(true);
 
-        let transition_end_cb = Closure::wrap(Box::new(clone!(outgoing => move || {
-            outgoing.set(None);
-        })) as Box<dyn Fn()>);
+        let transition_end_cb = Closure::wrap(Box::new(move || {
+            is_transitioning.set(false);
+        }) as Box<dyn Fn()>);
 
         web_sys::window().map(|window| {
             window.set_timeout_with_callback_and_timeout_and_arguments_0(
@@ -124,95 +156,6 @@ impl<T: CarouselSource> Carousel<T> {
 
         transition_end_cb.forget()
     }
-}
-
-#[derive(Clone)]
-pub struct CarouselControls<T: CarouselSource + 'static> {
-    carousel: Rc<Carousel<T>>,
-}
-
-impl<T: CarouselSource + 'static> CarouselControls<T> {
-    fn new(carousel: Rc<Carousel<T>>) -> CarouselControls<T> {
-        CarouselControls { carousel }
-    }
-
-    pub fn goto_index(&self, idx: usize) -> Result<(), Box<dyn Error>> {
-        self.carousel
-            .transition(OutgoingItemDirection::Right, Some(idx));
-        Ok(())
-    }
-}
-
-pub struct CarouselProps<T: CarouselSource> {
-    pub source: T,
-    pub initial_view_index: usize,
-}
-
-#[macro_export]
-macro_rules! carousel {
-    ($props: expr) => {{
-        $crate::components::carousel::carousel($props, |d| d)
-    }};
-
-    ($props: expr, $mixin: expr) => {{
-        $crate::components::carousel::carousel($props, $mixin)
-    }};
-}
-
-#[inline]
-pub fn carousel<
-    T: CarouselSource + 'static,
-    F: FnOnce(DomBuilder<HtmlElement>) -> DomBuilder<HtmlElement>,
->(
-    props: CarouselProps<T>,
-    mixin: F,
-) -> (Dom, CarouselControls<T>) {
-    let source = props.source;
-
-    let state = Rc::new(Carousel {
-        current_item_index: Mutable::new(props.initial_view_index),
-        outgoing_item: Mutable::new(Some(OutgoingItem {
-            index: 0,
-            direction: OutgoingItemDirection::Left,
-        })),
-        current_active_child_element: Mutable::new(0),
-
-        source: Rc::new(source),
-    });
-
-    (
-        html!("div", {.class("dmat-carousel")
-            .child(html!("div", {
-            .class("container")
-            .apply(mixin)
-            .children(&mut [
-                carousel_item(
-                    state.child_signal(0),
-                    state.hidden_signal(0),
-                    state.child_leave_signal(0, OutgoingItemDirection::Left),
-                    state.child_leave_signal(0, OutgoingItemDirection::Right)
-                ),
-                carousel_item(
-                    state.child_signal(1),
-                    state.hidden_signal(1),
-                    state.child_leave_signal(1, OutgoingItemDirection::Left),
-                    state.child_leave_signal(1, OutgoingItemDirection::Right)
-                ),
-                carousel_button(clone!(state => {
-                        move |_: events::Click| {
-                            state.transition(OutgoingItemDirection::Left, None);
-                        }
-                    }), "left"),
-                carousel_button(clone!(state => {
-                        move |_: events::Click| {
-                            state.transition(OutgoingItemDirection::Right, None);
-                        }
-                    }), "right")
-            ])
-        }))
-        }),
-        CarouselControls::new(state),
-    )
 }
 
 #[inline]

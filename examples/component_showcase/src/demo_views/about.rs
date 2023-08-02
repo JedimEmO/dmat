@@ -7,9 +7,8 @@ pub fn about_view() -> Dom {
         d.child(card!({
             .child( list!({
                 .rows([
-
-                    text!("dmat-* example app"),
-                    text!("A performance first component library built on FRP principles"),
+                    html!("span", { .text("dmat-* example app")}),
+                    html!("span", { .text("A performance first component library built on FRP principles") }),
                     html!("div", {
                     .with_node!(e => {
                         .apply(|d| {

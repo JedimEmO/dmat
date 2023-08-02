@@ -12,7 +12,7 @@ fn bottom_sheet() -> Dom {
     let expanded_signal = show_bottom.signal_cloned();
 
     let sheet_dom = sheet!({
-        .sheet_content(Some(text!("Bottom sheet")))
+        .sheet_content(Some(html!("span", {.text("Bottom sheet") })))
         .underlying_view(Some(html!("div", {
             .child(left_sheet(
                 show_bottom.clone()
@@ -59,11 +59,11 @@ fn right_sheet(show_bottom: Mutable<bool>, show_left: Mutable<bool>) -> Dom {
             }),
             button!({
                 .click_handler(move |_| show_bottom.set(!show_bottom.get()))
-                    .content(text!("Toggle bottom sheet"))
+                    .content(html!("span", { .text("Toggle bottom sheet") }))
             }),
             button!({
                 .click_handler(move |_| show_right.set(!show_right.get()))
-                .content(text!("Toggle right sheet"))
+                .content(html!("span", { .text("Toggle right sheet") }))
             })
         ])})))
         .side(SheetSide::Right)

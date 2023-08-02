@@ -1,11 +1,8 @@
-use dominator::{clone, html, Dom};
-use futures::Stream;
-use futures_signals::signal::always;
+use dominator::{html, Dom};
 use futures_signals::signal_vec::{MutableVec, SignalVecExt};
 
 use dmat_components::components::ListEntry;
 use dmat_components::components::*;
-use dmat_components::utils::mixin::stream_handler_mixin;
 
 use crate::components::app_bar_demo::app_bar_demo;
 use crate::components::button_demo::button_demo;
@@ -21,16 +18,16 @@ use crate::components::table_demo::table_demo;
 use crate::route::{DemoRoute, ExampleAppRoute};
 
 pub fn component_demo_view(current_route: DemoRoute) -> Dom {
-    let (component_list, component_change_stream) = component_demo_list(current_route);
+    let component_list = component_demo_list(current_route);
 
     navigation_drawer!({
         .drawer_content(Some(component_list))
-        .main_content(Some(component_demo(current_route, component_change_stream)))
+        .main_content(Some(component_demo(current_route)))
     })
 }
 
-fn component_demo_list(current_value: DemoRoute) -> (Dom, impl Stream<Item = Option<DemoRoute>>) {
-    let entries = MutableVec::new_with_values(vec![
+fn component_demo_list(current_value: DemoRoute) -> Dom {
+    let entries_raw = MutableVec::new_with_values(vec![
         DemoRoute::AppBar,
         DemoRoute::Button,
         DemoRoute::Card,
@@ -43,34 +40,24 @@ fn component_demo_list(current_value: DemoRoute) -> (Dom, impl Stream<Item = Opt
         DemoRoute::Sheet,
     ]);
 
-    let entries = entries
-        .signal_vec()
-        .map(clone!(current_value => move |entry| ListEntry {
-            before: None,
-            content: render_demo_label(entry),
-            after: None,
-            selected_signal: Box::new(always(current_value == entry)),
-            item_value: entry,
-        }));
+    let entries = entries_raw.signal_vec().map(|entry| ListEntry {
+        before: None,
+        content: render_demo_label(entry),
+        after: None,
+    });
 
-    let list_props = InteractiveListProps { items: entries };
-    let (list_dom, list_out) = interactive_list!(list_props);
-
-    (list_dom, list_out.item_select_stream)
+    interactive_list!({
+        .items_signal_vec(entries)
+        .selected_indexes(vec![entries_raw.lock_ref().iter().position(|entry| *entry == current_value).unwrap_or(0)])
+        .on_item_selected(move |entry| {
+            let new_component = entries_raw.lock_ref()[entry];
+            ExampleAppRoute::goto(ExampleAppRoute::Components(new_component))
+        })
+    })
 }
 
-fn component_demo<TStream: Stream<Item = Option<DemoRoute>> + Unpin + 'static>(
-    component: DemoRoute,
-    component_change_stream: TStream,
-) -> Dom {
+fn component_demo(component: DemoRoute) -> Dom {
     html!("div", {
-        .apply(stream_handler_mixin(component_change_stream, |new_component| {
-            if let Some(c) = new_component {
-                ExampleAppRoute::goto(ExampleAppRoute::Components(c))
-            } else {
-                ExampleAppRoute::goto(ExampleAppRoute::About)
-            }
-        }))
         .attr("id", "demo-view")
         .child(match component {
                 DemoRoute::AppBar => app_bar_demo(),
@@ -90,16 +77,16 @@ fn component_demo<TStream: Stream<Item = Option<DemoRoute>> + Unpin + 'static>(
 
 fn render_demo_label(tab_id: DemoRoute) -> Dom {
     match tab_id {
-        DemoRoute::Tabs => text!("Tabs"),
-        DemoRoute::Table => text!("Table"),
-        DemoRoute::AppBar => text!("App Bar"),
-        DemoRoute::Card => text!("Card"),
-        DemoRoute::DockOverlay => text!("Dock Overlay"),
-        DemoRoute::List => text!("List"),
-        DemoRoute::NavigationDrawer => text!("Navigation Drawer"),
-        DemoRoute::Input => text!("Input"),
-        DemoRoute::Carousel => text!("Carousel"),
-        DemoRoute::Button => text!("Button"),
-        DemoRoute::Sheet => text!("Sheet"),
+        DemoRoute::Tabs => html!("span", {.text("Tabs") }),
+        DemoRoute::AppBar => html!("span", {.text("App Bar") }),
+        DemoRoute::Button => html!("span", {.text("Button") }),
+        DemoRoute::List => html!("span", {.text("List") }),
+        DemoRoute::Carousel => html!("span", {.text("Carousel") }),
+        DemoRoute::Card => html!("span", {.text("Card") }),
+        DemoRoute::Table => html!("span", {.text("Table") }),
+        DemoRoute::Input => html!("span", {.text("Input") }),
+        DemoRoute::NavigationDrawer => html!("span", {.text("Navigation Drawer") }),
+        DemoRoute::Sheet => html!("span", {.text("Sheet") }),
+        DemoRoute::DockOverlay => html!("span", {.text("Dock Overlay") }),
     }
 }

@@ -9,7 +9,6 @@ pub use navigation_drawer::*;
 pub use scrim::*;
 pub use table::*;
 pub use tabs::*;
-pub use text::*;
 pub use title::*;
 
 pub mod button;
@@ -22,9 +21,7 @@ pub mod list;
 pub mod loading_bar;
 pub mod mixins;
 pub mod navigation_drawer;
-#[macro_use]
 pub mod scrim;
 pub mod table;
 pub mod tabs;
-pub mod text;
 pub mod title;
