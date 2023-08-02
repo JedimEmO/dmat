@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["switch"],"struct":["SwitchOut","SwitchProps"]};
+window.SIDEBAR_ITEMS = {"fn":["switch"],"struct":["SwitchProps"],"trait":["SwitchPropsTrait"]};

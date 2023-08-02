@@ -190,79 +190,90 @@
 <a href="#190" id="190">190</a>
 <a href="#191" id="191">191</a>
 <a href="#192" id="192">192</a>
-<a href="#193" id="193">193</a>
-<a href="#194" id="194">194</a>
-<a href="#195" id="195">195</a>
-<a href="#196" id="196">196</a>
-<a href="#197" id="197">197</a>
-<a href="#198" id="198">198</a>
-<a href="#199" id="199">199</a>
-<a href="#200" id="200">200</a>
-<a href="#201" id="201">201</a>
-<a href="#202" id="202">202</a>
-<a href="#203" id="203">203</a>
-<a href="#204" id="204">204</a>
-<a href="#205" id="205">205</a>
-<a href="#206" id="206">206</a>
-<a href="#207" id="207">207</a>
-<a href="#208" id="208">208</a>
-<a href="#209" id="209">209</a>
-<a href="#210" id="210">210</a>
-<a href="#211" id="211">211</a>
-<a href="#212" id="212">212</a>
-<a href="#213" id="213">213</a>
-<a href="#214" id="214">214</a>
-<a href="#215" id="215">215</a>
-<a href="#216" id="216">216</a>
-<a href="#217" id="217">217</a>
-<a href="#218" id="218">218</a>
-<a href="#219" id="219">219</a>
-<a href="#220" id="220">220</a>
-<a href="#221" id="221">221</a>
-<a href="#222" id="222">222</a>
-<a href="#223" id="223">223</a>
-<a href="#224" id="224">224</a>
-<a href="#225" id="225">225</a>
-<a href="#226" id="226">226</a>
-<a href="#227" id="227">227</a>
-<a href="#228" id="228">228</a>
-<a href="#229" id="229">229</a>
-<a href="#230" id="230">230</a>
-<a href="#231" id="231">231</a>
-<a href="#232" id="232">232</a>
-<a href="#233" id="233">233</a>
-<a href="#234" id="234">234</a>
-<a href="#235" id="235">235</a>
-<a href="#236" id="236">236</a>
-<a href="#237" id="237">237</a>
-<a href="#238" id="238">238</a>
-<a href="#239" id="239">239</a>
-<a href="#240" id="240">240</a>
-<a href="#241" id="241">241</a>
-<a href="#242" id="242">242</a>
-<a href="#243" id="243">243</a>
-<a href="#244" id="244">244</a>
-<a href="#245" id="245">245</a>
-<a href="#246" id="246">246</a>
-<a href="#247" id="247">247</a>
-<a href="#248" id="248">248</a>
-<a href="#249" id="249">249</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::error::Error;
-
-<span class="kw">use </span>dominator::{clone, events, html, Dom, DomBuilder};
+</pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{clone, events, html, Dom};
 <span class="kw">use </span>futures_signals::map_ref;
-<span class="kw">use </span>futures_signals::signal::{Mutable, MutableSignal, Signal};
+<span class="kw">use </span>futures_signals::signal::{Mutable, Signal};
 <span class="kw">use </span>wasm_bindgen::__rt::std::rc::Rc;
 <span class="kw">use </span>wasm_bindgen::prelude::Closure;
-<span class="kw">use </span>wasm_bindgen::JsCast;
-<span class="kw">use </span>web_sys::HtmlElement;
+<span class="kw">use </span>wasm_bindgen::{JsCast, UnwrapThrowExt};
 
 <span class="kw">use </span><span class="kw">crate</span>::futures_signals::signal::SignalExt;
 
-<span class="kw">pub trait </span>CarouselSource: Clone {
-    <span class="kw">fn </span>get_entry(<span class="kw-2">&amp;</span><span class="self">self</span>, index: usize) -&gt; Dom;
-    <span class="kw">fn </span>total_count_signal(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; MutableSignal&lt;usize&gt;;
-    <span class="kw">fn </span>total_count(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; usize;
+<span class="attr">#[component(render_fn = carousel)]
+</span><span class="kw">pub struct </span>Carousel&lt;TItemRenderFn: Fn(i32) -&gt; Dom = <span class="kw">fn</span>(i32) -&gt; Dom&gt; {
+    <span class="kw">pub </span>item_render_fn: TItemRenderFn,
+}
+
+<span class="attr">#[inline]
+</span><span class="kw">pub fn </span>carousel(props: <span class="kw">impl </span>CarouselPropsTrait + <span class="lifetime">&#39;static</span>) -&gt; Dom {
+    <span class="kw">let </span>CarouselProps {
+        item_render_fn,
+        apply,
+    } = props.take();
+
+    <span class="kw">let </span>state = Rc::new(Carousel {
+        current_item_index: Mutable::new(<span class="number">0</span>),
+        previous_item_index: Mutable::new(<span class="number">0</span>),
+        is_transitioning: Mutable::new(<span class="bool-val">false</span>),
+    });
+
+    <span class="kw">let </span>item_render_fn = Rc::new(item_render_fn.expect_throw(<span class="string">&quot;item_render_fn missing&quot;</span>));
+
+    <span class="kw">let </span>child_odd_signal =
+        state
+            .current_item_index
+            .signal()
+            .filter_map(<span class="macro">clone!</span>(item_render_fn =&gt; <span class="kw">move </span>|v| {
+                <span class="kw">if </span>v % <span class="number">2 </span>== <span class="number">1 </span>{
+                    <span class="prelude-val">Some</span>((<span class="kw-2">*</span>item_render_fn)(v))
+                } <span class="kw">else </span>{
+                    <span class="prelude-val">None
+                </span>}
+            }));
+
+    <span class="kw">let </span>child_even_signal =
+        state
+            .current_item_index
+            .signal()
+            .filter_map(<span class="macro">clone!</span>(item_render_fn =&gt; <span class="kw">move </span>|v| {
+                <span class="kw">if </span>v % <span class="number">2 </span>== <span class="number">0 </span>{
+                    <span class="prelude-val">Some</span>((<span class="kw-2">*</span>item_render_fn)(v))
+                } <span class="kw">else </span>{
+                    <span class="prelude-val">None
+                </span>}
+            }));
+
+    <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
+        .class(<span class="string">&quot;dmat-carousel&quot;</span>)
+        .child(<span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
+            .class(<span class="string">&quot;container&quot;</span>)
+            .apply_if(apply.is_some(), |dom| dom.apply(apply.unwrap_throw()))
+            .children(<span class="kw-2">&amp;mut </span>[
+                carousel_item(
+                    child_even_signal,
+                    state.hidden_signal(<span class="number">0</span>),
+                    state.child_leave_signal(<span class="number">0</span>, OutgoingItemDirection::Left),
+                    state.child_leave_signal(<span class="number">0</span>, OutgoingItemDirection::Right)
+                ),
+                carousel_item(
+                    child_odd_signal,
+                    state.hidden_signal(<span class="number">1</span>),
+                    state.child_leave_signal(<span class="number">1</span>, OutgoingItemDirection::Left),
+                    state.child_leave_signal(<span class="number">1</span>, OutgoingItemDirection::Right)
+                ),
+                carousel_button(<span class="macro">clone!</span>(state =&gt; {
+                    <span class="kw">move </span>|<span class="kw">_</span>: events::Click| {
+                        state.transition(OutgoingItemDirection::Left)
+                    }
+                }), <span class="string">&quot;left&quot;</span>),
+                carousel_button(<span class="macro">clone!</span>(state =&gt; {
+                    <span class="kw">move </span>|<span class="kw">_</span>: events::Click| {
+                        state.transition(OutgoingItemDirection::Right)
+                    }
+                }), <span class="string">&quot;right&quot;</span>)
+            ])
+        }))
+    })
 }
 
 <span class="attr">#[derive(Clone, Eq, PartialEq)]
@@ -271,98 +282,62 @@
     Right,
 }
 
-<span class="attr">#[derive(Clone)]
-</span><span class="kw">pub struct </span>OutgoingItem {
-    <span class="kw">pub </span>index: usize,
-    <span class="kw">pub </span>direction: OutgoingItemDirection,
+<span class="attr">#[derive(Default)]
+</span><span class="kw">struct </span>Carousel {
+    <span class="kw">pub </span>current_item_index: Mutable&lt;i32&gt;,
+    <span class="kw">pub </span>previous_item_index: Mutable&lt;i32&gt;,
+    <span class="kw">pub </span>is_transitioning: Mutable&lt;bool&gt;,
 }
 
-<span class="kw">struct </span>Carousel&lt;T: CarouselSource + <span class="lifetime">&#39;static</span>&gt; {
-    <span class="kw">pub </span>current_item_index: Mutable&lt;usize&gt;,
-    <span class="kw">pub </span>outgoing_item: Mutable&lt;<span class="prelude-ty">Option</span>&lt;OutgoingItem&gt;&gt;,
-    current_active_child_element: Mutable&lt;usize&gt;,
-    source: Rc&lt;T&gt;,
-}
-
-<span class="kw">impl</span>&lt;T: CarouselSource&gt; Carousel&lt;T&gt; {
+<span class="kw">impl </span>Carousel {
     <span class="doccomment">/// This produces a signal which will yield true if the child at `child_index`
     /// is considered leaving in `direction`
     </span><span class="kw">fn </span>child_leave_signal(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        child_index: usize,
+        oddity: i32,
         direction: OutgoingItemDirection,
     ) -&gt; <span class="kw">impl </span>Signal&lt;Item = bool&gt; {
         <span class="macro">map_ref!</span>(
-            <span class="kw">let </span>outgoing = <span class="self">self</span>.outgoing_item.signal_cloned(),
-            <span class="kw">let </span>active_child_element = <span class="self">self</span>.current_active_child_element.signal() =&gt; <span class="kw">move </span>{
-                <span class="kw">if </span><span class="kw-2">*</span>active_child_element == child_index {
-                    <span class="bool-val">false
-                </span>} <span class="kw">else if let </span><span class="prelude-val">Some</span>(outgoing)= outgoing {
-                    outgoing.direction != direction
-                } <span class="kw">else </span>{
-                    <span class="bool-val">false
-                </span>}
-            }
-        )
-    }
-
-    <span class="kw">fn </span>hidden_signal(<span class="kw-2">&amp;</span><span class="self">self</span>, index: usize) -&gt; <span class="kw">impl </span>Signal&lt;Item = bool&gt; {
-        <span class="macro">map_ref!</span>(
-            <span class="kw">let </span>transitioning = <span class="self">self</span>.outgoing_item.signal_cloned(),
-            <span class="kw">let </span>active = <span class="self">self</span>.current_active_child_element.signal() =&gt; <span class="kw">move </span>{
-                transitioning.is_none() &amp;&amp; <span class="kw-2">*</span>active != index
-            }
-        )
-    }
-
-    <span class="kw">fn </span>child_signal(<span class="kw-2">&amp;</span><span class="self">self</span>, index: usize) -&gt; <span class="kw">impl </span>Signal&lt;Item = <span class="prelude-ty">Option</span>&lt;Dom&gt;&gt; {
-        <span class="kw">let </span>source = <span class="self">self</span>.source.clone();
-        <span class="kw">let </span>transition = <span class="self">self</span>.outgoing_item.clone();
-        <span class="macro">map_ref!</span>(
             <span class="kw">let </span>current = <span class="self">self</span>.current_item_index.signal(),
-            <span class="kw">let </span>active = <span class="self">self</span>.current_active_child_element.signal() =&gt; <span class="kw">move </span>{
-                <span class="kw">if </span><span class="kw-2">*</span>active == index {
-                    <span class="prelude-val">Some</span>(source.get_entry(<span class="kw-2">*</span>current))
+            <span class="kw">let </span>previous = <span class="self">self</span>.previous_item_index.signal() =&gt; <span class="kw">move </span>{
+                <span class="kw">if </span>current % <span class="number">2 </span>== oddity {
+                    <span class="bool-val">false
+                </span>} <span class="kw">else if </span><span class="kw-2">*</span>current &lt; <span class="kw-2">*</span>previous {
+                    direction == OutgoingItemDirection::Right
                 } <span class="kw">else </span>{
-                    <span class="prelude-val">None
-                </span>}
+                    direction == OutgoingItemDirection::Left
+                }
             }
         )
-        .filter_map(<span class="macro">clone!</span>(transition =&gt; <span class="kw">move </span>|v| {
-            <span class="kw">if </span>transition.get_cloned().is_some() {
-                v
-            } <span class="kw">else </span>{
-                <span class="prelude-val">None
-            </span>}
-        }))
     }
 
-    <span class="kw">fn </span>transition(<span class="kw-2">&amp;</span><span class="self">self</span>, direction: OutgoingItemDirection, target_idx: <span class="prelude-ty">Option</span>&lt;usize&gt;) {
-        <span class="kw">let </span>current = <span class="self">self</span>.current_item_index.get();
+    <span class="kw">fn </span>hidden_signal(<span class="kw-2">&amp;</span><span class="self">self</span>, oddity: i32) -&gt; <span class="kw">impl </span>Signal&lt;Item = bool&gt; {
+        <span class="macro">map_ref!</span>(
+            <span class="kw">let </span>transitioning = <span class="self">self</span>.is_transitioning.signal(),
+            <span class="kw">let </span>current = <span class="self">self</span>.current_item_index.signal() =&gt; <span class="kw">move </span>{
+                (!transitioning) &amp;&amp; current %<span class="number">2 </span>!= oddity
+            }
+        )
+    }
 
-        <span class="kw">let </span>next = <span class="kw">match </span>target_idx {
-            <span class="prelude-val">Some</span>(next_idx) =&gt; next_idx,
-            <span class="kw">_ </span>=&gt; <span class="kw">match </span>direction {
-                OutgoingItemDirection::Left =&gt; {
-                    (<span class="self">self</span>.source.total_count() + current - <span class="number">1</span>) % <span class="self">self</span>.source.total_count()
-                }
-                OutgoingItemDirection::Right =&gt; (current + <span class="number">1</span>) % <span class="self">self</span>.source.total_count(),
-            },
-        };
+    <span class="kw">fn </span>transition(<span class="kw-2">&amp;</span><span class="self">self</span>, direction: OutgoingItemDirection) {
+        <span class="self">self</span>.previous_item_index.set(<span class="self">self</span>.current_item_index.get());
 
-        <span class="kw">let </span>outgoing = <span class="self">self</span>.outgoing_item.clone();
+        <span class="kw">match </span>direction {
+            OutgoingItemDirection::Left =&gt; {
+                <span class="self">self</span>.current_item_index.replace_with(|v| <span class="kw-2">*</span>v - <span class="number">1</span>);
+            }
+            OutgoingItemDirection::Right =&gt; {
+                <span class="self">self</span>.current_item_index.replace_with(|v| <span class="kw-2">*</span>v + <span class="number">1</span>);
+            }
+        }
 
-        <span class="kw">let </span>active_item = (<span class="self">self</span>.current_active_child_element.get() + <span class="number">1</span>) % <span class="number">2</span>;
-        <span class="self">self</span>.current_active_child_element.set(active_item);
-        <span class="self">self</span>.current_item_index.set(next);
-        <span class="self">self</span>.outgoing_item.set(<span class="prelude-val">Some</span>(OutgoingItem {
-            index: current,
-            direction,
-        }));
+        <span class="kw">let </span>is_transitioning = <span class="self">self</span>.is_transitioning.clone();
+        <span class="self">self</span>.is_transitioning.set(<span class="bool-val">true</span>);
 
-        <span class="kw">let </span>transition_end_cb = Closure::wrap(Box::new(<span class="macro">clone!</span>(outgoing =&gt; <span class="kw">move </span>|| {
-            outgoing.set(<span class="prelude-val">None</span>);
-        })) <span class="kw">as </span>Box&lt;<span class="kw">dyn </span>Fn()&gt;);
+        <span class="kw">let </span>transition_end_cb = Closure::wrap(Box::new(<span class="kw">move </span>|| {
+            is_transitioning.set(<span class="bool-val">false</span>);
+        }) <span class="kw">as </span>Box&lt;<span class="kw">dyn </span>Fn()&gt;);
 
         web_sys::window().map(|window| {
             window.set_timeout_with_callback_and_timeout_and_arguments_0(
@@ -373,95 +348,6 @@
 
         transition_end_cb.forget()
     }
-}
-
-<span class="attr">#[derive(Clone)]
-</span><span class="kw">pub struct </span>CarouselControls&lt;T: CarouselSource + <span class="lifetime">&#39;static</span>&gt; {
-    carousel: Rc&lt;Carousel&lt;T&gt;&gt;,
-}
-
-<span class="kw">impl</span>&lt;T: CarouselSource + <span class="lifetime">&#39;static</span>&gt; CarouselControls&lt;T&gt; {
-    <span class="kw">fn </span>new(carousel: Rc&lt;Carousel&lt;T&gt;&gt;) -&gt; CarouselControls&lt;T&gt; {
-        CarouselControls { carousel }
-    }
-
-    <span class="kw">pub fn </span>goto_index(<span class="kw-2">&amp;</span><span class="self">self</span>, idx: usize) -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>Error&gt;&gt; {
-        <span class="self">self</span>.carousel
-            .transition(OutgoingItemDirection::Right, <span class="prelude-val">Some</span>(idx));
-        <span class="prelude-val">Ok</span>(())
-    }
-}
-
-<span class="kw">pub struct </span>CarouselProps&lt;T: CarouselSource&gt; {
-    <span class="kw">pub </span>source: T,
-    <span class="kw">pub </span>initial_view_index: usize,
-}
-
-<span class="attr">#[macro_export]
-</span><span class="macro">macro_rules! </span>carousel {
-    (<span class="macro-nonterminal">$props</span>: expr) =&gt; {{
-        <span class="macro-nonterminal">$crate::components::carousel::carousel</span>(<span class="macro-nonterminal">$props</span>, |d| d)
-    }};
-
-    (<span class="macro-nonterminal">$props</span>: expr, <span class="macro-nonterminal">$mixin</span>: expr) =&gt; {{
-        <span class="macro-nonterminal">$crate::components::carousel::carousel</span>(<span class="macro-nonterminal">$props</span>, <span class="macro-nonterminal">$mixin</span>)
-    }};
-}
-
-<span class="attr">#[inline]
-</span><span class="kw">pub fn </span>carousel&lt;
-    T: CarouselSource + <span class="lifetime">&#39;static</span>,
-    F: FnOnce(DomBuilder&lt;HtmlElement&gt;) -&gt; DomBuilder&lt;HtmlElement&gt;,
-&gt;(
-    props: CarouselProps&lt;T&gt;,
-    mixin: F,
-) -&gt; (Dom, CarouselControls&lt;T&gt;) {
-    <span class="kw">let </span>source = props.source;
-
-    <span class="kw">let </span>state = Rc::new(Carousel {
-        current_item_index: Mutable::new(props.initial_view_index),
-        outgoing_item: Mutable::new(<span class="prelude-val">Some</span>(OutgoingItem {
-            index: <span class="number">0</span>,
-            direction: OutgoingItemDirection::Left,
-        })),
-        current_active_child_element: Mutable::new(<span class="number">0</span>),
-
-        source: Rc::new(source),
-    });
-
-    (
-        <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {.class(<span class="string">&quot;dmat-carousel&quot;</span>)
-            .child(<span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
-            .class(<span class="string">&quot;container&quot;</span>)
-            .apply(mixin)
-            .children(<span class="kw-2">&amp;mut </span>[
-                carousel_item(
-                    state.child_signal(<span class="number">0</span>),
-                    state.hidden_signal(<span class="number">0</span>),
-                    state.child_leave_signal(<span class="number">0</span>, OutgoingItemDirection::Left),
-                    state.child_leave_signal(<span class="number">0</span>, OutgoingItemDirection::Right)
-                ),
-                carousel_item(
-                    state.child_signal(<span class="number">1</span>),
-                    state.hidden_signal(<span class="number">1</span>),
-                    state.child_leave_signal(<span class="number">1</span>, OutgoingItemDirection::Left),
-                    state.child_leave_signal(<span class="number">1</span>, OutgoingItemDirection::Right)
-                ),
-                carousel_button(<span class="macro">clone!</span>(state =&gt; {
-                        <span class="kw">move </span>|<span class="kw">_</span>: events::Click| {
-                            state.transition(OutgoingItemDirection::Left, <span class="prelude-val">None</span>);
-                        }
-                    }), <span class="string">&quot;left&quot;</span>),
-                carousel_button(<span class="macro">clone!</span>(state =&gt; {
-                        <span class="kw">move </span>|<span class="kw">_</span>: events::Click| {
-                            state.transition(OutgoingItemDirection::Right, <span class="prelude-val">None</span>);
-                        }
-                    }), <span class="string">&quot;right&quot;</span>)
-            ])
-        }))
-        }),
-        CarouselControls::new(state),
-    )
 }
 
 <span class="attr">#[inline]

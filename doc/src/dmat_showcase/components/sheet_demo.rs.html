@@ -84,7 +84,7 @@
     <span class="kw">let </span>expanded_signal = show_bottom.signal_cloned();
 
     <span class="kw">let </span>sheet_dom = <span class="macro">sheet!</span>({
-        .sheet_content(<span class="prelude-val">Some</span>(<span class="macro">text!</span>(<span class="string">&quot;Bottom sheet&quot;</span>)))
+        .sheet_content(<span class="prelude-val">Some</span>(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {.text(<span class="string">&quot;Bottom sheet&quot;</span>) })))
         .underlying_view(<span class="prelude-val">Some</span>(<span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
             .child(left_sheet(
                 show_bottom.clone()
@@ -131,11 +131,11 @@
             }),
             <span class="macro">button!</span>({
                 .click_handler(<span class="kw">move </span>|<span class="kw">_</span>| show_bottom.set(!show_bottom.get()))
-                    .content(<span class="macro">text!</span>(<span class="string">&quot;Toggle bottom sheet&quot;</span>))
+                    .content(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;Toggle bottom sheet&quot;</span>) }))
             }),
             <span class="macro">button!</span>({
                 .click_handler(<span class="kw">move </span>|<span class="kw">_</span>| show_right.set(!show_right.get()))
-                .content(<span class="macro">text!</span>(<span class="string">&quot;Toggle right sheet&quot;</span>))
+                .content(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;Toggle right sheet&quot;</span>) }))
             })
         ])})))
         .side(SheetSide::Right)

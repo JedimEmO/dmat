@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["button","card","carousel","input","interactive_list","layouts","list","loading_bar","mixins","navigation_drawer","scrim","table","tabs","text","title"]};
+window.SIDEBAR_ITEMS = {"mod":["button","card","carousel","input","interactive_list","layouts","list","loading_bar","mixins","navigation_drawer","scrim","table","tabs","title"]};

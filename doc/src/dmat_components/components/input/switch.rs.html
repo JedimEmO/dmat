@@ -71,117 +71,77 @@
 <a href="#71" id="71">71</a>
 <a href="#72" id="72">72</a>
 <a href="#73" id="73">73</a>
-<a href="#74" id="74">74</a>
-<a href="#75" id="75">75</a>
-<a href="#76" id="76">76</a>
-<a href="#77" id="77">77</a>
-<a href="#78" id="78">78</a>
-<a href="#79" id="79">79</a>
-<a href="#80" id="80">80</a>
-<a href="#81" id="81">81</a>
-<a href="#82" id="82">82</a>
-<a href="#83" id="83">83</a>
-<a href="#84" id="84">84</a>
-<a href="#85" id="85">85</a>
-<a href="#86" id="86">86</a>
-<a href="#87" id="87">87</a>
-<a href="#88" id="88">88</a>
-<a href="#89" id="89">89</a>
-<a href="#90" id="90">90</a>
-<a href="#91" id="91">91</a>
-<a href="#92" id="92">92</a>
-<a href="#93" id="93">93</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::components::mixins::disabled_signal_mixin;
 <span class="kw">use </span><span class="kw">crate</span>::utils::signals::mutation::store_signal_value_mixin;
 <span class="kw">use </span>dmat_utils::svg::animated_attribute::animated_attribute;
-<span class="kw">use </span>dominator::{clone, events, html, svg, Dom, DomBuilder};
-<span class="kw">use </span>futures::channel::mpsc::{channel, Receiver};
-<span class="kw">use </span>futures_signals::signal::{Mutable, Signal};
+<span class="kw">use </span>dominator::{clone, events, html, svg, Dom};
+<span class="kw">use </span>futures_signals::signal::{Mutable, SignalExt};
 <span class="kw">use </span>std::time::Duration;
-<span class="kw">use </span>wasm_bindgen::UnwrapThrowExt;
-<span class="kw">use </span>web_sys::HtmlElement;
 
-<span class="attr">#[macro_export]
-</span><span class="macro">macro_rules! </span>switch {
-    (<span class="macro-nonterminal">$props</span>: expr) =&gt; {{
-        <span class="macro-nonterminal">$crate::components::input::switch::switch</span>(<span class="macro-nonterminal">$props</span>, |d| d)
-    }};
-
-    (<span class="macro-nonterminal">$props</span>: expr, <span class="macro-nonterminal">$mixin</span>: expr) =&gt; {{
-        <span class="macro-nonterminal">$crate::components::input::switch::switch</span>(<span class="macro-nonterminal">$props</span>, <span class="macro-nonterminal">$mixin</span>)
-    }};
+<span class="attr">#[component(render_fn = switch)]
+</span><span class="kw">pub struct </span>Switch&lt;TClickHandler: Fn(events::Click) = <span class="kw">fn</span>(events::Click) -&gt; ()&gt; {
+    <span class="attr">#[signal]
+    #[default(<span class="bool-val">false</span>)]
+    </span><span class="kw">pub </span>state: bool,
+    <span class="attr">#[signal]
+    #[default(<span class="bool-val">false</span>)]
+    </span><span class="kw">pub </span>disabled: bool,
+    <span class="attr">#[default(|<span class="kw">_</span>| {})]
+    </span><span class="kw">pub </span>click_handler: TClickHandler,
 }
 
-<span class="kw">pub struct </span>SwitchProps&lt;
-    TStateSignal: FnMut() -&gt; Box&lt;<span class="kw">dyn </span>Signal&lt;Item = bool&gt; + Unpin&gt;,
-    TDisabledSignal: Signal&lt;Item = bool&gt; + Unpin,
-&gt; {
-    <span class="kw">pub </span>state_signal: TStateSignal,
-    <span class="kw">pub </span>disabled_signal: TDisabledSignal,
-}
+<span class="kw">pub fn </span>switch(props: <span class="kw">impl </span>SwitchPropsTrait + <span class="lifetime">&#39;static</span>) -&gt; Dom {
+    <span class="kw">let </span>SwitchProps {
+        state,
+        disabled,
+        click_handler,
+        apply,
+    } = props.take();
 
-<span class="kw">pub struct </span>SwitchOut {
-    <span class="kw">pub </span>toggle_stream: Receiver&lt;()&gt;,
-}
-
-<span class="kw">pub fn </span>switch&lt;TStateSignal, TDisabledSignal, F&gt;(
-    props: SwitchProps&lt;TStateSignal, TDisabledSignal&gt;,
-    mixin: F,
-) -&gt; (Dom, SwitchOut)
-<span class="kw">where
-    </span>TStateSignal: FnMut() -&gt; Box&lt;<span class="kw">dyn </span>Signal&lt;Item = bool&gt; + Unpin&gt; + <span class="lifetime">&#39;static</span>,
-    TDisabledSignal: Signal&lt;Item = bool&gt; + Unpin + <span class="lifetime">&#39;static</span>,
-    F: FnOnce(DomBuilder&lt;HtmlElement&gt;) -&gt; DomBuilder&lt;HtmlElement&gt;,
-{
-    <span class="kw">let </span>(<span class="kw-2">mut </span>toggle_tx, toggle_stream) = channel(<span class="number">1</span>);
-    <span class="kw">let </span>disabled_signal = props.disabled_signal;
-    <span class="kw">let </span><span class="kw-2">mut </span>state_signal_fn = props.state_signal;
+    <span class="kw">let </span>state_bc = state.broadcast();
+    <span class="kw">let </span>disabled_bc = disabled.broadcast();
     <span class="kw">let </span>is_disabled = Mutable::new(<span class="bool-val">false</span>);
 
-    (
-        <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
-            .apply(mixin)
-            .class(<span class="string">&quot;dmat-switch&quot;</span>)
-            .class_signal(<span class="string">&quot;on&quot;</span>, state_signal_fn())
-            .apply(store_signal_value_mixin(disabled_signal, <span class="kw-2">&amp;</span>is_disabled))
-            .apply(disabled_signal_mixin(is_disabled.signal_cloned()))
-            .style(<span class="string">&quot;height&quot;</span>, <span class="string">&quot;1rem&quot;</span>)
-            .style(<span class="string">&quot;width&quot;</span>, <span class="string">&quot;2rem&quot;</span>)
-            .event(<span class="macro">clone!</span>(is_disabled =&gt; {
-                <span class="kw">move </span>|e: events::Click| {
-                    <span class="kw">if </span>!is_disabled.get() {
-                        e.stop_propagation();
-                        toggle_tx.try_send(()).unwrap_throw();
-                    }
+    <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
+        .apply_if(apply.is_some(), |dom| { apply.unwrap()(dom) })
+        .class(<span class="string">&quot;dmat-switch&quot;</span>)
+        .class_signal(<span class="string">&quot;on&quot;</span>, state_bc.signal())
+        .apply(store_signal_value_mixin(disabled_bc.signal(), <span class="kw-2">&amp;</span>is_disabled))
+        .apply(disabled_signal_mixin(disabled_bc.signal()))
+        .style(<span class="string">&quot;height&quot;</span>, <span class="string">&quot;1rem&quot;</span>)
+        .style(<span class="string">&quot;width&quot;</span>, <span class="string">&quot;2rem&quot;</span>)
+        .event(<span class="macro">clone!</span>(is_disabled =&gt; {
+            <span class="kw">move </span>|e: events::Click| {
+                <span class="kw">if </span>!is_disabled.get() {
+                    click_handler(e);
                 }
-            }))
-            .child(<span class="macro">svg!</span>(<span class="string">&quot;svg&quot;</span>, {
-                .attr(<span class="string">&quot;viewBox&quot;</span>, <span class="string">&quot;0 0 100 50&quot;</span>)
-                .children(<span class="kw-2">&amp;mut </span>[
-                    <span class="macro">svg!</span>(<span class="string">&quot;path&quot;</span>, {
-                        .class(<span class="string">&quot;track&quot;</span>)
-                        .attr(<span class="string">&quot;d&quot;</span>, <span class="string">&quot;M 20 5 \
-                        A 20 20 0 0 0 20 45 \
-                        L 80 45 \
-                        A 20 20 0 0 0 80 5&quot;</span>)
-                    }),
-                    <span class="macro">svg!</span>(<span class="string">&quot;circle&quot;</span>, {
-                        .class(<span class="string">&quot;thumb&quot;</span>)
-                        .attr(<span class="string">&quot;cy&quot;</span>, <span class="string">&quot;25&quot;</span>)
-                        .attr(<span class="string">&quot;r&quot;</span>, <span class="string">&quot;25&quot;</span>)
-                        .apply(|b| {
-                            animated_attribute(b, state_signal_fn(), Box::new(|v| {
-                                <span class="kw">match </span>v {
-                                    <span class="bool-val">true </span>=&gt; <span class="string">&quot;75&quot;</span>.to_string(),
-                                    <span class="kw">_ </span>=&gt; <span class="string">&quot;25&quot;</span>.to_string()
-                                }
-                            }), <span class="string">&quot;cx&quot;</span>.to_string(), Duration::from_millis(<span class="number">20</span>))
-                        })
+            }
+        }))
+        .child(<span class="macro">svg!</span>(<span class="string">&quot;svg&quot;</span>, {
+            .attr(<span class="string">&quot;viewBox&quot;</span>, <span class="string">&quot;0 0 100 50&quot;</span>)
+            .children(<span class="kw-2">&amp;mut </span>[
+                <span class="macro">svg!</span>(<span class="string">&quot;path&quot;</span>, {
+                    .class(<span class="string">&quot;track&quot;</span>)
+                    .attr(<span class="string">&quot;d&quot;</span>, <span class="string">&quot;M 20 5 \
+                    A 20 20 0 0 0 20 45 \
+                    L 80 45 \
+                    A 20 20 0 0 0 80 5&quot;</span>)
+                }),
+                <span class="macro">svg!</span>(<span class="string">&quot;circle&quot;</span>, {
+                    .class(<span class="string">&quot;thumb&quot;</span>)
+                    .attr(<span class="string">&quot;cy&quot;</span>, <span class="string">&quot;25&quot;</span>)
+                    .attr(<span class="string">&quot;r&quot;</span>, <span class="string">&quot;25&quot;</span>)
+                    .apply(|b| {
+                        animated_attribute(b, state_bc.signal(), Box::new(|v| {
+                            <span class="kw">match </span>v {
+                                <span class="bool-val">true </span>=&gt; <span class="string">&quot;75&quot;</span>.to_string(),
+                                <span class="kw">_ </span>=&gt; <span class="string">&quot;25&quot;</span>.to_string()
+                            }
+                        }), <span class="string">&quot;cx&quot;</span>.to_string(), Duration::from_millis(<span class="number">20</span>))
                     })
-                ])
-            }))
-        }),
-        SwitchOut { toggle_stream },
-    )
+                })
+            ])
+        }))
+    })
 }
 </code></pre></div></section></main></body></html>

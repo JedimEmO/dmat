@@ -180,8 +180,6 @@
 <a href="#180" id="180">180</a>
 <a href="#181" id="181">181</a>
 <a href="#182" id="182">182</a>
-<a href="#183" id="183">183</a>
-<a href="#184" id="184">184</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>dmat_components::components::layouts::<span class="kw-2">*</span>;
 <span class="kw">use </span>dmat_components::components::<span class="kw-2">*</span>;
 <span class="kw">use </span>dmat_vis::contexts::charts::axis::{AxisDescription, TickInfo};
@@ -257,13 +255,12 @@
     };
 
     <span class="macro">card!</span>({
-        .child(<span class="macro">content_block!</span>(ContentBlockProps {
-        title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>({
+        .child(<span class="macro">content_block!</span>({
+        .title_section(<span class="prelude-val">Some</span>(<span class="macro">title!</span>({
             .header_text(<span class="string">&quot;Static data line chart&quot;</span>.to_string())
             .sub_header_text(<span class="prelude-val">Some</span>(<span class="string">&quot;Axis center within view box&quot;</span>.to_string()))
-        })),
-        media_section: <span class="prelude-val">Some</span>(<span class="macro">line_chart!</span>(props, datasets.signal_vec_cloned())),
-        ..Default::default()
+        })))
+        .media_section(<span class="prelude-val">Some</span>(<span class="macro">line_chart!</span>(props, datasets.signal_vec_cloned())))
     }))
     })
 }
@@ -317,17 +314,16 @@
     };
 
     <span class="macro">card!</span>({
-        .child(<span class="macro">content_block!</span>(ContentBlockProps {
-        title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>({
-            .header_text(<span class="string">&quot;Dynamic data line chart&quot;</span>.to_string())
-        })),
-        media_section: <span class="prelude-val">Some</span>(line_chart(
-            props,
-            datasets.signal_vec_cloned(),
-            |b: DomBuilder&lt;SvgElement&gt;| b.future(changer_fut).future(changer_fut2),
-        )),
-        ..Default::default()
-    }))
+        .child(<span class="macro">content_block!</span>({
+            .title_section(<span class="prelude-val">Some</span>(<span class="macro">title!</span>({
+                .header_text(<span class="string">&quot;Dynamic data line chart&quot;</span>.to_string())
+            })))
+            .media_section(<span class="prelude-val">Some</span>(line_chart(
+                props,
+                datasets.signal_vec_cloned(),
+                |b: DomBuilder&lt;SvgElement&gt;| b.future(changer_fut).future(changer_fut2),
+            )))
+        }))
     })
 }
 

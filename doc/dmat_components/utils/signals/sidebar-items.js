@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["mutation","stream_flipflop"]};
+window.SIDEBAR_ITEMS = {"mod":["mutation"]};

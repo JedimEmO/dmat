@@ -131,22 +131,7 @@
 <a href="#131" id="131">131</a>
 <a href="#132" id="132">132</a>
 <a href="#133" id="133">133</a>
-<a href="#134" id="134">134</a>
-<a href="#135" id="135">135</a>
-<a href="#136" id="136">136</a>
-<a href="#137" id="137">137</a>
-<a href="#138" id="138">138</a>
-<a href="#139" id="139">139</a>
-<a href="#140" id="140">140</a>
-<a href="#141" id="141">141</a>
-<a href="#142" id="142">142</a>
-<a href="#143" id="143">143</a>
-<a href="#144" id="144">144</a>
-<a href="#145" id="145">145</a>
-<a href="#146" id="146">146</a>
-<a href="#147" id="147">147</a>
-<a href="#148" id="148">148</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{clone, Dom};
+</pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{clone, html, Dom};
 <span class="kw">use </span>futures_signals::map_ref;
 <span class="kw">use </span>futures_signals::signal::Mutable;
 
@@ -159,138 +144,123 @@
     <span class="macro">container!</span>({
         .children([
                 <span class="macro">card!</span>({
-                .child(<span class="macro">content_block!</span>(
-                    ContentBlockProps {
-                        title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>({
+                .child(<span class="macro">content_block!</span>({
+                        .title_section(<span class="prelude-val">Some</span>(<span class="macro">title!</span>({
                             .header_text(<span class="string">&quot;ButtonType::Contained&quot;</span>.to_string())
                             .sub_header_text(<span class="prelude-val">None</span>)
-                        })),
-                        media_section: <span class="prelude-val">Some</span>(<span class="macro">list!</span>({
+                        })))
+                        .media_section(<span class="prelude-val">Some</span>(<span class="macro">list!</span>({
                             .rows([
                                 <span class="macro">button!</span>({
                                     .style(ButtonStyle::Prominent)
-                                    .content(<span class="macro">text!</span>(<span class="string">&quot;prominent&quot;</span>))
+                                    .content(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;prominent&quot;</span>) }))
                                 }),
                                 <span class="macro">button!</span>({
                                     .style(ButtonStyle::Neutral)
-                                    .content(<span class="macro">text!</span>(<span class="string">&quot;neutral&quot;</span>))
+                                    .content(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;neutral&quot;</span>) }))
                                 }),
                                 <span class="macro">button!</span>({
                                     .style(ButtonStyle::Unimportant)
-                                    .content(<span class="macro">text!</span>(<span class="string">&quot;unimportant&quot;</span>))
+                                    .content(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;unimportant&quot;</span>) }))
                                 })
                             ])
-                        })),
-                        supporting_section: <span class="prelude-val">None</span>,
-                        footer_section: <span class="prelude-val">None
-                    </span>}))
+                        })))
+                    }))
             }),
 
-            <span class="macro">card!</span>({.child(<span class="macro">content_block!</span>(
-                    ContentBlockProps {
-                        title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>( {
+            <span class="macro">card!</span>({.child(<span class="macro">content_block!</span>({
+                        .title_section(<span class="prelude-val">Some</span>(<span class="macro">title!</span>( {
                             .header_text(<span class="string">&quot;ButtonType::Elevated&quot;</span>.to_string())
-                        })),
-                        media_section: <span class="prelude-val">Some</span>(<span class="macro">list!</span>({
+                        })))
+                        .media_section(<span class="prelude-val">Some</span>(<span class="macro">list!</span>({
                                 .rows([
                                     <span class="macro">button!</span>({
                                         .style(ButtonStyle::Prominent)
                                         .button_type(ButtonType::Elevated)
-                                        .content(<span class="macro">text!</span>(<span class="string">&quot;prominent&quot;</span>))
+                                        .content(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;prominent&quot;</span>) }))
                                     }),
                                     <span class="macro">button!</span>({
                                         .style(ButtonStyle::Neutral)
                                         .button_type(ButtonType::Elevated)
-                                        .content(<span class="macro">text!</span>(<span class="string">&quot;neutral&quot;</span>))
+                                        .content(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;neutral&quot;</span>) }))
                                     }),
                                     <span class="macro">button!</span>({
                                         .style(ButtonStyle::Unimportant)
                                         .button_type(ButtonType::Elevated)
-                                        .content(<span class="macro">text!</span>(<span class="string">&quot;unimportant&quot;</span>))
+                                        .content(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;unimportant&quot;</span>) }))
                                 })
                             ])
-                        })),
-                        supporting_section: <span class="prelude-val">None</span>,
-                        footer_section: <span class="prelude-val">None
-                    </span>}))}),
-                <span class="macro">card!</span>({.child(<span class="macro">content_block!</span>(
-                    ContentBlockProps {
-                        title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>( {
+                        })))
+                    }))}),
+                <span class="macro">card!</span>({.child(<span class="macro">content_block!</span>({
+                        .title_section(<span class="prelude-val">Some</span>(<span class="macro">title!</span>( {
                             .header_text(<span class="string">&quot;ButtonType::Text&quot;</span>.to_string())
-                        })),
-                        media_section: <span class="prelude-val">Some</span>(<span class="macro">list!</span>({
+                        })))
+                        .media_section(<span class="prelude-val">Some</span>(<span class="macro">list!</span>({
                             .rows([
                                 <span class="macro">button!</span>({
                                     .style(ButtonStyle::Prominent)
                                     .button_type(ButtonType::Text)
-                                    .content(<span class="macro">text!</span>(<span class="string">&quot;prominent&quot;</span>))
+                                    .content(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;prominent&quot;</span>) }))
                                }),
                                 <span class="macro">button!</span>({
                                     .style(ButtonStyle::Neutral)
                                     .button_type(ButtonType::Text)
-                                    .content(<span class="macro">text!</span>(<span class="string">&quot;neutral&quot;</span>))
+                                    .content(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;neutral&quot;</span>) }))
                                 }),
                                 <span class="macro">button!</span>({
                                     .style(ButtonStyle::Unimportant)
                                     .button_type(ButtonType::Text)
-                                    .content(<span class="macro">text!</span>(<span class="string">&quot;unimportant&quot;</span>))
+                                    .content(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;unimportant&quot;</span>) }))
                                 })
                             ])
-                        })),
-                        supporting_section: <span class="prelude-val">None</span>,
-                        footer_section: <span class="prelude-val">None
-                    </span>}))}),
-                <span class="macro">card!</span>({.child(<span class="macro">content_block!</span>(
-                    ContentBlockProps {
-                        title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>({
+                        })))
+                    }))}),
+                <span class="macro">card!</span>({.child(<span class="macro">content_block!</span>({
+                        .title_section(<span class="prelude-val">Some</span>(<span class="macro">title!</span>({
                             .header_text(<span class="string">&quot;ButtonType::Outlined&quot;</span>.to_string())
-                        })),
-                        media_section: <span class="prelude-val">Some</span>(<span class="macro">list!</span>({
+                        })))
+                        .media_section(<span class="prelude-val">Some</span>(<span class="macro">list!</span>({
                             .rows([
                                 <span class="macro">button!</span>({
                                     .style(ButtonStyle::Prominent)
                                     .button_type(ButtonType::Outlined)
-                                    .content(<span class="macro">text!</span>(<span class="string">&quot;prominent&quot;</span>))
+                                    .content(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;prominent&quot;</span>) }))
                                 }),
                                 <span class="macro">button!</span>({
                                     .style(ButtonStyle::Neutral)
                                     .button_type(ButtonType::Outlined)
-                                    .content(<span class="macro">text!</span>(<span class="string">&quot;neutral&quot;</span>))
+                                    .content(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;neutral&quot;</span>) }))
                                 }),
                                 <span class="macro">button!</span>({
                                     .style(ButtonStyle::Unimportant)
                                     .button_type(ButtonType::Outlined)
-                                    .content(<span class="macro">text!</span>(<span class="string">&quot;unimportant&quot;</span>))
+                                    .content(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;unimportant&quot;</span>) }))
                                 })
                             ])
-                        })),
-                        supporting_section: <span class="prelude-val">None</span>,
-                        footer_section: <span class="prelude-val">None
-                    </span>}))}),
-                <span class="macro">card!</span>({.child(<span class="macro">content_block!</span>(
-                    ContentBlockProps {
-                        title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>({
+                        })))
+                    }))}),
+                <span class="macro">card!</span>({.child(<span class="macro">content_block!</span>({
+                        .title_section(<span class="prelude-val">Some</span>(<span class="macro">title!</span>({
                             .header_text(<span class="string">&quot;Button with dynamic content&quot;</span>.to_string())
                             .sub_header_text_signal(<span class="macro">map_ref! </span>{
                                 <span class="kw">let </span>value = counter.signal() =&gt; <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">&quot;Button with dynamic content -  value is {}&quot;</span>, value))
                             })
-                        })),
-                        media_section: <span class="prelude-val">Some</span>(<span class="macro">list!</span>({
+                        })))
+                        .media_section(<span class="prelude-val">Some</span>(<span class="macro">list!</span>({
                              .rows([
                                 <span class="macro">button!</span>({
                                     .click_handler(<span class="macro">clone!</span>(counter =&gt; <span class="kw">move </span>|<span class="kw">_</span>| {
                                         <span class="kw">let </span>v = <span class="kw-2">*</span>counter.lock_ref();
                                         <span class="kw-2">*</span>counter.lock_mut() = v + <span class="number">1</span>;
                                     }))
-                                    .content(<span class="macro">dynamic_text!</span>(<span class="macro">map_ref! </span>{
+                                    .content(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {.text_signal(<span class="macro">map_ref! </span>{
                                         <span class="kw">let </span>value = counter.signal() =&gt; <span class="macro">format!</span>(<span class="string">&quot;Clicked {} times&quot;</span>, value)
-                                    }))
+                                    })}))
                                 })
                             ])
-                        })),
-                        supporting_section: <span class="prelude-val">None</span>,
-                        footer_section: <span class="prelude-val">None
-                    </span>}))})
+                        })))
+                    }))})
             ])
     })
 }

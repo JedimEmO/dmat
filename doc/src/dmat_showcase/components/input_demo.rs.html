@@ -187,15 +187,8 @@
 <a href="#187" id="187">187</a>
 <a href="#188" id="188">188</a>
 <a href="#189" id="189">189</a>
-<a href="#190" id="190">190</a>
-<a href="#191" id="191">191</a>
-<a href="#192" id="192">192</a>
-<a href="#193" id="193">193</a>
-<a href="#194" id="194">194</a>
-<a href="#195" id="195">195</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{clone, html, Dom};
 <span class="kw">use </span>futures_signals::map_ref;
-<span class="kw">use </span>futures_signals::signal::always;
 <span class="kw">use </span>futures_signals::signal::Mutable;
 
 <span class="kw">use </span>dmat_components::components::input::combo_box::<span class="kw-2">*</span>;
@@ -206,7 +199,6 @@
 <span class="kw">use </span>dmat_components::components::input::validation_result::ValidationResult;
 <span class="kw">use </span>dmat_components::components::input::value_adapters::mutable_t_value_adapter::MutableTValueAdapter;
 <span class="kw">use </span>dmat_components::components::<span class="kw-2">*</span>;
-<span class="kw">use </span>dmat_components::utils::signals::stream_flipflop::stream_to_flipflop_mixin;
 
 <span class="kw">pub fn </span>input_demo() -&gt; Dom {
     <span class="kw">let </span>value = Mutable::new(<span class="string">&quot;&quot;</span>.to_string());
@@ -224,35 +216,31 @@
     <span class="kw">let </span>state2 = Mutable::new(<span class="bool-val">true</span>);
     <span class="kw">let </span>state3 = Mutable::new(<span class="bool-val">false</span>);
 
-    <span class="kw">let </span>(sw, sw_clicks) = <span class="macro">switch!</span>(SwitchProps {
-        state_signal: <span class="macro">clone!</span>(state =&gt; <span class="kw">move </span>|| Box::new(state.signal_cloned())),
-        disabled_signal: always(<span class="bool-val">false</span>)
-    });
-
-    <span class="kw">let </span>(sw_disabled_on, sw_clicks2) = <span class="macro">switch!</span>(SwitchProps {
-        state_signal: <span class="macro">clone!</span>(state2 =&gt; <span class="kw">move </span>|| Box::new(state2.signal_cloned())),
-        disabled_signal: always(<span class="bool-val">true</span>)
-    });
-
-    <span class="kw">let </span>(sw_disabled_off, sw_clicks3) = <span class="macro">switch!</span>(SwitchProps {
-        state_signal: <span class="macro">clone!</span>(state3 =&gt; <span class="kw">move </span>|| Box::new(state3.signal_cloned())),
-        disabled_signal: always(<span class="bool-val">true</span>)
-    });
-
     <span class="macro">card!</span>({
         .child(<span class="macro">list!</span>({
             .rows([
-                <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, { .children(<span class="kw-2">&amp;mut </span>[<span class="macro">text!</span>(<span class="string">&quot;Switch: &quot;</span>), sw])}),
-                <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, { .children(<span class="kw-2">&amp;mut </span>[<span class="macro">text!</span>(<span class="string">&quot;Switch disabled, on: &quot;</span>), sw_disabled_on])}),
-                <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, { .children(<span class="kw-2">&amp;mut </span>[<span class="macro">text!</span>(<span class="string">&quot;Switch disabled, off: &quot;</span>), sw_disabled_off])}),
+                <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, { .children(<span class="kw-2">&amp;mut</span>[
+                    <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {.text(<span class="string">&quot;Switch: &quot;</span>)}),
+                    <span class="macro">switch!</span>({
+                        .state_signal(state.signal())
+                    })
+                ])}),
+                <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, { .children(<span class="kw-2">&amp;mut </span>[
+                    <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {.text(<span class="string">&quot;Switch disabled, on: &quot;</span>)}),
+                    <span class="macro">switch!</span>({
+                        .state_signal(state2.signal())
+                        .disabled(<span class="bool-val">true</span>)
+                    })
+                ])}),
+                <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, { .children(<span class="kw-2">&amp;mut </span>[
+                    <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {.text(<span class="string">&quot;Switch disabled, off: &quot;</span>)}),
+                    <span class="macro">switch!</span>({
+                        .state_signal(state3.signal())
+                        .disabled(<span class="bool-val">true</span>)
+                    })
+                ])}),
             ])
         }))
-        .apply(<span class="kw">move </span>|b| {
-            <span class="kw">let </span>b = b.class(<span class="string">&quot;switch-demo-list&quot;</span>);
-            <span class="kw">let </span>b = stream_to_flipflop_mixin(sw_clicks.toggle_stream, <span class="kw-2">&amp;</span>state)(b);
-            <span class="kw">let </span>b = stream_to_flipflop_mixin(sw_clicks2.toggle_stream, <span class="kw-2">&amp;</span>state2)(b);
-            stream_to_flipflop_mixin(sw_clicks3.toggle_stream, <span class="kw-2">&amp;</span>state3)(b)
-        })
     })
 }
 
@@ -260,7 +248,7 @@
     <span class="macro">card!</span>({
         .child(<span class="macro">list!</span>({
             .rows([
-                <span class="macro">text!</span>(<span class="string">&quot;Selection&quot;</span>),
+                <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;Selection&quot;</span>)}),
                 <span class="macro">combo_box!</span>({
                     .options(make_select_options())
                     .data_list_id(<span class="string">&quot;demo-list-a&quot;</span>.into())
@@ -302,7 +290,7 @@
     <span class="macro">card!</span>({
         .child( <span class="macro">list!</span>({
             .rows([
-                <span class="macro">text!</span>(<span class="string">&quot;Text field&quot;</span>),
+                <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;Text input&quot;</span>)}),
                 <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
                     .children(<span class="kw-2">&amp;mut </span>[
                         <span class="macro">text_field!</span>({

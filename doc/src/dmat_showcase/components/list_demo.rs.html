@@ -101,22 +101,8 @@
 <a href="#101" id="101">101</a>
 <a href="#102" id="102">102</a>
 <a href="#103" id="103">103</a>
-<a href="#104" id="104">104</a>
-<a href="#105" id="105">105</a>
-<a href="#106" id="106">106</a>
-<a href="#107" id="107">107</a>
-<a href="#108" id="108">108</a>
-<a href="#109" id="109">109</a>
-<a href="#110" id="110">110</a>
-<a href="#111" id="111">111</a>
-<a href="#112" id="112">112</a>
-<a href="#113" id="113">113</a>
-<a href="#114" id="114">114</a>
-<a href="#115" id="115">115</a>
-<a href="#116" id="116">116</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{clone, html, Dom};
 <span class="kw">use </span>futures_signals::map_ref;
-<span class="kw">use </span>futures_signals::signal::from_stream;
 <span class="kw">use </span>futures_signals::signal::{Mutable, SignalExt};
 <span class="kw">use </span>futures_signals::signal_vec::{MutableVec, SignalVecExt};
 <span class="kw">use </span>wasm_bindgen::__rt::std::rc::Rc;
@@ -124,7 +110,6 @@
 <span class="kw">use </span>dmat_components::components::layouts::<span class="kw-2">*</span>;
 <span class="kw">use </span>dmat_components::components::<span class="kw-2">*</span>;
 <span class="kw">use </span>dmat_components::utils::mixin::stream_handler_mixin;
-<span class="kw">use </span>dmat_components::utils::signals::mutation::store_signal_value_opt_mixin;
 
 <span class="kw">use </span><span class="kw">crate</span>::utils::toggle_button::toggle_button;
 
@@ -133,7 +118,7 @@
 }
 
 <span class="kw">fn </span>interactive_list_demo() -&gt; Dom {
-    <span class="kw">let </span>selected_item = Mutable::&lt;<span class="prelude-ty">Option</span>&lt;u32&gt;&gt;::new(<span class="prelude-val">None</span>);
+    <span class="kw">let </span>selected_item = Mutable::&lt;Vec&lt;usize&gt;&gt;::new(<span class="macro">vec!</span>[]);
     <span class="kw">let </span>entries = MutableVec::new_with_values(<span class="macro">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]);
 
     <span class="kw">let </span>has_before = Mutable::new(<span class="bool-val">false</span>);
@@ -142,57 +127,48 @@
     <span class="kw">let </span>settings = <span class="macro">map_ref! </span>{
         <span class="kw">let </span>_before = has_before.signal_cloned(),
         <span class="kw">let </span>_after = has_after.signal_cloned() =&gt; <span class="kw">move </span>{
-
         }
     };
 
-    <span class="kw">let </span>items = entries.signal_vec().map(
-        <span class="macro">clone!</span>(selected_item, has_before, has_after =&gt; <span class="kw">move </span>|entry| ListEntry {
+    <span class="kw">let </span>items = entries
+        .signal_vec()
+        .map(<span class="macro">clone!</span>(has_before, has_after =&gt; <span class="kw">move </span>|entry| ListEntry {
             before: <span class="kw">match </span>has_before.get() {
-                <span class="bool-val">true </span>=&gt; <span class="prelude-val">Some</span>(<span class="macro">text!</span>(<span class="string">&quot;Before&quot;</span>)),
+                <span class="bool-val">true </span>=&gt; <span class="prelude-val">Some</span>(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;Before&quot;</span>)})),
                 <span class="kw">_ </span>=&gt; <span class="prelude-val">None
             </span>},
             content: <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, { .text(<span class="macro">format!</span>(<span class="string">&quot;Entry {}&quot;</span>, entry).as_str())}),
             after: <span class="kw">match </span>has_after.get() {
-                <span class="bool-val">true </span>=&gt; <span class="prelude-val">Some</span>(<span class="macro">text!</span>(<span class="string">&quot;After&quot;</span>)),
+                <span class="bool-val">true </span>=&gt; <span class="prelude-val">Some</span>(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;After&quot;</span>)})),
                 <span class="kw">_ </span>=&gt; <span class="prelude-val">None
-            </span>},
-            selected_signal: Box::new(
-                selected_item.signal_ref(<span class="macro">clone!</span>(entry =&gt; <span class="kw">move </span>|v| v == <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(entry))),
-            ),
-            item_value: entry
-        }),
-    );
-
-    <span class="kw">let </span>props = InteractiveListProps { items };
-
-    <span class="kw">let </span>(list_body, out) = <span class="macro">interactive_list!</span>(props);
+            </span>}
+        }));
 
     <span class="macro">card!</span>({
-        .child(<span class="macro">content_block!</span>(ContentBlockProps {
-            title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>( {
+        .child(<span class="macro">content_block!</span>({
+            .title_section(<span class="prelude-val">Some</span>(<span class="macro">title!</span>( {
                 .header_text(<span class="string">&quot;Interactive list with selectable items&quot;</span>.to_string())
-            })),
-            media_section: <span class="prelude-val">Some</span>(<span class="macro">container!</span>({
+            })))
+            .media_section(<span class="prelude-val">Some</span>(<span class="macro">container!</span>({
                 .children([
                     <span class="macro">list!</span>({
                         .rows([
-                            list_body,
+                            <span class="macro">interactive_list!</span>({
+                                .items_signal_vec(items)
+                                .selected_indexes_signal(selected_item.signal_cloned())
+                                .on_item_selected(<span class="kw">move </span>|idx| {
+                                    selected_item.set(<span class="macro">vec!</span>[idx]);
+                                })
+                            }),
                             toggle_button(<span class="kw-2">&amp;</span>has_before, <span class="string">&quot;Toggle Before&quot;</span>),
                             toggle_button(<span class="kw-2">&amp;</span>has_after, <span class="string">&quot;Toggle After&quot;</span>)
                         ])
                     })
                 ])
-            })),
-            supporting_section: <span class="prelude-val">None</span>,
-            footer_section: <span class="prelude-val">None
-        </span>}))
+            })))
+        }))
         .apply(<span class="kw">move </span>|d| {
             d.class(<span class="string">&quot;demo-card&quot;</span>)
-                .apply(store_signal_value_opt_mixin(
-                    from_stream(out.item_select_stream),
-                    <span class="kw-2">&amp;</span>selected_item,
-                ))
                 .apply(stream_handler_mixin(settings.to_stream(), <span class="kw">move </span>|<span class="kw">_</span>| {
                     entries.lock_mut().replace(<span class="macro">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>])
                 }))
@@ -204,11 +180,11 @@
     <span class="kw">let </span>entries: Rc&lt;MutableVec&lt;String&gt;&gt; = Default::default();
 
     <span class="macro">card!</span>({
-        .child(<span class="macro">content_block!</span>(ContentBlockProps {
-            title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>({
+        .child(<span class="macro">content_block!</span>({
+            .title_section(<span class="prelude-val">Some</span>(<span class="macro">title!</span>({
                 .header_text(<span class="string">&quot;Dynamic list holding dom elements&quot;</span>.to_string())
-            })),
-            media_section: <span class="prelude-val">Some</span>(<span class="macro">list!</span>({
+            })))
+            .media_section(<span class="prelude-val">Some</span>(<span class="macro">list!</span>({
                 .rows([
                     <span class="macro">button!</span>({
                         .label(<span class="string">&quot;Add new entry&quot;</span>)
@@ -223,10 +199,8 @@
                         .map(|entry| <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(entry.as_str())})))
                     }),
                 ])
-            })),
-            supporting_section: <span class="prelude-val">None</span>,
-            footer_section: <span class="prelude-val">None
-        </span>}))
+            })))
+        }))
         .apply(|v| v.class(<span class="string">&quot;demo-card&quot;</span>))
     })
 }

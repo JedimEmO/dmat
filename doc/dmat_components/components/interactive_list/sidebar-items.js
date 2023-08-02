@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["interactive_list"],"struct":["InteractiveListOut","InteractiveListProps","ListEntry"]};
+window.SIDEBAR_ITEMS = {"fn":["interactive_list"],"struct":["InteractiveListOut","InteractiveListProps","ListEntry"],"trait":["InteractiveListPropsTrait"]};

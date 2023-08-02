@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["content_block"],"struct":["ContentBlockProps"]};
+window.SIDEBAR_ITEMS = {"fn":["content_block"],"struct":["ContentBlockProps"],"trait":["ContentBlockPropsTrait"]};

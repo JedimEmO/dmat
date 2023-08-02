@@ -90,27 +90,11 @@
 <a href="#90" id="90">90</a>
 <a href="#91" id="91">91</a>
 <a href="#92" id="92">92</a>
-<a href="#93" id="93">93</a>
-<a href="#94" id="94">94</a>
-<a href="#95" id="95">95</a>
-<a href="#96" id="96">96</a>
-<a href="#97" id="97">97</a>
-<a href="#98" id="98">98</a>
-<a href="#99" id="99">99</a>
-<a href="#100" id="100">100</a>
-<a href="#101" id="101">101</a>
-<a href="#102" id="102">102</a>
-<a href="#103" id="103">103</a>
-<a href="#104" id="104">104</a>
-<a href="#105" id="105">105</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{clone, html, Dom};
-<span class="kw">use </span>futures::Stream;
-<span class="kw">use </span>futures_signals::signal::always;
+</pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{html, Dom};
 <span class="kw">use </span>futures_signals::signal_vec::{MutableVec, SignalVecExt};
 
 <span class="kw">use </span>dmat_components::components::ListEntry;
 <span class="kw">use </span>dmat_components::components::<span class="kw-2">*</span>;
-<span class="kw">use </span>dmat_components::utils::mixin::stream_handler_mixin;
 
 <span class="kw">use </span><span class="kw">crate</span>::components::app_bar_demo::app_bar_demo;
 <span class="kw">use </span><span class="kw">crate</span>::components::button_demo::button_demo;
@@ -126,16 +110,16 @@
 <span class="kw">use </span><span class="kw">crate</span>::route::{DemoRoute, ExampleAppRoute};
 
 <span class="kw">pub fn </span>component_demo_view(current_route: DemoRoute) -&gt; Dom {
-    <span class="kw">let </span>(component_list, component_change_stream) = component_demo_list(current_route);
+    <span class="kw">let </span>component_list = component_demo_list(current_route);
 
     <span class="macro">navigation_drawer!</span>({
         .drawer_content(<span class="prelude-val">Some</span>(component_list))
-        .main_content(<span class="prelude-val">Some</span>(component_demo(current_route, component_change_stream)))
+        .main_content(<span class="prelude-val">Some</span>(component_demo(current_route)))
     })
 }
 
-<span class="kw">fn </span>component_demo_list(current_value: DemoRoute) -&gt; (Dom, <span class="kw">impl </span>Stream&lt;Item = <span class="prelude-ty">Option</span>&lt;DemoRoute&gt;&gt;) {
-    <span class="kw">let </span>entries = MutableVec::new_with_values(<span class="macro">vec!</span>[
+<span class="kw">fn </span>component_demo_list(current_value: DemoRoute) -&gt; Dom {
+    <span class="kw">let </span>entries_raw = MutableVec::new_with_values(<span class="macro">vec!</span>[
         DemoRoute::AppBar,
         DemoRoute::Button,
         DemoRoute::Card,
@@ -148,34 +132,24 @@
         DemoRoute::Sheet,
     ]);
 
-    <span class="kw">let </span>entries = entries
-        .signal_vec()
-        .map(<span class="macro">clone!</span>(current_value =&gt; <span class="kw">move </span>|entry| ListEntry {
-            before: <span class="prelude-val">None</span>,
-            content: render_demo_label(entry),
-            after: <span class="prelude-val">None</span>,
-            selected_signal: Box::new(always(current_value == entry)),
-            item_value: entry,
-        }));
+    <span class="kw">let </span>entries = entries_raw.signal_vec().map(|entry| ListEntry {
+        before: <span class="prelude-val">None</span>,
+        content: render_demo_label(entry),
+        after: <span class="prelude-val">None</span>,
+    });
 
-    <span class="kw">let </span>list_props = InteractiveListProps { items: entries };
-    <span class="kw">let </span>(list_dom, list_out) = <span class="macro">interactive_list!</span>(list_props);
-
-    (list_dom, list_out.item_select_stream)
+    <span class="macro">interactive_list!</span>({
+        .items_signal_vec(entries)
+        .selected_indexes(<span class="macro">vec!</span>[entries_raw.lock_ref().iter().position(|entry| <span class="kw-2">*</span>entry == current_value).unwrap_or(<span class="number">0</span>)])
+        .on_item_selected(<span class="kw">move </span>|entry| {
+            <span class="kw">let </span>new_component = entries_raw.lock_ref()[entry];
+            ExampleAppRoute::goto(ExampleAppRoute::Components(new_component))
+        })
+    })
 }
 
-<span class="kw">fn </span>component_demo&lt;TStream: Stream&lt;Item = <span class="prelude-ty">Option</span>&lt;DemoRoute&gt;&gt; + Unpin + <span class="lifetime">&#39;static</span>&gt;(
-    component: DemoRoute,
-    component_change_stream: TStream,
-) -&gt; Dom {
+<span class="kw">fn </span>component_demo(component: DemoRoute) -&gt; Dom {
     <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
-        .apply(stream_handler_mixin(component_change_stream, |new_component| {
-            <span class="kw">if let </span><span class="prelude-val">Some</span>(c) = new_component {
-                ExampleAppRoute::goto(ExampleAppRoute::Components(c))
-            } <span class="kw">else </span>{
-                ExampleAppRoute::goto(ExampleAppRoute::About)
-            }
-        }))
         .attr(<span class="string">&quot;id&quot;</span>, <span class="string">&quot;demo-view&quot;</span>)
         .child(<span class="kw">match </span>component {
                 DemoRoute::AppBar =&gt; app_bar_demo(),
@@ -195,17 +169,17 @@
 
 <span class="kw">fn </span>render_demo_label(tab_id: DemoRoute) -&gt; Dom {
     <span class="kw">match </span>tab_id {
-        DemoRoute::Tabs =&gt; <span class="macro">text!</span>(<span class="string">&quot;Tabs&quot;</span>),
-        DemoRoute::Table =&gt; <span class="macro">text!</span>(<span class="string">&quot;Table&quot;</span>),
-        DemoRoute::AppBar =&gt; <span class="macro">text!</span>(<span class="string">&quot;App Bar&quot;</span>),
-        DemoRoute::Card =&gt; <span class="macro">text!</span>(<span class="string">&quot;Card&quot;</span>),
-        DemoRoute::DockOverlay =&gt; <span class="macro">text!</span>(<span class="string">&quot;Dock Overlay&quot;</span>),
-        DemoRoute::List =&gt; <span class="macro">text!</span>(<span class="string">&quot;List&quot;</span>),
-        DemoRoute::NavigationDrawer =&gt; <span class="macro">text!</span>(<span class="string">&quot;Navigation Drawer&quot;</span>),
-        DemoRoute::Input =&gt; <span class="macro">text!</span>(<span class="string">&quot;Input&quot;</span>),
-        DemoRoute::Carousel =&gt; <span class="macro">text!</span>(<span class="string">&quot;Carousel&quot;</span>),
-        DemoRoute::Button =&gt; <span class="macro">text!</span>(<span class="string">&quot;Button&quot;</span>),
-        DemoRoute::Sheet =&gt; <span class="macro">text!</span>(<span class="string">&quot;Sheet&quot;</span>),
+        DemoRoute::Tabs =&gt; <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {.text(<span class="string">&quot;Tabs&quot;</span>) }),
+        DemoRoute::AppBar =&gt; <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {.text(<span class="string">&quot;App Bar&quot;</span>) }),
+        DemoRoute::Button =&gt; <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {.text(<span class="string">&quot;Button&quot;</span>) }),
+        DemoRoute::List =&gt; <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {.text(<span class="string">&quot;List&quot;</span>) }),
+        DemoRoute::Carousel =&gt; <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {.text(<span class="string">&quot;Carousel&quot;</span>) }),
+        DemoRoute::Card =&gt; <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {.text(<span class="string">&quot;Card&quot;</span>) }),
+        DemoRoute::Table =&gt; <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {.text(<span class="string">&quot;Table&quot;</span>) }),
+        DemoRoute::Input =&gt; <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {.text(<span class="string">&quot;Input&quot;</span>) }),
+        DemoRoute::NavigationDrawer =&gt; <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {.text(<span class="string">&quot;Navigation Drawer&quot;</span>) }),
+        DemoRoute::Sheet =&gt; <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {.text(<span class="string">&quot;Sheet&quot;</span>) }),
+        DemoRoute::DockOverlay =&gt; <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {.text(<span class="string">&quot;Dock Overlay&quot;</span>) }),
     }
 }
 </code></pre></div></section></main></body></html>

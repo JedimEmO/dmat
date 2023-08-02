@@ -73,95 +73,79 @@
 <a href="#73" id="73">73</a>
 <a href="#74" id="74">74</a>
 <a href="#75" id="75">75</a>
-<a href="#76" id="76">76</a>
-<a href="#77" id="77">77</a>
-<a href="#78" id="78">78</a>
-<a href="#79" id="79">79</a>
-<a href="#80" id="80">80</a>
-<a href="#81" id="81">81</a>
-<a href="#82" id="82">82</a>
-<a href="#83" id="83">83</a>
-</pre></div><pre class="rust"><code><span class="kw">use </span>std::rc::Rc;
-<span class="kw">use </span>std::sync::Mutex;
-
-<span class="kw">use </span>dominator::{clone, events, html, Dom, DomBuilder};
-<span class="kw">use </span>futures::channel::mpsc::{channel, Receiver};
-<span class="kw">use </span>futures_signals::signal::Signal;
-<span class="kw">use </span>futures_signals::signal_vec::{SignalVec, SignalVecExt};
+</pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{clone, events, html, Dom};
+<span class="kw">use </span>futures::channel::mpsc::Receiver;
+<span class="kw">use </span>futures_signals::signal::SignalExt;
+<span class="kw">use </span>futures_signals::signal_vec::SignalVecExt;
+<span class="kw">use </span>std::rc::Rc;
 <span class="kw">use </span>wasm_bindgen::UnwrapThrowExt;
-<span class="kw">use </span>web_sys::HtmlElement;
 
-<span class="attr">#[macro_export]
-</span><span class="macro">macro_rules! </span>interactive_list {
-    (<span class="macro-nonterminal">$props</span>: expr) =&gt; {{
-        <span class="macro-nonterminal">$crate::components::interactive_list::interactive_list</span>(<span class="macro-nonterminal">$props</span>, |d| d)
-    }};
-
-    (<span class="macro-nonterminal">$props</span>: expr, <span class="macro-nonterminal">$mixin</span>: expr) =&gt; {{
-        <span class="macro-nonterminal">$crate::components::interactive_list::interactive_list</span>(<span class="macro-nonterminal">$props</span>, <span class="macro-nonterminal">$mixin</span>)
-    }};
-}
-
-<span class="kw">pub struct </span>ListEntry&lt;TValue&gt; {
+<span class="kw">pub struct </span>ListEntry {
     <span class="kw">pub </span>before: <span class="prelude-ty">Option</span>&lt;Dom&gt;,
     <span class="kw">pub </span>content: Dom,
     <span class="kw">pub </span>after: <span class="prelude-ty">Option</span>&lt;Dom&gt;,
-    <span class="kw">pub </span>selected_signal: Box&lt;<span class="kw">dyn </span>Signal&lt;Item = bool&gt; + Unpin&gt;,
-    <span class="kw">pub </span>item_value: TValue,
-}
-
-<span class="kw">pub struct </span>InteractiveListProps&lt;TValue, TItems: SignalVec&lt;Item = ListEntry&lt;TValue&gt;&gt;&gt; {
-    <span class="kw">pub </span>items: TItems,
 }
 
 <span class="kw">pub struct </span>InteractiveListOut&lt;TValue&gt; {
     <span class="kw">pub </span>item_select_stream: Receiver&lt;<span class="prelude-ty">Option</span>&lt;TValue&gt;&gt;,
 }
 
+<span class="attr">#[component(render_fn = interactive_list)]
+</span><span class="kw">pub struct </span>InteractiveList&lt;TOnItemSelected: Fn(usize) = <span class="kw">fn</span>(usize) -&gt; ()&gt; {
+    <span class="attr">#[signal_vec]
+    #[default(<span class="macro">vec!</span>[]</span>)]
+    <span class="kw">pub </span>items: ListEntry,
+
+    <span class="attr">#[signal]
+    #[default(<span class="macro">vec!</span>[]</span>)]
+    <span class="kw">pub </span>selected_indexes: Vec&lt;usize&gt;,
+
+    <span class="attr">#[default(|<span class="kw">_</span>| {})]
+    </span><span class="kw">pub </span>on_item_selected: TOnItemSelected,
+}
+
 <span class="attr">#[inline]
-</span><span class="kw">pub fn </span>interactive_list&lt;TValue, TItems, F&gt;(
-    props: InteractiveListProps&lt;TValue, TItems&gt;,
-    mixin: F,
-) -&gt; (Dom, InteractiveListOut&lt;TValue&gt;)
-<span class="kw">where
-    </span>TValue: Copy + <span class="lifetime">&#39;static</span>,
-    TItems: SignalVec&lt;Item = ListEntry&lt;TValue&gt;&gt; + <span class="lifetime">&#39;static</span>,
-    F: FnOnce(DomBuilder&lt;HtmlElement&gt;) -&gt; DomBuilder&lt;HtmlElement&gt;,
-{
-    <span class="kw">let </span>(item_select_tx, item_select_stream) = channel(<span class="number">1</span>);
-    <span class="kw">let </span>item_select_tx = Rc::new(Mutex::new(item_select_tx));
-    (
-        <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
-            .class(<span class="string">&quot;dmat-interactive-list&quot;</span>)
-            .apply(mixin)
-            .children_signal_vec(props.items.map(<span class="macro">clone!</span>(item_select_tx =&gt; <span class="kw">move </span>|item| {
-                <span class="kw">let </span>content = item.content;
-                <span class="kw">let </span>item_value = item.item_value;
-                <span class="kw">let </span>selected_signal = item.selected_signal;
-                <span class="kw">let </span>before = item.before;
-                <span class="kw">let </span>after = item.after;
+</span><span class="kw">pub fn </span>interactive_list(props: <span class="kw">impl </span>InteractiveListPropsTrait + <span class="lifetime">&#39;static</span>) -&gt; Dom {
+    <span class="kw">let </span>InteractiveListProps {
+        items,
+        selected_indexes,
+        on_item_selected,
+        apply,
+    } = props.take();
 
-                <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
-                    .class(<span class="string">&quot;interactive-list-item&quot;</span>)
-                    .class_signal(<span class="string">&quot;-active&quot;</span>, selected_signal)
-                    .apply_if(before.is_some(), |d| d.class(<span class="string">&quot;-with-before&quot;</span>))
-                    .apply_if(after.is_some(), |d| d.class(<span class="string">&quot;-with-after&quot;</span>))
-                    .children(<span class="macro">vec!</span>[
-                        before.map(|v| <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, { .class(<span class="string">&quot;first&quot;</span>).child(v)})),
-                        <span class="prelude-val">Some</span>(content),
-                        after.map(|v| <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, { .class(<span class="string">&quot;last&quot;</span>).child(v)})),
-                    ].into_iter().flatten())
-                    .apply(|d| {
-                        d.event(<span class="macro">clone!</span>(item_select_tx =&gt; <span class="kw">move </span>|<span class="kw">_</span>: events::Click| {
-                            <span class="kw">let </span><span class="kw-2">mut </span>item_select_tx = item_select_tx.lock().unwrap_throw();
-                            item_select_tx.try_send(<span class="prelude-val">Some</span>(item_value)).unwrap_throw();
-                        }))
-                    })
+    <span class="kw">let </span>on_item_selected = Rc::new(on_item_selected);
+    <span class="kw">let </span>selected_bc = selected_indexes.broadcast();
 
+    <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
+        .class(<span class="string">&quot;dmat-interactive-list&quot;</span>)
+        .apply_if(apply.is_some(), |dom| dom.apply(apply.unwrap_throw()))
+        .children_signal_vec(items.enumerate().map(<span class="macro">clone!</span>(on_item_selected =&gt; <span class="kw">move </span>|(idx, item)| {
+            <span class="kw">let </span>idx = idx.get().unwrap_throw();
+            <span class="kw">let </span>content = item.content;
+            <span class="kw">let </span>before = item.before;
+            <span class="kw">let </span>after = item.after;
+            <span class="kw">let </span>is_selected = selected_bc.signal_cloned().map(<span class="kw">move </span>|selected_indexes| {
+                selected_indexes.contains(<span class="kw-2">&amp;</span>idx)
+            });
+
+            <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
+                .class(<span class="string">&quot;interactive-list-item&quot;</span>)
+                .class_signal(<span class="string">&quot;-active&quot;</span>, is_selected)
+                .apply_if(before.is_some(), |d| d.class(<span class="string">&quot;-with-before&quot;</span>))
+                .apply_if(after.is_some(), |d| d.class(<span class="string">&quot;-with-after&quot;</span>))
+                .children(<span class="macro">vec!</span>[
+                    before.map(|v| <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, { .class(<span class="string">&quot;first&quot;</span>).child(v)})),
+                    <span class="prelude-val">Some</span>(content),
+                    after.map(|v| <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, { .class(<span class="string">&quot;last&quot;</span>).child(v)})),
+                ].into_iter().flatten())
+                .apply(|d| {
+                    d.event(<span class="macro">clone!</span>(on_item_selected =&gt; <span class="kw">move </span>|<span class="kw">_</span>: events::Click| {
+                        (<span class="kw-2">*</span>on_item_selected)(idx);
+                    }))
                 })
-            })))
-        }),
-        InteractiveListOut { item_select_stream },
-    )
+
+            })
+        })))
+    })
 }
 </code></pre></div></section></main></body></html>

@@ -156,30 +156,13 @@
 <a href="#156" id="156">156</a>
 <a href="#157" id="157">157</a>
 <a href="#158" id="158">158</a>
-<a href="#159" id="159">159</a>
-<a href="#160" id="160">160</a>
-<a href="#161" id="161">161</a>
-<a href="#162" id="162">162</a>
-<a href="#163" id="163">163</a>
-<a href="#164" id="164">164</a>
-<a href="#165" id="165">165</a>
-<a href="#166" id="166">166</a>
-<a href="#167" id="167">167</a>
-<a href="#168" id="168">168</a>
-<a href="#169" id="169">169</a>
-<a href="#170" id="170">170</a>
-<a href="#171" id="171">171</a>
-<a href="#172" id="172">172</a>
-<a href="#173" id="173">173</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{clone, html, Dom};
-<span class="kw">use </span>futures_signals::signal::from_stream;
 <span class="kw">use </span>futures_signals::signal::Mutable;
 <span class="kw">use </span>futures_signals::signal_vec::{MutableVec, SignalVecExt};
 <span class="kw">use </span>lipsum::lipsum;
 
 <span class="kw">use </span>dmat_components::components::layouts::<span class="kw-2">*</span>;
 <span class="kw">use </span>dmat_components::components::<span class="kw-2">*</span>;
-<span class="kw">use </span>dmat_components::utils::signals::mutation::store_signal_value_opt_mixin;
 
 <span class="kw">use </span><span class="kw">crate</span>::utils::toggle_button::toggle_button;
 
@@ -189,47 +172,43 @@
         .rows([
         <span class="macro">container!</span>({.children([
             <span class="macro">card!</span>({
-                .child(<span class="macro">content_block!</span>(ContentBlockProps {
-                    title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>({
+                .child(<span class="macro">content_block!</span>({
+                    .title_section(<span class="prelude-val">Some</span>(<span class="macro">title!</span>({
                         .header_text(<span class="string">&quot;Retracting modal drawer&quot;</span>.to_string())
-                    })),
-                    media_section: <span class="prelude-val">Some</span>(<span class="macro">list!</span>({
+                    })))
+                    .media_section(<span class="prelude-val">Some</span>(<span class="macro">list!</span>({
                             .rows([<span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
                             .class(<span class="string">&quot;navigation-drawer-demo&quot;</span>)
                             .child(retracting(<span class="bool-val">true</span>))
                         })])
-                    })),
-                    supporting_section: <span class="prelude-val">None</span>,
-                    footer_section: <span class="prelude-val">None
-                </span>}))
+                    })))
+                }))
                 .apply(|d| d.class(<span class="string">&quot;drawer-demo-card&quot;</span>).style(<span class="string">&quot;height&quot;</span>, <span class="string">&quot;350px&quot;</span>))
             }),
             <span class="macro">card!</span>({
-                .child( <span class="macro">content_block!</span>(ContentBlockProps {
-                    title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>({
+                .child( <span class="macro">content_block!</span>({
+                    .title_section(<span class="prelude-val">Some</span>(<span class="macro">title!</span>({
                         .header_text(<span class="string">&quot;Retracting non-modal drawer&quot;</span>.to_string())
-                    })),
-                    media_section: <span class="prelude-val">Some</span>(<span class="macro">list!</span>({
+                    })))
+                    .media_section(<span class="prelude-val">Some</span>(<span class="macro">list!</span>({
                         .rows([
                                 <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
                                 .class(<span class="string">&quot;navigation-drawer-demo&quot;</span>)
                                 .child(retracting(<span class="bool-val">false</span>))
                             })
                         ])
-                    })),
-                    supporting_section: <span class="prelude-val">None</span>,
-                    footer_section: <span class="prelude-val">None
-                </span>}))
+                    })))
+                }))
                 .apply(|d| d.class(<span class="string">&quot;drawer-demo-card&quot;</span>).style(<span class="string">&quot;height&quot;</span>, <span class="string">&quot;350px&quot;</span>))
             }),
         ])}),
         <span class="macro">container!</span>({.children([
             <span class="macro">card!</span>({
-                .child(<span class="macro">content_block!</span>(ContentBlockProps {
-                    title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>({
+                .child(<span class="macro">content_block!</span>({
+                    .title_section(<span class="prelude-val">Some</span>(<span class="macro">title!</span>({
                         .header_text(<span class="string">&quot;Modal toggled&quot;</span>.to_string())
-                    })),
-                    media_section: <span class="prelude-val">Some</span>(<span class="macro">list!</span>({
+                    })))
+                    .media_section(<span class="prelude-val">Some</span>(<span class="macro">list!</span>({
                             .rows([
                                 <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
                                     .class(<span class="string">&quot;navigation-drawer-demo&quot;</span>)
@@ -238,18 +217,16 @@
                                         d.child(toggled)
                                 })
                         })])
-                    })),
-                    supporting_section: <span class="prelude-val">None</span>,
-                    footer_section: <span class="prelude-val">None
-                </span>}))
+                    })))
+                }))
                 .apply(|d| d.class(<span class="string">&quot;drawer-demo-card&quot;</span>).style(<span class="string">&quot;height&quot;</span>, <span class="string">&quot;350px&quot;</span>))
             }),
             <span class="macro">card!</span>({
-                .child(<span class="macro">content_block!</span>(ContentBlockProps {
-                    title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>({
+                .child(<span class="macro">content_block!</span>({
+                    .title_section(<span class="prelude-val">Some</span>(<span class="macro">title!</span>({
                         .header_text(<span class="string">&quot;Toggled non-modal&quot;</span>.to_string())
-                    })),
-                    media_section: <span class="prelude-val">Some</span>(<span class="macro">list!</span>({
+                    })))
+                    .media_section(<span class="prelude-val">Some</span>(<span class="macro">list!</span>({
                             .rows([
                                 <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
                                     .class(<span class="string">&quot;navigation-drawer-demo&quot;</span>)
@@ -259,10 +236,8 @@
                                     })
                                 })
                             ])
-                        })),
-                    supporting_section: <span class="prelude-val">None</span>,
-                    footer_section: <span class="prelude-val">None
-                </span>}))
+                        })))
+                }))
                 .apply(|d| d.class(<span class="string">&quot;drawer-demo-card&quot;</span>).style(<span class="string">&quot;height&quot;</span>, <span class="string">&quot;350px&quot;</span>))
             })
         ])})
@@ -322,26 +297,21 @@
 
 <span class="kw">pub fn </span>mock_view_select() -&gt; Dom {
     <span class="kw">let </span>entries = MutableVec::new_with_values(<span class="macro">vec!</span>[<span class="string">&quot;Inbox&quot;</span>, <span class="string">&quot;Spam&quot;</span>]);
-    <span class="kw">let </span>selected_item = Mutable::&lt;<span class="prelude-ty">Option</span>&lt;<span class="kw-2">&amp;</span>str&gt;&gt;::new(<span class="prelude-val">None</span>);
+    <span class="kw">let </span>selected_item = Mutable::&lt;Vec&lt;usize&gt;&gt;::new(<span class="macro">vec!</span>[]);
 
-    <span class="kw">let </span>items = entries
-        .signal_vec()
-        .map(<span class="macro">clone!</span>(selected_item =&gt; <span class="kw">move </span>|entry| ListEntry {
-            before: <span class="prelude-val">None</span>,
-            content: <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, { .text(entry.to_string().as_str())}),
-            after: <span class="prelude-val">None</span>,
-            selected_signal: Box::new(
-                selected_item.signal_ref(<span class="macro">clone!</span>(entry =&gt; <span class="kw">move </span>|v| v == <span class="kw-2">&amp;</span><span class="prelude-val">Some</span>(entry))),
-            ),
-            item_value: entry
-        }));
-
-    <span class="kw">let </span>props = InteractiveListProps { items };
-    <span class="kw">let </span>(list_body, out) = <span class="macro">interactive_list!</span>(props);
+    <span class="kw">let </span>items = entries.signal_vec().map(|entry| ListEntry {
+        before: <span class="prelude-val">None</span>,
+        content: <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, { .text(entry.to_string().as_str())}),
+        after: <span class="prelude-val">None</span>,
+    });
 
     <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
-        .child(list_body)
-        .apply(store_signal_value_opt_mixin(from_stream(out.item_select_stream), <span class="kw-2">&amp;</span>selected_item))
+        .child(<span class="macro">interactive_list!</span>({
+            .items_signal_vec(items)
+            .on_item_selected(<span class="kw">move </span>|index| {
+                selected_item.set(<span class="macro">vec!</span>[index]);
+            })
+        }))
     })
 }
 </code></pre></div></section></main></body></html>

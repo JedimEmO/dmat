@@ -99,12 +99,13 @@
 <a href="#99" id="99">99</a>
 <a href="#100" id="100">100</a>
 <a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
 </pre></div><pre class="rust"><code><span class="attr">#[cfg(test)]
 </span><span class="kw">mod </span>test {
     <span class="kw">use </span>std::rc::Rc;
 
-    <span class="kw">use </span>dominator::events::Click;
-    <span class="kw">use </span>dominator::{body, clone, Dom, DomBuilder};
+    <span class="kw">use </span>dominator::{body, clone, events, html, Dom, DomBuilder};
     <span class="kw">use </span>futures_signals::signal::{Mutable, SignalExt};
     <span class="kw">use </span>futures_util::StreamExt;
     <span class="kw">use </span>wasm_bindgen::JsCast;
@@ -150,15 +151,18 @@
                     child_count.set(child_count.get() + <span class="number">1</span>);
 
                     <span class="prelude-val">Some</span>(
-                        <span class="macro">crate::text!</span>(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, v).as_str(), <span class="macro">clone!</span>(state =&gt; <span class="kw">move </span>|d| {
-                            d.attr(<span class="string">&quot;id&quot;</span>, <span class="string">&quot;inner&quot;</span>)
-                                .event(<span class="kw">move </span>|<span class="kw">_</span>: Click| {
-                                    <span class="comment">// This is what we are checking; that each
-                                    // child yielded by this signal (which will generate a new clone of state)
-                                    // will be properly discarded when a new child arrives
-                                    </span><span class="macro">assert_eq!</span>(Rc::strong_count(<span class="kw-2">&amp;</span>state), <span class="number">3</span>);
-                                })
-                        })),
+                        <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {
+                            .text(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, v).as_str())
+                            .apply(<span class="macro">clone!</span>(state =&gt; <span class="kw">move </span>|d| {
+                                d.attr(<span class="string">&quot;id&quot;</span>, <span class="string">&quot;inner&quot;</span>)
+                                    .event(<span class="kw">move </span>|<span class="kw">_</span>: events::Click| {
+                                        <span class="comment">// This is what we are checking; that each
+                                        // child yielded by this signal (which will generate a new clone of state)
+                                        // will be properly discarded when a new child arrives
+                                        </span><span class="macro">assert_eq!</span>(Rc::strong_count(<span class="kw-2">&amp;</span>state), <span class="number">3</span>);
+                                    })
+                            }))
+                        })
                     )
                 })));
 

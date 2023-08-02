@@ -70,7 +70,7 @@
     <span class="macro">dock_overlay!</span>({
         .underlying_view(<span class="prelude-val">Some</span>(underlying_view))
         .overlay_views(<span class="macro">vec!</span>[
-            (DockPoint::MiddleLeft, <span class="macro">card!</span>({.child(<span class="macro">text!</span>(<span class="string">&quot;Middle Left Dialog!&quot;</span>))})),
+            (DockPoint::MiddleLeft, <span class="macro">card!</span>({.child(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;Middle Left Dialog!&quot;</span>)}))})),
             (DockPoint::MiddleCenter, middle_center_dialog(show_overlay.clone())),
             (DockPoint::MiddleRight, <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {.text(<span class="string">&quot;Middle Right Dialog!&quot;</span>)})),
             (DockPoint::TopLeft, <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {.text(<span class="string">&quot;Top Left Dialog!&quot;</span>)})),
@@ -88,22 +88,22 @@
 <span class="kw">fn </span>middle_center_dialog(show_overlay: Mutable&lt;bool&gt;) -&gt; Dom {
     <span class="macro">card!</span>({
         .child(
-            <span class="macro">content_block!</span>(ContentBlockProps {
-                title_section: <span class="prelude-val">Some</span>(<span class="macro">title!</span>({
+            <span class="macro">content_block!</span>({
+                .title_section(<span class="prelude-val">Some</span>(<span class="macro">title!</span>({
                     .header_text(<span class="string">&quot;Card with content block&quot;</span>.to_string())
                     .sub_header_text(<span class="prelude-val">Some</span>(<span class="string">&quot;All sections&quot;</span>.to_string()))
-                })),
-                media_section: <span class="prelude-val">Some</span>(<span class="macro">html!</span>(<span class="string">&quot;img&quot;</span>, {
+                })))
+                .media_section(<span class="prelude-val">Some</span>(<span class="macro">html!</span>(<span class="string">&quot;img&quot;</span>, {
                     .attr(<span class="string">&quot;src&quot;</span>, <span class="string">&quot;images/shapes.svg&quot;</span>)
                     .attr(<span class="string">&quot;width&quot;</span>, <span class="string">&quot;100%&quot;</span>)
                     .attr(<span class="string">&quot;height&quot;</span>, <span class="string">&quot;100%&quot;</span>)
                     .attr(<span class="string">&quot;alt&quot;</span>, <span class="string">&quot;shapes!&quot;</span>)
-                })),
-                supporting_section: <span class="prelude-val">Some</span>(<span class="macro">text!</span>(lipsum(<span class="number">30</span>))),
-                footer_section: <span class="prelude-val">Some</span>(<span class="macro">button!</span>({
+                })))
+                .supporting_section(<span class="prelude-val">Some</span>(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {.text(lipsum(<span class="number">30</span>).as_str())})))
+                .footer_section(<span class="prelude-val">Some</span>(<span class="macro">button!</span>({
                     .label(<span class="string">&quot;Hide overlay&quot;</span>)
                     .click_handler(<span class="macro">clone!</span>(show_overlay =&gt; <span class="kw">move </span>|<span class="kw">_</span>: events::Click| show_overlay.set(<span class="bool-val">false</span>)))
-                })),
+                })))
             }))
             .apply(|d| d.style(<span class="string">&quot;width&quot;</span>, <span class="string">&quot;300px&quot;</span>))
     })
