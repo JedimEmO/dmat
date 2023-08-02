@@ -496,11 +496,13 @@ dependencies = [
  "futures-signals",
  "js-sys",
  "lipsum",
+ "log",
  "parking_lot_core 0.8.0",
  "rand 0.8.5",
  "uuid 0.8.2",
  "wasm-bindgen",
  "wasm-bindgen-futures",
+ "wasm-logger",
  "wasm-timer",
  "web-sys",
 ]
@@ -2431,6 +2433,17 @@ checksum = "ecb993dd8c836930ed130e020e77d9b2e65dd0fbab1b67c790b0f5d80b11a575"
 dependencies = [
  "proc-macro2 1.0.66",
  "quote 1.0.32",
+]
+
+[[package]]
+name = "wasm-logger"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "074649a66bb306c8f2068c9016395fa65d8e08d2affcbf95acf3c24c3ab19718"
+dependencies = [
+ "log",
+ "wasm-bindgen",
+ "web-sys",
 ]
 
 [[package]]

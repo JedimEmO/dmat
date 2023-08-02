@@ -36,11 +36,7 @@ pub fn content_block(props: impl ContentBlockPropsTrait + 'static) -> Dom {
 
     html!("div", {
         .class("dmat-content-block")
-        .apply_if(apply.is_some(), |d| d.apply(apply.unwrap())
-        .class_signal("-with-title", has_title_section)
-        .class_signal("-with-media", has_media_section)
-        .class_signal("-with-supporting", has_supporting_section)
-        .class_signal("-with-footer", has_footer_section))
+        .apply_if(apply.is_some(), |d| d.apply(apply.unwrap()))
         .child_signal(title_section.map(|v| v.map(|t| html!("div", {
             .class("title")
             .child(t)
@@ -57,5 +53,9 @@ pub fn content_block(props: impl ContentBlockPropsTrait + 'static) -> Dom {
             .class("footer")
             .child(t)
         }))))
+        .class_signal("-with-title", has_title_section)
+        .class_signal("-with-media", has_media_section)
+        .class_signal("-with-supporting", has_supporting_section)
+        .class_signal("-with-footer", has_footer_section)
     })
 }

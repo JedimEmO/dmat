@@ -32,7 +32,7 @@ pub fn carousel(props: impl CarouselPropsTrait + 'static) -> Dom {
             .current_item_index
             .signal()
             .filter_map(clone!(item_render_fn => move |v| {
-                if v % 2 == 1 {
+                if v.abs() % 2 == 1 {
                     Some((*item_render_fn)(v))
                 } else {
                     None
@@ -44,7 +44,7 @@ pub fn carousel(props: impl CarouselPropsTrait + 'static) -> Dom {
             .current_item_index
             .signal()
             .filter_map(clone!(item_render_fn => move |v| {
-                if v % 2 == 0 {
+                if v.abs() % 2 == 0 {
                     Some((*item_render_fn)(v))
                 } else {
                     None
@@ -108,7 +108,7 @@ impl Carousel {
         map_ref!(
             let current = self.current_item_index.signal(),
             let previous = self.previous_item_index.signal() => move {
-                if current % 2 == oddity {
+                if current.abs() % 2 == oddity {
                     false
                 } else if *current < *previous {
                     direction == OutgoingItemDirection::Right
@@ -123,7 +123,7 @@ impl Carousel {
         map_ref!(
             let transitioning = self.is_transitioning.signal(),
             let current = self.current_item_index.signal() => move {
-                (!transitioning) && current %2 != oddity
+                (!transitioning) && current.abs() % 2 != oddity
             }
         )
     }
