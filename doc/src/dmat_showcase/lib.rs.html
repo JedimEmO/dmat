@@ -18,11 +18,19 @@
 <a href="#18" id="18">18</a>
 <a href="#19" id="19">19</a>
 <a href="#20" id="20">20</a>
+<a href="#21" id="21">21</a>
+<a href="#22" id="22">22</a>
+<a href="#23" id="23">23</a>
+<a href="#24" id="24">24</a>
+<a href="#25" id="25">25</a>
 </pre></div><pre class="rust"><code><span class="attr">#[macro_use]
 </span><span class="kw">extern crate </span>dmat_components;
 
 <span class="attr">#[macro_use]
 </span><span class="kw">extern crate </span>dmat_vis;
+
+<span class="attr">#[macro_use]
+</span><span class="kw">extern crate </span>log;
 
 <span class="kw">use </span><span class="kw">crate</span>::main_view::main_view;
 <span class="kw">use </span>wasm_bindgen::prelude::<span class="kw-2">*</span>;
@@ -36,6 +44,8 @@
 
 <span class="attr">#[wasm_bindgen(start)]
 </span><span class="kw">pub async fn </span>main_js() {
+    wasm_logger::init(wasm_logger::Config::default());
+    <span class="macro">debug!</span>(<span class="string">&quot;Starting dmat-components showcase&quot;</span>);
     dominator::append_dom(<span class="kw-2">&amp;</span>dominator::body(), main_view());
 }
 </code></pre></div></section></main></body></html>

@@ -224,7 +224,7 @@
             .current_item_index
             .signal()
             .filter_map(<span class="macro">clone!</span>(item_render_fn =&gt; <span class="kw">move </span>|v| {
-                <span class="kw">if </span>v % <span class="number">2 </span>== <span class="number">1 </span>{
+                <span class="kw">if </span>v.abs() % <span class="number">2 </span>== <span class="number">1 </span>{
                     <span class="prelude-val">Some</span>((<span class="kw-2">*</span>item_render_fn)(v))
                 } <span class="kw">else </span>{
                     <span class="prelude-val">None
@@ -236,7 +236,7 @@
             .current_item_index
             .signal()
             .filter_map(<span class="macro">clone!</span>(item_render_fn =&gt; <span class="kw">move </span>|v| {
-                <span class="kw">if </span>v % <span class="number">2 </span>== <span class="number">0 </span>{
+                <span class="kw">if </span>v.abs() % <span class="number">2 </span>== <span class="number">0 </span>{
                     <span class="prelude-val">Some</span>((<span class="kw-2">*</span>item_render_fn)(v))
                 } <span class="kw">else </span>{
                     <span class="prelude-val">None
@@ -300,7 +300,7 @@
         <span class="macro">map_ref!</span>(
             <span class="kw">let </span>current = <span class="self">self</span>.current_item_index.signal(),
             <span class="kw">let </span>previous = <span class="self">self</span>.previous_item_index.signal() =&gt; <span class="kw">move </span>{
-                <span class="kw">if </span>current % <span class="number">2 </span>== oddity {
+                <span class="kw">if </span>current.abs() % <span class="number">2 </span>== oddity {
                     <span class="bool-val">false
                 </span>} <span class="kw">else if </span><span class="kw-2">*</span>current &lt; <span class="kw-2">*</span>previous {
                     direction == OutgoingItemDirection::Right
@@ -315,7 +315,7 @@
         <span class="macro">map_ref!</span>(
             <span class="kw">let </span>transitioning = <span class="self">self</span>.is_transitioning.signal(),
             <span class="kw">let </span>current = <span class="self">self</span>.current_item_index.signal() =&gt; <span class="kw">move </span>{
-                (!transitioning) &amp;&amp; current %<span class="number">2 </span>!= oddity
+                (!transitioning) &amp;&amp; current.abs() % <span class="number">2 </span>!= oddity
             }
         )
     }

@@ -97,11 +97,7 @@
 
     <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
         .class(<span class="string">&quot;dmat-content-block&quot;</span>)
-        .apply_if(apply.is_some(), |d| d.apply(apply.unwrap())
-        .class_signal(<span class="string">&quot;-with-title&quot;</span>, has_title_section)
-        .class_signal(<span class="string">&quot;-with-media&quot;</span>, has_media_section)
-        .class_signal(<span class="string">&quot;-with-supporting&quot;</span>, has_supporting_section)
-        .class_signal(<span class="string">&quot;-with-footer&quot;</span>, has_footer_section))
+        .apply_if(apply.is_some(), |d| d.apply(apply.unwrap()))
         .child_signal(title_section.map(|v| v.map(|t| <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
             .class(<span class="string">&quot;title&quot;</span>)
             .child(t)
@@ -118,6 +114,10 @@
             .class(<span class="string">&quot;footer&quot;</span>)
             .child(t)
         }))))
+        .class_signal(<span class="string">&quot;-with-title&quot;</span>, has_title_section)
+        .class_signal(<span class="string">&quot;-with-media&quot;</span>, has_media_section)
+        .class_signal(<span class="string">&quot;-with-supporting&quot;</span>, has_supporting_section)
+        .class_signal(<span class="string">&quot;-with-footer&quot;</span>, has_footer_section)
     })
 }
 </code></pre></div></section></main></body></html>
