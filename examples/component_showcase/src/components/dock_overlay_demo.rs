@@ -15,15 +15,15 @@ pub fn dock_overlay_demo() -> Dom {
     dock_overlay!({
         .underlying_view(Some(underlying_view))
         .overlay_views(vec![
+            (DockPoint::TopLeft, card!({.child(html!("span", { .text("Top Left Dialog!")}))})),
+            (DockPoint::TopCenter, card!({.child(html!("span", { .text("Top Center Dialog!")}))})),
+            (DockPoint::TopRight, card!({.child(html!("span", { .text("Top Right Dialog!")}))})),
             (DockPoint::MiddleLeft, card!({.child(html!("span", { .text("Middle Left Dialog!")}))})),
             (DockPoint::MiddleCenter, middle_center_dialog(show_overlay.clone())),
-            (DockPoint::MiddleRight, html!("span", {.text("Middle Right Dialog!")})),
-            (DockPoint::TopLeft, html!("span", {.text("Top Left Dialog!")})),
-            (DockPoint::TopCenter, html!("span", {.text("Top Center Dialog!")})),
-            (DockPoint::TopRight, html!("span", {.text("Top Right Dialog!")})),
-            (DockPoint::BottomLeft, html!("span", {.text("Bottom Left Dialog!")})),
-            (DockPoint::BottomCenter, html!("span", {.text("Bottom Center Dialog!")})),
-            (DockPoint::BottomRight, html!("span", {.text("Bottom Right Dialog!")})),
+            (DockPoint::MiddleRight, card!({.child(html!("span", { .text("Middle Right Dialog!")}))})),
+            (DockPoint::BottomLeft, card!({.child(html!("span", { .text("Bottom Left Dialog!")}))})),
+            (DockPoint::BottomCenter, card!({.child(html!("span", { .text("Bottom Center Dialog!")}))})),
+            (DockPoint::BottomRight, card!({.child(html!("span", { .text("Bottom Right Dialog!")}))})),
         ])
         .show_scrim(true)
         .show_overlay_signal(show_overlay.signal())
