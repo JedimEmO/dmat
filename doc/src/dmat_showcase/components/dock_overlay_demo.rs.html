@@ -70,15 +70,15 @@
     <span class="macro">dock_overlay!</span>({
         .underlying_view(<span class="prelude-val">Some</span>(underlying_view))
         .overlay_views(<span class="macro">vec!</span>[
+            (DockPoint::TopLeft, <span class="macro">card!</span>({.child(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;Top Left Dialog!&quot;</span>)}))})),
+            (DockPoint::TopCenter, <span class="macro">card!</span>({.child(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;Top Center Dialog!&quot;</span>)}))})),
+            (DockPoint::TopRight, <span class="macro">card!</span>({.child(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;Top Right Dialog!&quot;</span>)}))})),
             (DockPoint::MiddleLeft, <span class="macro">card!</span>({.child(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;Middle Left Dialog!&quot;</span>)}))})),
             (DockPoint::MiddleCenter, middle_center_dialog(show_overlay.clone())),
-            (DockPoint::MiddleRight, <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {.text(<span class="string">&quot;Middle Right Dialog!&quot;</span>)})),
-            (DockPoint::TopLeft, <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {.text(<span class="string">&quot;Top Left Dialog!&quot;</span>)})),
-            (DockPoint::TopCenter, <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {.text(<span class="string">&quot;Top Center Dialog!&quot;</span>)})),
-            (DockPoint::TopRight, <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {.text(<span class="string">&quot;Top Right Dialog!&quot;</span>)})),
-            (DockPoint::BottomLeft, <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {.text(<span class="string">&quot;Bottom Left Dialog!&quot;</span>)})),
-            (DockPoint::BottomCenter, <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {.text(<span class="string">&quot;Bottom Center Dialog!&quot;</span>)})),
-            (DockPoint::BottomRight, <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {.text(<span class="string">&quot;Bottom Right Dialog!&quot;</span>)})),
+            (DockPoint::MiddleRight, <span class="macro">card!</span>({.child(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;Middle Right Dialog!&quot;</span>)}))})),
+            (DockPoint::BottomLeft, <span class="macro">card!</span>({.child(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;Bottom Left Dialog!&quot;</span>)}))})),
+            (DockPoint::BottomCenter, <span class="macro">card!</span>({.child(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;Bottom Center Dialog!&quot;</span>)}))})),
+            (DockPoint::BottomRight, <span class="macro">card!</span>({.child(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;Bottom Right Dialog!&quot;</span>)}))})),
         ])
         .show_scrim(<span class="bool-val">true</span>)
         .show_overlay_signal(show_overlay.signal())
