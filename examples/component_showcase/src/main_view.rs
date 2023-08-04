@@ -7,7 +7,7 @@ use dmat_components::utils::mixin::id_attribute_mixin;
 
 use crate::demo_views::about::about_view;
 use crate::demo_views::component_demo::component_demo_view;
-use crate::route::{DemoRoute, ExampleAppRoute, VisDemoRoute};
+use crate::route::ExampleAppRoute;
 use crate::vis_components::line_chart_demo::line_chart_demo;
 
 pub fn main_view() -> Dom {
@@ -18,13 +18,13 @@ pub fn main_view() -> Dom {
             .active_tab_signal(ExampleAppRoute::signal().map(|active_tab| {
                 Some(match active_tab {
                     ExampleAppRoute::About => 0,
-                    ExampleAppRoute::Components(_) => 1,
-                    ExampleAppRoute::VisComponents(_) => 2,
+                    ExampleAppRoute::Components => 1,
+                    ExampleAppRoute::VisComponents => 2,
                 })
             }))
             .tab_click_handler(|idx| match idx {
-                1 => ExampleAppRoute::goto(ExampleAppRoute::Components(DemoRoute::Button)),
-                2 => ExampleAppRoute::goto(ExampleAppRoute::VisComponents(VisDemoRoute::LineChart)),
+                1 => ExampleAppRoute::goto(ExampleAppRoute::Components),
+                2 => ExampleAppRoute::goto(ExampleAppRoute::VisComponents),
                 _ => ExampleAppRoute::goto(ExampleAppRoute::About),
             })
             .tabs(vec![
@@ -62,8 +62,8 @@ fn main_app_view<S: Signal<Item = ExampleAppRoute> + 'static>(active_route: S) -
         .child_signal(active_route.map(|route| {
             match route {
                 ExampleAppRoute::About => Some(about_view()),
-                ExampleAppRoute::Components(c) => Some(component_demo_view(c)),
-                ExampleAppRoute::VisComponents(_) => Some(line_chart_demo())
+                ExampleAppRoute::Components => Some(component_demo_view()),
+                ExampleAppRoute::VisComponents => Some(line_chart_demo())
             }
         }))
     })

@@ -1,4 +1,5 @@
-use dominator::{html, Dom};
+use dominator::{clone, html, Dom};
+use futures_signals::signal::{Signal, SignalExt};
 use futures_signals::signal_vec::{MutableVec, SignalVecExt};
 
 use dmat_components::components::ListEntry;
@@ -15,18 +16,19 @@ use crate::components::navigation_drawer_demo::navigation_drawers_demo;
 use crate::components::sheet_demo::sheet_demo;
 use crate::components::table_demo::table_demo;
 
-use crate::route::{DemoRoute, ExampleAppRoute};
+use crate::route::DemoRoute;
 
-pub fn component_demo_view(current_route: DemoRoute) -> Dom {
-    let component_list = component_demo_list(current_route);
+pub fn component_demo_view() -> Dom {
+    let component_signal = DemoRoute::signal();
+    let component_list = component_demo_list(component_signal);
 
     navigation_drawer!({
         .drawer_content(Some(component_list))
-        .main_content(Some(component_demo(current_route)))
+        .main_content(Some(component_demo(DemoRoute::signal())))
     })
 }
 
-fn component_demo_list(current_value: DemoRoute) -> Dom {
+fn component_demo_list(current_value: impl Signal<Item = DemoRoute> + 'static) -> Dom {
     let entries_raw = MutableVec::new_with_values(vec![
         DemoRoute::AppBar,
         DemoRoute::Button,
@@ -48,18 +50,21 @@ fn component_demo_list(current_value: DemoRoute) -> Dom {
 
     interactive_list!({
         .items_signal_vec(entries)
-        .selected_indexes(vec![entries_raw.lock_ref().iter().position(|entry| *entry == current_value).unwrap_or(0)])
+        .selected_indexes_signal(current_value.map(clone!(entries_raw => move  |current_value| {
+            vec![entries_raw.lock_ref().iter().position(|entry| *entry == current_value).unwrap_or(0)]
+        })))
         .on_item_selected(move |entry| {
             let new_component = entries_raw.lock_ref()[entry];
-            ExampleAppRoute::goto(ExampleAppRoute::Components(new_component))
+            DemoRoute::goto(new_component)
         })
     })
 }
 
-fn component_demo(component: DemoRoute) -> Dom {
+fn component_demo(component: impl Signal<Item = DemoRoute> + 'static) -> Dom {
     html!("div", {
         .attr("id", "demo-view")
-        .child(match component {
+        .child_signal(component.map(|component| {
+            Some(match component {
                 DemoRoute::AppBar => app_bar_demo(),
                 DemoRoute::Button => button_demo(),
                 DemoRoute::List => list_demo(),
@@ -72,6 +77,7 @@ fn component_demo(component: DemoRoute) -> Dom {
                 DemoRoute::DockOverlay => dock_overlay_demo(),
                 _ => html!("div"),
             })
+        }))
     })
 }
 

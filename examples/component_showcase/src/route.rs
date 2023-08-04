@@ -24,8 +24,8 @@ pub enum VisDemoRoute {
 
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub enum ExampleAppRoute {
-    Components(DemoRoute),
-    VisComponents(VisDemoRoute),
+    Components,
+    VisComponents,
     About,
 }
 
@@ -36,9 +36,9 @@ impl ExampleAppRoute {
         if url_value.as_str().contains("#/about") {
             ExampleAppRoute::About
         } else if url_value.as_str().contains("#/component/") {
-            ExampleAppRoute::Components(DemoRoute::new(url_value.as_str()))
+            ExampleAppRoute::Components
         } else if url_value.as_str().contains("#/vis-component/") {
-            ExampleAppRoute::VisComponents(VisDemoRoute::LineChart)
+            ExampleAppRoute::VisComponents
         } else {
             ExampleAppRoute::About
         }
@@ -53,27 +53,25 @@ impl ExampleAppRoute {
     pub fn url(&self) -> String {
         match self {
             Self::About => "#/about".to_string(),
-            Self::Components(c) => format!("#/component/{}", c.url()),
-            Self::VisComponents(c) => format!("#/vis-component/{}", c.url()),
+            Self::Components => "#/component/".to_string(),
+            Self::VisComponents => "#/vis-component/".to_string(),
         }
     }
 
     pub fn goto(route: Self) {
         dominator::routing::go_to_url(route.url().as_str());
     }
-
-    pub fn is_same_category(&self, other: Self) -> bool {
-        match self {
-            Self::About => matches!(other, Self::About),
-            Self::VisComponents(_) => matches!(other, Self::VisComponents(_)),
-            Self::Components(_) => matches!(other, Self::Components(_)),
-        }
-    }
 }
 
 impl DemoRoute {
-    pub fn new(url: &str) -> Self {
-        match url {
+    pub fn signal() -> impl Signal<Item = Self> {
+        routing::url()
+            .signal_ref(|url| Url::new(url).unwrap_throw())
+            .map(Self::new)
+    }
+
+    pub fn new(url: Url) -> Self {
+        match url.hash().as_str() {
             "#/component/appbar" => DemoRoute::AppBar,
             "#/component/button" => DemoRoute::Button,
             "#/component/list" => DemoRoute::List,
@@ -90,7 +88,7 @@ impl DemoRoute {
     }
 
     pub fn goto(route: Self) {
-        dominator::routing::go_to_url(route.url());
+        dominator::routing::go_to_url(format!("#/component/{}", route.url()).as_str());
     }
 
     pub fn url(&self) -> &str {

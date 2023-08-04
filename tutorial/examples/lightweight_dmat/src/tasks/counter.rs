@@ -9,7 +9,7 @@ pub fn counter() -> Dom {
     let counter_state = Mutable::new(0);
 
     list!({
-        .rows([
+        .items([
             text_field!({
                 .label(Some(html!("span", { .text("Counter Value")})))
                 .value(MutableTValueAdapter::new_simple(&counter_state))

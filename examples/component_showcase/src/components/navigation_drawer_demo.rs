@@ -11,7 +11,7 @@ use crate::utils::toggle_button::toggle_button;
 #[inline]
 pub fn navigation_drawers_demo() -> Dom {
     list!({
-        .rows([
+        .items([
         container!({.children([
             card!({
                 .child(content_block!({
@@ -19,7 +19,7 @@ pub fn navigation_drawers_demo() -> Dom {
                         .header_text("Retracting modal drawer".to_string())
                     })))
                     .media_section(Some(list!({
-                            .rows([html!("div", {
+                            .items([html!("div", {
                             .class("navigation-drawer-demo")
                             .child(retracting(true))
                         })])
@@ -33,7 +33,7 @@ pub fn navigation_drawers_demo() -> Dom {
                         .header_text("Retracting non-modal drawer".to_string())
                     })))
                     .media_section(Some(list!({
-                        .rows([
+                        .items([
                                 html!("div", {
                                 .class("navigation-drawer-demo")
                                 .child(retracting(false))
@@ -51,7 +51,7 @@ pub fn navigation_drawers_demo() -> Dom {
                         .header_text("Modal toggled".to_string())
                     })))
                     .media_section(Some(list!({
-                            .rows([
+                            .items([
                                 html!("div", {
                                     .class("navigation-drawer-demo")
                                     .apply(|d| {
@@ -69,7 +69,7 @@ pub fn navigation_drawers_demo() -> Dom {
                         .header_text("Toggled non-modal".to_string())
                     })))
                     .media_section(Some(list!({
-                            .rows([
+                            .items([
                                 html!("div", {
                                     .class("navigation-drawer-demo")
                                     .apply(|d| {

@@ -49,7 +49,7 @@ fn interactive_list_demo() -> Dom {
             .media_section(Some(container!({
                 .children([
                     list!({
-                        .rows([
+                        .items([
                             interactive_list!({
                                 .items_signal_vec(items)
                                 .selected_indexes_signal(selected_item.signal_cloned())
@@ -82,7 +82,7 @@ fn dynamic_list_demo() -> Dom {
                 .header_text("Dynamic list holding dom elements".to_string())
             })))
             .media_section(Some(list!({
-                .rows([
+                .items([
                     button!({
                         .label("Add new entry")
                         .click_handler(clone!(entries => move |_| {
@@ -91,7 +91,7 @@ fn dynamic_list_demo() -> Dom {
                         .disabled_signal(entries.signal_vec_cloned().len().map(|v| v >= 5))
                     }),
                     list!({
-                        .rows_signal_vec(entries
+                        .items_signal_vec(entries
                         .signal_vec_cloned()
                         .map(|entry| html!("span", { .text(entry.as_str())})))
                     }),

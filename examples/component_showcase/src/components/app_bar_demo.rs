@@ -8,7 +8,7 @@ use crate::components::navigation_drawer_demo::mock_view_select;
 
 pub fn app_bar_demo() -> Dom {
     list!({
-        .rows([
+        .items([
             container!({
                 .children([
                     card!({

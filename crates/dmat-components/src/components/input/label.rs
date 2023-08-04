@@ -5,7 +5,6 @@ use futures_signals::signal::Signal;
 
 #[inline]
 pub fn label_element(
-    input: Dom,
     has_value_signal: impl Signal<Item = bool> + 'static,
     has_focus_signal: impl Signal<Item = bool> + 'static,
     label: impl Signal<Item = Option<Dom>> + 'static,
@@ -19,7 +18,6 @@ pub fn label_element(
                     *has_focus || *has_value
                 }))
         .children(&mut [
-            input,
             html!("div", {.class("dmat-notch-left")}),
             html!("div", {
                 .class("dmat-notch-middle")

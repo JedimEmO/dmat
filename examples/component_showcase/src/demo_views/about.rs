@@ -6,7 +6,7 @@ pub fn about_view() -> Dom {
     container!({.apply(|d| {
         d.child(card!({
             .child( list!({
-                .rows([
+                .items([
                     html!("span", { .text("dmat-* example app")}),
                     html!("span", { .text("A performance first component library built on FRP principles") }),
                     html!("div", {

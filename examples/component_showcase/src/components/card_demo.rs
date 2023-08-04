@@ -45,7 +45,7 @@ pub fn card_demo() -> Dom {
                     .attr("alt", "shapes!")
                 })))
                 .supporting_section(Some(list!({
-                    .rows([
+                    .items([
                         title!( {
                             .header_text("Title within supporting".to_string())
                         }),

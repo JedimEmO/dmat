@@ -5,6 +5,7 @@
   "scripts": {
     "build": "rimraf dist/js && npm run css && rollup --bundleConfigAsCjs --config",
     "start": "rimraf dist/js && npm run css && rollup --bundleConfigAsCjs --config --watch",
+    "start:css": "sass style:dist/style --watch",
     "css": "sass style:dist/style && cp -r images dist"
   },
   "devDependencies": {

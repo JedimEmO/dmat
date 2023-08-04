@@ -17,7 +17,7 @@ pub fn button_demo() -> Dom {
                             .sub_header_text(None)
                         })))
                         .media_section(Some(list!({
-                            .rows([
+                            .items([
                                 button!({
                                     .style(ButtonStyle::Prominent)
                                     .content(html!("span", { .text("prominent") }))
@@ -40,7 +40,7 @@ pub fn button_demo() -> Dom {
                             .header_text("ButtonType::Elevated".to_string())
                         })))
                         .media_section(Some(list!({
-                                .rows([
+                                .items([
                                     button!({
                                         .style(ButtonStyle::Prominent)
                                         .button_type(ButtonType::Elevated)
@@ -64,7 +64,7 @@ pub fn button_demo() -> Dom {
                             .header_text("ButtonType::Text".to_string())
                         })))
                         .media_section(Some(list!({
-                            .rows([
+                            .items([
                                 button!({
                                     .style(ButtonStyle::Prominent)
                                     .button_type(ButtonType::Text)
@@ -88,7 +88,7 @@ pub fn button_demo() -> Dom {
                             .header_text("ButtonType::Outlined".to_string())
                         })))
                         .media_section(Some(list!({
-                            .rows([
+                            .items([
                                 button!({
                                     .style(ButtonStyle::Prominent)
                                     .button_type(ButtonType::Outlined)
@@ -115,7 +115,7 @@ pub fn button_demo() -> Dom {
                             })
                         })))
                         .media_section(Some(list!({
-                             .rows([
+                             .items([
                                 button!({
                                     .click_handler(clone!(counter => move |_| {
                                         let v = *counter.lock_ref();

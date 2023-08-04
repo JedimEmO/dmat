@@ -10,7 +10,7 @@ pub fn table_demo() -> Dom {
     let is_loading = Mutable::new(false);
 
     let controls = list!({
-        .rows(vec![
+        .items(vec![
             button!({
                 .label("Toggle loading")
                 .disabled_signal(is_loading.signal())
@@ -60,7 +60,7 @@ pub fn table_demo() -> Dom {
             .header_text("Simple table".to_string())
         })))
         .media_section(Some(list!({
-            .rows(vec![
+            .items(vec![
                 controls,
                 t,
             ])

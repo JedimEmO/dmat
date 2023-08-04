@@ -2,19 +2,17 @@ use dominator::{clone, html, Dom};
 use futures_signals::map_ref;
 use futures_signals::signal::Mutable;
 
-use dmat_components::components::input::combo_box::*;
-use dmat_components::components::layouts::*;
-
-use dmat_components::components::input::select::*;
-use dmat_components::components::input::switch::*;
 use dmat_components::components::input::validation_result::ValidationResult;
 use dmat_components::components::input::value_adapters::mutable_t_value_adapter::MutableTValueAdapter;
+use dmat_components::components::input::*;
 use dmat_components::components::*;
 
 pub fn input_demo() -> Dom {
     let value = Mutable::new("".to_string());
-    container!({
-        .children([
+
+    list!({
+        .apply(|d| d.class("wtf4real"))
+        .items([
             text_input_demo(&value),
             combo_box_demo(&value),
             switch_demo(),
@@ -29,7 +27,7 @@ fn switch_demo() -> Dom {
 
     card!({
         .child(list!({
-            .rows([
+            .items([
                 html!("div", { .children(&mut[
                     html!("span", {.text("Switch: ")}),
                     switch!({
@@ -58,7 +56,7 @@ fn switch_demo() -> Dom {
 fn combo_box_demo(value: &Mutable<String>) -> Dom {
     card!({
         .child(list!({
-            .rows([
+            .items([
                 html!("span", { .text("Selection")}),
                 combo_box!({
                     .options(make_select_options())
@@ -74,7 +72,7 @@ fn combo_box_demo(value: &Mutable<String>) -> Dom {
                     .value_signal(value.signal_cloned())
                     .on_change(clone!(value => move |v| value.set(v)))
                     .is_valid_signal(value.signal_ref(|v| v == "Orange"))
-                    .error_text(Some(html!("span", {.text("Error text signal")})))
+                    .error_text(Some(html!("span", {.text("This one accepts oranges")})))
                 }),
                 select!({
                     .options(make_select_options())
@@ -100,7 +98,7 @@ fn text_input_demo(value: &Mutable<String>) -> Dom {
 
     card!({
         .child( list!({
-            .rows([
+            .items([
                 html!("span", { .text("Text input")}),
                 html!("div", {
                     .children(&mut [

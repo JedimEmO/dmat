@@ -30,12 +30,12 @@ pub struct List {
     /// The list of items to render.
     /// Each item is wrapped in a `<li>` element by the list component.
     #[signal_vec]
-    rows: Dom,
+    items: Dom,
 }
 
 #[inline]
 pub fn list(props: impl ListPropsTrait + 'static) -> Dom {
-    let ListProps { rows, apply } = props.take();
+    let ListProps { items: rows, apply } = props.take();
 
     html!("ul", {
         .class("dmat-list")
