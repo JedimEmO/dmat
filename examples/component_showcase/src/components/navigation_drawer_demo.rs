@@ -3,7 +3,6 @@ use futures_signals::signal::Mutable;
 use futures_signals::signal_vec::{MutableVec, SignalVecExt};
 use lipsum::lipsum;
 
-use dmat_components::components::layouts::*;
 use dmat_components::components::*;
 
 use crate::utils::toggle_button::toggle_button;

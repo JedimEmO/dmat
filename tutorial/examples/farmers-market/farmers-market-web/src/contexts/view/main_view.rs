@@ -1,6 +1,6 @@
 use crate::contexts::domain::product::ProductService;
 use crate::contexts::view::product_list::product_list;
-use dmat_components::components::layouts::*;
+use dmat_components::components::*;
 use dominator::{html, Dom};
 
 pub fn main_view(product_service: &'static ProductService) -> Dom {

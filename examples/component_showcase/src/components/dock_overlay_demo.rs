@@ -1,4 +1,3 @@
-use dmat_components::components::layouts::*;
 use dmat_components::components::*;
 use dominator::{clone, events, html, Dom};
 use futures_signals::signal::Mutable;

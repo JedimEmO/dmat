@@ -2,7 +2,6 @@ use dominator::{clone, html, Dom};
 use futures_signals::map_ref;
 use futures_signals::signal::Mutable;
 
-use dmat_components::components::layouts::*;
 use dmat_components::components::*;
 
 pub fn button_demo() -> Dom {

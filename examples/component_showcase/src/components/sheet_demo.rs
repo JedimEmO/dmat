@@ -1,5 +1,4 @@
-use dmat_components::components::button::*;
-use dmat_components::components::layouts::*;
+use dmat_components::components::*;
 use dominator::{clone, html, Dom};
 use futures_signals::signal::Mutable;
 

@@ -1,4 +1,3 @@
-use dmat_components::components::layouts::*;
 use dmat_components::components::*;
 use dominator::{html, Dom};
 use lipsum::lipsum;

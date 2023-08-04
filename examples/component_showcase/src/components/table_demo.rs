@@ -2,7 +2,6 @@ use dominator::{clone, html, Dom};
 use futures_signals::signal::Mutable;
 use futures_signals::signal_vec::{MutableVec, SignalVecExt};
 
-use dmat_components::components::layouts::*;
 use dmat_components::components::*;
 use dmat_components::utils::timeout::timeout;
 

@@ -4,7 +4,6 @@ use futures_signals::signal::{Mutable, SignalExt};
 use futures_signals::signal_vec::{MutableVec, SignalVecExt};
 use wasm_bindgen::__rt::std::rc::Rc;
 
-use dmat_components::components::layouts::*;
 use dmat_components::components::*;
 use dmat_components::utils::mixin::stream_handler_mixin;
 

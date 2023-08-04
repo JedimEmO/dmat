@@ -1,7 +1,6 @@
 use dominator::{html, Dom};
 use lipsum::lipsum;
 
-use dmat_components::components::layouts::*;
 use dmat_components::components::*;
 
 use crate::components::navigation_drawer_demo::mock_view_select;

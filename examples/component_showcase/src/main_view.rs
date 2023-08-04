@@ -1,8 +1,7 @@
 use dominator::{html, Dom};
 use futures_signals::signal::{Signal, SignalExt};
 
-use dmat_components::components::layouts::*;
-use dmat_components::components::{tabs, TabsProps};
+use dmat_components::components::*;
 use dmat_components::utils::mixin::id_attribute_mixin;
 
 use crate::demo_views::about::about_view;

@@ -1,4 +1,3 @@
-use dmat_components::components::layouts::*;
 use dmat_components::components::*;
 use dmat_vis::contexts::charts::axis::{AxisDescription, TickInfo};
 use dmat_vis::contexts::charts::line_chart::{
