@@ -142,15 +142,40 @@ button.dmat-button.-text.-unimportant:hover:active {
 }
 .dmat-input-combo-box {
   height: 45px;
+  width: 100%;
 }
-.dmat-input-combo-box.assistive {
-  display: grid;
-  grid-template-rows: 30px 1fr;
-  grid-auto-flow: row;
+.dmat-input-combo-box:not(.-error) .-error-text {
+  display: none;
 }
-.dmat-input-combo-box .dmat-assistive-text {
+.dmat-input-combo-box.-with-assistive > .dmat-floating-label {
+  height: 30px;
+}
+.dmat-input-combo-box.-with-assistive.-error .-assistive-text {
+  display: none;
+}
+.dmat-input-combo-box.-with-assistive .-assistive-text, .dmat-input-combo-box.-with-assistive .-error-text {
+  position: absolute;
   font-size: small;
   white-space: nowrap;
+  bottom: 0;
+  left: 0;
+}
+.dmat-input-combo-box.-with-assistive > input, .dmat-input-combo-box.-with-assistive > select {
+  height: 30px;
+}
+.dmat-input-combo-box.-with-assistive > .dmat-floating-label.above > .dmat-notch-middle {
+  border-top: none;
+}
+.dmat-input-combo-box.-with-assistive > .dmat-floating-label.above > .dmat-notch-middle > span {
+  display: block;
+  transform: translateY(-85%) scale(0.8) translateX(-10%);
+}
+.dmat-input-combo-box > .dmat-floating-label.above > .dmat-notch-middle {
+  border-top: none;
+}
+.dmat-input-combo-box > .dmat-floating-label.above > .dmat-notch-middle > span {
+  display: block;
+  transform: translateY(-100%) scale(0.8) translateX(-10%);
 }
 .dmat-input-combo-box.-invalid {
   color: #b00020;
@@ -159,39 +184,42 @@ button.dmat-button.-text.-unimportant:hover:active {
 .dmat-input-combo-box.-invalid input, .dmat-input-combo-box.-invalid select {
   color: #b00020;
 }
-.dmat-input-combo-box > .dmat-floating-label {
-  display: grid;
-  position: relative;
-  grid-template-columns: 10px 10fr 1fr;
-  flex: 1;
-}
-.dmat-input-combo-box > .dmat-floating-label > input, .dmat-input-combo-box > .dmat-floating-label > select {
-  grid-column: 2;
-  grid-row: 1;
+.dmat-input-combo-box > input, .dmat-input-combo-box > select {
   border: none;
   outline: none;
+  width: 100%;
+  height: 100%;
+}
+.dmat-input-combo-box > .dmat-floating-label {
+  display: flex;
+  position: absolute;
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  text-align: left;
+  box-sizing: border-box;
+  top: 0;
+  left: 0;
+  right: 0;
+  pointer-events: none;
 }
 .dmat-input-combo-box > .dmat-floating-label > .dmat-notch-left {
-  grid-column: 1;
-  grid-row: 1;
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
   border-left: 1px solid black;
   border-bottom: 1px solid black;
   border-top: 1px solid black;
   pointer-events: none;
+  width: 12px;
 }
 .dmat-input-combo-box > .dmat-floating-label.above > .dmat-notch-middle {
   border-top: none;
 }
 .dmat-input-combo-box > .dmat-floating-label.above > .dmat-notch-middle > span {
   display: block;
-  transform: translateY(-80%) scale(0.8) translateX(-10%);
   transition: transform 100ms cubic-bezier(0.4, 0, 0.2, 1), color 150ms cubic-bezier(0.4, 0, 0.2, 1), left 100ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 .dmat-input-combo-box > .dmat-floating-label > .dmat-notch-middle {
-  grid-column: 2;
-  grid-row: 1;
   border-bottom: 1px solid black;
   border-top: 1px solid black;
   pointer-events: none;
@@ -204,14 +232,13 @@ button.dmat-button.-text.-unimportant:hover:active {
   transition: transform 100ms cubic-bezier(0.4, 0, 0.2, 1), color 150ms cubic-bezier(0.4, 0, 0.2, 1), left 100ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 .dmat-input-combo-box > .dmat-floating-label > .dmat-notch-right {
-  grid-row: 1;
-  grid-column: 3;
   border-top-right-radius: 5px;
   border-bottom-right-radius: 5px;
   border-right: 1px solid black;
   border-bottom: 1px solid black;
   border-top: 1px solid black;
   pointer-events: none;
+  flex: auto;
 }
 
 .dmat-input-select {
@@ -234,15 +261,40 @@ button.dmat-button.-text.-unimportant:hover:active {
 }
 .dmat-input-select {
   height: 45px;
+  width: 100%;
 }
-.dmat-input-select.assistive {
-  display: grid;
-  grid-template-rows: 30px 1fr;
-  grid-auto-flow: row;
+.dmat-input-select:not(.-error) .-error-text {
+  display: none;
 }
-.dmat-input-select .dmat-assistive-text {
+.dmat-input-select.-with-assistive > .dmat-floating-label {
+  height: 30px;
+}
+.dmat-input-select.-with-assistive.-error .-assistive-text {
+  display: none;
+}
+.dmat-input-select.-with-assistive .-assistive-text, .dmat-input-select.-with-assistive .-error-text {
+  position: absolute;
   font-size: small;
   white-space: nowrap;
+  bottom: 0;
+  left: 0;
+}
+.dmat-input-select.-with-assistive > input, .dmat-input-select.-with-assistive > select {
+  height: 30px;
+}
+.dmat-input-select.-with-assistive > .dmat-floating-label.above > .dmat-notch-middle {
+  border-top: none;
+}
+.dmat-input-select.-with-assistive > .dmat-floating-label.above > .dmat-notch-middle > span {
+  display: block;
+  transform: translateY(-85%) scale(0.8) translateX(-10%);
+}
+.dmat-input-select > .dmat-floating-label.above > .dmat-notch-middle {
+  border-top: none;
+}
+.dmat-input-select > .dmat-floating-label.above > .dmat-notch-middle > span {
+  display: block;
+  transform: translateY(-100%) scale(0.8) translateX(-10%);
 }
 .dmat-input-select.-invalid {
   color: #b00020;
@@ -251,39 +303,42 @@ button.dmat-button.-text.-unimportant:hover:active {
 .dmat-input-select.-invalid input, .dmat-input-select.-invalid select {
   color: #b00020;
 }
-.dmat-input-select > .dmat-floating-label {
-  display: grid;
-  position: relative;
-  grid-template-columns: 10px 10fr 1fr;
-  flex: 1;
-}
-.dmat-input-select > .dmat-floating-label > input, .dmat-input-select > .dmat-floating-label > select {
-  grid-column: 2;
-  grid-row: 1;
+.dmat-input-select > input, .dmat-input-select > select {
   border: none;
   outline: none;
+  width: 100%;
+  height: 100%;
+}
+.dmat-input-select > .dmat-floating-label {
+  display: flex;
+  position: absolute;
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  text-align: left;
+  box-sizing: border-box;
+  top: 0;
+  left: 0;
+  right: 0;
+  pointer-events: none;
 }
 .dmat-input-select > .dmat-floating-label > .dmat-notch-left {
-  grid-column: 1;
-  grid-row: 1;
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
   border-left: 1px solid black;
   border-bottom: 1px solid black;
   border-top: 1px solid black;
   pointer-events: none;
+  width: 12px;
 }
 .dmat-input-select > .dmat-floating-label.above > .dmat-notch-middle {
   border-top: none;
 }
 .dmat-input-select > .dmat-floating-label.above > .dmat-notch-middle > span {
   display: block;
-  transform: translateY(-80%) scale(0.8) translateX(-10%);
   transition: transform 100ms cubic-bezier(0.4, 0, 0.2, 1), color 150ms cubic-bezier(0.4, 0, 0.2, 1), left 100ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 .dmat-input-select > .dmat-floating-label > .dmat-notch-middle {
-  grid-column: 2;
-  grid-row: 1;
   border-bottom: 1px solid black;
   border-top: 1px solid black;
   pointer-events: none;
@@ -296,14 +351,13 @@ button.dmat-button.-text.-unimportant:hover:active {
   transition: transform 100ms cubic-bezier(0.4, 0, 0.2, 1), color 150ms cubic-bezier(0.4, 0, 0.2, 1), left 100ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 .dmat-input-select > .dmat-floating-label > .dmat-notch-right {
-  grid-row: 1;
-  grid-column: 3;
   border-top-right-radius: 5px;
   border-bottom-right-radius: 5px;
   border-right: 1px solid black;
   border-bottom: 1px solid black;
   border-top: 1px solid black;
   pointer-events: none;
+  flex: auto;
 }
 
 .dmat-switch {
@@ -334,15 +388,40 @@ button.dmat-button.-text.-unimportant:hover:active {
 }
 .dmat-input-text-field {
   height: 45px;
+  width: 100%;
 }
-.dmat-input-text-field.assistive {
-  display: grid;
-  grid-template-rows: 30px 1fr;
-  grid-auto-flow: row;
+.dmat-input-text-field:not(.-error) .-error-text {
+  display: none;
 }
-.dmat-input-text-field .dmat-assistive-text {
+.dmat-input-text-field.-with-assistive > .dmat-floating-label {
+  height: 30px;
+}
+.dmat-input-text-field.-with-assistive.-error .-assistive-text {
+  display: none;
+}
+.dmat-input-text-field.-with-assistive .-assistive-text, .dmat-input-text-field.-with-assistive .-error-text {
+  position: absolute;
   font-size: small;
   white-space: nowrap;
+  bottom: 0;
+  left: 0;
+}
+.dmat-input-text-field.-with-assistive > input, .dmat-input-text-field.-with-assistive > select {
+  height: 30px;
+}
+.dmat-input-text-field.-with-assistive > .dmat-floating-label.above > .dmat-notch-middle {
+  border-top: none;
+}
+.dmat-input-text-field.-with-assistive > .dmat-floating-label.above > .dmat-notch-middle > span {
+  display: block;
+  transform: translateY(-85%) scale(0.8) translateX(-10%);
+}
+.dmat-input-text-field > .dmat-floating-label.above > .dmat-notch-middle {
+  border-top: none;
+}
+.dmat-input-text-field > .dmat-floating-label.above > .dmat-notch-middle > span {
+  display: block;
+  transform: translateY(-100%) scale(0.8) translateX(-10%);
 }
 .dmat-input-text-field.-invalid {
   color: #b00020;
@@ -351,39 +430,42 @@ button.dmat-button.-text.-unimportant:hover:active {
 .dmat-input-text-field.-invalid input, .dmat-input-text-field.-invalid select {
   color: #b00020;
 }
-.dmat-input-text-field > .dmat-floating-label {
-  display: grid;
-  position: relative;
-  grid-template-columns: 10px 10fr 1fr;
-  flex: 1;
-}
-.dmat-input-text-field > .dmat-floating-label > input, .dmat-input-text-field > .dmat-floating-label > select {
-  grid-column: 2;
-  grid-row: 1;
+.dmat-input-text-field > input, .dmat-input-text-field > select {
   border: none;
   outline: none;
+  width: 100%;
+  height: 100%;
+}
+.dmat-input-text-field > .dmat-floating-label {
+  display: flex;
+  position: absolute;
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  text-align: left;
+  box-sizing: border-box;
+  top: 0;
+  left: 0;
+  right: 0;
+  pointer-events: none;
 }
 .dmat-input-text-field > .dmat-floating-label > .dmat-notch-left {
-  grid-column: 1;
-  grid-row: 1;
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
   border-left: 1px solid black;
   border-bottom: 1px solid black;
   border-top: 1px solid black;
   pointer-events: none;
+  width: 12px;
 }
 .dmat-input-text-field > .dmat-floating-label.above > .dmat-notch-middle {
   border-top: none;
 }
 .dmat-input-text-field > .dmat-floating-label.above > .dmat-notch-middle > span {
   display: block;
-  transform: translateY(-80%) scale(0.8) translateX(-10%);
   transition: transform 100ms cubic-bezier(0.4, 0, 0.2, 1), color 150ms cubic-bezier(0.4, 0, 0.2, 1), left 100ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 .dmat-input-text-field > .dmat-floating-label > .dmat-notch-middle {
-  grid-column: 2;
-  grid-row: 1;
   border-bottom: 1px solid black;
   border-top: 1px solid black;
   pointer-events: none;
@@ -396,14 +478,13 @@ button.dmat-button.-text.-unimportant:hover:active {
   transition: transform 100ms cubic-bezier(0.4, 0, 0.2, 1), color 150ms cubic-bezier(0.4, 0, 0.2, 1), left 100ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 .dmat-input-text-field > .dmat-floating-label > .dmat-notch-right {
-  grid-row: 1;
-  grid-column: 3;
   border-top-right-radius: 5px;
   border-bottom-right-radius: 5px;
   border-right: 1px solid black;
   border-bottom: 1px solid black;
   border-top: 1px solid black;
   pointer-events: none;
+  flex: auto;
 }
 .dmat-input-text-field .dmat-input-element {
   font-weight: 400;
