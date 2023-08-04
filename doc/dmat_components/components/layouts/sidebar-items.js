@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"mod":["app_bar","container","content_block","dock_overlay","sheet"]};
