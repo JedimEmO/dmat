@@ -10,9 +10,8 @@ use dmat_components::components::*;
 pub fn input_demo() -> Dom {
     let value = Mutable::new("".to_string());
 
-    list!({
-        .apply(|d| d.class("wtf4real"))
-        .items([
+    container!({
+        .children([
             text_input_demo(&value),
             combo_box_demo(&value),
             switch_demo(),
