@@ -61,6 +61,8 @@ fn combo_box_demo(value: &Mutable<String>) -> Dom {
             .items([
                 html!("span", { .text("Selection")}),
                 combo_box!({
+                    .input_id(Some("demo-cbox-1".into()))
+                    .label(Some(html!("span", { .text("Combo Box")})))
                     .options(make_select_options())
                     .data_list_id("demo-list-a".into())
                     .value_signal(value.signal_cloned())
@@ -73,30 +75,17 @@ fn combo_box_demo(value: &Mutable<String>) -> Dom {
                         }
                     }))
                 }),
-                combo_box!({
-                    .options(make_select_options())
-                    .data_list_id("demo-list-b".into())
-                    .label(Some(html!("span", { .text("Oranges are the best")})))
-                    .value_signal(value.signal_cloned())
-                    .on_change(clone!(value => move |v| value.set(v)))
-                    .is_valid_signal(value.signal_ref(|v| {
-                        if v == "Orange" {
-                            ValidationResult::Valid
-                        } else {
-                            ValidationResult::Invalid { message: "I want oranges!".to_string() }
-                        }
-                    }))
-                    .assistive_text(Some(html!("span", { .text ("Oranges are the best")})))
-                }),
                 select!({
+                    .input_id(Some("demo-sel-1".into()))
                     .options(make_select_options())
-                    .label(Some(html!("span", { .text("Pick one")})))
+                    .label(Some(html!("span", { .text("Select")})))
                     .value_signal(value.signal_cloned())
                     .on_change(clone!(value => move |v| value.set(v)))
                 }),
                 select!({
+                    .input_id(Some("demo-sel-2".into()))
                     .options(make_select_options())
-                    .label(Some(html!("span", { .text("select with assistive text")})))
+                    .label(Some(html!("span", { .text("Select with assistive text")})))
                     .value_signal(value.signal_cloned())
                     .on_change(clone!(value => move |v| value.set(v)))
                     .is_valid_signal(value.signal_ref(|v| {
@@ -123,6 +112,7 @@ fn text_input_demo(value: &Mutable<String>) -> Dom {
                 html!("div", {
                     .children(&mut [
                         text_field!({
+                            .input_id(Some("demo-txt-1".into()))
                             .claim_focus(true)
                             .label(Some(html!("span", { .text("With dynamic help text")})))
                             .value(MutableTValueAdapter::new_simple(value))
@@ -136,6 +126,7 @@ fn text_input_demo(value: &Mutable<String>) -> Dom {
                 html!("div", {
                     .children(&mut [
                         text_field!({
+                            .input_id(Some("demo-txt-2".into()))
                             .label(Some(html!("span", { .text("With error text")})))
                             .value(MutableTValueAdapter::new_simple(value))
                             .is_valid_signal(value.signal_ref(|v| {
@@ -155,6 +146,7 @@ fn text_input_demo(value: &Mutable<String>) -> Dom {
                 html!("div", {
                     .children(&mut [
                         text_field!({
+                            .input_id(Some("demo-txt-3".into()))
                             .label(Some(html!("span", { .text("Always invalid")})))
                             .value(MutableTValueAdapter::new_simple(value))
                             .is_valid(validation_result::ValidationResult::Invalid { message: "Always invalid".to_string() })
@@ -164,6 +156,7 @@ fn text_input_demo(value: &Mutable<String>) -> Dom {
                 html!("div", {
                     .children(&mut [
                         text_field!({
+                            .input_id(Some("demo-txt-4".into()))
                             .label(Some(html!("span", { .text("Only accepts UPPERCASE characters")})))
                             .value(MutableTValueAdapter::new_with_sanitizer(value, |v| {
                                 if v.chars().all(|c| c.is_uppercase()) {
@@ -179,6 +172,7 @@ fn text_input_demo(value: &Mutable<String>) -> Dom {
                 html!("div", {
                     .children(&mut [
                         text_field!({
+                            .input_id(Some("demo-txt-5".into()))
                             .label(Some(html!("span", { .text("Only accepts i32 values")})))
                             .value(MutableTValueAdapter::new_simple(&i32_value))
                             .assistive_text_signal(map_ref!(let cur_val = i32_value.signal_cloned() =>
