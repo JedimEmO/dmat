@@ -210,6 +210,13 @@
 <a href="#210" id="210">210</a>
 <a href="#211" id="211">211</a>
 <a href="#212" id="212">212</a>
+<a href="#213" id="213">213</a>
+<a href="#214" id="214">214</a>
+<a href="#215" id="215">215</a>
+<a href="#216" id="216">216</a>
+<a href="#217" id="217">217</a>
+<a href="#218" id="218">218</a>
+<a href="#219" id="219">219</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::components::input::input_field::{input_wrapper, InputWrapperProps};
 <span class="kw">use </span><span class="kw">crate</span>::components::input::validation_result::ValidationResult;
 <span class="kw">use </span><span class="kw">crate</span>::components::input::value_adapters::mutable_t_value_adapter::MutableTValueAdapter;
@@ -217,10 +224,13 @@
 <span class="kw">use </span><span class="kw">crate</span>::components::mixins::disabled_signal_mixin;
 <span class="kw">use </span>dominator::{clone, events, html, Dom};
 <span class="kw">use </span>futures_signals::map_ref;
-<span class="kw">use </span>futures_signals::signal::{Mutable, MutableSignalCloned, Signal, SignalExt};
+<span class="kw">use </span>futures_signals::signal::{Mutable, Signal, SignalExt};
 
 <span class="attr">#[component(render_fn = text_field)]
-</span><span class="kw">pub struct </span>TextField&lt;TValueAdapter: ValueAdapter + <span class="lifetime">&#39;static </span>= MutableTValueAdapter&lt;String&gt;&gt; {
+</span><span class="kw">pub struct </span>TextField&lt;
+    TValueAdapter: ValueAdapter + <span class="lifetime">&#39;static </span>= MutableTValueAdapter&lt;String&gt;,
+    TOnFocusChange: Fn(bool) = <span class="kw">fn</span>(bool) -&gt; (),
+&gt; {
     <span class="attr">#[signal]
     #[default(<span class="prelude-val">None</span>)]
     </span>label: <span class="prelude-ty">Option</span>&lt;Dom&gt;,
@@ -245,10 +255,8 @@
 
     <span class="attr">#[default(<span class="prelude-val">None</span>)]
     </span>input_id: <span class="prelude-ty">Option</span>&lt;String&gt;,
-}
 
-<span class="kw">pub struct </span>TextFieldOutput {
-    <span class="kw">pub </span>has_focus: MutableSignalCloned&lt;bool&gt;,
+    on_focus_change: TOnFocusChange,
 }
 
 <span class="doccomment">/// Creates a text input element for accepting user data
@@ -256,7 +264,7 @@
 /// The return tuple contains:
 /// 0: input Dom entry
 /// 1: output of the component, containing a boolean signal for the  validity of the input according to the validator
-</span><span class="kw">pub fn </span>text_field(props: <span class="kw">impl </span>TextFieldPropsTrait + <span class="lifetime">&#39;static</span>) -&gt; (Dom, TextFieldOutput) {
+</span><span class="kw">pub fn </span>text_field(props: <span class="kw">impl </span>TextFieldPropsTrait + <span class="lifetime">&#39;static</span>) -&gt; Dom {
     <span class="kw">let </span>TextFieldProps {
         label,
         value,
@@ -265,6 +273,7 @@
         assistive_text,
         claim_focus,
         input_id,
+        on_focus_change,
         apply,
     } = props.take();
 
@@ -279,6 +288,7 @@
         has_focus.clone(),
         claim_focus,
         input_id.clone(),
+        on_focus_change,
     );
 
     <span class="kw">let </span>is_valid_combined = <span class="macro">map_ref! </span>{
@@ -306,22 +316,17 @@
             }
     };
 
-    (
-        input_wrapper(
-            InputWrapperProps::new()
-                .value_signal(value_combined_signal)
-                .input(input_element)
-                .has_focus_signal(has_focus.signal())
-                .apply(|d| <span class="kw">if let </span><span class="prelude-val">Some</span>(a) = apply { a(d) } <span class="kw">else </span>{ d })
-                .class_name(<span class="string">&quot;dmat-input-text-field&quot;</span>.to_string())
-                .assistive_text_signal(assistive_text)
-                .is_valid_signal(is_valid_combined)
-                .label_signal(label)
-                .input_id(input_id),
-        ),
-        TextFieldOutput {
-            has_focus: has_focus.signal_cloned(),
-        },
+    input_wrapper(
+        InputWrapperProps::new()
+            .value_signal(value_combined_signal)
+            .input(input_element)
+            .has_focus_signal(has_focus.signal())
+            .apply(|d| <span class="kw">if let </span><span class="prelude-val">Some</span>(a) = apply { a(d) } <span class="kw">else </span>{ d })
+            .class_name(<span class="string">&quot;dmat-input-text-field&quot;</span>.to_string())
+            .assistive_text_signal(assistive_text)
+            .is_valid_signal(is_valid_combined)
+            .label_signal(label)
+            .input_id(input_id),
     )
 }
 
@@ -333,6 +338,7 @@
     has_focus: Mutable&lt;bool&gt;,
     claim_focus: bool,
     input_id: <span class="prelude-ty">Option</span>&lt;String&gt;,
+    on_focus_change: <span class="prelude-ty">Option</span>&lt;<span class="kw">impl </span>Fn(bool) + <span class="lifetime">&#39;static</span>&gt;,
 ) -&gt; Dom {
     <span class="kw">let </span>value_signal = value.get_value_signal();
     <span class="kw">let </span>value_signal_reset = value.get_value_signal();
@@ -344,6 +350,15 @@
     }));
 
     <span class="macro">html!</span>(<span class="string">&quot;input&quot;</span>, {
+        .apply_if(on_focus_change.is_some(), <span class="macro">clone!</span>(has_focus =&gt; <span class="kw">move</span>|d| {
+            <span class="kw">let </span>on_focus_change = on_focus_change.unwrap();
+            d.future(<span class="kw">async move </span>{
+                has_focus.signal().for_each(|current_focus| {
+                    on_focus_change(current_focus);
+                    <span class="kw">async </span>{}
+                }).<span class="kw">await</span>;
+            })
+        }))
         .apply_if(input_id.is_some(), <span class="macro">clone!</span>(input_id =&gt; <span class="kw">move</span>|builder| builder.attr(<span class="string">&quot;id&quot;</span>, input_id.unwrap().as_str())))
         .apply_if(claim_focus, <span class="macro">clone!</span>(has_focus =&gt; <span class="kw">move</span>|builder| {
             has_focus.set(<span class="bool-val">true</span>);
@@ -402,8 +417,7 @@
             .apply(|d| d.attr(<span class="string">&quot;id&quot;</span>, <span class="string">&quot;testfield&quot;</span>))
         });
 
-        <span class="kw">let </span>field_dom = field.<span class="number">0</span>;
-        <span class="kw">let </span>_field_out = field.<span class="number">1</span>;
+        <span class="kw">let </span>field_dom = field;
 
         dominator::append_dom(
             <span class="kw-2">&amp;</span>web_sys::window()

@@ -142,7 +142,9 @@ button.dmat-button.-text.-unimportant:hover:active {
 }
 .dmat-input-combo-box {
   height: 60px;
+  max-width: 600px;
   width: 100%;
+  background: transparent;
 }
 .dmat-input-combo-box.-invalid > input, .dmat-input-combo-box > select {
   background: rgba(255, 100, 100, 0.1);
@@ -150,7 +152,6 @@ button.dmat-button.-text.-unimportant:hover:active {
 }
 .dmat-input-combo-box > input, .dmat-input-combo-box > select {
   height: 45px;
-  background: transparent;
 }
 .dmat-input-combo-box > .dmat-floating-label {
   height: 45px;
@@ -258,7 +259,9 @@ button.dmat-button.-text.-unimportant:hover:active {
 }
 .dmat-input-select {
   height: 60px;
+  max-width: 600px;
   width: 100%;
+  background: transparent;
 }
 .dmat-input-select.-invalid > input, .dmat-input-select > select {
   background: rgba(255, 100, 100, 0.1);
@@ -266,7 +269,6 @@ button.dmat-button.-text.-unimportant:hover:active {
 }
 .dmat-input-select > input, .dmat-input-select > select {
   height: 45px;
-  background: transparent;
 }
 .dmat-input-select > .dmat-floating-label {
   height: 45px;
@@ -382,7 +384,9 @@ button.dmat-button.-text.-unimportant:hover:active {
 }
 .dmat-input-text-field {
   height: 60px;
+  max-width: 600px;
   width: 100%;
+  background: transparent;
 }
 .dmat-input-text-field.-invalid > input, .dmat-input-text-field > select {
   background: rgba(255, 100, 100, 0.1);
@@ -390,7 +394,6 @@ button.dmat-button.-text.-unimportant:hover:active {
 }
 .dmat-input-text-field > input, .dmat-input-text-field > select {
   height: 45px;
-  background: transparent;
 }
 .dmat-input-text-field > .dmat-floating-label {
   height: 45px;

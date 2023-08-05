@@ -67,10 +67,17 @@
 <a href="#67" id="67">67</a>
 <a href="#68" id="68">68</a>
 <a href="#69" id="69">69</a>
+<a href="#70" id="70">70</a>
+<a href="#71" id="71">71</a>
+<a href="#72" id="72">72</a>
+<a href="#73" id="73">73</a>
+<a href="#74" id="74">74</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{clone, html, Dom};
 <span class="kw">use </span>futures_signals::signal::Mutable;
 <span class="kw">use </span>futures_signals::signal_vec::{MutableVec, SignalVecExt};
 
+<span class="kw">use </span>dmat_components::components::input::value_adapters::mutable_t_value_adapter::MutableTValueAdapter;
+<span class="kw">use </span>dmat_components::components::input::<span class="kw-2">*</span>;
 <span class="kw">use </span>dmat_components::components::<span class="kw-2">*</span>;
 <span class="kw">use </span>dmat_components::utils::timeout::timeout;
 
@@ -93,18 +100,21 @@
     });
 
     <span class="kw">let </span>data = MutableVec::new_with_values(<span class="macro">vec!</span>[
-        <span class="string">&quot;bob&quot;</span>.to_string(),
-        <span class="string">&quot;alice&quot;</span>.to_string(),
-        <span class="string">&quot;eve&quot;</span>.to_string(),
+        Mutable::new(<span class="string">&quot;bob&quot;</span>.to_string()),
+        Mutable::new(<span class="string">&quot;alice&quot;</span>.to_string()),
+        Mutable::new(<span class="string">&quot;eve&quot;</span>.to_string()),
     ]);
     <span class="kw">let </span>rows = data.signal_vec_cloned().map(|v| {
         <span class="macro">html!</span>(<span class="string">&quot;tr&quot;</span>, {
             .children(<span class="kw-2">&amp;mut</span>[
-                <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {
-                    .text(v.as_str())
+                <span class="macro">html!</span>(<span class="string">&quot;td&quot;</span>, {
+                    .style(<span class="string">&quot;width&quot;</span>, <span class="string">&quot;300px&quot;</span>)
+                    .child(<span class="macro">text_field!</span>({
+                        .value(MutableTValueAdapter::new_simple(<span class="kw-2">&amp;</span>v))
+                    }))
                 }),
-                <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {
-                    .text(<span class="macro">format!</span>(<span class="string">&quot;{}&quot;</span>, v.len()).as_str())
+                <span class="macro">html!</span>(<span class="string">&quot;td&quot;</span>, {
+                    .text_signal(v.signal_ref(|v| v.len().to_string()))
                 }),
             ])
         })
