@@ -2,6 +2,8 @@ use dominator::{clone, html, Dom};
 use futures_signals::signal::Mutable;
 use futures_signals::signal_vec::{MutableVec, SignalVecExt};
 
+use dmat_components::components::input::value_adapters::mutable_t_value_adapter::MutableTValueAdapter;
+use dmat_components::components::input::*;
 use dmat_components::components::*;
 use dmat_components::utils::timeout::timeout;
 
@@ -24,18 +26,21 @@ pub fn table_demo() -> Dom {
     });
 
     let data = MutableVec::new_with_values(vec![
-        "bob".to_string(),
-        "alice".to_string(),
-        "eve".to_string(),
+        Mutable::new("bob".to_string()),
+        Mutable::new("alice".to_string()),
+        Mutable::new("eve".to_string()),
     ]);
     let rows = data.signal_vec_cloned().map(|v| {
         html!("tr", {
             .children(&mut[
-                html!("span", {
-                    .text(v.as_str())
+                html!("td", {
+                    .style("width", "300px")
+                    .child(text_field!({
+                        .value(MutableTValueAdapter::new_simple(&v))
+                    }))
                 }),
-                html!("span", {
-                    .text(format!("{}", v.len()).as_str())
+                html!("td", {
+                    .text_signal(v.signal_ref(|v| v.len().to_string()))
                 }),
             ])
         })

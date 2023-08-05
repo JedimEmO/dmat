@@ -5,10 +5,13 @@ use crate::components::input::value_adapters::value_adapter::ValueAdapter;
 use crate::components::mixins::disabled_signal_mixin;
 use dominator::{clone, events, html, Dom};
 use futures_signals::map_ref;
-use futures_signals::signal::{Mutable, MutableSignalCloned, Signal, SignalExt};
+use futures_signals::signal::{Mutable, Signal, SignalExt};
 
 #[component(render_fn = text_field)]
-pub struct TextField<TValueAdapter: ValueAdapter + 'static = MutableTValueAdapter<String>> {
+pub struct TextField<
+    TValueAdapter: ValueAdapter + 'static = MutableTValueAdapter<String>,
+    TOnFocusChange: Fn(bool) = fn(bool) -> (),
+> {
     #[signal]
     #[default(None)]
     label: Option<Dom>,
@@ -33,10 +36,8 @@ pub struct TextField<TValueAdapter: ValueAdapter + 'static = MutableTValueAdapte
 
     #[default(None)]
     input_id: Option<String>,
-}
 
-pub struct TextFieldOutput {
-    pub has_focus: MutableSignalCloned<bool>,
+    on_focus_change: TOnFocusChange,
 }
 
 /// Creates a text input element for accepting user data
@@ -44,7 +45,7 @@ pub struct TextFieldOutput {
 /// The return tuple contains:
 /// 0: input Dom entry
 /// 1: output of the component, containing a boolean signal for the  validity of the input according to the validator
-pub fn text_field(props: impl TextFieldPropsTrait + 'static) -> (Dom, TextFieldOutput) {
+pub fn text_field(props: impl TextFieldPropsTrait + 'static) -> Dom {
     let TextFieldProps {
         label,
         value,
@@ -53,6 +54,7 @@ pub fn text_field(props: impl TextFieldPropsTrait + 'static) -> (Dom, TextFieldO
         assistive_text,
         claim_focus,
         input_id,
+        on_focus_change,
         apply,
     } = props.take();
 
@@ -67,6 +69,7 @@ pub fn text_field(props: impl TextFieldPropsTrait + 'static) -> (Dom, TextFieldO
         has_focus.clone(),
         claim_focus,
         input_id.clone(),
+        on_focus_change,
     );
 
     let is_valid_combined = map_ref! {
@@ -94,22 +97,17 @@ pub fn text_field(props: impl TextFieldPropsTrait + 'static) -> (Dom, TextFieldO
             }
     };
 
-    (
-        input_wrapper(
-            InputWrapperProps::new()
-                .value_signal(value_combined_signal)
-                .input(input_element)
-                .has_focus_signal(has_focus.signal())
-                .apply(|d| if let Some(a) = apply { a(d) } else { d })
-                .class_name("dmat-input-text-field".to_string())
-                .assistive_text_signal(assistive_text)
-                .is_valid_signal(is_valid_combined)
-                .label_signal(label)
-                .input_id(input_id),
-        ),
-        TextFieldOutput {
-            has_focus: has_focus.signal_cloned(),
-        },
+    input_wrapper(
+        InputWrapperProps::new()
+            .value_signal(value_combined_signal)
+            .input(input_element)
+            .has_focus_signal(has_focus.signal())
+            .apply(|d| if let Some(a) = apply { a(d) } else { d })
+            .class_name("dmat-input-text-field".to_string())
+            .assistive_text_signal(assistive_text)
+            .is_valid_signal(is_valid_combined)
+            .label_signal(label)
+            .input_id(input_id),
     )
 }
 
@@ -121,6 +119,7 @@ fn text_field_input(
     has_focus: Mutable<bool>,
     claim_focus: bool,
     input_id: Option<String>,
+    on_focus_change: Option<impl Fn(bool) + 'static>,
 ) -> Dom {
     let value_signal = value.get_value_signal();
     let value_signal_reset = value.get_value_signal();
@@ -132,6 +131,15 @@ fn text_field_input(
     }));
 
     html!("input", {
+        .apply_if(on_focus_change.is_some(), clone!(has_focus => move|d| {
+            let on_focus_change = on_focus_change.unwrap();
+            d.future(async move {
+                has_focus.signal().for_each(|current_focus| {
+                    on_focus_change(current_focus);
+                    async {}
+                }).await;
+            })
+        }))
         .apply_if(input_id.is_some(), clone!(input_id => move|builder| builder.attr("id", input_id.unwrap().as_str())))
         .apply_if(claim_focus, clone!(has_focus => move|builder| {
             has_focus.set(true);
@@ -190,8 +198,7 @@ mod test {
             .apply(|d| d.attr("id", "testfield"))
         });
 
-        let field_dom = field.0;
-        let _field_out = field.1;
+        let field_dom = field;
 
         dominator::append_dom(
             &web_sys::window()

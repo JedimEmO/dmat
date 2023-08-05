@@ -120,7 +120,7 @@ fn text_input_demo(value: &Mutable<String>) -> Dom {
                                 Some(html!("span", {
                                     .text(format!("Assistive text - {}", cur_val).as_str())
                                 }))))
-                        }).0
+                        })
                     ])
                 }),
                 html!("div", {
@@ -140,7 +140,7 @@ fn text_input_demo(value: &Mutable<String>) -> Dom {
                                 Some(html!("span", {
                                     .text(format!("Assistive text - {}", cur_val).as_str())
                                 }))))
-                        }).0
+                        })
                     ])
                 }),
                 html!("div", {
@@ -150,7 +150,7 @@ fn text_input_demo(value: &Mutable<String>) -> Dom {
                             .label(Some(html!("span", { .text("Always invalid")})))
                             .value(MutableTValueAdapter::new_simple(value))
                             .is_valid(validation_result::ValidationResult::Invalid { message: "Always invalid".to_string() })
-                        }).0
+                        })
                     ])
                 }),
                 html!("div", {
@@ -165,7 +165,7 @@ fn text_input_demo(value: &Mutable<String>) -> Dom {
                                     ValidationResult::Invalid{message: "Sanitized for uppercase characters".to_string()}
                                 }
                             }))
-                        }).0
+                        })
                     ])
                 }),
 
@@ -179,7 +179,7 @@ fn text_input_demo(value: &Mutable<String>) -> Dom {
                                 Some(html!("span", {
                                     .text(format!("{}*2={}", cur_val, cur_val*2).as_str())
                                 }))))
-                        }).0
+                        })
                     ])
                 }),
             ])

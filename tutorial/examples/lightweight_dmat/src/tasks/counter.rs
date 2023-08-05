@@ -14,7 +14,7 @@ pub fn counter() -> Dom {
                 .label(Some(html!("span", { .text("Counter Value")})))
                 .value(MutableTValueAdapter::new_simple(&counter_state))
                 .disabled(true)
-            }).0,
+            }),
             button!({
                 .label("Increment")
                 .style(ButtonStyle::Prominent)

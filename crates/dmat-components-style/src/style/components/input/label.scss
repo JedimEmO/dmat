@@ -12,7 +12,9 @@
 
   & {
     height: map-get-strict($inputs, "input_height");
+    max-width: 600px;
     width: 100%;
+    background: transparent;
   }
 
   &.-invalid > input, & > select {
@@ -22,7 +24,6 @@
 
   & > input, & > select {
     height:$input_baseline;
-    background: transparent;
   }
 
   & > .dmat-floating-label {
