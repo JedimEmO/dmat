@@ -31,6 +31,9 @@ fn switch_demo() -> Dom {
                     html!("span", {.text("Switch: ")}),
                     switch!({
                         .state_signal(state.signal())
+                        .click_handler(clone!(state => move |_| {
+                            state.set(!state.get())
+                        }))
                     })
                 ])}),
                 html!("div", { .children(&mut [
@@ -62,7 +65,13 @@ fn combo_box_demo(value: &Mutable<String>) -> Dom {
                     .data_list_id("demo-list-a".into())
                     .value_signal(value.signal_cloned())
                     .on_change(clone!(value => move |v| value.set(v)))
-                    .is_valid_signal(value.signal_ref(|v| v == "Orange"))
+                    .is_valid_signal(value.signal_ref(|v| {
+                        if v == "Orange" {
+                            ValidationResult::Valid
+                        } else {
+                            ValidationResult::Invalid { message: "I want oranges!".to_string() }
+                        }
+                    }))
                 }),
                 combo_box!({
                     .options(make_select_options())
@@ -70,8 +79,14 @@ fn combo_box_demo(value: &Mutable<String>) -> Dom {
                     .label(Some(html!("span", { .text("Oranges are the best")})))
                     .value_signal(value.signal_cloned())
                     .on_change(clone!(value => move |v| value.set(v)))
-                    .is_valid_signal(value.signal_ref(|v| v == "Orange"))
-                    .error_text(Some(html!("span", {.text("This one accepts oranges")})))
+                    .is_valid_signal(value.signal_ref(|v| {
+                        if v == "Orange" {
+                            ValidationResult::Valid
+                        } else {
+                            ValidationResult::Invalid { message: "I want oranges!".to_string() }
+                        }
+                    }))
+                    .assistive_text(Some(html!("span", { .text ("Oranges are the best")})))
                 }),
                 select!({
                     .options(make_select_options())
@@ -84,7 +99,13 @@ fn combo_box_demo(value: &Mutable<String>) -> Dom {
                     .label(Some(html!("span", { .text("select with assistive text")})))
                     .value_signal(value.signal_cloned())
                     .on_change(clone!(value => move |v| value.set(v)))
-                    .is_valid_signal(value.signal_ref(|v| v == "Banana"))
+                    .is_valid_signal(value.signal_ref(|v| {
+                        if v == "Banana" {
+                            ValidationResult::Valid
+                        } else {
+                            ValidationResult::Invalid { message: "I want bananas!".to_string() }
+                        }
+                    }))
                     .assistive_text(Some(html!("span", { .text("This one likes Bananas")})))
                 }),
             ])
@@ -117,12 +138,17 @@ fn text_input_demo(value: &Mutable<String>) -> Dom {
                         text_field!({
                             .label(Some(html!("span", { .text("With error text")})))
                             .value(MutableTValueAdapter::new_simple(value))
-                            .is_valid_signal(value.signal_ref(|v| v.contains("foobar")))
+                            .is_valid_signal(value.signal_ref(|v| {
+                                if v.contains("foobar") {
+                                    ValidationResult::Valid
+                                } else {
+                                    ValidationResult::Invalid { message: "Must contain foobar".to_string() }
+                                }
+                            }))
                             .assistive_text_signal(map_ref!(let cur_val = value.signal_cloned() =>
                                 Some(html!("span", {
                                     .text(format!("Assistive text - {}", cur_val).as_str())
                                 }))))
-                            .error_text(Some(html!("span", { .text("Accepts string containing `foobar`")})))
                         }).0
                     ])
                 }),
@@ -131,7 +157,7 @@ fn text_input_demo(value: &Mutable<String>) -> Dom {
                         text_field!({
                             .label(Some(html!("span", { .text("Always invalid")})))
                             .value(MutableTValueAdapter::new_simple(value))
-                            .is_valid(false)
+                            .is_valid(validation_result::ValidationResult::Invalid { message: "Always invalid".to_string() })
                         }).0
                     ])
                 }),

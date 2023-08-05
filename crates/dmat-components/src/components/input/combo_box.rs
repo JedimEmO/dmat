@@ -3,6 +3,7 @@ use futures_signals::signal::{Mutable, Signal, SignalExt};
 use futures_signals::signal_vec::{SignalVec, SignalVecExt};
 
 use crate::components::input::input_field::{input_wrapper, InputWrapperProps};
+use crate::components::input::validation_result::ValidationResult;
 use crate::components::input::SelectOption;
 
 #[component(render_fn = combo_box)]
@@ -24,8 +25,8 @@ struct ComboBox<TOnValuePickCb: Fn(String) = fn(String) -> ()> {
     value: String,
 
     #[signal]
-    #[default(true)]
-    is_valid: bool,
+    #[default(ValidationResult::Valid)]
+    is_valid: ValidationResult,
 
     #[signal]
     #[default(false)]
@@ -35,9 +36,8 @@ struct ComboBox<TOnValuePickCb: Fn(String) = fn(String) -> ()> {
     #[default(None)]
     assistive_text: Option<Dom>,
 
-    #[signal]
     #[default(None)]
-    error_text: Option<Dom>,
+    input_id: Option<String>,
 }
 
 /// The combo box is a searchable dropdown or text field with hints, depending on your point of view.
@@ -54,7 +54,7 @@ pub fn combo_box(props: impl ComboBoxPropsTrait + 'static) -> Dom {
         is_valid,
         disabled,
         assistive_text,
-        error_text,
+        input_id,
         apply,
     } = props.take();
 
@@ -64,6 +64,7 @@ pub fn combo_box(props: impl ComboBoxPropsTrait + 'static) -> Dom {
         data_list_id.clone().unwrap().as_str(),
         value_bc.signal_ref(|v| v.clone()),
         on_change,
+        input_id.clone(),
     );
 
     input_wrapper(
@@ -73,12 +74,12 @@ pub fn combo_box(props: impl ComboBoxPropsTrait + 'static) -> Dom {
             .class_name("dmat-input-combo-box".to_string())
             .extra_child(combo_box_datalist(data_list_id.unwrap().as_str(), options))
             .apply(|d| if let Some(a) = apply { d.apply(a) } else { d })
-            .error_text_signal(error_text)
             .assistive_text_signal(assistive_text)
             .disabled_signal(disabled)
             .is_valid_signal(is_valid)
             .label_signal(label)
-            .value_signal(value_bc.signal_ref(|v| v.clone())),
+            .value_signal(value_bc.signal_ref(|v| v.clone()))
+            .input_id(input_id),
     )
 }
 
@@ -87,11 +88,15 @@ fn combo_box_input(
     data_list_id: &str,
     value_signal: impl Signal<Item = String> + 'static,
     on_change: impl Fn(String) + 'static,
+    input_id: Option<String>,
 ) -> (Dom, Mutable<bool>) {
     let has_focus = Mutable::new(false);
 
     (
         html!("input", {
+            .apply_if(input_id.is_some(), |dom_builder| {
+                dom_builder.attr("id", input_id.unwrap().as_str())
+            })
             .class("dmat-input-element")
             .attr("list", data_list_id)
             .prop_signal("value", value_signal)

@@ -1,18 +1,13 @@
 use dominator::{html, Dom};
 use futures_signals::signal::{Signal, SignalExt};
 
-pub fn assistive_text<TAssistiveTextSignal>(
-    assistive_text_signal: TAssistiveTextSignal,
-) -> impl Signal<Item = Option<Dom>>
-where
-    TAssistiveTextSignal: Signal<Item = Option<Dom>> + 'static,
-{
-    assistive_text_signal.map(move |assistive_text| {
-        assistive_text.map(|assistive_child| {
-            html!("div", {
-                .child(assistive_child)
+pub fn assistive_text(
+    assistive_text_signal: impl Signal<Item = Option<Dom>> + 'static,
+) -> impl Signal<Item = Option<Dom>> {
+    assistive_text_signal.map(|assistive_child| {
+        assistive_child.map(|child| html!("div", {
+                .child(child)
                 .class("-assistive-text")
-            })
-        })
+            }))
     })
 }

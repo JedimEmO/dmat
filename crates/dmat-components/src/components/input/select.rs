@@ -1,4 +1,5 @@
 use crate::components::input::input_field::{input_wrapper, InputWrapperProps};
+use crate::components::input::validation_result::ValidationResult;
 use dominator::{events, html, Dom};
 use futures_signals::signal::{Signal, SignalExt};
 use futures_signals::signal_vec::{SignalVec, SignalVecExt};
@@ -28,8 +29,8 @@ pub struct Select<TOnValuePickCb: Fn(String) = fn(String) -> ()> {
     value: String,
 
     #[signal]
-    #[default(true)]
-    is_valid: bool,
+    #[default(ValidationResult::Valid)]
+    is_valid: ValidationResult,
 
     #[signal]
     #[default(false)]
@@ -39,9 +40,8 @@ pub struct Select<TOnValuePickCb: Fn(String) = fn(String) -> ()> {
     #[default(None)]
     assistive_text: Option<Dom>,
 
-    #[signal]
     #[default(None)]
-    error_text: Option<Dom>,
+    input_id: Option<String>,
 }
 
 /// The select component is a dropdown from which the user can chose 1 value
@@ -55,12 +55,17 @@ pub fn select(props: impl SelectPropsTrait + 'static) -> Dom {
         is_valid,
         disabled,
         assistive_text,
-        error_text,
+        input_id,
         apply,
     } = props.take();
 
     let value_bc = value.broadcast();
-    let input_ele = select_input_ele(value_bc.signal_ref(|v| v.clone()), on_change, options);
+    let input_ele = select_input_ele(
+        value_bc.signal_ref(|v| v.clone()),
+        on_change,
+        options,
+        input_id.clone(),
+    );
 
     input_wrapper(
         InputWrapperProps::new()
@@ -68,12 +73,12 @@ pub fn select(props: impl SelectPropsTrait + 'static) -> Dom {
             .has_focus(true)
             .class_name("dmat-input-select".to_string())
             .apply(|d| if let Some(a) = apply { d.apply(a) } else { d })
-            .error_text_signal(error_text)
             .assistive_text_signal(assistive_text)
             .disabled_signal(disabled)
             .is_valid_signal(is_valid)
             .label_signal(label)
-            .value_signal(value_bc.signal_ref(|v| v.clone())),
+            .value_signal(value_bc.signal_ref(|v| v.clone()))
+            .input_id(input_id),
     )
 }
 
@@ -81,8 +86,12 @@ fn select_input_ele(
     value_signal: impl Signal<Item = String> + 'static,
     value_change_cb: impl Fn(String) + 'static,
     options: impl SignalVec<Item = SelectOption> + 'static,
+    input_id: Option<String>,
 ) -> Dom {
     html!("select", {
+        .apply_if(input_id.is_some(), |dom| {
+            dom.attr("id", input_id.unwrap().as_str())
+        })
         .prop_signal("value", value_signal)
         .children_signal_vec(options.map(|v| html!("option", {
             .text(v.display_text.as_str())

@@ -8,8 +8,12 @@ pub fn label_element(
     has_value_signal: impl Signal<Item = bool> + 'static,
     has_focus_signal: impl Signal<Item = bool> + 'static,
     label: impl Signal<Item = Option<Dom>> + 'static,
+    input_id: Option<String>,
 ) -> Dom {
     html!("label", {
+        .apply_if(input_id.is_some(), |dom_builder| {
+            dom_builder.attr("for", input_id.unwrap().as_str())
+        })
         .class_signal(
             "above",
             map_ref!(

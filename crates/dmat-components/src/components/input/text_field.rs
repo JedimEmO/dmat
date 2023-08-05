@@ -4,8 +4,8 @@ use crate::components::input::value_adapters::mutable_t_value_adapter::MutableTV
 use crate::components::input::value_adapters::value_adapter::ValueAdapter;
 use crate::components::mixins::disabled_signal_mixin;
 use dominator::{clone, events, html, Dom};
+use futures_signals::map_ref;
 use futures_signals::signal::{Mutable, MutableSignalCloned, Signal, SignalExt};
-use futures_signals::{map_mut, map_ref};
 
 #[component(render_fn = text_field)]
 pub struct TextField<TValueAdapter: ValueAdapter + 'static = MutableTValueAdapter<String>> {
@@ -17,8 +17,8 @@ pub struct TextField<TValueAdapter: ValueAdapter + 'static = MutableTValueAdapte
     value: TValueAdapter,
 
     #[signal]
-    #[default(true)]
-    is_valid: bool,
+    #[default(ValidationResult::Valid)]
+    is_valid: ValidationResult,
 
     #[signal]
     #[default(false)]
@@ -28,12 +28,11 @@ pub struct TextField<TValueAdapter: ValueAdapter + 'static = MutableTValueAdapte
     #[default(None)]
     assistive_text: Option<Dom>,
 
-    #[signal]
-    #[default(None)]
-    error_text: Option<Dom>,
-
     #[default(false)]
     claim_focus: bool,
+
+    #[default(None)]
+    input_id: Option<String>,
 }
 
 pub struct TextFieldOutput {
@@ -52,8 +51,8 @@ pub fn text_field(props: impl TextFieldPropsTrait + 'static) -> (Dom, TextFieldO
         is_valid,
         disabled,
         assistive_text,
-        error_text,
         claim_focus,
+        input_id,
         apply,
     } = props.take();
 
@@ -67,28 +66,17 @@ pub fn text_field(props: impl TextFieldPropsTrait + 'static) -> (Dom, TextFieldO
         disabled,
         has_focus.clone(),
         claim_focus,
+        input_id.clone(),
     );
 
     let is_valid_combined = map_ref! {
         let is_valid_outer = is_valid,
         let is_valid_sanitized = sanitize_result.signal_cloned()
             => {
-                *is_valid_outer && is_valid_sanitized.is_valid()
-            }
-    };
-
-    let error_text_combined = map_mut! {
-        let error_text_outer = error_text,
-        let error_text_sanitized = sanitize_result.signal_cloned()
-            => {
-                if error_text_outer.is_some() {
-                    error_text_outer.take()
-                } else if let ValidationResult::Invalid { message } = error_text_sanitized {
-                    Some(html!("div", {
-                        .text(message)
-                    }))
+                if !is_valid_outer.is_valid() {
+                    is_valid_outer.clone()
                 } else {
-                    None
+                    is_valid_sanitized.clone()
                 }
             }
     };
@@ -114,10 +102,10 @@ pub fn text_field(props: impl TextFieldPropsTrait + 'static) -> (Dom, TextFieldO
                 .has_focus_signal(has_focus.signal())
                 .apply(|d| if let Some(a) = apply { a(d) } else { d })
                 .class_name("dmat-input-text-field".to_string())
-                .error_text_signal(error_text_combined)
                 .assistive_text_signal(assistive_text)
                 .is_valid_signal(is_valid_combined)
-                .label_signal(label),
+                .label_signal(label)
+                .input_id(input_id),
         ),
         TextFieldOutput {
             has_focus: has_focus.signal_cloned(),
@@ -132,6 +120,7 @@ fn text_field_input(
     disabled_signal: impl Signal<Item = bool> + 'static,
     has_focus: Mutable<bool>,
     claim_focus: bool,
+    input_id: Option<String>,
 ) -> Dom {
     let value_signal = value.get_value_signal();
     let value_signal_reset = value.get_value_signal();
@@ -143,6 +132,7 @@ fn text_field_input(
     }));
 
     html!("input", {
+        .apply_if(input_id.is_some(), clone!(input_id => move|builder| builder.attr("id", input_id.unwrap().as_str())))
         .apply_if(claim_focus, clone!(has_focus => move|builder| {
             has_focus.set(true);
             builder.focused(true)
@@ -180,6 +170,7 @@ mod test {
     use futures_signals::signal::Mutable;
     use wasm_bindgen_test::*;
 
+    use crate::components::input::validation_result::ValidationResult;
     use crate::components::input::value_adapters::mutable_t_value_adapter::MutableTValueAdapter;
     use crate::components::{text_field, TextFieldProps};
 
@@ -189,7 +180,13 @@ mod test {
 
         let field = text_field!({
             .value(MutableTValueAdapter::new_simple(&val))
-            .is_valid_signal(val.signal_ref(|v| v == "hello"))
+            .is_valid_signal(val.signal_ref(|v| {
+                if v == "hello" {
+                    ValidationResult::Valid
+                } else {
+                    ValidationResult::Invalid { message: "not hello".to_string() }
+                }
+            }))
             .apply(|d| d.attr("id", "testfield"))
         });
 
