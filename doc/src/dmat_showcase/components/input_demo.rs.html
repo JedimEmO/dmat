@@ -184,6 +184,26 @@
 <a href="#184" id="184">184</a>
 <a href="#185" id="185">185</a>
 <a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
+<a href="#195" id="195">195</a>
+<a href="#196" id="196">196</a>
+<a href="#197" id="197">197</a>
+<a href="#198" id="198">198</a>
+<a href="#199" id="199">199</a>
+<a href="#200" id="200">200</a>
+<a href="#201" id="201">201</a>
+<a href="#202" id="202">202</a>
+<a href="#203" id="203">203</a>
+<a href="#204" id="204">204</a>
+<a href="#205" id="205">205</a>
+<a href="#206" id="206">206</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{clone, html, Dom};
 <span class="kw">use </span>futures_signals::map_ref;
 <span class="kw">use </span>futures_signals::signal::Mutable;
@@ -217,6 +237,9 @@
                     <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {.text(<span class="string">&quot;Switch: &quot;</span>)}),
                     <span class="macro">switch!</span>({
                         .state_signal(state.signal())
+                        .click_handler(<span class="macro">clone!</span>(state =&gt; <span class="kw">move </span>|<span class="kw">_</span>| {
+                            state.set(!state.get())
+                        }))
                     })
                 ])}),
                 <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, { .children(<span class="kw-2">&amp;mut </span>[
@@ -244,33 +267,40 @@
             .items([
                 <span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;Selection&quot;</span>)}),
                 <span class="macro">combo_box!</span>({
+                    .input_id(<span class="prelude-val">Some</span>(<span class="string">&quot;demo-cbox-1&quot;</span>.into()))
+                    .label(<span class="prelude-val">Some</span>(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;Combo Box&quot;</span>)})))
                     .options(make_select_options())
                     .data_list_id(<span class="string">&quot;demo-list-a&quot;</span>.into())
                     .value_signal(value.signal_cloned())
                     .on_change(<span class="macro">clone!</span>(value =&gt; <span class="kw">move </span>|v| value.set(v)))
-                    .is_valid_signal(value.signal_ref(|v| v == <span class="string">&quot;Orange&quot;</span>))
-                }),
-                <span class="macro">combo_box!</span>({
-                    .options(make_select_options())
-                    .data_list_id(<span class="string">&quot;demo-list-b&quot;</span>.into())
-                    .label(<span class="prelude-val">Some</span>(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;Oranges are the best&quot;</span>)})))
-                    .value_signal(value.signal_cloned())
-                    .on_change(<span class="macro">clone!</span>(value =&gt; <span class="kw">move </span>|v| value.set(v)))
-                    .is_valid_signal(value.signal_ref(|v| v == <span class="string">&quot;Orange&quot;</span>))
-                    .error_text(<span class="prelude-val">Some</span>(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {.text(<span class="string">&quot;This one accepts oranges&quot;</span>)})))
+                    .is_valid_signal(value.signal_ref(|v| {
+                        <span class="kw">if </span>v == <span class="string">&quot;Orange&quot; </span>{
+                            ValidationResult::Valid
+                        } <span class="kw">else </span>{
+                            ValidationResult::Invalid { message: <span class="string">&quot;I want oranges!&quot;</span>.to_string() }
+                        }
+                    }))
                 }),
                 <span class="macro">select!</span>({
+                    .input_id(<span class="prelude-val">Some</span>(<span class="string">&quot;demo-sel-1&quot;</span>.into()))
                     .options(make_select_options())
-                    .label(<span class="prelude-val">Some</span>(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;Pick one&quot;</span>)})))
+                    .label(<span class="prelude-val">Some</span>(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;Select&quot;</span>)})))
                     .value_signal(value.signal_cloned())
                     .on_change(<span class="macro">clone!</span>(value =&gt; <span class="kw">move </span>|v| value.set(v)))
                 }),
                 <span class="macro">select!</span>({
+                    .input_id(<span class="prelude-val">Some</span>(<span class="string">&quot;demo-sel-2&quot;</span>.into()))
                     .options(make_select_options())
-                    .label(<span class="prelude-val">Some</span>(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;select with assistive text&quot;</span>)})))
+                    .label(<span class="prelude-val">Some</span>(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;Select with assistive text&quot;</span>)})))
                     .value_signal(value.signal_cloned())
                     .on_change(<span class="macro">clone!</span>(value =&gt; <span class="kw">move </span>|v| value.set(v)))
-                    .is_valid_signal(value.signal_ref(|v| v == <span class="string">&quot;Banana&quot;</span>))
+                    .is_valid_signal(value.signal_ref(|v| {
+                        <span class="kw">if </span>v == <span class="string">&quot;Banana&quot; </span>{
+                            ValidationResult::Valid
+                        } <span class="kw">else </span>{
+                            ValidationResult::Invalid { message: <span class="string">&quot;I want bananas!&quot;</span>.to_string() }
+                        }
+                    }))
                     .assistive_text(<span class="prelude-val">Some</span>(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;This one likes Bananas&quot;</span>)})))
                 }),
             ])
@@ -288,6 +318,7 @@
                 <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
                     .children(<span class="kw-2">&amp;mut </span>[
                         <span class="macro">text_field!</span>({
+                            .input_id(<span class="prelude-val">Some</span>(<span class="string">&quot;demo-txt-1&quot;</span>.into()))
                             .claim_focus(<span class="bool-val">true</span>)
                             .label(<span class="prelude-val">Some</span>(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;With dynamic help text&quot;</span>)})))
                             .value(MutableTValueAdapter::new_simple(value))
@@ -301,29 +332,37 @@
                 <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
                     .children(<span class="kw-2">&amp;mut </span>[
                         <span class="macro">text_field!</span>({
+                            .input_id(<span class="prelude-val">Some</span>(<span class="string">&quot;demo-txt-2&quot;</span>.into()))
                             .label(<span class="prelude-val">Some</span>(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;With error text&quot;</span>)})))
                             .value(MutableTValueAdapter::new_simple(value))
-                            .is_valid_signal(value.signal_ref(|v| v.contains(<span class="string">&quot;foobar&quot;</span>)))
+                            .is_valid_signal(value.signal_ref(|v| {
+                                <span class="kw">if </span>v.contains(<span class="string">&quot;foobar&quot;</span>) {
+                                    ValidationResult::Valid
+                                } <span class="kw">else </span>{
+                                    ValidationResult::Invalid { message: <span class="string">&quot;Must contain foobar&quot;</span>.to_string() }
+                                }
+                            }))
                             .assistive_text_signal(<span class="macro">map_ref!</span>(<span class="kw">let </span>cur_val = value.signal_cloned() =&gt;
                                 <span class="prelude-val">Some</span>(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, {
                                     .text(<span class="macro">format!</span>(<span class="string">&quot;Assistive text - {}&quot;</span>, cur_val).as_str())
                                 }))))
-                            .error_text(<span class="prelude-val">Some</span>(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;Accepts string containing `foobar`&quot;</span>)})))
                         }).<span class="number">0
                     </span>])
                 }),
                 <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
                     .children(<span class="kw-2">&amp;mut </span>[
                         <span class="macro">text_field!</span>({
+                            .input_id(<span class="prelude-val">Some</span>(<span class="string">&quot;demo-txt-3&quot;</span>.into()))
                             .label(<span class="prelude-val">Some</span>(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;Always invalid&quot;</span>)})))
                             .value(MutableTValueAdapter::new_simple(value))
-                            .is_valid(<span class="bool-val">false</span>)
+                            .is_valid(validation_result::ValidationResult::Invalid { message: <span class="string">&quot;Always invalid&quot;</span>.to_string() })
                         }).<span class="number">0
                     </span>])
                 }),
                 <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
                     .children(<span class="kw-2">&amp;mut </span>[
                         <span class="macro">text_field!</span>({
+                            .input_id(<span class="prelude-val">Some</span>(<span class="string">&quot;demo-txt-4&quot;</span>.into()))
                             .label(<span class="prelude-val">Some</span>(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;Only accepts UPPERCASE characters&quot;</span>)})))
                             .value(MutableTValueAdapter::new_with_sanitizer(value, |v| {
                                 <span class="kw">if </span>v.chars().all(|c| c.is_uppercase()) {
@@ -339,6 +378,7 @@
                 <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
                     .children(<span class="kw-2">&amp;mut </span>[
                         <span class="macro">text_field!</span>({
+                            .input_id(<span class="prelude-val">Some</span>(<span class="string">&quot;demo-txt-5&quot;</span>.into()))
                             .label(<span class="prelude-val">Some</span>(<span class="macro">html!</span>(<span class="string">&quot;span&quot;</span>, { .text(<span class="string">&quot;Only accepts i32 values&quot;</span>)})))
                             .value(MutableTValueAdapter::new_simple(<span class="kw-2">&amp;</span>i32_value))
                             .assistive_text_signal(<span class="macro">map_ref!</span>(<span class="kw">let </span>cur_val = i32_value.signal_cloned() =&gt;

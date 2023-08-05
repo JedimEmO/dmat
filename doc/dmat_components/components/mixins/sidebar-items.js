@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["assistive_text","children_builder","disabled_signal","invalid_signal"]};
+window.SIDEBAR_ITEMS = {"mod":["assistive_text","disabled_signal","invalid_signal"]};

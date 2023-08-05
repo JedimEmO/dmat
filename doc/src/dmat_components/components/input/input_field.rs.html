@@ -89,29 +89,14 @@
 <a href="#89" id="89">89</a>
 <a href="#90" id="90">90</a>
 <a href="#91" id="91">91</a>
-<a href="#92" id="92">92</a>
-<a href="#93" id="93">93</a>
-<a href="#94" id="94">94</a>
-<a href="#95" id="95">95</a>
-<a href="#96" id="96">96</a>
-<a href="#97" id="97">97</a>
-<a href="#98" id="98">98</a>
-<a href="#99" id="99">99</a>
-<a href="#100" id="100">100</a>
-<a href="#101" id="101">101</a>
-<a href="#102" id="102">102</a>
-<a href="#103" id="103">103</a>
-<a href="#104" id="104">104</a>
-<a href="#105" id="105">105</a>
-<a href="#106" id="106">106</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{html, Dom};
-<span class="kw">use </span>futures_signals::map_ref;
-<span class="kw">use </span>futures_signals::signal::{Broadcaster, Mutable, SignalExt};
+<span class="kw">use </span>futures_signals::signal::SignalExt;
 <span class="kw">use </span>futures_signals_utils::split_signal::split_signal;
 
 <span class="kw">use </span><span class="kw">crate</span>::components::input::label::label_element;
+<span class="kw">use </span><span class="kw">crate</span>::components::input::validation_result::ValidationResult;
 
-<span class="kw">use </span><span class="kw">crate</span>::components::mixins::{assistive_text, disabled_signal_mixin, invalid_signal_mixin};
+<span class="kw">use </span><span class="kw">crate</span>::components::mixins::{assistive_text, disabled_signal_mixin};
 
 <span class="attr">#[component(render_fn = input_wrapper)]
 </span><span class="kw">struct </span>InputWrapper {
@@ -126,8 +111,8 @@
     </span>value: String,
 
     <span class="attr">#[signal]
-    #[default(<span class="bool-val">true</span>)]
-    </span>is_valid: bool,
+    #[default(ValidationResult::Valid)]
+    </span>is_valid: ValidationResult,
 
     <span class="attr">#[signal]
     #[default(<span class="bool-val">false</span>)]
@@ -138,15 +123,15 @@
     </span>assistive_text: <span class="prelude-ty">Option</span>&lt;Dom&gt;,
 
     <span class="attr">#[signal]
-    #[default(<span class="prelude-val">None</span>)]
-    </span>error_text: <span class="prelude-ty">Option</span>&lt;Dom&gt;,
-
-    <span class="attr">#[signal]
     #[default(<span class="bool-val">false</span>)]
     </span>has_focus: bool,
 
     class_name: String,
+
     extra_child: Dom,
+
+    <span class="attr">#[default(<span class="prelude-val">None</span>)]
+    </span>input_id: <span class="prelude-ty">Option</span>&lt;String&gt;,
 }
 
 <span class="kw">pub fn </span>input_wrapper(props: <span class="kw">impl </span>InputWrapperPropsTrait + <span class="lifetime">&#39;static</span>) -&gt; Dom {
@@ -157,57 +142,42 @@
         is_valid,
         disabled: disabled_signal,
         assistive_text: assistive_text_signal,
-        error_text: error_text_signal,
         has_focus,
         class_name,
         extra_child,
+        input_id,
         apply,
     } = props.take();
 
-    <span class="kw">let </span>label_element = label_element(value.map(|v| !v.is_empty()), has_focus, label);
+    <span class="kw">let </span>label_element = label_element(value.map(|v| !v.is_empty()), has_focus, label, input_id);
 
-    <span class="kw">let </span>_has_error = Mutable::new(<span class="bool-val">false</span>);
-
-    <span class="kw">let </span>is_valid_broadcast = Broadcaster::new(is_valid);
-
-    <span class="kw">let </span>error_text_signal = error_text_signal.map(|v| {
-        v.map(|v| {
-            <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
-                .class(<span class="string">&quot;-error-text&quot;</span>)
-                .child(v)
-            })
-        })
-    });
-
-    <span class="kw">let </span>(error_text_signal, has_error) = split_signal(error_text_signal, <span class="bool-val">false</span>, |v| v.is_some());
     <span class="kw">let </span>(assistive_text_signal, has_assistive) =
         split_signal(assistive_text_signal, <span class="bool-val">false</span>, |v| v.is_some());
+
     <span class="kw">let </span>assistive = assistive_text(assistive_text_signal);
+    <span class="kw">let </span>(error, has_error) = split_signal(is_valid, <span class="bool-val">false</span>, |v| !v.is_valid());
+    <span class="kw">let </span>error = error.map(|e| <span class="kw">match </span>e {
+        ValidationResult::Invalid { message } =&gt; <span class="prelude-val">Some</span>(<span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
+            .class(<span class="string">&quot;error&quot;</span>)
+            .text(message.as_str())
+        })),
+        <span class="kw">_ </span>=&gt; <span class="prelude-val">None</span>,
+    });
 
     <span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
         .apply_if(apply.is_some(), |d| d.apply(apply.unwrap()))
-        .class_signal(
-            <span class="string">&quot;-with-assistive&quot;</span>,
-            <span class="macro">map_ref!</span>(
-                <span class="kw">let </span>assistive = has_assistive,
-                <span class="kw">let </span>err = has_error,
-                <span class="kw">let </span>is_valid = is_valid_broadcast.signal() =&gt; {
-                    <span class="kw-2">*</span>assistive || (<span class="kw-2">*</span>err &amp;&amp; !<span class="kw-2">*</span>is_valid)
-                }
-            )
-        )
-        .class_signal(
-            <span class="string">&quot;-error&quot;</span>,
-            is_valid_broadcast.signal().map(|v| !v)
-        )
+        .class_signal(<span class="string">&quot;-with-assistive&quot;</span>,has_assistive)
+        .class_signal(<span class="string">&quot;-invalid&quot;</span>, has_error)
         .apply(disabled_signal_mixin(disabled_signal))
-        .apply(invalid_signal_mixin(is_valid_broadcast.signal()))
         .apply_if(class_name.is_some(), |d| d.class(class_name.unwrap()))
         .child(label_element)
         .apply_if(input.is_some(), |d| d.child(input.unwrap()))
         .apply_if(extra_child.is_some(), |d| d.child(extra_child.unwrap()))
-        .child_signal(error_text_signal)
-        .child_signal(assistive)
+        .child(<span class="macro">html!</span>(<span class="string">&quot;div&quot;</span>, {
+            .class(<span class="string">&quot;supporting-text&quot;</span>)
+            .child_signal(assistive)
+            .child_signal(error)
+        }))
     })
 }
 </code></pre></div></section></main></body></html>

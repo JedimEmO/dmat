@@ -98,7 +98,17 @@
 <a href="#98" id="98">98</a>
 <a href="#99" id="99">99</a>
 <a href="#100" id="100">100</a>
+<a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
+<a href="#107" id="107">107</a>
+<a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::components::input::input_field::{input_wrapper, InputWrapperProps};
+<span class="kw">use </span><span class="kw">crate</span>::components::input::validation_result::ValidationResult;
 <span class="kw">use </span>dominator::{events, html, Dom};
 <span class="kw">use </span>futures_signals::signal::{Signal, SignalExt};
 <span class="kw">use </span>futures_signals::signal_vec::{SignalVec, SignalVecExt};
@@ -128,8 +138,8 @@
     </span>value: String,
 
     <span class="attr">#[signal]
-    #[default(<span class="bool-val">true</span>)]
-    </span>is_valid: bool,
+    #[default(ValidationResult::Valid)]
+    </span>is_valid: ValidationResult,
 
     <span class="attr">#[signal]
     #[default(<span class="bool-val">false</span>)]
@@ -139,9 +149,8 @@
     #[default(<span class="prelude-val">None</span>)]
     </span>assistive_text: <span class="prelude-ty">Option</span>&lt;Dom&gt;,
 
-    <span class="attr">#[signal]
-    #[default(<span class="prelude-val">None</span>)]
-    </span>error_text: <span class="prelude-ty">Option</span>&lt;Dom&gt;,
+    <span class="attr">#[default(<span class="prelude-val">None</span>)]
+    </span>input_id: <span class="prelude-ty">Option</span>&lt;String&gt;,
 }
 
 <span class="doccomment">/// The select component is a dropdown from which the user can chose 1 value
@@ -155,12 +164,17 @@
         is_valid,
         disabled,
         assistive_text,
-        error_text,
+        input_id,
         apply,
     } = props.take();
 
     <span class="kw">let </span>value_bc = value.broadcast();
-    <span class="kw">let </span>input_ele = select_input_ele(value_bc.signal_ref(|v| v.clone()), on_change, options);
+    <span class="kw">let </span>input_ele = select_input_ele(
+        value_bc.signal_ref(|v| v.clone()),
+        on_change,
+        options,
+        input_id.clone(),
+    );
 
     input_wrapper(
         InputWrapperProps::new()
@@ -168,12 +182,12 @@
             .has_focus(<span class="bool-val">true</span>)
             .class_name(<span class="string">&quot;dmat-input-select&quot;</span>.to_string())
             .apply(|d| <span class="kw">if let </span><span class="prelude-val">Some</span>(a) = apply { d.apply(a) } <span class="kw">else </span>{ d })
-            .error_text_signal(error_text)
             .assistive_text_signal(assistive_text)
             .disabled_signal(disabled)
             .is_valid_signal(is_valid)
             .label_signal(label)
-            .value_signal(value_bc.signal_ref(|v| v.clone())),
+            .value_signal(value_bc.signal_ref(|v| v.clone()))
+            .input_id(input_id),
     )
 }
 
@@ -181,8 +195,12 @@
     value_signal: <span class="kw">impl </span>Signal&lt;Item = String&gt; + <span class="lifetime">&#39;static</span>,
     value_change_cb: <span class="kw">impl </span>Fn(String) + <span class="lifetime">&#39;static</span>,
     options: <span class="kw">impl </span>SignalVec&lt;Item = SelectOption&gt; + <span class="lifetime">&#39;static</span>,
+    input_id: <span class="prelude-ty">Option</span>&lt;String&gt;,
 ) -&gt; Dom {
     <span class="macro">html!</span>(<span class="string">&quot;select&quot;</span>, {
+        .apply_if(input_id.is_some(), |dom| {
+            dom.attr(<span class="string">&quot;id&quot;</span>, input_id.unwrap().as_str())
+        })
         .prop_signal(<span class="string">&quot;value&quot;</span>, value_signal)
         .children_signal_vec(options.map(|v| <span class="macro">html!</span>(<span class="string">&quot;option&quot;</span>, {
             .text(v.display_text.as_str())

@@ -129,11 +129,17 @@
 <a href="#129" id="129">129</a>
 <a href="#130" id="130">130</a>
 <a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
 </pre></div><pre class="rust"><code><span class="kw">use </span>dominator::{clone, events, html, Dom};
 <span class="kw">use </span>futures_signals::signal::{Mutable, Signal, SignalExt};
 <span class="kw">use </span>futures_signals::signal_vec::{SignalVec, SignalVecExt};
 
 <span class="kw">use </span><span class="kw">crate</span>::components::input::input_field::{input_wrapper, InputWrapperProps};
+<span class="kw">use </span><span class="kw">crate</span>::components::input::validation_result::ValidationResult;
 <span class="kw">use </span><span class="kw">crate</span>::components::input::SelectOption;
 
 <span class="attr">#[component(render_fn = combo_box)]
@@ -155,8 +161,8 @@
     </span>value: String,
 
     <span class="attr">#[signal]
-    #[default(<span class="bool-val">true</span>)]
-    </span>is_valid: bool,
+    #[default(ValidationResult::Valid)]
+    </span>is_valid: ValidationResult,
 
     <span class="attr">#[signal]
     #[default(<span class="bool-val">false</span>)]
@@ -166,9 +172,8 @@
     #[default(<span class="prelude-val">None</span>)]
     </span>assistive_text: <span class="prelude-ty">Option</span>&lt;Dom&gt;,
 
-    <span class="attr">#[signal]
-    #[default(<span class="prelude-val">None</span>)]
-    </span>error_text: <span class="prelude-ty">Option</span>&lt;Dom&gt;,
+    <span class="attr">#[default(<span class="prelude-val">None</span>)]
+    </span>input_id: <span class="prelude-ty">Option</span>&lt;String&gt;,
 }
 
 <span class="doccomment">/// The combo box is a searchable dropdown or text field with hints, depending on your point of view.
@@ -185,7 +190,7 @@
         is_valid,
         disabled,
         assistive_text,
-        error_text,
+        input_id,
         apply,
     } = props.take();
 
@@ -195,6 +200,7 @@
         data_list_id.clone().unwrap().as_str(),
         value_bc.signal_ref(|v| v.clone()),
         on_change,
+        input_id.clone(),
     );
 
     input_wrapper(
@@ -204,12 +210,12 @@
             .class_name(<span class="string">&quot;dmat-input-combo-box&quot;</span>.to_string())
             .extra_child(combo_box_datalist(data_list_id.unwrap().as_str(), options))
             .apply(|d| <span class="kw">if let </span><span class="prelude-val">Some</span>(a) = apply { d.apply(a) } <span class="kw">else </span>{ d })
-            .error_text_signal(error_text)
             .assistive_text_signal(assistive_text)
             .disabled_signal(disabled)
             .is_valid_signal(is_valid)
             .label_signal(label)
-            .value_signal(value_bc.signal_ref(|v| v.clone())),
+            .value_signal(value_bc.signal_ref(|v| v.clone()))
+            .input_id(input_id),
     )
 }
 
@@ -218,11 +224,15 @@
     data_list_id: <span class="kw-2">&amp;</span>str,
     value_signal: <span class="kw">impl </span>Signal&lt;Item = String&gt; + <span class="lifetime">&#39;static</span>,
     on_change: <span class="kw">impl </span>Fn(String) + <span class="lifetime">&#39;static</span>,
+    input_id: <span class="prelude-ty">Option</span>&lt;String&gt;,
 ) -&gt; (Dom, Mutable&lt;bool&gt;) {
     <span class="kw">let </span>has_focus = Mutable::new(<span class="bool-val">false</span>);
 
     (
         <span class="macro">html!</span>(<span class="string">&quot;input&quot;</span>, {
+            .apply_if(input_id.is_some(), |dom_builder| {
+                dom_builder.attr(<span class="string">&quot;id&quot;</span>, input_id.unwrap().as_str())
+            })
             .class(<span class="string">&quot;dmat-input-element&quot;</span>)
             .attr(<span class="string">&quot;list&quot;</span>, data_list_id)
             .prop_signal(<span class="string">&quot;value&quot;</span>, value_signal)

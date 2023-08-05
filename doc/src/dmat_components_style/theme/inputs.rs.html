@@ -37,7 +37,8 @@
     <span class="kw">pub </span>border_radius: String,
     <span class="kw">pub </span>border: String,
     <span class="kw">pub </span>input_height: String,
-    <span class="kw">pub </span>input_height_with_help_text: String,
+    <span class="kw">pub </span>input_baseline: String,
+    <span class="kw">pub </span>invalid_input_background: String,
 }
 
 <span class="kw">impl </span>ToSass <span class="kw">for </span>Inputs {
@@ -46,10 +47,8 @@
             render_sass_property(<span class="string">&quot;border_radius&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.border_radius),
             render_sass_property(<span class="string">&quot;border&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.border),
             render_sass_property(<span class="string">&quot;input_height&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.input_height),
-            render_sass_property(
-                <span class="string">&quot;input_height_with_help_text&quot;</span>,
-                <span class="kw-2">&amp;</span><span class="self">self</span>.input_height_with_help_text,
-            ),
+            render_sass_property(<span class="string">&quot;input_baseline&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.input_baseline),
+            render_sass_property(<span class="string">&quot;invalid_input_background&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.invalid_input_background),
         ])
     }
 }
@@ -59,8 +58,9 @@
         <span class="self">Self </span>{
             border_radius: <span class="string">&quot;5px&quot;</span>.to_string(),
             border: <span class="string">&quot;1px solid black&quot;</span>.to_string(),
-            input_height: <span class="string">&quot;45px&quot;</span>.to_string(),
-            input_height_with_help_text: <span class="string">&quot;30px&quot;</span>.to_string(),
+            input_height: <span class="string">&quot;60px&quot;</span>.to_string(),
+            input_baseline: <span class="string">&quot;45px&quot;</span>.to_string(),
+            invalid_input_background: <span class="string">&quot;rgba(255, 100, 100, 0.1)&quot;</span>.to_string(),
         }
     }
 }
