@@ -1154,6 +1154,7 @@ $example-app:("colors": ("primary": #263238,
     outline: none;
     width: 100%;
     height: $input_baseline;
+    padding-left: 12px;
   }
 
   & > .dmat-floating-label {
