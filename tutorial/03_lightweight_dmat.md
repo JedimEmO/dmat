@@ -19,7 +19,7 @@ pub fn counter() -> Dom {
     let counter_state = Mutable::new(0);
 
     list!({
-        .rows([
+        .items([
             button!({
                 .label("Increment")
                 .style(ButtonStyle::Prominent)
@@ -67,14 +67,14 @@ fn dynamic_list() {
     let rows = data.signal_cloned().map(|v| html!("div", { .text(v) }));
     
     list!({
-        .rows_signal(rows)
+        .items_signal_vec(rows)
     })
 }
 ```
 
 This allows us to make data driven lists.
 It's also important to understand that since we use signal vec, *only* rows changed in the vector will be updated in the list.
-This is generally true for all collection components in DMAT and dominator, and is the basis for the incredible rendering performance you can achieve!
+This is generally true for all collection components in DMAT and DOMINATOR, and is the basis for the incredible rendering performance you can achieve!
 
 ### Button
 
@@ -109,4 +109,4 @@ Don't be afraid to look at the [DMAT docs](https://jedimemo.github.io/dmat/doc/d
 
 ---
 ----
-Previous: [Hello World!](./hello_world.md) Next: [Farmers Market](./farmers_market.md) 
+Previous: [Hello World!](./02_hello_world.md) Next: [Farmers Market](./04_farmers_market.md) 

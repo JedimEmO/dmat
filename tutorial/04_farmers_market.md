@@ -205,4 +205,4 @@ It would certainly be possible to pass in at `&'static ProductService` instead o
 We know, by looking at the function signature, that this component is not mutating the product vector!
 
 ----
-Previous: [Lightweight Dmat](./lightweight_dmat.md) 
+Previous: [Lightweight Dmat](./03_lightweight_dmat.md) 

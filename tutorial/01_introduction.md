@@ -39,4 +39,4 @@ Instructions on how to do this can be found [in the nvm repository](https://gith
 
 ---
 
-Next: [Hello, World!](hello_world.md)
+Next: [Hello, World!](02_hello_world.md)
