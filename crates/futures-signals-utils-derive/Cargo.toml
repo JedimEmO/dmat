@@ -10,6 +10,10 @@ proc-macro = true
 name = "futures-signals-utils-derive-test"
 path = "tests/test.rs"
 
+[[test]]
+name = "futures-signals-utils-derive-test-event-sourced"
+path = "tests/test_event_sourced.rs"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]

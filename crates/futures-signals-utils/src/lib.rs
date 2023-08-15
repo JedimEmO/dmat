@@ -1,9 +1,11 @@
+pub mod event_sourced;
 pub mod split_signal;
 
 use futures_signals::signal::Mutable;
 use futures_signals::signal_vec::MutableVec;
 use std::cmp::min;
 
+use futures_signals::signal_map::MutableBTreeMap;
 use std::hash::Hash;
 use std::ops::Deref;
 
@@ -84,6 +86,39 @@ where
         }
 
         self.swap(&other);
+    }
+}
+
+impl<T, K> Updateable for MutableBTreeMap<K, T>
+where
+    T: Updateable + Clone,
+    K: PartialEq + Ord + Clone,
+{
+    fn update(&self, other: Self) {
+        let keys_to_remove = self
+            .lock_ref()
+            .iter()
+            .filter(|(k, _)| !other.lock_ref().contains_key(k))
+            .map(|(k, _)| k.clone())
+            .collect::<Vec<_>>();
+
+        let mut self_lock = self.lock_mut();
+        for key in keys_to_remove {
+            self_lock.remove(&key);
+        }
+
+        for (key, value) in other
+            .lock_mut()
+            .iter()
+            .map(|(k, v)| (k.clone(), (*v).clone()))
+        {
+            match self_lock.get(&key) {
+                Some(existing) => existing.update(value),
+                None => {
+                    self_lock.insert_cloned(key.clone(), value);
+                }
+            }
+        }
     }
 }
 
