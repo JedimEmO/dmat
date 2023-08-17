@@ -31,5 +31,5 @@ pub fn event_sourced(input: TokenStream) -> TokenStream {
 
     let struct_info = parse_event_sourced_struct(inp).unwrap();
 
-    render_event_sourced_derive(struct_info).into()
+    render_event_sourced_derive(struct_info)
 }

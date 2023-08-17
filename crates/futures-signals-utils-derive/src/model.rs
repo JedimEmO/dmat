@@ -2,12 +2,13 @@ use anyhow::anyhow;
 use proc_macro2::Ident;
 use syn::{Data, DataStruct, DeriveInput, GenericArgument, PathArguments, Type};
 
-#[derive(PartialEq)]
+#[derive(Clone, PartialEq)]
 pub enum MutableFieldFlag {
     UpdateInPlaceCloned,
     UpdateInPlaceCopied,
 }
 
+#[derive(Clone)]
 pub struct MutableField {
     pub ident: Ident,
     pub ty: Type,

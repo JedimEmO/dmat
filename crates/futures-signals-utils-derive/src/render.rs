@@ -60,15 +60,13 @@ pub fn render_mutable_updater(mutable_field: &MutableField, other_wrapper: bool)
                 futures_signals_utils::update_vec_direct_copied(&self.#ident, #ident);
             }
         }
+    } else if other_wrapper {
+        quote! {
+            self.#ident.update(other.#ident);
+        }
     } else {
-        if other_wrapper {
-            quote! {
-                self.#ident.update(other.#ident);
-            }
-        } else {
-            quote! {
-                self.#ident.update(#ident);
-            }
+        quote! {
+            self.#ident.update(#ident);
         }
     }
 }

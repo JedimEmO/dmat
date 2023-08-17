@@ -27,7 +27,7 @@ pub fn parse_event_sourced_struct(input: DeriveInput) -> anyhow::Result<EventSou
     Ok(EventSourcedStructInfo {
         name: input.ident,
         mutables,
-        event_sourced
+        event_sourced,
     })
 }
 
