@@ -2,22 +2,67 @@
 mod test {
     use dominator_testing::async_yield;
     use futures_signals::signal::Mutable;
+    use futures_signals::signal_map::MutableBTreeMap;
     use futures_signals::signal_vec::SignalVecExt;
     use futures_signals::signal_vec::{MutableVec, VecDiff};
-    use futures_signals_utils::event_sourced::EventSourced;
+    use futures_signals_utils::event_sourced::{EventSourced, MutableBTreeMapEvent};
     use futures_signals_utils::Updateable;
     use futures_signals_utils_derive::EventSourced;
 
-    #[derive(EventSourced, Default)]
-    struct Inner {}
+    #[derive(EventSourced, Default, Debug, Clone)]
+    pub struct Inner {
+        some_inner_value: Mutable<String>,
+    }
 
     #[derive(EventSourced, Default)]
-    struct Top {
+    pub struct Top {
         some_val: Mutable<String>,
         #[update_in_place_copied]
         some_vec: MutableVec<i32>,
         #[event_sourced]
         inner: Inner,
+        #[event_sourced]
+        inner_map: MutableBTreeMap<String, Inner>,
+    }
+
+    #[test]
+    fn nested_event_sourced() {
+        let top = Top::default();
+
+        top.drain_events([
+            TopEvent::UpdateInner(InnerEvent::Update(InnerEventUpdate {
+                some_inner_value: Some(Mutable::new("testing inner".to_string())),
+            })),
+            TopEvent::UpdateInnerMap(MutableBTreeMapEvent::Insert {
+                key: "hello".to_string(),
+                value: Inner::default(),
+            }),
+            TopEvent::UpdateInnerMap(MutableBTreeMapEvent::Insert {
+                key: "tmp".to_string(),
+                value: Inner::default(),
+            }),
+            TopEvent::UpdateInnerMap(MutableBTreeMapEvent::Event {
+                key: "hello".to_string(),
+                event: InnerEvent::Update(InnerEventUpdate {
+                    some_inner_value: Some(Mutable::new("testing inner 2".to_string())),
+                }),
+            }),
+            TopEvent::UpdateInnerMap(MutableBTreeMapEvent::Remove {
+                key: "tmp".to_string(),
+            }),
+        ]);
+
+        assert_eq!(top.inner_map.lock_ref().len(), 1);
+        assert!(top.inner_map.lock_ref().get("tmp").is_none());
+        assert_eq!(
+            top.inner_map
+                .lock_ref()
+                .get("hello")
+                .unwrap()
+                .some_inner_value
+                .get_cloned(),
+            "testing inner 2"
+        );
     }
 
     #[test]

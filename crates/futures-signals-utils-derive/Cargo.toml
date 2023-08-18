@@ -19,7 +19,6 @@ path = "tests/test_event_sourced.rs"
 [dependencies]
 anyhow = { workspace = true }
 convert_case = "0.6.0"
-futures-signals = { wokspace = true }
 futures-signals-utils = { path = "../futures-signals-utils" }
 proc-macro2 = "^1.0.63"
 syn = { version = "^2.0.22", features = ["full"] }
@@ -27,5 +26,6 @@ quote = "^1.0.29"
 
 [dev-dependencies]
 dominator-testing = { path = "../dominator-testing" }
+futures-signals = { workspace = true }
 wasm-bindgen-test = { workspace = true }
 wasm-bindgen-futures = { workspace = true }

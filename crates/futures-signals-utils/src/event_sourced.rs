@@ -1,4 +1,4 @@
-pub trait EventSourced {
+pub trait EventSourced: Default {
     type Event;
 
     fn apply_event(&self, event: Self::Event);
@@ -8,4 +8,10 @@ pub trait EventSourced {
             self.apply_event(event);
         }
     }
+}
+
+pub enum MutableBTreeMapEvent<K, T: EventSourced> {
+    Insert { key: K, value: T },
+    Remove { key: K },
+    Event { key: K, event: T::Event },
 }

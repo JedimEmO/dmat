@@ -13,7 +13,7 @@ dominator = { workspace = true }
 dmat-components = { path = "../../crates/dmat-components" }
 dmat-vis = { path = "../../crates/dmat-vis" }
 futures = "0.3.19"
-futures-signals = "0.3.15"
+futures-signals = { workspace = true }
 js-sys = "0.3.44"
 lipsum = "0.8.0"
 log = { workspace = true }
