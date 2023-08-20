@@ -6,17 +6,18 @@ mod test {
     use futures_signals::signal_vec::SignalVecExt;
     use futures_signals::signal_vec::{MutableVec, VecDiff};
     use futures_signals_utils::event_sourced::{EventSourced, MutableBTreeMapEvent};
-    use futures_signals_utils::prelude::MutableVecEvent;
+    use futures_signals_utils::prelude::{EventStore, MutableVecEvent};
     use futures_signals_utils::updateable::Updateable;
     use futures_signals_utils_derive::EventSourced;
     use serde::{Deserialize, Serialize};
+    use std::time::UNIX_EPOCH;
 
     #[derive(EventSourced, Default, Debug, Clone, Serialize, Deserialize)]
     pub struct Inner {
         some_inner_value: Mutable<String>,
     }
 
-    #[derive(EventSourced, Default, Serialize, Deserialize)]
+    #[derive(EventSourced, Default, Debug, Serialize, Deserialize, Clone)]
     pub struct Top {
         some_val: Mutable<String>,
         #[update_in_place_copied]
@@ -27,6 +28,102 @@ mod test {
         inner_map: MutableBTreeMap<String, Inner>,
         #[event_sourced]
         inner_vec: MutableVec<Inner>,
+    }
+
+    #[test]
+    fn test_event_store() {
+        let mut top_store: EventStore<Top> = EventStore::new();
+
+        let events = vec![
+            TopEvent::UpdateInner(InnerEvent::Update(InnerEventUpdate {
+                some_inner_value: Some(Mutable::new("testing inner".to_string())),
+            })),
+            TopEvent::UpdateInnerMap(MutableBTreeMapEvent::Insert {
+                key: "hello".to_string(),
+                value: Inner::default(),
+            }),
+            TopEvent::UpdateInnerMap(MutableBTreeMapEvent::Insert {
+                key: "tmp".to_string(),
+                value: Inner::default(),
+            }),
+            TopEvent::UpdateInnerMap(MutableBTreeMapEvent::Event {
+                key: "hello".to_string(),
+                event: InnerEvent::Update(InnerEventUpdate {
+                    some_inner_value: Some(Mutable::new("testing inner 2".to_string())),
+                }),
+            }),
+            TopEvent::UpdateInnerMap(MutableBTreeMapEvent::Remove {
+                key: "tmp".to_string(),
+            }),
+            // Make two inners in the inner vec, delete one, and update the other
+            TopEvent::UpdateInnerVec(MutableVecEvent::Replace {
+                values: vec![Inner::default(), Inner::default()],
+            }),
+            TopEvent::UpdateInnerVec(MutableVecEvent::Remove { index: 0 }),
+            TopEvent::UpdateInnerVec(MutableVecEvent::Event {
+                index: 0,
+                event: InnerEvent::Update(InnerEventUpdate {
+                    some_inner_value: Some(Mutable::new("testing inner 3".to_string())),
+                }),
+            }),
+            TopEvent::UpdateInnerVec(MutableVecEvent::Insert {
+                index: 0,
+                value: Inner::default(),
+            }),
+            TopEvent::UpdateInnerVec(MutableVecEvent::Event {
+                index: 0,
+                event: InnerEvent::Update(InnerEventUpdate {
+                    some_inner_value: Some(Mutable::new("testing inner 4".to_string())),
+                }),
+            }),
+        ];
+
+        for event in events.into_iter() {
+            top_store.push_event(
+                event,
+                std::time::SystemTime::now()
+                    .duration_since(UNIX_EPOCH)
+                    .unwrap()
+                    .as_secs(),
+            );
+        }
+
+        assert_eq!(
+            top_store
+                .current_value
+                .lock_ref()
+                .inner_vec
+                .lock_ref()
+                .len(),
+            2
+        );
+
+        top_store.undo(2);
+
+        assert_eq!(
+            top_store
+                .current_value
+                .lock_ref()
+                .inner_vec
+                .lock_ref()
+                .len(),
+            1
+        );
+
+        println!("{:?}", top_store.current_value.lock_ref());
+        assert_eq!(
+            top_store
+                .current_value
+                .lock_ref()
+                .inner_vec
+                .lock_ref()
+                .get(0)
+                .unwrap()
+                .some_inner_value
+                .lock_ref()
+                .clone(),
+            "testing inner 3".to_string()
+        );
     }
 
     #[test]

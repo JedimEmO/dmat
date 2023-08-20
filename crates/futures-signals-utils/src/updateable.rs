@@ -69,7 +69,7 @@ where
 
 impl<T> Updateable for Mutable<T>
 where
-    T: PartialEq,
+    T: PartialEq + Clone,
 {
     fn update(&self, other: Self) {
         {
@@ -81,7 +81,7 @@ where
             }
         }
 
-        self.swap(&other);
+        self.set(other.get_cloned());
     }
 }
 
