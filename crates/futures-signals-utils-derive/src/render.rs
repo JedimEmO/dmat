@@ -39,11 +39,11 @@ pub fn render_mutable_updater(mutable_field: &MutableField, other_wrapper: bool)
     {
         if other_wrapper {
             quote! {
-                futures_signals_utils::update_vec_direct_cloned(&self.#ident, other.#ident);
+                futures_signals_utils::updateable::update_vec_direct_cloned(&self.#ident, other.#ident);
             }
         } else {
             quote! {
-                futures_signals_utils::update_vec_direct_cloned(&self.#ident, #ident);
+                futures_signals_utils::updateable::update_vec_direct_cloned(&self.#ident, #ident);
             }
         }
     } else if mutable_field
@@ -53,11 +53,11 @@ pub fn render_mutable_updater(mutable_field: &MutableField, other_wrapper: bool)
     {
         if other_wrapper {
             quote! {
-                futures_signals_utils::update_vec_direct_copied(&self.#ident, other.#ident);
+                futures_signals_utils::updateable::update_vec_direct_copied(&self.#ident, other.#ident);
             }
         } else {
             quote! {
-                futures_signals_utils::update_vec_direct_copied(&self.#ident, #ident);
+                futures_signals_utils::updateable::update_vec_direct_copied(&self.#ident, #ident);
             }
         }
     } else if other_wrapper {

@@ -4,7 +4,7 @@ mod test {
     use futures_signals::signal::Mutable;
     use futures_signals::signal_vec::MutableVec;
     use futures_signals::signal_vec::SignalVecExt;
-    use futures_signals_utils::Updateable;
+    use futures_signals_utils::prelude::*;
     use futures_signals_utils_derive::*;
     use std::default::Default;
     use wasm_bindgen_futures::spawn_local;

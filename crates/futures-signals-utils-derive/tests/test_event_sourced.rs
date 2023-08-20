@@ -6,7 +6,7 @@ mod test {
     use futures_signals::signal_vec::SignalVecExt;
     use futures_signals::signal_vec::{MutableVec, VecDiff};
     use futures_signals_utils::event_sourced::{EventSourced, MutableBTreeMapEvent};
-    use futures_signals_utils::Updateable;
+    use futures_signals_utils::updateable::Updateable;
     use futures_signals_utils_derive::EventSourced;
 
     #[derive(EventSourced, Default, Debug, Clone)]

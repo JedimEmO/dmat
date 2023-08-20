@@ -1,6 +1,6 @@
 use futures_signals::signal::Mutable;
 use futures_signals::signal_vec::MutableVec;
-use futures_signals_utils::Updateable;
+use futures_signals_utils::updateable::Updateable;
 use futures_signals_utils_derive::Updateable;
 use std::future::Future;
 
