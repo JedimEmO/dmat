@@ -8,13 +8,14 @@ mod test {
     use futures_signals_utils::event_sourced::{EventSourced, MutableBTreeMapEvent};
     use futures_signals_utils::updateable::Updateable;
     use futures_signals_utils_derive::EventSourced;
+    use serde::{Deserialize, Serialize};
 
-    #[derive(EventSourced, Default, Debug, Clone)]
+    #[derive(EventSourced, Default, Debug, Clone, Serialize, Deserialize)]
     pub struct Inner {
         some_inner_value: Mutable<String>,
     }
 
-    #[derive(EventSourced, Default)]
+    #[derive(EventSourced, Default, Serialize, Deserialize)]
     pub struct Top {
         some_val: Mutable<String>,
         #[update_in_place_copied]
@@ -29,7 +30,7 @@ mod test {
     fn nested_event_sourced() {
         let top = Top::default();
 
-        top.drain_events([
+        let events = [
             TopEvent::UpdateInner(InnerEvent::Update(InnerEventUpdate {
                 some_inner_value: Some(Mutable::new("testing inner".to_string())),
             })),
@@ -50,7 +51,12 @@ mod test {
             TopEvent::UpdateInnerMap(MutableBTreeMapEvent::Remove {
                 key: "tmp".to_string(),
             }),
-        ]);
+        ];
+
+        let event_log_json = serde_json::to_string(&events).unwrap();
+        let events: Vec<TopEvent> = serde_json::from_str(&event_log_json).unwrap();
+
+        top.drain_events(events);
 
         assert_eq!(top.inner_map.lock_ref().len(), 1);
         assert!(top.inner_map.lock_ref().get("tmp").is_none());

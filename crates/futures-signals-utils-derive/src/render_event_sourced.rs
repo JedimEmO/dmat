@@ -204,11 +204,12 @@ fn render_event_sourced_event_type(info: &EventSourcedStructInfo) -> TokenStream
     });
 
     quote! {
-        #[derive(Default)]
+        #[derive(Default, Serialize, Deserialize)]
         pub struct #event_update_type_name {
             #(#field_update_fields)*
         }
 
+        #[derive(Serialize, Deserialize)]
         pub enum #event_type_name {
             #update_event,
             #(#vec_enum_events)*

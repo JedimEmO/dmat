@@ -1,3 +1,5 @@
+use serde::{Deserialize, Serialize};
+
 pub trait EventSourced: Default {
     type Event;
 
@@ -10,6 +12,7 @@ pub trait EventSourced: Default {
     }
 }
 
+#[derive(Serialize, Deserialize)]
 pub enum MutableBTreeMapEvent<K, T: EventSourced> {
     Insert { key: K, value: T },
     Remove { key: K },

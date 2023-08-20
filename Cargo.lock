@@ -803,6 +803,7 @@ name = "futures-signals-utils"
 version = "0.1.0"
 dependencies = [
  "futures-signals",
+ "serde",
 ]
 
 [[package]]
@@ -816,6 +817,8 @@ dependencies = [
  "futures-signals-utils",
  "proc-macro2 1.0.66",
  "quote 1.0.32",
+ "serde",
+ "serde_json",
  "syn 2.0.28",
  "wasm-bindgen-futures",
  "wasm-bindgen-test",
