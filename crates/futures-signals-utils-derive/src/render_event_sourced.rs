@@ -75,6 +75,36 @@ fn render_events_sourced_impl(info: &EventSourcedStructInfo) -> TokenStream {
                     }
                 }
             }
+        } else if f.is_mutable_vec() {
+            quote! {
+                Self::Event::#field_name(update) => {
+                    match update {
+                        futures_signals_utils::event_sourced::MutableVecEvent::Insert{index, value} => {
+                            let mut s = self.#field_ident.lock_mut();
+                            s.insert_cloned(index, value);
+                        }
+                        futures_signals_utils::event_sourced::MutableVecEvent::Remove{index} => {
+                            let mut s = self.#field_ident.lock_mut();
+                            s.remove(index);
+                        }
+                        futures_signals_utils::event_sourced::MutableVecEvent::Event{index, event} => {
+                            self.#field_ident.lock_ref().get(index).unwrap().apply_event(event);
+                        }
+                        futures_signals_utils::event_sourced::MutableVecEvent::Swap{index, other} => {
+                            let mut s = self.#field_ident.lock_mut();
+                            s.swap(index, other);
+                        }
+                        futures_signals_utils::event_sourced::MutableVecEvent::Clear => {
+                            let mut s = self.#field_ident.lock_mut();
+                            s.clear();
+                        }
+                        futures_signals_utils::event_sourced::MutableVecEvent::Replace{values} => {
+                            let mut s = self.#field_ident.lock_mut();
+                            s.replace_cloned(values);
+                        }
+                    }
+                }
+            }
         } else {
             quote! {
                 Self::Event::#field_name(update) => {
@@ -104,6 +134,11 @@ fn render_events_sourced_struct_impl(info: &EventSourcedStructInfo) -> TokenStre
     let struct_name = info.name.clone();
     let non_vec_mutables = info.mutables.iter().filter(|f| !f.is_mutable_vec());
     let vec_mutables = info.mutables.iter().filter(|f| f.is_mutable_vec());
+    let vec_event_sourced = info.event_sourced.iter().filter(|f| f.is_mutable_vec());
+    let btreemap_event_sourced = info
+        .event_sourced
+        .iter()
+        .filter(|f| f.is_mutable_btree_map());
 
     let mut_vec_signals = vec_mutables.clone().map(|f| {
         let ident = f.ident.clone();
@@ -119,16 +154,79 @@ fn render_events_sourced_struct_impl(info: &EventSourcedStructInfo) -> TokenStre
         }
     });
 
+    let event_vec_signals = vec_event_sourced.clone().map(|f| {
+        let ident = f.ident.clone();
+        let ty = f
+            .get_vec_type_arg()
+            .expect("vec field must be a template argument");
+
+        let signal = Ident::new(format!("{}_signal_vec", ident).as_str(), ident.span());
+        quote! {
+            pub fn #signal(&self) -> impl futures_signals::signal_vec::SignalVec<Item=#ty> {
+                self.#ident.signal_vec_cloned()
+            }
+        }
+    });
+
+    let btreemap_signals = btreemap_event_sourced.clone().map(|f| {
+        let ident = f.ident.clone();
+        let (tk, tv)= f
+            .get_btreemap_type_args()
+            .expect("btree map field must be a template argument");
+
+        let signal_cloned = Ident::new(format!("{}_signal_map_cloned", ident).as_str(), ident.span());
+        let entries_cloned = Ident::new(format!("{}_entries_cloned", ident).as_str(), ident.span());
+        quote! {
+            pub fn #signal_cloned(&self) -> impl futures_signals::signal_map::SignalMap<Key=#tk, Value=#tv> {
+                self.#ident.signal_map_cloned()
+            }
+
+            pub fn #entries_cloned(&self) -> impl futures_signals::signal_vec::SignalVec<Item=(#tk, #tv)> {
+                self.#ident.entries_cloned()
+            }
+        }
+    });
+
     let vec_slice_getters = vec_mutables.clone().map(|f| {
         let ident = f.ident.clone();
         let ty = f
             .template_argument()
             .expect("Mutable field must be a template argument");
 
-        let get_ident = Ident::new(format!("get_{}_lock_ref", ident).as_str(), ident.span());
+        let get_ident = Ident::new(format!("{}_lock_ref", ident).as_str(), ident.span());
 
         quote! {
             pub fn #get_ident(&self) -> futures_signals::signal_vec::MutableVecLockRef<#ty> {
+                self.#ident.lock_ref()
+            }
+        }
+    });
+
+    let event_vec_slice_getters = vec_event_sourced.clone().map(|f| {
+        let ident = f.ident.clone();
+        let ty = f
+            .get_vec_type_arg()
+            .expect("vec field must be a template argument");
+
+        let get_ident = Ident::new(format!("{}_lock_ref", ident).as_str(), ident.span());
+
+        quote! {
+            pub fn #get_ident(&self) -> futures_signals::signal_vec::MutableVecLockRef<#ty> {
+                self.#ident.lock_ref()
+            }
+        }
+    });
+
+    let btreemap_lock_ref = btreemap_event_sourced.clone().map(|f| {
+        let ident = f.ident.clone();
+        let (tk, tv) = f
+            .get_btreemap_type_args()
+            .expect("btree map field must be a template argument");
+
+        let get_ident = Ident::new(format!("{}_lock_ref", ident).as_str(), ident.span());
+
+        quote! {
+            pub fn #get_ident(&self) -> futures_signals::signal_map::MutableBTreeMapLockRef<#tk, #tv> {
                 self.#ident.lock_ref()
             }
         }
@@ -141,7 +239,7 @@ fn render_events_sourced_struct_impl(info: &EventSourcedStructInfo) -> TokenStre
             .expect("Mutable field must be a template argument");
 
         let signal = Ident::new(format!("{}_signal", ident).as_str(), ident.span());
-        let get_ident = Ident::new(format!("get_{}", ident).as_str(), ident.span());
+        let get_ident = Ident::new(format!("{}_cloned", ident).as_str(), ident.span());
         quote! {
             pub fn #get_ident(&self) -> #ty {
                 self.#ident.get_cloned()
@@ -158,6 +256,10 @@ fn render_events_sourced_struct_impl(info: &EventSourcedStructInfo) -> TokenStre
             #(#mut_signals)*
             #(#mut_vec_signals)*
             #(#vec_slice_getters)*
+            #(#event_vec_signals)*
+            #(#event_vec_slice_getters)*
+            #(#btreemap_signals)*
+            #(#btreemap_lock_ref)*
         }
     }
 }
@@ -198,6 +300,11 @@ fn render_event_sourced_event_type(info: &EventSourcedStructInfo) -> TokenStream
                 .get_btreemap_type_args()
                 .expect("MutableBTreeMap field must have two template arguments");
             quote! { #field_name(MutableBTreeMapEvent<#key_ty, #value_ty>),}
+        } else if f.is_mutable_vec() {
+            let vec_type = f
+                .get_vec_type_arg()
+                .expect("MutableVec field must have one template argument");
+            quote! { #field_name(MutableVecEvent<#vec_type>), }
         } else {
             quote! { #field_name(<#field_type as EventSourced>::Event), }
         }

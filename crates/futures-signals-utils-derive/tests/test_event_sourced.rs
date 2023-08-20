@@ -6,6 +6,7 @@ mod test {
     use futures_signals::signal_vec::SignalVecExt;
     use futures_signals::signal_vec::{MutableVec, VecDiff};
     use futures_signals_utils::event_sourced::{EventSourced, MutableBTreeMapEvent};
+    use futures_signals_utils::prelude::MutableVecEvent;
     use futures_signals_utils::updateable::Updateable;
     use futures_signals_utils_derive::EventSourced;
     use serde::{Deserialize, Serialize};
@@ -24,6 +25,8 @@ mod test {
         inner: Inner,
         #[event_sourced]
         inner_map: MutableBTreeMap<String, Inner>,
+        #[event_sourced]
+        inner_vec: MutableVec<Inner>,
     }
 
     #[test]
@@ -51,6 +54,27 @@ mod test {
             TopEvent::UpdateInnerMap(MutableBTreeMapEvent::Remove {
                 key: "tmp".to_string(),
             }),
+            // Make two inners in the inner vec, delete one, and update the other
+            TopEvent::UpdateInnerVec(MutableVecEvent::Replace {
+                values: vec![Inner::default(), Inner::default()],
+            }),
+            TopEvent::UpdateInnerVec(MutableVecEvent::Remove { index: 0 }),
+            TopEvent::UpdateInnerVec(MutableVecEvent::Event {
+                index: 0,
+                event: InnerEvent::Update(InnerEventUpdate {
+                    some_inner_value: Some(Mutable::new("testing inner 3".to_string())),
+                }),
+            }),
+            TopEvent::UpdateInnerVec(MutableVecEvent::Insert {
+                index: 0,
+                value: Inner::default(),
+            }),
+            TopEvent::UpdateInnerVec(MutableVecEvent::Event {
+                index: 0,
+                event: InnerEvent::Update(InnerEventUpdate {
+                    some_inner_value: Some(Mutable::new("testing inner 4".to_string())),
+                }),
+            }),
         ];
 
         let event_log_json = serde_json::to_string(&events).unwrap();
@@ -59,7 +83,7 @@ mod test {
         top.drain_events(events);
 
         assert_eq!(top.inner_map.lock_ref().len(), 1);
-        assert!(top.inner_map.lock_ref().get("tmp").is_none());
+        assert!(top.inner_map_lock_ref().get("tmp").is_none());
         assert_eq!(
             top.inner_map
                 .lock_ref()
@@ -69,6 +93,30 @@ mod test {
                 .get_cloned(),
             "testing inner 2"
         );
+
+        assert_eq!(
+            top.inner_vec
+                .lock_ref()
+                .get(0)
+                .unwrap()
+                .some_inner_value
+                .get_cloned(),
+            "testing inner 4"
+        );
+
+        top.apply_event(TopEvent::UpdateInnerVec(MutableVecEvent::Swap {
+            index: 0,
+            other: 1,
+        }));
+
+        assert_eq!(
+            top.inner_vec_lock_ref()[0].some_inner_value.get_cloned(),
+            "testing inner 3"
+        );
+
+        top.apply_event(TopEvent::UpdateInnerVec(MutableVecEvent::Clear));
+
+        assert_eq!(top.inner_vec_lock_ref().len(), 0);
     }
 
     #[test]
@@ -97,7 +145,7 @@ mod test {
         assert_eq!(top.some_vec.lock_ref().len(), 1);
         assert_eq!(top.some_vec.lock_ref()[0], 6);
 
-        assert_eq!(top.get_some_val(), "hello");
+        assert_eq!(top.some_val_cloned(), "hello");
     }
 
     #[test]
@@ -120,7 +168,7 @@ mod test {
         top.drain_events(events);
 
         assert_eq!(top.some_val.get_cloned(), "world");
-        assert_eq!(top.get_some_vec_lock_ref().as_slice(), [6]);
+        assert_eq!(top.some_vec_lock_ref().as_slice(), [6]);
     }
 
     #[wasm_bindgen_test::wasm_bindgen_test]

@@ -18,3 +18,13 @@ pub enum MutableBTreeMapEvent<K, T: EventSourced> {
     Remove { key: K },
     Event { key: K, event: T::Event },
 }
+
+#[derive(Serialize, Deserialize)]
+pub enum MutableVecEvent<T: EventSourced + Clone> {
+    Insert { index: usize, value: T },
+    Remove { index: usize },
+    Event { index: usize, event: T::Event },
+    Swap { index: usize, other: usize },
+    Clear,
+    Replace { values: Vec<T> },
+}

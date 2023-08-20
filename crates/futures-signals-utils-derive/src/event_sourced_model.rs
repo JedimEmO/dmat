@@ -27,6 +27,14 @@ impl EventSourcedField {
         false
     }
 
+    pub fn is_mutable_vec(&self) -> bool {
+        if let Type::Path(path) = &self.ty {
+            return path.path.segments.iter().any(|s| s.ident == "MutableVec");
+        }
+
+        false
+    }
+
     pub fn get_btreemap_type_args(&self) -> anyhow::Result<(Type, Type)> {
         if let Type::Path(path) = &self.ty {
             if let Some(segment) = path
@@ -48,6 +56,20 @@ impl EventSourcedField {
         }
 
         Err(anyhow!("expected MutableBTreeMap<K, V>"))
+    }
+
+    pub fn get_vec_type_arg(&self) -> anyhow::Result<Type> {
+        if let Type::Path(path) = &self.ty {
+            if let Some(segment) = path.path.segments.iter().find(|s| s.ident == "MutableVec") {
+                if let syn::PathArguments::AngleBracketed(args) = &segment.arguments {
+                    if let Some(syn::GenericArgument::Type(value_type)) = args.args.iter().next() {
+                        return Ok(value_type.clone());
+                    }
+                }
+            }
+        }
+
+        Err(anyhow!("expected MutableVec<T>"))
     }
 }
 
