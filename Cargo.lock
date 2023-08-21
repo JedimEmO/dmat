@@ -804,6 +804,7 @@ version = "0.1.0"
 dependencies = [
  "futures-signals",
  "serde",
+ "serde_json",
 ]
 
 [[package]]

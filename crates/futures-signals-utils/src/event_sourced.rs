@@ -14,7 +14,7 @@ pub trait EventSourced: Default {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Event<TEvent> {
     pub sequence_number: u64,
     pub timestamp: u64,
@@ -68,22 +68,34 @@ impl<T: EventSourced + Clone + Serialize + for<'a> Deserialize<'a>> EventStore<T
         self.current_value.set(snapshot);
     }
 
-    pub fn redo(&mut self, _count: usize) {}
+    pub fn redo(&mut self, count: usize) {
+        for _ in 0..count {
+            if let Some(event) = self.undone_events.pop() {
+                let event_data_copy = serde_json::to_string(&event.data).unwrap();
+                let event_data_copy: T::Event = serde_json::from_str(&event_data_copy).unwrap();
+                self.current_value.lock_ref().apply_event(event_data_copy);
+                self.next_sequence_number = event.sequence_number + 1;
+                self.events.push(event);
+            }
+        }
+    }
 
     pub fn push_event(&mut self, event_data: T::Event, timestamp: u64) {
         self.undone_events.clear();
         let seq = self.next_sequence_number;
         self.next_sequence_number += 1;
 
+        let data_copy = serde_json::to_string(&event_data).unwrap();
+        let data_copy: T::Event = serde_json::from_str(&data_copy).unwrap();
+
         let event = Event {
             sequence_number: seq,
             timestamp,
-            data: event_data,
+            data: data_copy,
         };
 
-        self.current_value
-            .lock_ref()
-            .apply_event(event.data.clone());
+        self.current_value.lock_ref().apply_event(event_data);
+
         self.events.push(event);
     }
 

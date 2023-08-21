@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 futures-signals = { workspace = true }
 serde = { workspace = true }
+serde_json = { workspace = true }

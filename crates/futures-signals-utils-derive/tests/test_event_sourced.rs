@@ -110,7 +110,6 @@ mod test {
             1
         );
 
-        println!("{:?}", top_store.current_value.lock_ref());
         assert_eq!(
             top_store
                 .current_value
@@ -123,6 +122,34 @@ mod test {
                 .lock_ref()
                 .clone(),
             "testing inner 3".to_string()
+        );
+
+        top_store.redo(1);
+
+        assert_eq!(
+            top_store
+                .current_value
+                .lock_ref()
+                .inner_vec
+                .lock_ref()
+                .len(),
+            2
+        );
+
+        top_store.redo(1);
+
+        assert_eq!(
+            top_store
+                .current_value
+                .lock_ref()
+                .inner_vec
+                .lock_ref()
+                .get(0)
+                .unwrap()
+                .some_inner_value
+                .lock_ref()
+                .clone(),
+            "testing inner 4".to_string()
         );
     }
 
