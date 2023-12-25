@@ -24,6 +24,7 @@
 
   & > input, & > select {
     height:$input_baseline;
+    border-radius: $border_radius;
   }
 
   & > .dmat-floating-label {
