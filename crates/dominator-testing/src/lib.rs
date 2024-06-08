@@ -36,6 +36,7 @@ where
     }));
 }
 
+#[cfg(target_arch = "wasm32")]
 pub fn get_elements_by_class_name(class_name: &str) -> Vec<Element> {
     let mut out = vec![];
 
