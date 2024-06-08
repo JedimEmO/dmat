@@ -1113,6 +1113,7 @@ $example-app:("colors": ("primary": #263238,
 
   & > input, & > select {
     height:$input_baseline;
+    border-radius: $border_radius;
   }
 
   & > .dmat-floating-label {
