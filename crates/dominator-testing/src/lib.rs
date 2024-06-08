@@ -15,7 +15,6 @@ pub fn mount_test_dom(dom: Dom) {
     );
 }
 
-///
 pub fn test_dyn_element_by_id<T, F>(id: &str, tester: F)
 where
     F: FnOnce(&T),
