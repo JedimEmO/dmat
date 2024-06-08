@@ -42,6 +42,7 @@ pub fn scrim(props: impl ScrimPropsTrait + 'static) -> Dom {
 }
 
 #[cfg(test)]
+#[cfg(target_arch = "wasm32")]
 mod test {
     use dominator::{clone, html};
     use futures_signals::signal::Mutable;

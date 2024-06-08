@@ -15,7 +15,6 @@ pub fn mount_test_dom(dom: Dom) {
     );
 }
 
-///
 pub fn test_dyn_element_by_id<T, F>(id: &str, tester: F)
 where
     F: FnOnce(&T),
@@ -36,6 +35,7 @@ where
     }));
 }
 
+#[cfg(target_arch = "wasm32")]
 pub fn get_elements_by_class_name(class_name: &str) -> Vec<Element> {
     let mut out = vec![];
 
