@@ -95,14 +95,16 @@ pub fn button(button_props: impl ButtonPropsTrait + 'static) -> Dom {
 
 #[cfg(test)]
 mod test {
+    use std::time::Duration;
     use dominator::{clone, events, html};
     use futures_signals::signal::Mutable;
     use futures_signals::signal::SignalExt;
+    use wasm_bindgen::{JsCast, UnwrapThrowExt};
     use wasm_bindgen_test::*;
     use web_sys::{HtmlButtonElement, HtmlElement};
 
     use crate::components::button::*;
-    use dominator_testing::{async_yield, mount_test_dom, test_dyn_element_by_id};
+    use dominator_testing::{as_html_element, async_yield, barrier, mount_test_dom, test_dyn_element_by_id};
 
     #[wasm_bindgen_test]
     async fn button_test() {
@@ -135,23 +137,21 @@ mod test {
 
         assert_eq!(counter.get(), 1);
 
-        async_yield().await;
-
-        test_dyn_element_by_id("test-button", |ele: &HtmlButtonElement| {
-            assert!(ele.disabled());
-        });
+        barrier(|| {
+            dominator::get_id("test-button").dyn_ref::<HtmlButtonElement>().unwrap_throw().disabled()
+        }, Duration::from_millis(5), "some test button").await.unwrap_throw();
     }
 }
 
 /// Shorthand for creating a button with a label text
 impl<
-        TcontentSignal: futures_signals::signal::Signal<Item = Dom>,
-        FClickCallback: Fn(events::Click),
-        TdisabledSignal: futures_signals::signal::Signal<Item = bool>,
-        TApplyFn: FnOnce(
-            dominator::DomBuilder<web_sys::HtmlElement>,
-        ) -> dominator::DomBuilder<web_sys::HtmlElement>,
-    > ButtonProps<TcontentSignal, FClickCallback, TdisabledSignal, TApplyFn>
+    TcontentSignal: futures_signals::signal::Signal<Item=Dom>,
+    FClickCallback: Fn(events::Click),
+    TdisabledSignal: futures_signals::signal::Signal<Item=bool>,
+    TApplyFn: FnOnce(
+        dominator::DomBuilder<web_sys::HtmlElement>,
+    ) -> dominator::DomBuilder<web_sys::HtmlElement>,
+> ButtonProps<TcontentSignal, FClickCallback, TdisabledSignal, TApplyFn>
 {
     pub fn label(
         self,

@@ -1,4 +1,6 @@
+use web_time::Duration;
 use dominator::Dom;
+use thiserror::Error;
 use wasm_bindgen::{JsCast, JsValue};
 use wasm_bindgen_futures::JsFuture;
 use web_sys::{Element, HtmlElement};
@@ -67,4 +69,26 @@ pub async fn async_yield() {
     JsFuture::from(js_sys::Promise::resolve(&JsValue::null()))
         .await
         .unwrap();
+}
+
+#[derive(Error, Debug)]
+pub enum DominatorTestingError {
+    #[error("Timeout error waiting for {0}")]
+    BarrierTimeOut(String)
+}
+
+pub async fn barrier(mut expr: impl FnMut() -> bool, timeout: Duration, label: impl ToString) -> Result<(), DominatorTestingError> {
+    let started_at = web_time::Instant::now();
+
+    loop {
+        async_yield().await;
+
+        if expr() {
+            break Ok(());
+        }
+
+        if started_at.elapsed() > timeout {
+            break Err(DominatorTestingError::BarrierTimeOut(label.to_string()));
+        }
+    }
 }

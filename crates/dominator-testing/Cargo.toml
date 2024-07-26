@@ -8,10 +8,11 @@ license-file = "LICENSE.md"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-dominator = "0.5.23"
-rust-embed = "6.3.0"
-web-sys = { version = "0.3.55", features = ["console", "Document", "HtmlDocument", "EventTarget", "HtmlSelectElement", "Element", "Window"] }
+dominator.workspace = true
+thiserror.workspace = true
+web-sys = { workspace = true, features = ["console", "Document", "HtmlDocument", "EventTarget", "HtmlSelectElement", "Element", "Window"] }
 wasm-bindgen.workspace = true
 wasm-bindgen-test = { workspace = true }
 wasm-bindgen-futures.workspace = true
-js-sys = "0.3.56"
+web-time.workspace = true
+js-sys.workspace = true
