@@ -13,16 +13,16 @@ doctest = false
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
 dmat-utils = { path = "../dmat-utils" }
-dominator = "0.5.23"
+dominator = "^0.5.23"
 dominator-component-macros = { path = "../dominator-component-macros" }
-futures = "0.3.19"
+futures = "^0.3.19"
 futures-signals = { workspace = true }
 futures-signals-utils = { path = "../futures-signals-utils" }
-futures-util = "0.3.19"
-pin-project = "1.0.10"
+futures-util = "^0.3.19"
+pin-project = "^1.0.10"
 wasm-bindgen.workspace = true
 wasm-bindgen-futures.workspace = true
-web-sys = { version = "0.3.55", features = ["console", "Document", "DomRect", "HtmlDocument", "HtmlCollection", "HtmlButtonElement", "EventTarget", "HtmlSelectElement", "Element", "Window"] }
+web-sys = { version = "^0.3.55", features = ["console", "Document", "DomRect", "HtmlDocument", "HtmlCollection", "HtmlButtonElement", "EventTarget", "HtmlSelectElement", "Element", "Window"] }
 
 [dev-dependencies]
 dominator-testing = { path = "../dominator-testing" }
