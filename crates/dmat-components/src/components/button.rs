@@ -99,12 +99,12 @@ mod test {
     use dominator::{clone, events, html};
     use futures_signals::signal::Mutable;
     use futures_signals::signal::SignalExt;
-    use wasm_bindgen::{JsCast, UnwrapThrowExt};
     use wasm_bindgen_test::*;
-    use web_sys::{HtmlButtonElement, HtmlElement};
+    use web_sys::{HtmlElement};
 
     use crate::components::button::*;
-    use dominator_testing::{as_html_element, async_yield, barrier, mount_test_dom, test_dyn_element_by_id};
+    use dominator_testing::{async_yield, mount_test_dom, test_dyn_element_by_id};
+    use dominator_testing::dom_testing::{Condition, wait_for_query_selector_all_condition};
 
     #[wasm_bindgen_test]
     async fn button_test() {
@@ -137,9 +137,11 @@ mod test {
 
         assert_eq!(counter.get(), 1);
 
+        wait_for_query_selector_all_condition("#test-button[disabled]", Condition::AtLeastCount(1), Duration::from_millis(200)).await.unwrap();
+        /*
         barrier(|| {
             dominator::get_id("test-button").dyn_ref::<HtmlButtonElement>().unwrap_throw().disabled()
-        }, Duration::from_millis(5), "some test button").await.unwrap_throw();
+        }, Duration::from_millis(5), "some test button").await.unwrap_throw();*/
     }
 }
 

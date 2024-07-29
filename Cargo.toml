@@ -17,7 +17,7 @@ wasm-bindgen = { version = "^0.2.87", features = ["serde-serialize"] }
 wasm-bindgen-futures = "^0.4.28"
 wasm-bindgen-test = "^0.3.28"
 wasm-logger = "^0.2"
-web-sys = { version = "^0.3.55", features = ["DocumentFragment", "Storage", "Url", "console", "Window", "Request", "Response", "RequestInit", "SvgAnimationElement"] }
+web-sys = { version = "^0.3.55", features = ["DocumentFragment", "Storage", "Url", "console", "Window", "Request", "Response", "RequestInit", "SvgAnimationElement", "NodeList", "HtmlCollection"] }
 web-time = "^1.1.0"
 
 [workspace]

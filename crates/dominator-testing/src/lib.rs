@@ -1,3 +1,5 @@
+pub mod dom_testing;
+
 use web_time::Duration;
 use dominator::Dom;
 use thiserror::Error;
